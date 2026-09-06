@@ -6,7 +6,7 @@ on:
     branches: ['bench/preset-13']
     paths:
       - '.github/workflows/preset-model-benchmark.yml'
-      - '.lab/preset-benchmark-v5.mjs'
+      - '.lab/preset-benchmark-v6.mjs'
       - 'fixtures/preset-benchmark/**'
 
 permissions:
@@ -24,79 +24,47 @@ jobs:
     steps:
       - name: Checkout benchmark branch
         uses: actions/checkout@v4
-
       - name: Prepare isolated real SillyTavern
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf "$ST_DIR" "$LAB_EVIDENCE_DIR"
-          mkdir -p "$LAB_EVIDENCE_DIR"
+          rm -rf "$ST_DIR" "$LAB_EVIDENCE_DIR"; mkdir -p "$LAB_EVIDENCE_DIR"
           git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
           git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
           git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
           test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
           printf 'repository=%s\nsha=%s\nsillytavern_commit=%s\n' "$GITHUB_REPOSITORY" "$GITHUB_SHA" "$ST_COMMIT" > "$LAB_EVIDENCE_DIR/run-context.txt"
-          cd "$ST_DIR"
-          npm ci
-
+          cd "$ST_DIR"; npm ci
       - name: Start isolated SillyTavern
         shell: bash
         run: |
           set -euo pipefail
-          cd "$ST_DIR"
-          nohup node server.js --listen --port 8000 --disableCsrf > "$LAB_EVIDENCE_DIR/sillytavern-runtime.log" 2>&1 &
-          echo $! > /tmp/lingqi-sillytavern.pid
-          for i in $(seq 1 90); do
-            if curl -fsS --max-time 2 "$LAB_ST_URL/" >/dev/null 2>&1; then
-              echo "real SillyTavern reachable"
-              exit 0
-            fi
-            if ! kill -0 "$(cat /tmp/lingqi-sillytavern.pid)" 2>/dev/null; then
-              cat "$LAB_EVIDENCE_DIR/sillytavern-runtime.log"
-              exit 1
-            fi
-            sleep 1
-          done
-          cat "$LAB_EVIDENCE_DIR/sillytavern-runtime.log"
-          exit 1
-
+          cd "$ST_DIR"; nohup node server.js --listen --port 8000 --disableCsrf > "$LAB_EVIDENCE_DIR/sillytavern-runtime.log" 2>&1 & echo $! > /tmp/lingqi-sillytavern.pid
+          for i in $(seq 1 90); do curl -fsS --max-time 2 "$LAB_ST_URL/" >/dev/null 2>&1 && exit 0; kill -0 "$(cat /tmp/lingqi-sillytavern.pid)" 2>/dev/null || { cat "$LAB_EVIDENCE_DIR/sillytavern-runtime.log"; exit 1; }; sleep 1; done; exit 1
       - name: Capture real browser evidence
         shell: bash
         run: |
           set -euo pipefail
           CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser || true)"
-          if [ -n "$CHROME_BIN" ]; then
-            "$CHROME_BIN" --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --window-size=1440,1000 --screenshot="$LAB_EVIDENCE_DIR/sillytavern-home.png" "$LAB_ST_URL/" >/tmp/lingqi-chrome.log 2>&1 || true
-          fi
-          curl -fsS "$LAB_ST_URL/" -o "$LAB_EVIDENCE_DIR/sillytavern-home.full.html"
-          head -c 100000 "$LAB_EVIDENCE_DIR/sillytavern-home.full.html" > "$LAB_EVIDENCE_DIR/sillytavern-home.html"
-          rm -f "$LAB_EVIDENCE_DIR/sillytavern-home.full.html"
-          test -s "$LAB_EVIDENCE_DIR/sillytavern-home.html"
-
-      - name: Run focused GLM Gemini v5 through SillyTavern backend
+          [ -z "$CHROME_BIN" ] || "$CHROME_BIN" --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --window-size=1440,1000 --screenshot="$LAB_EVIDENCE_DIR/sillytavern-home.png" "$LAB_ST_URL/" >/tmp/lingqi-chrome.log 2>&1 || true
+          curl -fsS "$LAB_ST_URL/" -o "$LAB_EVIDENCE_DIR/sillytavern-home.full.html"; head -c 100000 "$LAB_EVIDENCE_DIR/sillytavern-home.full.html" > "$LAB_EVIDENCE_DIR/sillytavern-home.html"; rm -f "$LAB_EVIDENCE_DIR/sillytavern-home.full.html"; test -s "$LAB_EVIDENCE_DIR/sillytavern-home.html"
+      - name: Run late-position GLM Gemini v6 through SillyTavern backend
         shell: bash
         env:
           YOUZI: ${{ secrets.YOUZI }}
           GG: ${{ secrets.GG }}
         run: |
           set -euo pipefail
-          node --check .lab/preset-benchmark-v5.mjs
-          node .lab/preset-benchmark-v5.mjs
-
+          node --check .lab/preset-benchmark-v6.mjs
+          node .lab/preset-benchmark-v6.mjs
       - name: Record runtime tail
         if: always()
         shell: bash
-        run: |
-          tail -n 500 "$LAB_EVIDENCE_DIR/sillytavern-runtime.log" > "$LAB_EVIDENCE_DIR/sillytavern-runtime-tail.log" 2>/dev/null || true
-
+        run: tail -n 500 "$LAB_EVIDENCE_DIR/sillytavern-runtime.log" > "$LAB_EVIDENCE_DIR/sillytavern-runtime-tail.log" 2>/dev/null || true
       - name: Stop isolated runtime
         if: always()
         shell: bash
-        run: |
-          if [ -f /tmp/lingqi-sillytavern.pid ]; then
-            kill "$(cat /tmp/lingqi-sillytavern.pid)" 2>/dev/null || true
-          fi
-
+        run: '[ ! -f /tmp/lingqi-sillytavern.pid ] || kill "$(cat /tmp/lingqi-sillytavern.pid)" 2>/dev/null || true'
       - name: Upload benchmark evidence
         if: always()
         uses: actions/upload-artifact@v4
