@@ -19,20 +19,22 @@ async function post(url, body, timeout=210000){
   finally{clearTimeout(t)}
 }
 async function loadCard(){
-  const dir=path.join(ROOT,'fixtures/nsfw');
-  const names=(await fs.readdir(dir)).filter(n=>/^card\.part\d+\.b64$/.test(n)).sort();
-  let s=''; for(const n of names)s+=(await fs.readFile(path.join(dir,n),'utf8')).trim();
-  return zlib.gunzipSync(Buffer.from(s,'base64'));
+  const file=path.join(ROOT,'fixtures/nsfw/shaoxiang-focus-card.json');
+  const buf=await fs.readFile(file);
+  const parsed=JSON.parse(buf.toString('utf8'));
+  if(parsed?.data?.name!=='霜痕哨所') throw new Error(`focus card name mismatch: ${parsed?.data?.name}`);
+  const comments=(parsed?.data?.character_book?.entries||[]).map(e=>String(e.comment||'').trim());
+  for(const need of ['哨向结合','唐启明','唐启明NSFW','李业','李业NSFW']) if(!comments.includes(need)) throw new Error(`focus card missing ${need}`);
+  return buf;
 }
 async function importCard(){
   const buf=await loadCard();
   const sha=crypto.createHash('sha256').update(buf).digest('hex');
-  if(sha!=='b78cc858f627500ae0d6a7a638d21151d9adaab09a7f771a0dff199cf847591c') throw new Error(`card json sha mismatch ${sha}`);
-  const form=new FormData(); form.set('file_type','json'); form.set('avatar',new Blob([buf],{type:'application/json'}),'哨向.json');
+  const form=new FormData(); form.set('file_type','json'); form.set('avatar',new Blob([buf],{type:'application/json'}),'哨向-focus.json');
   const r=await fetch(`${BASE}/api/characters/import`,{method:'POST',body:form}); if(!r.ok) throw new Error(`card import ${r.status}: ${(await r.text()).slice(0,300)}`);
   const all=await post(`${BASE}/api/characters/all`,{},30000); const card=all.data.find(c=>c?.name==='霜痕哨所'||c?.data?.name==='霜痕哨所');
   if(!card) throw new Error('imported 霜痕哨所 missing');
-  await fs.writeFile(path.join(OUT,'actual-card-import.json'),JSON.stringify({name:card?.data?.name||card?.name,json_sha256:sha,source_png_sha256:'5b6affc8204e7adc533cbe97f80841a00e1745a1dda089542818c1373a40eef1',entries:card?.data?.character_book?.entries?.length||0},null,2));
+  await fs.writeFile(path.join(OUT,'actual-card-import.json'),JSON.stringify({name:card?.data?.name||card?.name,json_sha256:sha,source:'user-uploaded 哨向.png -> extracted embedded chara_card_v3 focus JSON',entries:card?.data?.character_book?.entries?.length||0},null,2));
   return card;
 }
 function entry(card,name){const e=(card?.data?.character_book?.entries||[]).find(x=>String(x.comment||'').trim()===name);if(!e)throw new Error(`missing entry ${name}`);return String(e.content||'')}
@@ -71,6 +73,6 @@ const tests=[
  {name:'glm_credible_ordinary',scene:'tang_ordinary',bundle:['❎丨角色反应可信']},
 ];
 const out=[];for(let i=0;i<tests.length;i++){if(i)await sleep(YOUZI.delay);const t=tests[i], built=build(sc[t.scene],t.bundle);const r={...t,prompt_chars:built.messages.reduce((n,m)=>n+String(m.content||'').length,0),prompt_messages:built.messages.length};try{Object.assign(r,await gen(built.messages));r.status=r.content?'ok':(r.reasoning?'reasoning_only':'no_text');r.stats=stats(r.content)}catch(e){r.status='exception';r.error=String(e)}out.push(r);console.log(t.name,r.status,r.http_status,r.stats?.chars||0,'reason',r.reasoning?.length||0,r.finish_reason)}
-await fs.writeFile(path.join(OUT,'model-bundle-human-v1.json'),JSON.stringify({schema:1,model:'[B]glm-5.3-flash',provider:'YOUZI',real_sillytavern:true,actual_card:true,card_source:'user-uploaded 哨向.png -> exact embedded JSON',thinking:'disabled via ST custom_include_body',tests:out},null,2));
+await fs.writeFile(path.join(OUT,'model-bundle-human-v1.json'),JSON.stringify({schema:2,model:'[B]glm-5.3-flash',provider:'YOUZI',real_sillytavern:true,actual_card:true,card_source:'user-uploaded 哨向.png -> exact embedded JSON focus extract',thinking:'disabled via ST custom_include_body',tests:out},null,2));
 await fs.writeFile(path.join(OUT,'model-bundle-human-v1-summary.txt'),out.map(r=>`${r.name}: ${r.status} HTTP=${r.http_status} ms=${r.elapsed_ms} prompt=${r.prompt_chars} content=${r.stats?.chars||0} reason=${r.reasoning?.length||0} finish=${r.finish_reason} stats=${JSON.stringify(r.stats||{})}`).join('\n')+'\n');
 if(out.some(r=>r.status!=='ok'))process.exitCode=2;
