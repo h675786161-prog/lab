@@ -18,21 +18,26 @@ jobs:
       LAB_ST_URL: http://127.0.0.1:8000
       LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence
       ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      FOCUS_CARD_SHA: a75f0ddef4d90f37dfc4841aad88f5f134cdfb08b9734c5f23db4219ecc7cd7e
     steps:
       - uses: actions/checkout@v4
       - name: Verify benchmark fixtures before starting lab
         shell: bash
         run: |
           set -euo pipefail
+          test "$(sha256sum fixtures/nsfw/shaoxiang-focus-card.json | awk '{print $1}')" = "$FOCUS_CARD_SHA"
           cat fixtures/nsfw/glm-pack.part*.b64 | base64 -d | gzip -t
           node --input-type=module <<'NODE'
           import fs from 'node:fs'; import zlib from 'node:zlib';
+          const card=JSON.parse(fs.readFileSync('fixtures/nsfw/shaoxiang-focus-card.json','utf8'));
+          const names=card?.data?.character_book?.entries?.map(x=>x.comment) || [];
+          for (const k of ['哨向结合','唐启明','唐启明NSFW','李业','李业NSFW']) if(!names.includes(k)) throw new Error('missing card entry '+k);
           const ns=fs.readdirSync('fixtures/nsfw').filter(n=>/^glm-pack\.part\d+\.b64$/.test(n)).sort();
           const b=ns.map(n=>fs.readFileSync('fixtures/nsfw/'+n,'utf8').trim()).join('');
           const p=JSON.parse(zlib.gunzipSync(Buffer.from(b,'base64')).toString('utf8'));
           for (const k of ['❎丨角色反应可信','🤔丨生动化']) if(!p.candidates?.[k]) throw new Error('missing candidate '+k);
           if(!p.adapters?.['✴️丨GLM模型适配']) throw new Error('missing GLM adapter');
-          console.log('fixture ok', ns.length, p.sequence?.length, Object.keys(p.candidates||{}));
+          console.log('fixtures ok', {card_entries:names,pack_parts:ns.length,sequence:p.sequence?.length,candidates:Object.keys(p.candidates||{})});
           NODE
       - name: Prepare isolated real SillyTavern
         shell: bash
@@ -62,6 +67,9 @@ jobs:
           YOUZI: ${{ secrets.YOUZI }}
         run: |
           set -euo pipefail
+          rm -f fixtures/nsfw/card.part*.b64
+          gzip -c fixtures/nsfw/shaoxiang-focus-card.json | base64 -w0 > fixtures/nsfw/card.part00.b64
+          sed -i "s/b78cc858f627500ae0d6a7a638d21151d9adaab09a7f771a0dff199cf847591c/$FOCUS_CARD_SHA/" .lab/model-bundle-human-v1.mjs
           node --check .lab/model-bundle-human-v1.mjs
           node .lab/model-bundle-human-v1.mjs
       - name: Runtime tail
