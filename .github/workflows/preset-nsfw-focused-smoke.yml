@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/preset-nsfw-focused-smoke.yml'
       - '.lab/focused-nsfw-smoke.mjs'
+      - '.lab/focused-nsfw-smoke-v2.mjs'
       - 'fixtures/nsfw/**'
   workflow_dispatch:
 
@@ -55,8 +56,8 @@ jobs:
           GG: ${{ secrets.GG }}
         run: |
           set -euo pipefail
-          node --check .lab/focused-nsfw-smoke.mjs
-          node .lab/focused-nsfw-smoke.mjs
+          node --check .lab/focused-nsfw-smoke-v2.mjs
+          node .lab/focused-nsfw-smoke-v2.mjs
       - name: Record runtime tail
         if: always()
         shell: bash
