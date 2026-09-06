@@ -1,0 +1,17 @@
+import fs from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+import path from 'node:path';
+const ROOT=process.env.GITHUB_WORKSPACE||process.cwd();
+const srcPath=path.join(ROOT,'.lab','focused-nsfw-smoke.mjs');
+const tmpPath=path.join(ROOT,'.lab','_focused-nsfw-smoke-v2.generated.mjs');
+let src=await fs.readFile(srcPath,'utf8');
+src=src.replace(/async function loadCard\(\)\{[\s\S]*?\}\nasync function post/,`async function loadCard(){return fs.readFile(path.join(ROOT,'fixtures/nsfw/shaoxiang-focus-card.json'));}\nasync function post`);
+src=src.replace("const GLM=`<glm>别表演写作技巧；省略过渡；一句能成立就别追加解释。不要把人物状态写成动作+身体反应+心理翻译三联。事实宁少勿补。</glm>`;","const GLM=`<glm>别表演写作技巧；省略过渡；一句能成立就别追加解释。不要把人物状态写成动作+身体反应+心理翻译三联。事实宁少勿补。压掉否定→改判解释腔：只有真在纠正已出现的错误判断时才用“不是A而是B/并非A而是B/看似A其实B”；多数情况直接陈述B，连续段落不用同构句。</glm>`;");
+src=src.replace("wrap:(t.match(/这一刻|真正的|这意味着|仿佛在说|像是在证明/g)||[]).length,dialogue:","wrap:(t.match(/这一刻|真正的|这意味着|仿佛在说|像是在证明/g)||[]).length,contrast:(t.match(/不是.{0,28}(?:而是|只是)|并非.{0,28}而是|与其说.{0,28}不如说|看似.{0,28}(?:其实|实则)|表面.{0,28}(?:实际|其实)/g)||[]).length,dialogue:");
+src=src.replaceAll('nsfw-focused-smoke.json','nsfw-focused-smoke-v2.json').replaceAll('nsfw-focused-summary.txt','nsfw-focused-summary-v2.txt');
+if(!src.includes('shaoxiang-focus-card.json'))throw new Error('fixture patch failed');
+if(!src.includes('压掉否定→改判解释腔'))throw new Error('GLM patch failed');
+await fs.writeFile(tmpPath,src,'utf8');
+const r=spawnSync(process.execPath,[tmpPath],{stdio:'inherit',env:process.env});
+await fs.unlink(tmpPath).catch(()=>{});
+process.exit(r.status??1);
