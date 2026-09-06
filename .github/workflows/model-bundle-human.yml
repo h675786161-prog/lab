@@ -47,6 +47,8 @@ jobs:
         env:
           YOUZI: ${{ secrets.YOUZI }}
         run: |
+          set -euo pipefail
+          cp fixtures/nsfw/pack-v6.b64 fixtures/nsfw/glm-pack.part00.b64
           node --check .lab/model-bundle-human-v1.mjs
           node .lab/model-bundle-human-v1.mjs
       - name: Runtime tail
