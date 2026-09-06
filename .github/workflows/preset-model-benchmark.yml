@@ -7,6 +7,7 @@ on:
     paths:
       - '.github/workflows/preset-model-benchmark.yml'
 
+# bench trigger: prompt pack part00 repaired
 permissions:
   contents: read
 
