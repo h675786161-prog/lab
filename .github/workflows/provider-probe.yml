@@ -1,0 +1,87 @@
+name: LingQi Provider Probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/provider-probe.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      YOUZI_KEY: ${{ secrets.YOUZI }}
+      GG_KEY: ${{ secrets.GG }}
+      PIAOMIAO_KEY: ${{ secrets.PIAOMIAO }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Probe registered providers at very low frequency
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p provider-evidence
+          python - <<'PY'
+          import json, os, time, urllib.request, urllib.error
+
+          providers = [
+              ('YOUZI', 'https://youzi.today', os.environ.get('YOUZI_KEY',''), 0),
+              ('GG', 'https://gcli.ggchan.dev', os.environ.get('GG_KEY',''), 12),
+              ('PIAOMIAO', 'https://claudeapi.cc.cd', os.environ.get('PIAOMIAO_KEY',''), 12),
+          ]
+          results = []
+          for i, (name, site, key, delay) in enumerate(providers):
+              if i and delay:
+                  time.sleep(delay)
+              row = {'provider': name, 'site': site, 'endpoint': site + '/v1/models'}
+              if not key:
+                  row.update({'ok': False, 'status': 'missing_secret', 'models': []})
+                  results.append(row)
+                  continue
+              req = urllib.request.Request(site + '/v1/models', headers={
+                  'Authorization': 'Bearer ' + key,
+                  'Accept': 'application/json',
+                  'User-Agent': 'LingQi-SillyTavern-Lab/1.0',
+              })
+              try:
+                  with urllib.request.urlopen(req, timeout=25) as resp:
+                      raw = resp.read(2_000_000)
+                      status = resp.status
+                  data = json.loads(raw.decode('utf-8','replace'))
+                  ids = []
+                  if isinstance(data, dict):
+                      seq = data.get('data') or data.get('models') or []
+                      if isinstance(seq, list):
+                          for item in seq:
+                              if isinstance(item, dict):
+                                  mid = item.get('id') or item.get('name') or item.get('model')
+                              else:
+                                  mid = str(item)
+                              if mid:
+                                  ids.append(str(mid))
+                  row.update({'ok': 200 <= status < 300, 'status': status, 'models': ids[:300], 'model_count_seen': len(ids)})
+              except urllib.error.HTTPError as e:
+                  body = e.read(4096).decode('utf-8','replace')
+                  row.update({'ok': False, 'status': e.code, 'models': [], 'error_excerpt': body[:500]})
+              except Exception as e:
+                  row.update({'ok': False, 'status': 'error', 'models': [], 'error': type(e).__name__ + ': ' + str(e)[:300]})
+              results.append(row)
+
+          with open('provider-evidence/provider-probe.json','w',encoding='utf-8') as f:
+              json.dump({'results': results}, f, ensure_ascii=False, indent=2)
+          for row in results:
+              print(f"{row['provider']}: status={row['status']} models={row.get('model_count_seen',0)}")
+          PY
+
+      - name: Upload provider evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lingqi-provider-probe
+          path: provider-evidence/
+          if-no-files-found: error
