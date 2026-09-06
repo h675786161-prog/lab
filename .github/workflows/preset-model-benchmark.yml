@@ -66,7 +66,10 @@ jobs:
           if [ -n "$CHROME_BIN" ]; then
             "$CHROME_BIN" --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --window-size=1440,1000 --screenshot="$LAB_EVIDENCE_DIR/sillytavern-home.png" "$LAB_ST_URL/" >/tmp/lingqi-chrome.log 2>&1 || true
           fi
-          curl -fsS "$LAB_ST_URL/" | head -c 100000 > "$LAB_EVIDENCE_DIR/sillytavern-home.html"
+          curl -fsS "$LAB_ST_URL/" -o "$LAB_EVIDENCE_DIR/sillytavern-home.full.html"
+          head -c 100000 "$LAB_EVIDENCE_DIR/sillytavern-home.full.html" > "$LAB_EVIDENCE_DIR/sillytavern-home.html"
+          rm -f "$LAB_EVIDENCE_DIR/sillytavern-home.full.html"
+          test -s "$LAB_EVIDENCE_DIR/sillytavern-home.html"
 
       - name: Run serial model A/B benchmark through SillyTavern backend
         shell: bash
