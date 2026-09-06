@@ -6,8 +6,9 @@ on:
     branches: ['bench/preset-13']
     paths:
       - '.github/workflows/preset-model-benchmark.yml'
+      - '.lab/preset-benchmark.mjs'
+      - 'fixtures/preset-benchmark/**'
 
-# bench trigger: prompt pack part00 repaired
 permissions:
   contents: read
 
