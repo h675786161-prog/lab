@@ -1,0 +1,410 @@
+name: LingQi Real SillyTavern Lab
+
+on:
+  workflow_call:
+    inputs:
+      extension_name:
+        description: Folder name used under SillyTavern third-party extensions.
+        required: false
+        type: string
+        default: extension-under-test
+      sillytavern_commit:
+        description: Exact SillyTavern commit to test against.
+        required: false
+        type: string
+        default: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      run_project_smoke:
+        description: Run .lab/runtime-smoke.mjs when the caller repository provides it.
+        required: false
+        type: boolean
+        default: true
+      artifact_name:
+        description: Name of the uploaded evidence artifact.
+        required: false
+        type: string
+        default: lingqi-real-sillytavern
+      extra_extensions_json:
+        description: Optional JSON array of extra extension repositories for compatibility testing.
+        required: false
+        type: string
+        default: '[]'
+    secrets:
+      lab_repo_token:
+        description: Optional read-only token used only when extra private repositories are requested.
+        required: false
+
+  workflow_dispatch:
+    inputs:
+      extension_name:
+        description: Extension folder name. The lab self-test overrides this with its probe fixture.
+        required: false
+        type: string
+        default: extension-under-test
+      sillytavern_commit:
+        description: Exact SillyTavern commit to test against.
+        required: false
+        type: string
+        default: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      run_project_smoke:
+        description: Run .lab/runtime-smoke.mjs when present.
+        required: false
+        type: boolean
+        default: true
+      artifact_name:
+        description: Name of the uploaded evidence artifact.
+        required: false
+        type: string
+        default: lingqi-real-sillytavern
+      extra_extensions_json:
+        description: Optional JSON array of extra extension repositories.
+        required: false
+        type: string
+        default: '[]'
+
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/real-sillytavern.yml'
+      - 'fixtures/probe-extension/**'
+
+permissions:
+  contents: read
+
+jobs:
+  real-sillytavern:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ST_DIR: /tmp/lingqi-sillytavern
+      BROWSER_DIR: /tmp/lingqi-browser-qa
+      LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence
+      ST_COMMIT: ${{ inputs.sillytavern_commit || '8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8' }}
+      REQUESTED_EXTENSION_NAME: ${{ inputs.extension_name || 'extension-under-test' }}
+      EXTRA_EXTENSIONS_JSON: ${{ inputs.extra_extensions_json || '[]' }}
+
+    steps:
+      - name: Checkout caller repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Prepare isolated evidence directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$LAB_EVIDENCE_DIR"
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          {
+            echo "repository=$GITHUB_REPOSITORY"
+            echo "sha=$GITHUB_SHA"
+            echo "event=$GITHUB_EVENT_NAME"
+            echo "requested_sillytavern_commit=$ST_COMMIT"
+          } > "$LAB_EVIDENCE_DIR/run-context.txt"
+
+      - name: Clone exact SillyTavern runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$ST_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          ACTUAL_COMMIT="$(git -C "$ST_DIR" rev-parse HEAD)"
+          test "$ACTUAL_COMMIT" = "$ST_COMMIT"
+          echo "$ACTUAL_COMMIT" > "$LAB_EVIDENCE_DIR/sillytavern-commit.txt"
+          echo "Exact SillyTavern runtime: $ACTUAL_COMMIT"
+
+      - name: Install SillyTavern dependencies
+        working-directory: /tmp/lingqi-sillytavern
+        run: npm ci
+
+      - name: Install primary target into isolated runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          SELF_TEST=false
+          EXT_NAME="$REQUESTED_EXTENSION_NAME"
+          SOURCE_DIR="$GITHUB_WORKSPACE"
+
+          if [ "$GITHUB_REPOSITORY" = "h675786161-prog/sillytavern-lab" ]; then
+            SELF_TEST=true
+            EXT_NAME="lingqi-lab-probe"
+            SOURCE_DIR="$GITHUB_WORKSPACE/fixtures/probe-extension"
+          fi
+
+          EXT_DIR="$ST_DIR/public/scripts/extensions/third-party/$EXT_NAME"
+          mkdir -p "$(dirname "$EXT_DIR")"
+          rm -rf "$EXT_DIR"
+
+          EXPECT_MANIFEST=true
+          if [ "$SELF_TEST" = "false" ] && [ -f "$GITHUB_WORKSPACE/.lab/install.sh" ]; then
+            EXPECT_MANIFEST=false
+            ST_DIR="$ST_DIR" \
+            TARGET_DIR="$GITHUB_WORKSPACE" \
+            EXT_DIR="$EXT_DIR" \
+            LAB_EVIDENCE_DIR="$LAB_EVIDENCE_DIR" \
+            bash "$GITHUB_WORKSPACE/.lab/install.sh"
+          else
+            if [ ! -f "$SOURCE_DIR/manifest.json" ]; then
+              echo "No manifest.json found for the default extension installer."
+              echo "For scripts/themes/custom layouts, provide .lab/install.sh in the caller repository."
+              exit 1
+            fi
+            mkdir -p "$EXT_DIR"
+            rsync -a --delete --exclude='.git/' --exclude='lab-evidence/' "$SOURCE_DIR/" "$EXT_DIR/"
+            test -f "$EXT_DIR/manifest.json"
+          fi
+
+          {
+            echo "LAB_SELF_TEST=$SELF_TEST"
+            echo "LAB_EXTENSION_NAME=$EXT_NAME"
+            echo "LAB_EXPECT_MANIFEST=$EXPECT_MANIFEST"
+          } >> "$GITHUB_ENV"
+
+          {
+            echo "primary_extension=$EXT_NAME"
+            echo "self_test=$SELF_TEST"
+            echo "expect_manifest=$EXPECT_MANIFEST"
+          } > "$LAB_EVIDENCE_DIR/install-summary.txt"
+
+      - name: Install optional extra extensions
+        shell: bash
+        env:
+          LAB_REPO_TOKEN: ${{ secrets.lab_repo_token }}
+        run: |
+          set -euo pipefail
+
+          if ! echo "$EXTRA_EXTENSIONS_JSON" | jq -e 'type == "array"' >/dev/null; then
+            echo "extra_extensions_json must be a JSON array."
+            exit 1
+          fi
+
+          COUNT="$(echo "$EXTRA_EXTENSIONS_JSON" | jq 'length')"
+          if [ "$COUNT" -eq 0 ]; then
+            echo "No extra extensions requested."
+            exit 0
+          fi
+
+          if [ -z "${LAB_REPO_TOKEN:-}" ]; then
+            echo "Extra private repositories were requested, but lab_repo_token was not supplied."
+            exit 1
+          fi
+
+          export GH_TOKEN="$LAB_REPO_TOKEN"
+
+          for INDEX in $(seq 0 $((COUNT - 1))); do
+            REPOSITORY="$(echo "$EXTRA_EXTENSIONS_JSON" | jq -r ".[$INDEX].repository // empty")"
+            REF="$(echo "$EXTRA_EXTENSIONS_JSON" | jq -r ".[$INDEX].ref // \"main\"")"
+            NAME="$(echo "$EXTRA_EXTENSIONS_JSON" | jq -r ".[$INDEX].name // empty")"
+
+            if [ -z "$REPOSITORY" ]; then
+              echo "extra_extensions_json[$INDEX].repository is required."
+              exit 1
+            fi
+            if [ -z "$NAME" ]; then
+              NAME="${REPOSITORY##*/}"
+            fi
+
+            TMP_DIR="/tmp/lingqi-extra-$INDEX"
+            EXTRA_DIR="$ST_DIR/public/scripts/extensions/third-party/$NAME"
+            rm -rf "$TMP_DIR" "$EXTRA_DIR"
+
+            gh repo clone "$REPOSITORY" "$TMP_DIR" -- --filter=blob:none --no-checkout
+            git -C "$TMP_DIR" fetch origin "$REF" --depth=1
+            git -C "$TMP_DIR" checkout --detach FETCH_HEAD
+
+            if [ ! -f "$TMP_DIR/manifest.json" ]; then
+              echo "Extra repository $REPOSITORY has no manifest.json; custom multi-project installs belong in the caller's .lab/install.sh."
+              exit 1
+            fi
+
+            mkdir -p "$EXTRA_DIR"
+            rsync -a --delete --exclude='.git/' "$TMP_DIR/" "$EXTRA_DIR/"
+            echo "extra_extension=$NAME repository=$REPOSITORY ref=$REF" >> "$LAB_EVIDENCE_DIR/install-summary.txt"
+          done
+
+      - name: Record installed extension manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          find "$ST_DIR/public/scripts/extensions/third-party" -maxdepth 2 -name manifest.json -print | sort > "$LAB_EVIDENCE_DIR/installed-extension-manifests.txt" || true
+          cat "$LAB_EVIDENCE_DIR/installed-extension-manifests.txt" || true
+
+      - name: Start isolated SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8000 --disableCsrf > "$LAB_EVIDENCE_DIR/sillytavern-runtime.log" 2>&1 &
+          echo $! > /tmp/lingqi-sillytavern.pid
+
+          for i in $(seq 1 90); do
+            if curl -fsS --max-time 2 http://127.0.0.1:8000/ >/dev/null 2>&1; then
+              echo "SillyTavern is reachable at http://127.0.0.1:8000/"
+              exit 0
+            fi
+            if ! kill -0 "$(cat /tmp/lingqi-sillytavern.pid)" 2>/dev/null; then
+              echo "SillyTavern exited before becoming reachable."
+              cat "$LAB_EVIDENCE_DIR/sillytavern-runtime.log"
+              exit 1
+            fi
+            sleep 1
+          done
+
+          echo "Timed out waiting for SillyTavern HTTP."
+          cat "$LAB_EVIDENCE_DIR/sillytavern-runtime.log"
+          exit 1
+
+      - name: Prepare real browser QA
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$BROWSER_DIR"
+          mkdir -p "$BROWSER_DIR"
+          cd "$BROWSER_DIR"
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          echo "LAB_CHROME=$CHROME_BIN" >> "$GITHUB_ENV"
+          echo "LAB_PLAYWRIGHT_CORE_ENTRY=file://$BROWSER_DIR/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
+          echo "LAB_ST_URL=http://127.0.0.1:8000" >> "$GITHUB_ENV"
+          echo "LAB_ST_DIR=$ST_DIR" >> "$GITHUB_ENV"
+
+      - name: Run generic real-SillyTavern browser smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/lingqi-generic-smoke.mjs <<'NODE'
+          import fs from 'node:fs/promises';
+          import path from 'node:path';
+
+          const { chromium } = await import(process.env.LAB_PLAYWRIGHT_CORE_ENTRY);
+          const baseUrl = process.env.LAB_ST_URL;
+          const extensionName = process.env.LAB_EXTENSION_NAME;
+          const expectManifest = process.env.LAB_EXPECT_MANIFEST === 'true';
+          const selfTest = process.env.LAB_SELF_TEST === 'true';
+          const evidenceDir = process.env.LAB_EVIDENCE_DIR;
+          const pageErrors = [];
+          const consoleErrors = [];
+
+          await fs.mkdir(evidenceDir, { recursive: true });
+
+          const browser = await chromium.launch({
+            headless: true,
+            executablePath: process.env.LAB_CHROME,
+            args: ['--no-sandbox', '--disable-dev-shm-usage'],
+          });
+
+          const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+          page.on('pageerror', error => pageErrors.push(String(error?.stack || error)));
+          page.on('console', message => {
+            if (message.type() === 'error') consoleErrors.push(message.text());
+          });
+
+          let report;
+          try {
+            const response = await page.goto(`${baseUrl}/`, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+            await page.waitForTimeout(3000);
+
+            const title = await page.title();
+            const bodyText = await page.locator('body').innerText().catch(() => '');
+            const httpStatus = response?.status() ?? null;
+
+            let manifest = null;
+            if (expectManifest) {
+              const manifestUrl = `${baseUrl}/scripts/extensions/third-party/${encodeURIComponent(extensionName)}/manifest.json`;
+              manifest = await page.evaluate(async url => {
+                const result = await fetch(url, { cache: 'no-store' });
+                let json = null;
+                try { json = await result.json(); } catch {}
+                return { status: result.status, ok: result.ok, json };
+              }, manifestUrl);
+            }
+
+            const probeLoaded = await page.evaluate(() => Boolean(window.__LINGQI_LAB_PROBE__?.loaded));
+
+            report = {
+              url: page.url(),
+              httpStatus,
+              title,
+              bodyHasContent: bodyText.trim().length > 0,
+              extensionName,
+              expectManifest,
+              manifest,
+              selfTest,
+              probeLoaded,
+              pageErrors,
+              consoleErrors,
+            };
+
+            await page.screenshot({
+              path: path.join(evidenceDir, 'sillytavern-runtime.png'),
+              fullPage: true,
+            });
+
+            if (!httpStatus || httpStatus >= 400) throw new Error(`SillyTavern returned HTTP ${httpStatus}`);
+            if (!report.bodyHasContent) throw new Error('SillyTavern page body is empty');
+            if (expectManifest && (!manifest?.ok || manifest?.status !== 200)) {
+              throw new Error(`Extension manifest is not reachable: ${JSON.stringify(manifest)}`);
+            }
+            if (selfTest && !probeLoaded) throw new Error('Lab probe extension did not execute in the real browser');
+            if (pageErrors.length > 0) throw new Error(`Browser page errors detected: ${pageErrors.join(' | ')}`);
+          } finally {
+            if (!report) {
+              report = {
+                extensionName,
+                expectManifest,
+                selfTest,
+                pageErrors,
+                consoleErrors,
+                failedBeforeReport: true,
+              };
+            }
+            await fs.writeFile(
+              path.join(evidenceDir, 'generic-runtime-report.json'),
+              JSON.stringify(report, null, 2),
+            );
+            await browser.close();
+          }
+
+          console.log(JSON.stringify(report, null, 2));
+          NODE
+
+          node /tmp/lingqi-generic-smoke.mjs
+
+      - name: Run caller project smoke when provided
+        shell: bash
+        env:
+          RUN_PROJECT_SMOKE: ${{ inputs.run_project_smoke }}
+        run: |
+          set -euo pipefail
+          if [ "${RUN_PROJECT_SMOKE:-true}" = "false" ]; then
+            echo "Caller project smoke disabled."
+            exit 0
+          fi
+
+          if [ -f "$GITHUB_WORKSPACE/.lab/runtime-smoke.mjs" ]; then
+            echo "Running caller-owned .lab/runtime-smoke.mjs"
+            node "$GITHUB_WORKSPACE/.lab/runtime-smoke.mjs"
+          else
+            echo "Caller repository has no .lab/runtime-smoke.mjs; generic smoke is the highest available evidence level."
+          fi
+
+      - name: Stop isolated runtime
+        if: always()
+        shell: bash
+        run: |
+          if [ -f /tmp/lingqi-sillytavern.pid ]; then
+            kill "$(cat /tmp/lingqi-sillytavern.pid)" 2>/dev/null || true
+          fi
+
+      - name: Upload lab evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name || 'lingqi-real-sillytavern' }}
+          path: lab-evidence/
+          if-no-files-found: warn
