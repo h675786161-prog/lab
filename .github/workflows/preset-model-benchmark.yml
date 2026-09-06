@@ -6,7 +6,7 @@ on:
     branches: ['bench/preset-13']
     paths:
       - '.github/workflows/preset-model-benchmark.yml'
-      - '.lab/preset-benchmark.mjs'
+      - '.lab/preset-benchmark-v4.mjs'
       - 'fixtures/preset-benchmark/**'
 
 permissions:
@@ -73,16 +73,15 @@ jobs:
           rm -f "$LAB_EVIDENCE_DIR/sillytavern-home.full.html"
           test -s "$LAB_EVIDENCE_DIR/sillytavern-home.html"
 
-      - name: Run serial model A/B benchmark through SillyTavern backend
+      - name: Run focused GLM Gemini benchmark through SillyTavern backend
         shell: bash
         env:
           YOUZI: ${{ secrets.YOUZI }}
           GG: ${{ secrets.GG }}
-          PIAOMIAO: ${{ secrets.PIAOMIAO }}
         run: |
           set -euo pipefail
-          node --check .lab/preset-benchmark.mjs
-          node .lab/preset-benchmark.mjs
+          node --check .lab/preset-benchmark-v4.mjs
+          node .lab/preset-benchmark-v4.mjs
 
       - name: Record runtime tail
         if: always()
