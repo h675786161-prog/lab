@@ -1,0 +1,27 @@
+{
+  "providers": [
+    {
+      "id": "YOUZI",
+      "display_name": "Youzi",
+      "site_url": "https://youzi.today/",
+      "secret_name": "YOUZI"
+    },
+    {
+      "id": "GG",
+      "display_name": "GG",
+      "site_url": "https://gcli.ggchan.dev/",
+      "secret_name": "GG"
+    },
+    {
+      "id": "PIAOMIAO",
+      "display_name": "Piaomiao",
+      "site_url": "https://claudeapi.cc.cd/",
+      "secret_name": "PIAOMIAO"
+    }
+  ],
+  "notes": [
+    "Only public site URLs and GitHub Actions secret names belong in this file.",
+    "Never store API keys, tokens, Authorization headers, or resolved secret values in the repository.",
+    "Exact API base paths and model names are intentionally not guessed here; provider-specific tests should define them explicitly when verified."
+  ]
+}
