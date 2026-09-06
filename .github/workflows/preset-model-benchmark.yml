@@ -6,7 +6,7 @@ on:
     branches: ['bench/preset-13']
     paths:
       - '.github/workflows/preset-model-benchmark.yml'
-      - '.lab/preset-benchmark-v8.mjs'
+      - '.lab/preset-benchmark-v9.mjs'
       - 'fixtures/preset-benchmark/**'
 
 permissions:
@@ -48,15 +48,15 @@ jobs:
           CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser || true)"
           [ -z "$CHROME_BIN" ] || "$CHROME_BIN" --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --window-size=1440,1000 --screenshot="$LAB_EVIDENCE_DIR/sillytavern-home.png" "$LAB_ST_URL/" >/tmp/lingqi-chrome.log 2>&1 || true
           curl -fsS "$LAB_ST_URL/" -o "$LAB_EVIDENCE_DIR/sillytavern-home.full.html"; head -c 100000 "$LAB_EVIDENCE_DIR/sillytavern-home.full.html" > "$LAB_EVIDENCE_DIR/sillytavern-home.html"; rm -f "$LAB_EVIDENCE_DIR/sillytavern-home.full.html"; test -s "$LAB_EVIDENCE_DIR/sillytavern-home.html"
-      - name: Run GLM Gemini human-likeness v8 through SillyTavern backend
+      - name: Run final GLM Gemini horror smoke v9 through SillyTavern backend
         shell: bash
         env:
           YOUZI: ${{ secrets.YOUZI }}
           GG: ${{ secrets.GG }}
         run: |
           set -euo pipefail
-          node --check .lab/preset-benchmark-v8.mjs
-          node .lab/preset-benchmark-v8.mjs
+          node --check .lab/preset-benchmark-v9.mjs
+          node .lab/preset-benchmark-v9.mjs
       - name: Record runtime tail
         if: always()
         shell: bash
