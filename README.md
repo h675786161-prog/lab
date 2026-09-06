@@ -23,6 +23,26 @@
 6. 保存运行日志、截图和 JSON 报告为 GitHub Actions artifacts。
 7. 无论成功失败都停止临时 runtime；runner 结束后整体销毁。
 
+## 公益站 / 模型测试入口
+
+实验酒馆当前登记了三个可供后续模型实机测试使用的站点。仓库里只记录**公开网址和 GitHub Actions Secret 名称**，绝不保存密钥本体。
+
+- `YOUZI` → `https://youzi.today/`
+- `GG` → `https://gcli.ggchan.dev/`
+- `PIAOMIAO` → `https://claudeapi.cc.cd/`
+
+详细映射见 `config/model-providers.json`。
+
+注意：这里目前只登记站点首页/公开地址，不擅自猜测它们的 API 路径、`/v1` 形式或可用模型名。等某个项目需要真实模型请求时，再对那个站点做单独验证并把经过确认的 API 配置接入测试。
+
+密钥使用规则：
+
+- 只通过 GitHub Actions Secrets 注入。
+- 不写进仓库文件。
+- 不打印到 Actions 日志。
+- 不写进截图、JSON 报告或 artifacts。
+- runner 结束后不保留任何解析后的 secret 值。
+
 ## 设计边界
 
 - 实验酒馆是**基础设施**，不拥有任何插件的业务真相。
