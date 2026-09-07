@@ -89,9 +89,10 @@ const genericScenarios = {
   }
 };
 const genericLiteral = JSON.stringify(genericScenarios);
-const cardNeedle = 'const card=await importCard(),sc=scenarios(card);';
-if (!src.includes(cardNeedle)) throw new Error('v5 scenario assembly changed');
-src = src.replace(cardNeedle, `const card=await importCard(),sc=scenarios(card);\nObject.assign(sc,${genericLiteral});`);
+const writeNeedle = "await fs.writeFile(TMP_SCRIPT,src,'utf8');";
+if (!src.includes(writeNeedle)) throw new Error('v5 output assembly changed');
+const genericInjection = `src = src.replace(${JSON.stringify('const card=await importCard(),sc=scenarios(card);')}, ${JSON.stringify(`const card=await importCard(),sc=scenarios(card);\nObject.assign(sc,${genericLiteral});`)});\n`;
+src = src.replace(writeNeedle, genericInjection + writeNeedle);
 src = src.replaceAll('runner-v5', 'runner-v7');
 src = src.replace('schema:4', 'schema:7');
 src = src.replace("credible reactions vs credible reactions + v12.14 human-prose acceptance patch", "GLM default-line matrix: base vs credible reactions vs v12.14 human-prose vs vivid");
