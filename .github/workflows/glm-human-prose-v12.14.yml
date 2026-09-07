@@ -6,6 +6,7 @@ on:
       - '.github/workflows/glm-human-prose-v12.14.yml'
       - '.lab/glm-human-prose-v12.14-runner.mjs'
       - '.lab/glm-human-prose-v12.14-runner-v5.mjs'
+      - '.lab/glm-human-prose-v12.14-runner-v6.mjs'
       - '.lab/model-bundle-human-v1.mjs'
       - 'fixtures/nsfw/**'
   workflow_dispatch:
@@ -32,6 +33,7 @@ jobs:
           node --check .lab/model-bundle-human-v1.mjs
           node --check .lab/glm-human-prose-v12.14-runner.mjs
           node --check .lab/glm-human-prose-v12.14-runner-v5.mjs
+          node --check .lab/glm-human-prose-v12.14-runner-v6.mjs
       - name: Prepare isolated real SillyTavern
         shell: bash
         run: |
@@ -42,7 +44,7 @@ jobs:
           git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
           git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
           test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
-          printf 'repository=%s\nsha=%s\nsillytavern_commit=%s\nvariant=%s\n' "$GITHUB_REPOSITORY" "$GITHUB_SHA" "$ST_COMMIT" 'GLM credible reactions vs credible reactions + v12.14 human-prose acceptance patch' > "$LAB_EVIDENCE_DIR/run-context.txt"
+          printf 'repository=%s\nsha=%s\nsillytavern_commit=%s\nvariant=%s\n' "$GITHUB_REPOSITORY" "$GITHUB_SHA" "$ST_COMMIT" 'GLM credible reactions vs credible reactions + v12.14 human-prose + late fact/user freeze' > "$LAB_EVIDENCE_DIR/run-context.txt"
           cd "$ST_DIR"
           npm ci
       - name: Start isolated SillyTavern
@@ -69,7 +71,7 @@ jobs:
           YOUZI: ${{ secrets.YOUZI }}
         run: |
           set -euo pipefail
-          node .lab/glm-human-prose-v12.14-runner-v5.mjs
+          node .lab/glm-human-prose-v12.14-runner-v6.mjs
       - name: Runtime tail
         if: always()
         run: tail -n 500 "$LAB_EVIDENCE_DIR/sillytavern-runtime.log" > "$LAB_EVIDENCE_DIR/sillytavern-runtime-tail.log" 2>/dev/null || true
