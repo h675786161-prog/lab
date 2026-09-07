@@ -1,0 +1,13 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import zlib from 'node:zlib';
+const ROOT=process.env.GITHUB_WORKSPACE||process.cwd();
+const dir=path.join(ROOT,'fixtures/nsfw');
+const names=(await fs.readdir(dir)).filter(n=>/^glm-pack\.part\d+\.b64$/.test(n)).sort();
+let b=''; for(const n of names)b+=(await fs.readFile(path.join(dir,n),'utf8')).trim();
+const pack=JSON.parse(zlib.gunzipSync(Buffer.from(b,'base64')).toString('utf8'));
+const out={keys:Object.keys(pack),source:pack.source||null,sequence_len:pack.sequence?.length||0,sequence:(pack.sequence||[]).map((x,i)=>({i,id:x.identifier||x.id||null,name:x.name,role:x.role,content_null:x.content==null,chars:String(x.content??'').length})),adapters:Object.fromEntries(Object.entries(pack.adapters||{}).map(([k,v])=>[k,{id:v.identifier||v.id||null,name:v.name,role:v.role,chars:String(v.content??'').length}]))};
+await fs.mkdir(process.env.LAB_EVIDENCE_DIR||path.join(ROOT,'lab-evidence'),{recursive:true});
+await fs.writeFile(path.join(process.env.LAB_EVIDENCE_DIR||path.join(ROOT,'lab-evidence'),'glm-pack-manifest.json'),JSON.stringify(out,null,2));
+console.log('sequence',out.sequence_len,'keys',out.keys.join(','));
+console.log('model-ish',out.sequence.filter(x=>/GLM|Gemini|Claude|尾部|头部|校准|适配/.test(x.name||'')).map(x=>`${x.i}:${x.name}:${x.id}`).join('\n'));
