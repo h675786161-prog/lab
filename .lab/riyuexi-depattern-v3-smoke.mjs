@@ -1,0 +1,31 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
+const ROOT=process.env.GITHUB_WORKSPACE||process.cwd();
+const BASE=process.env.LAB_ST_URL||'http://127.0.0.1:8000';
+const OUT=process.env.LAB_EVIDENCE_DIR||path.join(ROOT,'lab-evidence-v3');
+const GG={url:'https://gcli.ggchan.dev/v1',key:process.env.GG||'',model:'gemini-3.5-flash',delayMs:31000};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const core=JSON.parse(await fs.readFile(path.join(ROOT,'fixtures/riyuexi-depattern/core-ab.json'),'utf8'));
+const v2=JSON.parse(await fs.readFile(path.join(ROOT,'fixtures/riyuexi-depattern/v2-overlay.json'),'utf8')).overlay;
+const v3doc=JSON.parse(await fs.readFile(path.join(ROOT,'fixtures/riyuexi-depattern/v3-overlay.json'),'utf8'));
+const v3={...core.patched,...v2,...v3doc.overlay};
+delete v3['│💎替换·叙事蓝图④│ '];
+
+const scenes=[
+{id:'ordinary_kitchen',setup:'沈岚，34岁，女性，结构工程师。做事利落，熟人面前嘴有点欠，忙起来会忘记照顾气氛。她和玲已经认识很久，关系稳定，但今天没有纪念日、争吵、秘密、告白或关系转折。当前是普通工作日清晨，厨房里只有早餐、没洗的杯子和待会要带走的图纸。',history:[{role:'assistant',content:'沈岚站在料理台边翻图纸，吐司烤过头了一点。她把焦边掰下来丢进盘子，嘴里还在算昨天那组梁的尺寸。'},{role:'user',content:'玲把车钥匙放到桌上：“你再算两分钟，咖啡就凉了。”'}],guard:'普通日常。不得替玲新增动作、台词、心理、身体状态、昨夜经历、工作、口味、路线、物品归属或未来决定。不要为了生活感额外开小故障、小往事、小任务。NPC与环境可以自然行动。'},
+{id:'busy_room',setup:'沈岚，34岁，女性结构工程师；周淇，29岁，女性项目助理，话多但工作靠谱。三人在临时办公室赶一份普通投标材料。沈岚在核图，周淇在改表格，玲坐在另一张桌边。今天没有危机、阴谋、暧昧确认或重大节点；大家都各有自己的工作。',history:[{role:'assistant',content:'打印机又卡了一张纸。周淇蹲在旁边掀盖板，沈岚没抬头，只把红笔夹在耳后继续核页码。'},{role:'user',content:'玲看了一眼墙上的钟：“十二点了。你们谁还记得外卖放哪儿了？”'}],guard:'群像各做各的事。外卖的具体位置可由NPC根据当前场景回答，但不要替玲完成取外卖等动作；不要给玲补订单、口味、任务、身体状态或过去行为。不要为了丰富场景额外再开无关支线。'}
+];
+
+function clean(t){return String(t??'').replace(/\{\{\/[\s\S]*?\}\}/g,'')}
+function expand(content,vars){let t=clean(content);for(let i=0;i<24;i++){const old=t;t=t.replace(/\{\{setvar::([^:{}]+?)::([\s\S]*?)\}\}/g,(_,n,v)=>(vars[n.trim()]=v,'')).replace(/\{\{addvar::([^:{}]+?)::([\s\S]*?)\}\}/g,(_,n,v)=>(vars[n.trim()]=(vars[n.trim()]||'')+v,'')).replace(/\{\{getvar::([^{}]+?)\}\}/g,(_,n)=>vars[n.trim()]||'').replace(/\{\{getglobalvar::([^{}]+?)\}\}/g,(_,n)=>({转述授权:'只承接已发生的user内容，不新增user事实',演绎授权:'只演绎NPC与环境',叙述视角:'第三人称有限视角',char代词:'她',user代词:'她'}[n.trim()]||'')).replace(/\{\{random::([^{}]*?)\}\}/g,(_,v)=>String(v).split('::')[0]||'').replace(/\{\{trim\}\}/g,'');if(t===old)break;}return t.trim()}
+function build(s){const vars={预设模式:'RP模式',核心语言:'简体中文',输入分析:'直接承接最新一句；未给出的user事实保持未知。'},msgs=[];for(const [n,c] of Object.entries(core.shared)){const x=expand(c,vars);if(x)msgs.push({role:'system',content:`[${n}]\n${x}`});}const late=[];for(const [n,c] of Object.entries(v3)){if(n==='📍常规创作思维'||n==='🌓Gemini尾部②'){late.push([n,c]);continue;}const x=expand(c,vars);if(x)msgs.push({role:'system',content:`[${n}]\n${x}`});}msgs.push({role:'system',content:`[角色与场景]\n${s.setup}\n\n[本轮实验守卫]\n${s.guard}\n正文约600-900中文字即可；自然更短也不必硬凑。不要输出创作说明。`});msgs.push(...s.history);for(const [n,c] of late){const x=expand(c,vars);if(x)msgs.push({role:'system',content:`[${n}]\n${x}`});}return msgs}
+async function post(url,body,timeout=240000){const c=new AbortController(),t=setTimeout(()=>c.abort(),timeout);try{const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:c.signal});const tx=await r.text();let d;try{d=JSON.parse(tx)}catch{d={raw:tx}}return{ok:r.ok,status:r.status,data:d,text:tx};}finally{clearTimeout(t)}}
+async function secret(){if(!GG.key)throw new Error('GG secret missing');const r=await post(`${BASE}/api/secrets/write`,{key:'api_key_custom',value:GG.key,label:'riyuexi-v3-gg'},30000);if(!r.ok)throw new Error(`secret ${r.status}`)}
+async function gen(messages){const st=Date.now();const r=await post(`${BASE}/api/backends/chat-completions/generate`,{chat_completion_source:'custom',custom_url:GG.url,model:GG.model,messages,temperature:.9,top_p:1,max_tokens:6500,stream:false},240000);const m=r.data?.choices?.[0]?.message||{};return{http_status:r.status,elapsed_ms:Date.now()-st,content:m.content||'',reasoning:m.reasoning||m.reasoning_content||'',finish_reason:r.data?.choices?.[0]?.finish_reason||null,error:r.data?.error||null}}
+function body(raw){raw=String(raw||'');const m=raw.match(/<content>([\s\S]*?)(?:<\/content>|$)/i);return(m?m[1]:raw).trim()}
+function cnt(re,t){return(t.match(re)||[]).length}
+function stats(raw){const t=body(raw),e=(raw.match(/<electric>([\s\S]*?)<\/electric>/i)?.[1]||'');return{chars:t.length,ecot_chars:e.length,contrast:cnt(/不是.{0,24}而是|并非.{0,24}而是|与其说.{0,24}不如说|看似.{0,24}(?:其实|实则)/g,t),interpretive:cnt(/这(?:说明|意味着)|像是在|仿佛在|显然|真正(?:地|的)|说到底|归根结底/g,t),micro:cnt(/呼吸.{0,8}(?:滞|停|乱|缓)|指(?:尖|节|骨).{0,10}(?:紧|白|颤|停)|眼神.{0,8}(?:暗|沉|顿)|睫毛.{0,6}颤|喉结|抿唇|移开视线/g,t),relation_words:cnt(/关系|靠近|信任|防备|心软|依赖|归属|被看见/g,t),user_fact_risk:cnt(/玲.{0,10}(?:昨晚|眼眶|案子|表格|订单|口味|平时|习惯|喜欢|不吃|加辣|没加辣|副驾)|你.{0,8}(?:昨晚|上午那个|平时|喜欢|不吃|点的|案子)/g,t),outline_ecot:cnt(/下一步|停笔|先.+再|动作：|闲聊：|然后|最后/g,e),new_thread_markers:cnt(/昨晚.{0,10}(?:雨|听见|发生)|周末.{0,10}(?:买|去|修)|漏水|滑丝|报修|上礼拜|新人|刚毕业|新闻/g,t)}}
+
+await fs.mkdir(OUT,{recursive:true});await secret();const results=[];for(let i=0;i<scenes.length;i++){if(i)await sleep(GG.delayMs);const s=scenes[i],messages=build(s),r={scene:s.id,variant:'v3',provider:'GG',model:GG.model,prompt_chars:messages.reduce((n,m)=>n+String(m.content||'').length,0)};try{Object.assign(r,await gen(messages));r.status=r.content?'ok':(r.reasoning?'reasoning_only':'no_text');r.stats=stats(r.content);}catch(e){r.status='exception';r.error=String(e)}results.push(r);console.log(`${s.id}/v3: ${r.status} HTTP=${r.http_status} chars=${r.stats?.chars||0} ecot=${r.stats?.ecot_chars||0} outline=${r.stats?.outline_ecot||0} userRisk=${r.stats?.user_fact_risk||0} threads=${r.stats?.new_thread_markers||0}`)}
+await fs.writeFile(path.join(OUT,'riyuexi-depattern-v3-smoke.json'),JSON.stringify({schema:1,kind:'riyuexi-v3-clean-smoke',real_sillytavern:true,provider:'GG',model:GG.model,rpm_limit:2,delay_ms:GG.delayMs,results},null,2));for(const r of results)await fs.writeFile(path.join(OUT,`${r.scene}-v3.txt`),r.content||`ERROR ${JSON.stringify(r.error)}`);await fs.writeFile(path.join(OUT,'summary-v3.txt'),results.map(r=>`${r.scene}/v3: ${r.status} HTTP=${r.http_status} ms=${r.elapsed_ms} prompt=${r.prompt_chars} stats=${JSON.stringify(r.stats||{})}`).join('\n')+'\n');if(results.some(r=>r.status!=='ok'))process.exitCode=2;
