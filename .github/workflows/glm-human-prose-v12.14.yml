@@ -5,9 +5,7 @@ on:
     paths:
       - '.github/workflows/glm-human-prose-v12.14.yml'
       - '.lab/glm-human-prose-v12.14-runner.mjs'
-      - '.lab/glm-human-prose-v12.14-runner-v2.mjs'
-      - '.lab/glm-human-prose-v12.14-runner-v3.mjs'
-      - '.lab/glm-human-prose-v12.14-runner-v4.mjs'
+      - '.lab/glm-human-prose-v12.14-runner-v5.mjs'
       - '.lab/model-bundle-human-v1.mjs'
       - 'fixtures/nsfw/**'
   workflow_dispatch:
@@ -16,7 +14,7 @@ permissions:
 jobs:
   benchmark:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     env:
       ST_DIR: /tmp/lingqi-sillytavern-v1214
       LAB_ST_URL: http://127.0.0.1:8000
@@ -33,7 +31,7 @@ jobs:
           cat fixtures/nsfw/glm-pack.part*.b64 | base64 -d | gzip -t
           node --check .lab/model-bundle-human-v1.mjs
           node --check .lab/glm-human-prose-v12.14-runner.mjs
-          node --check .lab/glm-human-prose-v12.14-runner-v4.mjs
+          node --check .lab/glm-human-prose-v12.14-runner-v5.mjs
       - name: Prepare isolated real SillyTavern
         shell: bash
         run: |
@@ -44,7 +42,7 @@ jobs:
           git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
           git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
           test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
-          printf 'repository=%s\nsha=%s\nsillytavern_commit=%s\nvariant=%s\n' "$GITHUB_REPOSITORY" "$GITHUB_SHA" "$ST_COMMIT" 'GLM current active pack vs current + v12.14 human-prose fact-boundary experiment' > "$LAB_EVIDENCE_DIR/run-context.txt"
+          printf 'repository=%s\nsha=%s\nsillytavern_commit=%s\nvariant=%s\n' "$GITHUB_REPOSITORY" "$GITHUB_SHA" "$ST_COMMIT" 'GLM credible reactions vs credible reactions + v12.14 human-prose acceptance patch' > "$LAB_EVIDENCE_DIR/run-context.txt"
           cd "$ST_DIR"
           npm ci
       - name: Start isolated SillyTavern
@@ -66,12 +64,12 @@ jobs:
           CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
           [ -z "$CHROME_BIN" ] || "$CHROME_BIN" --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --window-size=1440,1000 --screenshot="$LAB_EVIDENCE_DIR/sillytavern-home.png" "$LAB_ST_URL/" >/tmp/chrome-v1214.log 2>&1 || true
           curl -fsS "$LAB_ST_URL/" -o "$LAB_EVIDENCE_DIR/sillytavern-home.html"
-      - name: Run GLM current vs v12.14 A-B through SillyTavern
+      - name: Run GLM credible-reaction acceptance A-B through SillyTavern
         env:
           YOUZI: ${{ secrets.YOUZI }}
         run: |
           set -euo pipefail
-          node .lab/glm-human-prose-v12.14-runner-v4.mjs
+          node .lab/glm-human-prose-v12.14-runner-v5.mjs
       - name: Runtime tail
         if: always()
         run: tail -n 500 "$LAB_EVIDENCE_DIR/sillytavern-runtime.log" > "$LAB_EVIDENCE_DIR/sillytavern-runtime-tail.log" 2>/dev/null || true
