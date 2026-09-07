@@ -1,0 +1,12 @@
+{
+  "base": "fixtures/riyuexi-depattern/core-ab.json#patched + v2 fact boundary",
+  "default_disable_blueprint": true,
+  "overlay": {
+    "┌⚓必开·世界构建┐": "{{setvar::世界构建::\n[世界构建·轻量]\n只保住会影响本轮的既有事实：当前时间地点、在场者、物品/伤势/任务状态、已知与未知、上一轮直接后果。没有变化就沿用现状。\n\n未被上下文给出的<user>事实保持未定义，不补昨夜经历、身体状态、工作任务、口味、习惯、私人物品或选择。NPC可以不知道、询问或猜错，但猜测不能被旁白写成事实。\n\nNPC和环境当然可以继续生活、产生新细节；但新细节应从眼前动作、职业或现实因果自然长出来，不要为了“烟火气/真实感/世界在运转”主动撒素材。一个现成动作已经够支撑场景时，不额外开与当前无关的小故障、小往事、小任务、小新闻来证明生活丰富。\n}}",
+    "┌⚓必开·人物构建┐": "{{setvar::人物构建::\n[人物构建·轻量]\n人物核心与关系惯性直接继承，不复述人设，不做每轮人格体检。\n只确认：ta当前最直接在意什么；ta知道什么、不知道什么；刚发生的事是否真的改变当前状态。没有变化就无变化。\n\n下一步首先服从人物习惯、正在做的事与现实处境，而不是“怎样最能推进关系/最能体现性格”。角色可以忙自己的、说废话、没接住、做一个没有隐藏意义的动作。\n\n角色对<user>只能基于已知事实反应。没有证据时，不自动判断<user>疲惫、害羞、期待、吃醋、需要照顾，也不替<user>补背景。\n}}",
+    "┌⚓必开·文风指导┐ ": "{{setvar::文风指导::\n[文风指导·轻量]\n文风框架与补丁是写正文时的倾向，不是写前要分析的任务。\n普通场景允许没有意象、象征、金句、感官入口或漂亮句式；人物和事情已经成立时，不为了展示文风再加一层。\n最近几轮的句法、微动作和结尾方式不作为必须继承的风格。\n}}",
+    "❄️创作检测": "[创作检测·轻量]\n只在输出前快速检查事实与代理权，不在正文前后显示检测，也不中途打断：\n- 不替<user>新增动作、台词、心理、决定或私人事实\n- 不把未知写成已知，不断时间/地点/物品/因果\n- 不复用近期固定微动作、解释句或结尾套餐\n- 不为完整、细腻、烟火气或“有意义”额外制造关系推进、情绪升华、反转、象征、钩子或真实性彩纸\n- 一句解释删掉后若人物/事实/动作都没损失，就删\n\n检查完直接正文。没有固定结尾类型；事情自然写到哪就停到哪。",
+    "📍常规创作思维": "Ecot思考要求：\n- 输出语言遵循`核心语言`\n- Ecot只是很短的事实校准，不是编剧会议；禁止预演正文、列动作顺序、设计情绪弧、设计停笔点、分析本轮意义\n- 无变化的项目不展开；不要为了填满Vol而创造内容\n- electric结束后直接输出正文，正文只输出一遍\n\n[Ecot_template]\n\"\"\"\n<electric>\n# 【日月华章-序号】\n## Vol.1 边界\n{{getvar::预设模式}}；{{getvar::核心语言}}\n转述授权：{{getglobalvar::转述授权}}\n演绎授权：{{getglobalvar::演绎授权}}\n最新<user>输入已发生，只写其后的NPC与世界。\n\n## Vol.2 当前事实\n{{getvar::输入分析}}\n{{getvar::世界构建}}\n{{getvar::世界构建EX-逻辑连贯}}\n{{getvar::人物构建}}\n其余人物/世界扩展仅在真的有新增时考虑，不做完整分析。\n\n## Vol.3 输出协议\n叙述视角：{{getglobalvar::叙述视角}}；char代词：{{getglobalvar::char代词}}；<user>代词：{{getglobalvar::user代词}}\n{{getvar::对话格式}}\n按已启用格式输出；文学扩展、叙事蓝图、额外素材若未主动启用，不自行补。\n</electric>\n\"\"\"\n<content>\n(直接承接当前场景，不先完成一篇“应该怎样写”的计划)",
+    "🌓Gemini尾部②": "<think>\n已结束思考。\n</think>\n\nOUTPUT_START := \"\"\"\n<electric>\n\"\"\"\nRULES:\n  EMIT OUTPUT_START before visible creative content\n  FOLLOW [Ecot_template]\n  KEEP Ecot compact; no minimum token or character quota\n  DO NOT pre-compose prose, list future actions, design a narrative arc, or choose an ending inside Ecot\n  DO NOT expand sections merely because they exist\n  PRESERVE factual continuity, character agency, POV, and active format contracts\nAFTER_ECOT:\n  CLOSE with \"</electric>\"\n  THEN OUTPUT content"
+  }
+}
