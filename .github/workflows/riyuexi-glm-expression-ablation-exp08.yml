@@ -32,6 +32,7 @@ jobs:
           node --check .lab/riyuexi-glm-expression-ablation-exp08.mjs
           node .lab/make-riyuexi-v11-style-runner.mjs .lab/riyuexi-v7-glm-exact.mjs /tmp/riyuexi-glm-expression-ablation-exp08-runner.mjs
           node .lab/make-riyuexi-seqlen-runner.mjs /tmp/riyuexi-glm-expression-ablation-exp08-runner.mjs 221
+          sed -i "s/'✅GLM校准','😡表达去惯性','🌓GLM尾部'/'✅GLM校准','🌓GLM尾部'/" /tmp/riyuexi-glm-expression-ablation-exp08-runner.mjs
           node .lab/riyuexi-glm-expression-ablation-exp08.mjs
           cat fixtures/riyuexi-v7-glm/active-pack.part*.b64 | base64 -d | gzip -t
           node --check /tmp/riyuexi-glm-expression-ablation-exp08-runner.mjs
