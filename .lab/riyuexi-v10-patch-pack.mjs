@@ -1,0 +1,23 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import zlib from 'node:zlib';
+import crypto from 'node:crypto';
+const ROOT=process.env.GITHUB_WORKSPACE||process.cwd();
+const DIR=path.join(ROOT,'fixtures/riyuexi-v7-glm');
+const CAL="[模型校准·GLM]\n只纠正GLM在长提示链里容易“补全过头”的执行习惯，不接管其他模块职责。\n- 当前启用的演绎、转述、人物、世界、剧情、文风、关系、字数、NSFW与格式设置是什么，就按什么执行；本模块不另定一套。\n- 最新<user>输入已经发生。正文从其后的NPC与世界反应开始，不为了衔接顺畅重新补写已发生内容。\n- 未建立的信息保持未定。写新事实前先确认它有来源；没有来源且不是当前行动的直接结果，就省略，不用“合理猜一个”补齐。\n- 小输入允许只产生小回应。一个回答、一个动作或一个暂时不知道都可以成立，不需要把局部问题扩成完整事件。\n- NPC与世界可以主动推进，但新动作优先从已经建立的当前任务、欲望、处境和现场条件长出来；不要先发明新的后台事实，再用那些新事实证明为什么要行动。\n- 文末的标题、状态、摘要、选项、计划、活动等组件只消费已经写成的正文事实，不反过来为正文制造素材。\n- 可观察内容成立后停止解释；不要把人物反应整理成论证或结论。\n- Ecot只留下本轮必要决策，不预演正文。\n保留GLM的清楚、稳定与行动能力；削掉的是擅自补齐，不是主动性。";
+const TAIL="<think>\n已结束思考。\n</think>\n\nOUTPUT_START := \"\"\"\n<electric>\n\"\"\"\n\nRULES:\n  EMIT OUTPUT_START before all visible Ecot content\n  FOLLOW [Ecot_template] in order\n  KEEP Vol.1–Vol.3 concise; brief decisions are complete decisions\n  USE active module variables as instructions to execute, not subjects to explain\n  DO NOT expand Ecot into reasons, summaries, action sequences, emotional interpretation, or prose rehearsal\n\n  RUNTIME_GATE:\n    LATEST_USER_INPUT is already completed\n    READ current 转述授权 and 演绎授权 exactly as runtime parameters\n    IF 转述授权 is 禁止: do not restate, quote, paraphrase, replay, or make <user> say the latest input again\n    IF 演绎授权 is 关闭: after LATEST_USER_INPUT, generate ZERO new <user> speech, actions, movement, posture, gaze, expression, body response, psychology, decisions, or implied continuity\n    IF 演绎授权 is not 关闭: follow that active permission normally; do not freeze <user> merely because this gate exists\n    BEFORE adding a new factual clause, check SOURCE = established context OR direct consequence of an action already grounded in established context; if neither, omit it or leave it unknown\n    NPCs and the world remain free to act from their established current motives and conditions; do not invent a new offstage premise merely to justify an action\n    WRITE正文 first from the current scene; auxiliary output components may only derive from正文/context and must not seed正文 with extra facts\n\n  PRESERVE the currently active POV, character, world, style, pacing, relationship, length, NSFW and format settings\n  IF a Vol has little to decide, state the shortest useful decision and move on\n  DO NOT invent facts to make the reasoning or formatting look complete\n  DO NOT let checklist or explanatory wording leak into正文\n\nAFTER_ECOT:\n  CLOSE with \"</electric>\"\n  THEN OUTPUT content exactly once\n";
+const names=(await fs.readdir(DIR)).filter(n=>/^active-pack\.part\d+\.b64$/.test(n)).sort();
+if(names.length!==7) throw new Error(`expected 7 chunks, got ${names.length}`);
+let b=''; for(const n of names)b+=(await fs.readFile(path.join(DIR,n),'utf8')).trim();
+const raw=zlib.gunzipSync(Buffer.from(b,'base64'));
+const pack=JSON.parse(raw.toString('utf8'));
+let a=0,c=0;
+for(const item of pack.sequence){if(item.name==='✅GLM校准'){item.content=CAL;a++;} if(item.name==='🌓GLM尾部'){item.content=TAIL;c++;}}
+if(a!==1||c!==1) throw new Error(`targets cal=${a} tail=${c}`);
+pack.variant='V10-GLM稳态';
+const next=Buffer.from(JSON.stringify(pack),'utf8');
+const gz=zlib.gzipSync(next,{level:9}); const enc=gz.toString('base64'); const chunk=Math.ceil(enc.length/7/4)*4;
+for(let i=0;i<7;i++) await fs.writeFile(path.join(DIR,`active-pack.part${String(i+1).padStart(2,'0')}.b64`),enc.slice(i*chunk,(i+1)*chunk),'utf8');
+const out=process.env.LAB_EVIDENCE_DIR||ROOT; await fs.mkdir(out,{recursive:true});
+await fs.writeFile(path.join(out,'v10-patch-manifest.json'),JSON.stringify({source_sha256:pack.source_sha256,sequence_len:pack.sequence.length,targets:['✅GLM校准','🌓GLM尾部'],raw_sha256:crypto.createHash('sha256').update(next).digest('hex')},null,2));
+console.log(`patched V10 sequence=${pack.sequence.length}`);
