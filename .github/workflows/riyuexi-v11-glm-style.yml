@@ -1,0 +1,84 @@
+name: LingQi Riyuexi V11 GLM Style A-B
+on:
+  push:
+    branches: ['bench/riyuexi-depattern-v1']
+    paths:
+      - 'triggers/riyuexi-v11-glm-style.txt'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  style:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      ST_DIR: /tmp/lingqi-sillytavern
+      LAB_ST_URL: http://127.0.0.1:8000
+      LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Repair exact V7 pack and build style runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$LAB_EVIDENCE_DIR"
+          mkdir -p "$LAB_EVIDENCE_DIR/v7" "$LAB_EVIDENCE_DIR/v11"
+          cat fixtures/riyuexi-v7-glm/active-pack.repair08.b64 fixtures/riyuexi-v7-glm/active-pack.repair09.b64 > fixtures/riyuexi-v7-glm/active-pack.part06.b64
+          cat fixtures/riyuexi-v7-glm/active-pack.part*.b64 | base64 -d | gzip -t
+          node --check .lab/riyuexi-v7-glm-exact.mjs
+          node --check .lab/make-riyuexi-v11-style-runner.mjs
+          node --check .lab/riyuexi-v11-patch-pack.mjs
+          node .lab/make-riyuexi-v11-style-runner.mjs .lab/riyuexi-v7-glm-exact.mjs /tmp/riyuexi-v11-style-runner.mjs
+          node --check /tmp/riyuexi-v11-style-runner.mjs
+      - name: Prepare isolated real SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$ST_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+          cd "$ST_DIR"
+          npm ci
+      - name: Start isolated SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8000 --disableCsrf > "$LAB_EVIDENCE_DIR/sillytavern-runtime.log" 2>&1 &
+          echo $! > /tmp/lingqi-sillytavern.pid
+          for i in $(seq 1 90); do
+            curl -fsS --max-time 2 "$LAB_ST_URL/" >/dev/null 2>&1 && exit 0
+            kill -0 "$(cat /tmp/lingqi-sillytavern.pid)" 2>/dev/null || { cat "$LAB_EVIDENCE_DIR/sillytavern-runtime.log"; exit 1; }
+            sleep 1
+          done
+          exit 1
+      - name: Run V7 style baseline
+        env:
+          YOUZI: ${{ secrets.YOUZI }}
+          LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence/v7
+        run: node /tmp/riyuexi-v11-style-runner.mjs
+      - name: Patch only GLM calibration to V11
+        env:
+          LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence
+        run: node .lab/riyuexi-v11-patch-pack.mjs
+      - name: Run V11 style candidate
+        env:
+          YOUZI: ${{ secrets.YOUZI }}
+          LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence/v11
+        run: node /tmp/riyuexi-v11-style-runner.mjs
+      - name: Runtime tail
+        if: always()
+        run: tail -n 500 "$LAB_EVIDENCE_DIR/sillytavern-runtime.log" > "$LAB_EVIDENCE_DIR/sillytavern-runtime-tail.log" 2>/dev/null || true
+      - name: Stop runtime
+        if: always()
+        run: '[ ! -f /tmp/lingqi-sillytavern.pid ] || kill "$(cat /tmp/lingqi-sillytavern.pid)" 2>/dev/null || true'
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: riyuexi-v11-glm-style-ab
+          path: lab-evidence/
+          if-no-files-found: error
