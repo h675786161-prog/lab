@@ -1,0 +1,5 @@
+trigger=riyuexi-v4-module-realignment
+rpm=2
+requests=2
+delay_ms=31000
+purpose=closed-agency plus open-agency regression
