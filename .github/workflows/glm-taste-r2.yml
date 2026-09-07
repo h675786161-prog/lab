@@ -1,0 +1,64 @@
+name: LingQi GLM Taste Round 2
+on:
+  push:
+    branches: ['bench/glm-human-prose-v12.14']
+    paths:
+      - '.github/workflows/glm-taste-r2.yml'
+      - '.lab/glm-taste-r2.mjs'
+      - '.lab/current-pack.part*.b64'
+      - 'fixtures/nsfw/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      ST_DIR: /tmp/lingqi-sillytavern-glm-r2
+      LAB_ST_URL: http://127.0.0.1:8000
+      LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence-glm-r2
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify runner
+        run: |
+          set -euo pipefail
+          node --check .lab/glm-taste-r2.mjs
+          cat .lab/current-pack.part*.b64 | base64 -d | gzip -t
+      - name: Prepare isolated real SillyTavern
+        run: |
+          set -euo pipefail
+          rm -rf "$ST_DIR" "$LAB_EVIDENCE_DIR"
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          cd "$ST_DIR"
+          npm ci
+      - name: Start isolated SillyTavern
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8000 --disableCsrf > "$LAB_EVIDENCE_DIR/sillytavern-runtime.log" 2>&1 &
+          echo $! >/tmp/lingqi-sillytavern-glm-r2.pid
+          for i in $(seq 1 90); do
+            curl -fsS --max-time 2 "$LAB_ST_URL/" >/dev/null 2>&1 && exit 0
+            kill -0 "$(cat /tmp/lingqi-sillytavern-glm-r2.pid)" 2>/dev/null || { cat "$LAB_EVIDENCE_DIR/sillytavern-runtime.log"; exit 1; }
+            sleep 1
+          done
+          exit 1
+      - name: Run round 2
+        env:
+          YOUZI: ${{ secrets.YOUZI }}
+        run: node .lab/glm-taste-r2.mjs
+      - name: Stop
+        if: always()
+        run: '[ ! -f /tmp/lingqi-sillytavern-glm-r2.pid ] || kill "$(cat /tmp/lingqi-sillytavern-glm-r2.pid)" 2>/dev/null || true'
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lingqi-glm-taste-r2
+          path: lab-evidence-glm-r2/
+          if-no-files-found: error
