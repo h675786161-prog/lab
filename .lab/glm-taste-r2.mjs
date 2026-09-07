@@ -16,7 +16,7 @@ const pack=JSON.parse(zlib.gunzipSync(Buffer.from(PACK_B64,'base64')).toString('
 
 function byName(name){const r=pack.sequence.find(x=>x.name===name);if(!r)throw new Error('prompt absent: '+name);return r;}
 const MODEL_ADAPTERS=['✨丨Gemini模型适配','✴️丨GLM模型适配'];
-const PACES=['🐢丨慢速·细写','🚶丨中速·标准','🚀丨快速·赶路'];
+const PACES=['🐢丨慢速·细写','🚶丨中速·标准'];
 const STYLES=['🔖丨成人童话'];
 for(const n of [...MODEL_ADAPTERS,...PACES,...STYLES,'❎丨抗过拟合','❎丨杀说明','❎丨杀比拟','❎丨角色反应可信','❎丨反固定','🤔丨生动化'])byName(n);
 
