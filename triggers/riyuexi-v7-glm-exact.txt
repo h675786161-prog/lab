@@ -1,1 +1,1 @@
-trigger exact V7 GLM active-chain run 2026-09-08
+trigger exact V7 GLM active-chain run 2026-09-08 retry-after-pack-complete
