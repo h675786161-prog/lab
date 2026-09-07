@@ -1,0 +1,22 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import zlib from 'node:zlib';
+import crypto from 'node:crypto';
+const ROOT=process.env.GITHUB_WORKSPACE||process.cwd();
+const DIR=path.join(ROOT,'fixtures/riyuexi-v7-glm');
+const ADD=`\n\n[GLM执行顺序校准]\n先把正文当成独立场景写完。title、echo、letter、状态栏、branches、plans、activity、enigma等后置组件只能记录、整理或从已经写出的正文继续派生，不能反过来要求正文预埋素材。不要为了让后置组件“有东西可填”，提前在正文制造线索、陌生物件、旧事、待办、新事件或关系变化；正文里没有，就允许后置组件写无、保持原状或给不改变正文事实的普通选项。`;
+const names=(await fs.readdir(DIR)).filter(n=>/^active-pack\.part\d+\.b64$/.test(n)).sort();
+if(names.length!==7) throw new Error(`expected 7 chunks, got ${names.length}`);
+let b=''; for(const n of names)b+=(await fs.readFile(path.join(DIR,n),'utf8')).trim();
+const raw=zlib.gunzipSync(Buffer.from(b,'base64'));
+const pack=JSON.parse(raw.toString('utf8'));
+let hit=0;
+for(const item of pack.sequence){if(item.name==='✅GLM校准'){item.content=String(item.content||'')+ADD;hit++;}}
+if(hit!==1) throw new Error(`target cal=${hit}`);
+pack.variant='GLM-style-exp05';
+const next=Buffer.from(JSON.stringify(pack),'utf8');
+const gz=zlib.gzipSync(next,{level:9}); const enc=gz.toString('base64'); const chunk=Math.ceil(enc.length/7/4)*4;
+for(let i=0;i<7;i++) await fs.writeFile(path.join(DIR,`active-pack.part${String(i+1).padStart(2,'0')}.b64`),enc.slice(i*chunk,(i+1)*chunk),'utf8');
+const out=process.env.LAB_EVIDENCE_DIR||ROOT; await fs.mkdir(out,{recursive:true});
+await fs.writeFile(path.join(out,'exp05-patch-manifest.json'),JSON.stringify({source_sha256:pack.source_sha256,sequence_len:pack.sequence.length,targets:['✅GLM校准 additive downstream isolation'],variant:pack.variant,raw_sha256:crypto.createHash('sha256').update(next).digest('hex')},null,2));
+console.log(`patched exp05 sequence=${pack.sequence.length}`);
