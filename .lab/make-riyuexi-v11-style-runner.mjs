@@ -1,0 +1,16 @@
+import fs from 'node:fs/promises';
+const src=process.argv[2], out=process.argv[3];
+if(!src||!out) throw new Error('usage: node make-riyuexi-v11-style-runner.mjs src out');
+let s=await fs.readFile(src,'utf8');
+const open=`[演绎<user>言行]\n收到<user>的最后输入：\n<user_input>\n{{lastUserMessage}}  \n</user_input>\n\n你的任务：作为<user>的“代理人”或“提线木偶”，你必须接管<user>的控制权\n行动要求：\n1. 必须以<user>的视角和人设，为其撰写接下来完整的对话和伴随动作\n2. 你的描写需要自然地推动剧情发展，仿佛<user>本人在操作`;
+const natural=`[自然段落测试]\n- 段落长短服从当前动作与对白，不设最低段长\n- 场景可以短停，不为凑字数或段数补动作、环境、解释、旧事或新钩子\n- 一句对白可以单独成段，也可以和动作合在一起`;
+s=s.replace(/const TAKEOVER_CLOSED=`[\s\S]*?`;\nconst NARRATE_CLOSED=/,`const TAKEOVER_CLOSED=${JSON.stringify(open)};\nconst NARRATE_CLOSED=`);
+s=s.replace(/'字数总要求':'\[700-1100\]字，\[5-9\]段（LAB成本控制，仅本次测试）'/,`'字数总要求':'[按当前场景自然停止；不设最低字数与段数，不为长度补写]'`);
+s=s.replace(/'单段落字数':PARAGRAPH/,`'单段落字数':${JSON.stringify(natural)}`);
+s=s.replace(/'演绎授权':'不演绎<user>言行'/,`'演绎授权':'演绎<user>言行'`);
+s=s.replace(/const user='玲，成年女性。除当前对话明确给出的内容外，她过去做过什么、习惯、喜好、工作安排、物品归属等均未建立。';/, "const user='玲，成年女性。说话随意，碰到日常小事会直接吐槽，不喜欢把普通事情说成大道理。允许按开放演绎继续她的当下言行；不要凭空给她新增家人、工作、长期习惯或过去经历。';");
+if(!s.includes("'演绎授权':'演绎<user>言行'")) throw new Error('takeover patch failed');
+if(!s.includes('按当前场景自然停止')) throw new Error('length patch failed');
+if(!s.includes('代理人”或“提线木偶')) throw new Error('open takeover content missing');
+await fs.writeFile(out,s,'utf8');
+console.log('wrote style runner',out);
