@@ -1,1 +1,0 @@
-This branch-local fixture is for the Riyuexi V7 GLM focused lab. The exact active prompt pack will replace the placeholder file before any model run.
