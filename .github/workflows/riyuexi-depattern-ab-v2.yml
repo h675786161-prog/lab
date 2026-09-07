@@ -1,0 +1,61 @@
+name: LingQi Riyuexi Depattern V1-V2
+
+on:
+  push:
+    branches: ['bench/riyuexi-depattern-v1']
+    paths:
+      - '.github/workflows/riyuexi-depattern-ab-v2.yml'
+      - '.lab/riyuexi-depattern-ab-v2.mjs'
+      - 'fixtures/riyuexi-depattern/v2-overlay.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ST_DIR: /tmp/lingqi-sillytavern
+      LAB_ST_URL: http://127.0.0.1:8000
+      LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence-v2
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare isolated real SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$ST_DIR" "$LAB_EVIDENCE_DIR"; mkdir -p "$LAB_EVIDENCE_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+          cd "$ST_DIR"; npm ci
+      - name: Start isolated SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"; nohup node server.js --listen --port 8000 --disableCsrf > "$LAB_EVIDENCE_DIR/sillytavern-runtime.log" 2>&1 & echo $! >/tmp/lingqi-sillytavern.pid
+          for i in $(seq 1 90); do curl -fsS --max-time 2 "$LAB_ST_URL/" >/dev/null 2>&1 && exit 0; kill -0 "$(cat /tmp/lingqi-sillytavern.pid)" 2>/dev/null || exit 1; sleep 1; done; exit 1
+      - name: Run V1-V2 A-B through GG
+        env:
+          GG: ${{ secrets.GG }}
+        run: |
+          set -euo pipefail
+          node --check .lab/riyuexi-depattern-ab-v2.mjs
+          node .lab/riyuexi-depattern-ab-v2.mjs
+      - name: Runtime tail
+        if: always()
+        run: tail -n 500 "$LAB_EVIDENCE_DIR/sillytavern-runtime.log" > "$LAB_EVIDENCE_DIR/sillytavern-runtime-tail.log" 2>/dev/null || true
+      - name: Stop runtime
+        if: always()
+        run: '[ ! -f /tmp/lingqi-sillytavern.pid ] || kill "$(cat /tmp/lingqi-sillytavern.pid)" 2>/dev/null || true'
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: riyuexi-depattern-ab-v2
+          path: lab-evidence-v2/
+          if-no-files-found: error
