@@ -89,7 +89,7 @@ const genericScenarios = {
   }
 };
 const genericLiteral = JSON.stringify(genericScenarios);
-const writeNeedle = "await fs.writeFile(TMP_SCRIPT,src,'utf8');";
+const writeNeedle = "await fs.writeFile(TMP_SCRIPT, src, 'utf8');";
 if (!src.includes(writeNeedle)) throw new Error('v5 output assembly changed');
 const genericInjection = `src = src.replace(${JSON.stringify('const card=await importCard(),sc=scenarios(card);')}, ${JSON.stringify(`const card=await importCard(),sc=scenarios(card);\nObject.assign(sc,${genericLiteral});`)});\n`;
 src = src.replace(writeNeedle, genericInjection + writeNeedle);
