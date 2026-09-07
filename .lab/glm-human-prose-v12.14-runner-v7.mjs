@@ -29,10 +29,12 @@ if (!src.includes(expNeedle)) throw new Error('v5 EXP assembly changed');
 src = src.replace(expNeedle, `const EXTRA2 = ${JSON.stringify(EXTRA2)};\nconst EXP = expMatch[1] + EXTRA + EXTRA2;`);
 
 // Keep the existing v12.14 experiment as a single candidate switch, then add a late rail.
-const injectNeedle = /seq\.splice\(at,0,\{identifier:'lab-glm-language-v12\.14'[\s\S]*?content:EXPERIMENT_GLM_LANGUAGE\}\);\\n  \}/;
-if (!injectNeedle.test(src)) throw new Error('v5 experiment injection shape changed');
 const lateRail = `<late_fact_freeze>只用已明确存在的事实续写。未知保持未知，不造上次/昨天/某人/故障/旧事。User 最新动作冻结，不替 User 移动、反应、呼吸或产生感觉。需要 User 配合时停在角色动作或台词，把下一步留给 User。</late_fact_freeze>`;
-src = src.replace(injectNeedle, "seq.splice(at,0,{identifier:'lab-glm-language-v12.14',name:'🧼丨GLM语言纠偏@玲七·v12.14实验',role:'system',content:EXPERIMENT_GLM_LANGUAGE});\\n    const uiFreeze=seq.findIndex(x=>x.name==='🔒丨User_Input');\\n    if(uiFreeze>=0) seq.splice(uiFreeze,0,{identifier:'lab-glm-late-freeze-v12.14',name:'🧊丨事实与User末帧冻结·实验',role:'system',content:" + JSON.stringify(lateRail) + "});\\n  }");
+const injectStart = src.indexOf("seq.splice(at,0,{identifier:'lab-glm-language-v12.14'");
+const injectEnd = src.indexOf('`);', injectStart);
+if (injectStart < 0 || injectEnd < 0) throw new Error('v5 experiment injection shape changed');
+const replacement = String.raw`seq.splice(at,0,{identifier:'lab-glm-language-v12.14',name:'🧼丨GLM语言纠偏@玲七·v12.14实验',role:'system',content:EXPERIMENT_GLM_LANGUAGE});\n    const uiFreeze=seq.findIndex(x=>x.name==='🔒丨User_Input');\n    if(uiFreeze>=0) seq.splice(uiFreeze,0,{identifier:'lab-glm-late-freeze-v12.14',name:'🧊丨事实与User末帧冻结·实验',role:'system',content:${JSON.stringify(lateRail)}});\n  }`;
+src = src.slice(0, injectStart) + replacement + src.slice(injectEnd);
 
 const testsBlock = `const tests=[
  {name:'A_base_ensemble_knowledge',scene:'ensemble_knowledge',bundle:[]},
