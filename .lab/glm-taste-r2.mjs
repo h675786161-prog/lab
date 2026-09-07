@@ -18,7 +18,7 @@ function byName(name){const r=pack.sequence.find(x=>x.name===name);if(!r)throw n
 const MODEL_ADAPTERS=['✨丨Gemini模型适配','✴️丨GLM模型适配'];
 const PACES=['🐢丨慢速·细写','🚶丨中速·标准'];
 const STYLES=['🔖丨成人童话'];
-for(const n of [...MODEL_ADAPTERS,...PACES,...STYLES,'❎丨抗过拟合','❎丨杀说明','❎丨杀比拟','❎丨角色反应可信','❎丨反固定','🤔丨生动化'])byName(n);
+for(const n of [...MODEL_ADAPTERS,...PACES,...STYLES,'❎丨抗过拟合','❎丨杀说明','❎丨杀比拟','❎丨角色反应可信'])byName(n);
 
 const ANTI_AUTHOR=`<glm_deperfume>
 正文只管事情本身，不要表现“作者正在刻画人物”。
