@@ -7,6 +7,7 @@ on:
       - '.lab/glm-human-prose-v12.14-runner.mjs'
       - '.lab/glm-human-prose-v12.14-runner-v5.mjs'
       - '.lab/glm-human-prose-v12.14-runner-v6.mjs'
+      - '.lab/glm-human-prose-v12.14-runner-v7.mjs'
       - '.lab/model-bundle-human-v1.mjs'
       - 'fixtures/nsfw/**'
   workflow_dispatch:
@@ -34,6 +35,7 @@ jobs:
           node --check .lab/glm-human-prose-v12.14-runner.mjs
           node --check .lab/glm-human-prose-v12.14-runner-v5.mjs
           node --check .lab/glm-human-prose-v12.14-runner-v6.mjs
+          node --check .lab/glm-human-prose-v12.14-runner-v7.mjs
       - name: Prepare isolated real SillyTavern
         shell: bash
         run: |
@@ -66,12 +68,12 @@ jobs:
           CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
           [ -z "$CHROME_BIN" ] || "$CHROME_BIN" --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --window-size=1440,1000 --screenshot="$LAB_EVIDENCE_DIR/sillytavern-home.png" "$LAB_ST_URL/" >/tmp/chrome-v1214.log 2>&1 || true
           curl -fsS "$LAB_ST_URL/" -o "$LAB_EVIDENCE_DIR/sillytavern-home.html"
-      - name: Run GLM credible-reaction acceptance A-B through SillyTavern
+      - name: Run GLM default-line matrix through SillyTavern
         env:
           YOUZI: ${{ secrets.YOUZI }}
         run: |
           set -euo pipefail
-          node .lab/glm-human-prose-v12.14-runner-v6.mjs
+          node .lab/glm-human-prose-v12.14-runner-v7.mjs
       - name: Runtime tail
         if: always()
         run: tail -n 500 "$LAB_EVIDENCE_DIR/sillytavern-runtime.log" > "$LAB_EVIDENCE_DIR/sillytavern-runtime-tail.log" 2>/dev/null || true
@@ -82,6 +84,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: lingqi-glm-human-prose-v12.14
+          name: lingqi-glm-human-prose-v12.14-matrix
           path: lab-evidence/
           if-no-files-found: error
