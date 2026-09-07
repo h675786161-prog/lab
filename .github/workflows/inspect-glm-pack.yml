@@ -1,0 +1,21 @@
+name: Inspect GLM Pack
+on:
+  push:
+    branches: ['bench/riyuexi-depattern-v1']
+    paths:
+      - '.github/workflows/inspect-glm-pack.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    env:
+      LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence
+    steps:
+      - uses: actions/checkout@v4
+      - run: node .lab/inspect-glm-pack.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: glm-pack-manifest
+          path: lab-evidence/
+          if-no-files-found: error
