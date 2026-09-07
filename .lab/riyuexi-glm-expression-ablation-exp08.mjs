@@ -1,0 +1,28 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import zlib from 'node:zlib';
+import crypto from 'node:crypto';
+
+const ROOT=process.env.GITHUB_WORKSPACE||process.cwd();
+const DIR=path.join(ROOT,'fixtures/riyuexi-v7-glm');
+const TARGET='😡表达去惯性';
+const names=(await fs.readdir(DIR)).filter(n=>/^active-pack\.part\d+\.b64$/.test(n)).sort();
+if(names.length!==7) throw new Error(`expected 7 chunks, got ${names.length}`);
+let b=''; for(const n of names)b+=(await fs.readFile(path.join(DIR,n),'utf8')).trim();
+const raw=zlib.gunzipSync(Buffer.from(b,'base64'));
+const pack=JSON.parse(raw.toString('utf8'));
+if(!Array.isArray(pack.sequence)||pack.sequence.length!==222) throw new Error(`expected 222, got ${pack.sequence?.length}`);
+const before=pack.sequence.length;
+const removed=pack.sequence.filter(x=>x.name===TARGET);
+if(removed.length!==1) throw new Error(`target count ${removed.length}`);
+pack.sequence=pack.sequence.filter(x=>x.name!==TARGET);
+pack.variant='GLM-expression-deinertia-ablation-exp08';
+const next=Buffer.from(JSON.stringify(pack),'utf8');
+const gz=zlib.gzipSync(next,{level:9});
+const enc=gz.toString('base64');
+const chunk=Math.ceil(enc.length/7/4)*4;
+for(let i=0;i<7;i++) await fs.writeFile(path.join(DIR,`active-pack.part${String(i+1).padStart(2,'0')}.b64`),enc.slice(i*chunk,(i+1)*chunk),'utf8');
+const out=process.env.LAB_EVIDENCE_DIR||ROOT;
+await fs.mkdir(out,{recursive:true});
+await fs.writeFile(path.join(out,'exp08-ablation-manifest.json'),JSON.stringify({source_sha256:pack.source_sha256,before,after:pack.sequence.length,removed:[TARGET],variant:pack.variant,raw_sha256:crypto.createHash('sha256').update(next).digest('hex')},null,2));
+console.log(`ablated exp08 ${before}->${pack.sequence.length}`);
