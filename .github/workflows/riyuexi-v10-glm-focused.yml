@@ -1,0 +1,80 @@
+name: LingQi Riyuexi V10 GLM Focused
+on:
+  push:
+    branches: ['bench/riyuexi-depattern-v1']
+    paths:
+      - 'triggers/riyuexi-v10-glm-focused.txt'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ST_DIR: /tmp/lingqi-sillytavern
+      LAB_ST_URL: http://127.0.0.1:8000
+      LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Repair V7 pack then patch to V10
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check .lab/riyuexi-v7-glm-exact.mjs
+          node --check .lab/riyuexi-v10-patch-pack.mjs
+          cat fixtures/riyuexi-v7-glm/active-pack.repair08.b64 fixtures/riyuexi-v7-glm/active-pack.repair09.b64 > fixtures/riyuexi-v7-glm/active-pack.part06.b64
+          cat fixtures/riyuexi-v7-glm/active-pack.part*.b64 | base64 -d | gzip -t
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          node .lab/riyuexi-v10-patch-pack.mjs
+          cat fixtures/riyuexi-v7-glm/active-pack.part*.b64 | base64 -d | gzip -t
+      - name: Prepare isolated real SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$ST_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+          cd "$ST_DIR"
+          npm ci
+      - name: Start isolated SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8000 --disableCsrf > "$LAB_EVIDENCE_DIR/sillytavern-runtime.log" 2>&1 &
+          echo $! > /tmp/lingqi-sillytavern.pid
+          for i in $(seq 1 90); do
+            curl -fsS --max-time 2 "$LAB_ST_URL/" >/dev/null 2>&1 && exit 0
+            kill -0 "$(cat /tmp/lingqi-sillytavern.pid)" 2>/dev/null || { cat "$LAB_EVIDENCE_DIR/sillytavern-runtime.log"; exit 1; }
+            sleep 1
+          done
+          exit 1
+      - name: Run exact V10 GLM chain
+        env:
+          YOUZI: ${{ secrets.YOUZI }}
+        run: node .lab/riyuexi-v7-glm-exact.mjs
+      - name: Preserve V10 result names
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p "$LAB_EVIDENCE_DIR/v10"
+          [ ! -f "$LAB_EVIDENCE_DIR/riyuexi-v7-glm-exact.json" ] || cp "$LAB_EVIDENCE_DIR/riyuexi-v7-glm-exact.json" "$LAB_EVIDENCE_DIR/v10/result.json"
+          [ ! -f "$LAB_EVIDENCE_DIR/summary.txt" ] || cp "$LAB_EVIDENCE_DIR/summary.txt" "$LAB_EVIDENCE_DIR/v10/summary.txt"
+          [ ! -f "$LAB_EVIDENCE_DIR/manifest.json" ] || cp "$LAB_EVIDENCE_DIR/manifest.json" "$LAB_EVIDENCE_DIR/v10/manifest.json"
+      - name: Runtime tail
+        if: always()
+        run: tail -n 500 "$LAB_EVIDENCE_DIR/sillytavern-runtime.log" > "$LAB_EVIDENCE_DIR/sillytavern-runtime-tail.log" 2>/dev/null || true
+      - name: Stop runtime
+        if: always()
+        run: '[ ! -f /tmp/lingqi-sillytavern.pid ] || kill "$(cat /tmp/lingqi-sillytavern.pid)" 2>/dev/null || true'
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: riyuexi-v10-glm-focused
+          path: lab-evidence/
+          if-no-files-found: error
