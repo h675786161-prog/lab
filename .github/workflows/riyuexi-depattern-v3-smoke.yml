@@ -1,10 +1,6 @@
 name: LingQi Riyuexi Depattern V3 Smoke
 
 on:
-  push:
-    branches: ['bench/riyuexi-depattern-v1']
-    paths:
-      - 'triggers/riyuexi-v3-smoke.txt'
   workflow_dispatch:
 
 permissions:
