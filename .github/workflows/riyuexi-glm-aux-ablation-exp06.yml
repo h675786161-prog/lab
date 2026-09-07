@@ -28,8 +28,10 @@ jobs:
           cat fixtures/riyuexi-v7-glm/active-pack.part*.b64 | base64 -d | gzip -t
           node --check .lab/riyuexi-v7-glm-exact.mjs
           node --check .lab/make-riyuexi-v11-style-runner.mjs
+          node --check .lab/make-riyuexi-exp06-runner.mjs
           node --check .lab/riyuexi-glm-aux-ablation-exp06.mjs
           node .lab/make-riyuexi-v11-style-runner.mjs .lab/riyuexi-v7-glm-exact.mjs /tmp/riyuexi-glm-aux-ablation-exp06-runner.mjs
+          node .lab/make-riyuexi-exp06-runner.mjs /tmp/riyuexi-glm-aux-ablation-exp06-runner.mjs
           node .lab/riyuexi-glm-aux-ablation-exp06.mjs
           cat fixtures/riyuexi-v7-glm/active-pack.part*.b64 | base64 -d | gzip -t
           node --check /tmp/riyuexi-glm-aux-ablation-exp06-runner.mjs
