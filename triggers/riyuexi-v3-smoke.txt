@@ -1,0 +1,4 @@
+trigger=riyuexi-v3-smoke-2026-09-08
+rpm=2
+spacing_ms=31000
+requests=2
