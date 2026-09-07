@@ -1,0 +1,11 @@
+import fs from 'node:fs/promises';
+const file=process.argv[2];
+const expected=Number(process.argv[3]);
+if(!file||!Number.isInteger(expected)||expected<1) throw new Error('usage: node make-riyuexi-seqlen-runner.mjs <runner> <expected-length>');
+let s=await fs.readFile(file,'utf8');
+const re=/pack\.sequence\.length!==\d+/;
+if(!re.test(s)) throw new Error('sequence assertion not found');
+s=s.replace(re,`pack.sequence.length!==${expected}`);
+if(!s.includes(`pack.sequence.length!==${expected}`)) throw new Error('sequence assertion patch failed');
+await fs.writeFile(file,s,'utf8');
+console.log(`patched runner sequence assertion -> ${expected}`);
