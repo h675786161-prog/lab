@@ -15,9 +15,9 @@ const zlib=await import('node:zlib');
 const pack=JSON.parse(zlib.gunzipSync(Buffer.from(PACK_B64,'base64')).toString('utf8'));
 
 function byName(name){const r=pack.sequence.find(x=>x.name===name);if(!r)throw new Error('prompt absent: '+name);return r;}
-const MODEL_ADAPTERS=['✨丨Gemini模型适配','🎨丨Claude模型适配','✴️丨GLM模型适配','🟦丨GPT模型适配','🐟丨DeepSeek模型适配','🌙丨Kimi模型适配','🧩丨Qwen模型适配'];
+const MODEL_ADAPTERS=['✨丨Gemini模型适配','✴️丨GLM模型适配'];
 const PACES=['🐢丨慢速·细写','🚶丨中速·标准','🚀丨快速·赶路'];
-const STYLES=['🔖丨成人童话','🧸丨白描文风@凝嘤嘤'];
+const STYLES=['🔖丨成人童话'];
 for(const n of [...MODEL_ADAPTERS,...PACES,...STYLES,'❎丨抗过拟合','❎丨杀说明','❎丨杀比拟','❎丨角色反应可信','❎丨反固定','🤔丨生动化'])byName(n);
 
 const ANTI_AUTHOR=`<glm_deperfume>
