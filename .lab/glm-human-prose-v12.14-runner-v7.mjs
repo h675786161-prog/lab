@@ -28,11 +28,6 @@ const expNeedle = "const EXP = expMatch[1] + EXTRA;";
 if (!src.includes(expNeedle)) throw new Error('v5 EXP assembly changed');
 src = src.replace(expNeedle, `const EXTRA2 = ${JSON.stringify(EXTRA2)};\nconst EXP = expMatch[1] + EXTRA + EXTRA2;`);
 
-const buildNeedle = `function build(s,bundle){\n  const seq=pack.sequence.map(x=>({...x}));`;
-if (!src.includes(buildNeedle)) throw new Error('v5 build shape changed');
-const expLiteral = src.match(/const EXPERIMENT_GLM_LANGUAGE=([^;]+);/);
-if (!expLiteral) throw new Error('v5 experiment literal missing');
-src = src.replace(buildNeedle, `${buildNeedle}`);
 // Keep the existing v12.14 experiment as a single candidate switch, then add a late rail.
 const injectNeedle = "seq.splice(at,0,{identifier:'lab-glm-language-v12.14',name:'🧼丨GLM语言纠偏@玲七·v12.14实验',role:'system',content:EXPERIMENT_GLM_LANGUAGE});\n  }";
 if (!src.includes(injectNeedle)) throw new Error('v5 experiment injection shape changed');
