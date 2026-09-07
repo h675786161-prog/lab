@@ -1,12 +1,6 @@
 name: LingQi Riyuexi Depattern V1-V2
 
 on:
-  push:
-    branches: ['bench/riyuexi-depattern-v1']
-    paths:
-      - '.github/workflows/riyuexi-depattern-ab-v2.yml'
-      - '.lab/riyuexi-depattern-ab-v2.mjs'
-      - 'fixtures/riyuexi-depattern/v2-overlay.json'
   workflow_dispatch:
 
 permissions:
