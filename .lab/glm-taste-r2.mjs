@@ -54,7 +54,7 @@ const V=[
  {id:'R2D',label:'R2B 但关GLM专线',noAdapter:true,on:['❎丨角色反应可信','❎丨杀说明','❎丨抗过拟合'],antiAuthor:true},
  {id:'R2E',label:'去作者感 + 杀说明，无可信反应',on:['❎丨杀说明','❎丨抗过拟合'],antiAuthor:true,off:['❎丨角色反应可信']}
 ];
-const SC=['ensemble','quiet','tang'];
+const SC=['ensemble'];
 await fs.mkdir(OUT,{recursive:true});const card=await importCard(),sc=scenarios(card),out=[];
 for(const scene of SC){for(const v of V){if(out.length)await sleep(YOUZI.delay);const built=build(sc[scene],v);const r={name:`${v.id}_${scene}`,variant:v.id,label:v.label,scene,active_prompt_names:built.active,prompt_chars:built.messages.reduce((n,m)=>n+String(m.content||'').length,0)};try{Object.assign(r,await gen(built.messages));r.status=body(r.content)?'ok':(r.reasoning?'reasoning_only':'no_text');r.stats=stats(r.content)}catch(e){r.status='exception';r.error=String(e)}out.push(r);console.log(r.name,r.status,r.http_status,r.stats?.chars||0,r.finish_reason)}}
 await fs.writeFile(path.join(OUT,'glm-taste-r2.json'),JSON.stringify({schema:1,benchmark:'feedback-driven GLM deperfume round 2',model:MODEL,provider:'YOUZI',source_preset:pack.source_name,variants:V,scenes:SC,tests:out},null,2));
