@@ -1,0 +1,10 @@
+import fs from 'node:fs/promises';
+const file=process.argv[2];
+if(!file) throw new Error('usage: node make-riyuexi-exp06-runner.mjs <runner>');
+let s=await fs.readFile(file,'utf8');
+const before='pack.sequence.length!==222';
+if(!s.includes(before)) throw new Error('222-sequence assertion not found');
+s=s.replace(before,'pack.sequence.length!==200');
+if(!s.includes('pack.sequence.length!==200')) throw new Error('200-sequence assertion patch failed');
+await fs.writeFile(file,s,'utf8');
+console.log('patched exp06 runner sequence assertion 222 -> 200');
