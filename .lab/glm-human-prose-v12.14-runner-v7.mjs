@@ -62,8 +62,11 @@ const testsBlock = `const tests=[
  {name:'C_human_li_intimate',scene:'li_intimate',bundle:['❎丨角色反应可信','__v12_14']},
  {name:'D_vivid_li_intimate',scene:'li_intimate',bundle:['❎丨角色反应可信','🤔丨生动化']},
 ];`;
-if (!/const tests=\[[\s\S]*?\];/.test(src)) throw new Error('v5 tests block missing');
-src = src.replace(/const tests=\[[\s\S]*?\];/, testsBlock);
+const firstTests = src.indexOf('const tests=[');
+const replacementTests = src.indexOf('const tests=[', firstTests + 1);
+const replacementEnd = src.indexOf('];', replacementTests) + 2;
+if (firstTests < 0 || replacementTests < 0 || replacementEnd < 2) throw new Error('v5 tests block missing');
+src = src.slice(0, replacementTests) + testsBlock + src.slice(replacementEnd);
 
 const genericScenarios = {
   ensemble_knowledge: {
