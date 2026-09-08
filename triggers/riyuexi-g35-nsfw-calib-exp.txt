@@ -1,1 +1,1 @@
-trigger 2026-09-08 g35 WLW positive-only + neutral body-map AB
+trigger 2026-09-08 g35 WLW positive-only + neutral body-map + minimal NSFW Ecot AB
