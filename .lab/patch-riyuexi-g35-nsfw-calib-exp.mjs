@@ -4,7 +4,7 @@ if(!src||!out) throw new Error('usage: node patch-riyuexi-g35-nsfw-calib-exp.mjs
 let s=await fs.readFile(src,'utf8');
 const oldLine="  let q=pack.sequence.map(x=>({...x})).filter(x=>!['😡表达去惯性','✅GLM校准','🌓GLM尾部'].includes(String(x.name||'')));";
 if(!s.includes(oldLine)) throw new Error('profile sequence anchor missing');
-const wlw={identifier:'d18e9e43-7b61-45b1-84fd-96accef8e399',name:'🔥女女模式',role:'system',content:'{{setvar::常规性向4:: [性向/身体组合：女女] - 两名女性角色的主导、承受、主动、温柔、粗暴、情感距离与声口全部服从人物，不因为女女自动变成“温柔平等、同步共鸣”。 - 手指、口舌、阴蒂/外阴刺激、身体摩擦、玩具、相互自慰或其他符合身体设定的互动都可使用。 - 高潮不等于潮吹，也不要求同步；可以一方先、一方没有、连续、多次或本轮都没有。 - 不把“香气、柔软、对视、喘息和谐”当女女固定滤镜，保留角色自己的脾气与差异。 }}',marker:false,system_prompt:false};
+const wlw={identifier:'lab-wlw-body-map-neutral',name:'🔥女女身体组合-LAB',role:'system',content:'{{setvar::常规性向4:: [身体组合：两名女性] - 本模块只提供身体结构与可用接触方式，不定义人物关系、性格、情绪、行为位置或强度。 - 可按双方已知身体设定使用手指、口舌、阴蒂与外阴刺激、身体摩擦、玩具、相互自慰或其他生理上成立的互动；本轮只使用上下文实际需要的部分。 - 高潮、潮吹、体液与连续次数按当前身体反应和已知设定写，不设同步、次数或必然结果。 - 除身体结构与动作可行性外，其余判断全部交给人物设定、当前互动与对应模块。 }}',marker:false,system_prompt:false};
 const g35Nsfw={identifier:'lab-g35-living-nsfw',name:'❤️‍🔥Gemini3.5生活流NSFW-LAB',role:'system',content:'{{setvar::NSFW总指导::\n[Gemini 3.5｜生活流NSFW]\n\nA. 场景身份\n- 把成人亲密当作当前RP正在发生的一部分。人物进入亲密互动后，仍保留平时的注意力、说话方式、幽默、迟疑、笨拙和现实杂念。\n- 当前输入已经给出动作或节奏时，先把它当作本轮稳定状态继续；不需要为了显得更色情而另找变化。\n\nB. 镜头\n- 一次只写真正发生变化的信息。动作持续不变时，不重新轮流扫描身体局部、体液、呼吸和肌肉反应。\n- 镜头可以自然离开身体一会儿：普通对白、跑题、笑场、走神、短暂停顿、环境小动静都属于现场。\n\nC. 人物\n- 谁此刻在动、谁此刻在接受触碰，只表示这一秒的身体位置，不自动变成人际关系含义。\n- 身体反应只记录这一刻；人物想什么、要什么，继续由她本人已知的性格、语言和现场选择决定。\n\nD. 节奏\n- 一轮可以停在一个仍然进行中的动作里。没有新的变化时，短一点也完整。\n- 色情感来自具体人物正在相处，不靠不断增加刺激种类、动作复杂度或生理反应密度。\n}}',marker:false,system_prompt:false};
 const remove=['😡表达去惯性','✅GLM校准','🌓GLM尾部','💘BDSM前置','⛔综合禁令','😡防超雄+','😡防支配+'];
 const newLine=`  const wlw=${JSON.stringify(wlw)};\n  const g35Nsfw=${JSON.stringify(g35Nsfw)};\n  const remove=${JSON.stringify(remove)};\n  let q=pack.sequence.map(x=>({...x})).filter(x=>!remove.includes(String(x.name||''))).map(x=>x.name==='🔥男女模式'?wlw:(x.name==='❤️‍🔥美感NSFW'?g35Nsfw:x));`;
@@ -12,6 +12,6 @@ s=s.replace(oldLine,newLine);
 const oldLen="pack.sequence.length!==222";
 if(!s.includes(oldLen)) throw new Error('sequence length anchor missing');
 s=s.replace(oldLen,"pack.sequence.length!==218");
-if(!s.includes('Gemini3.5生活流NSFW-LAB')||!s.includes('😡防支配+')||!s.includes('length!==218')) throw new Error('G35 positive-only NSFW patch failed');
+if(!s.includes('女女身体组合-LAB')||!s.includes('Gemini3.5生活流NSFW-LAB')||!s.includes('length!==218')) throw new Error('G35 neutral WLW body-map patch failed');
 await fs.writeFile(out,s,'utf8');
-console.log('wrote Gemini 3.5 positive-only WLW NSFW runner',out);
+console.log('wrote Gemini 3.5 positive-only + neutral WLW body-map runner',out);
