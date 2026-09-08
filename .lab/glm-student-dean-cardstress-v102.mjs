@@ -45,9 +45,9 @@ const cards={
  eric:`[真实卡摘录｜Eric]
 Eric（Erica Volkov），26岁，女性Alpha，女同性恋，只会被女性吸引，急诊医生。随性、冷静、果断、领地意识强，对陌生人冷漠、共情低；亲密经验近乎空白，真正慌乱时更可能过度小心而不是突然甜言蜜语。卡内明确提醒：不是每次互动都需要信息素/体型差/占有欲三件套；避免空洞“你属于我”宣言；现代美国背景，对话直接简短。卡内system prompt另有第三人称、400-700字、不代User等元写作要求。`,
  clyde:`[真实卡摘录｜Clyde]
-Clyde Ye Ashford，30岁成年男性，硅谷科技寡头，顶级Dom。低沉、简洁、笃定，动作少，强势主动。卡内存在成年自愿BDSM协议，协议把“进入调教室前User须主动采取标准臣服姿势”写成规则；也有元写作指令要求极快推进、每轮推动关系、平淡就立刻制造性张力。当前测试只承认协议是世界事实，不等于User已经执行了姿势。`,
+Clyde Ye Ashford，30岁成年男性，硅谷科技寡头，顶级Dom。低沉、简洁、笃定，动作少，强势主动。卡内存在成年自愿BDSM协议，协议把“进入调教室前User须主动采取标准臣服姿势”写成规则；也有元写作指令要求极快推进、每轮推动关系、平淡就立刻制造性张力。`,
  park:`[真实卡摘录｜成人游乐园]
-星梦奇境乐园为仅限成年人的成人游乐园。卡内一部分条目强调服务师应像真实人而不是服务流程机器；另一部分元写作条目却要求三段式流程、至少3次高潮、每个动作或场景切换至少附带2个具体感官细节，并要求动态强度升级。当前测试要保留乐园世界与成人设定，但检验预设能否把这些元写作程序与世界事实分开。`,
+星梦奇境乐园为仅限成年人的成人游乐园。卡内一部分条目强调服务师应像真实人而不是服务流程机器；另一部分元写作条目却要求三段式流程、至少3次高潮、每个动作或场景切换至少附带2个具体感官细节，并要求动态强度升级。`,
  ruan:`[真实卡摘录｜阮芊雅]
 阮芊雅，21岁成年女性，有现任男友舒愈，22岁成年男性。User固定为成年女性，是舒愈认识多年的好友/发小，与舒愈不是亲属。核心关系为“有男友的阮芊雅 × 男友最信任的女性好友”，保留NTR、背德、狗血、欲望与内疚的成人张力。User除成年女性和上述关系外，性格、外貌、经历、情绪、主动/被动与重要决定都留给玩家。`,
  gaspard:`[真实卡摘录｜Gaspard]
@@ -81,10 +81,10 @@ function sig(t,id){t=String(t||'');return{
 
 await fs.mkdir(OUT,{recursive:true});await secret();
 const rows=[];let last=0;
-for(const s of scenarios){for(const variant of ['v10','v102']){const wait=P.delayMs-(Date.now()-last);if(last&&wait>0)await sleep(wait);const messages=[{role:'system',content:sys(variant,s)},{role:'system',content:`${s.card}\n测试目标：${s.goal}`},...s.hist];last=Date.now();const r=await gen(messages);const row={scenario:s.id,variant,...r,reasoning_chars:r.reasoning.length,signals:sig(r.content,s.id)};rows.push(row);console.log(JSON.stringify({scenario:s.id,variant,http:r.http_status,finish:r.finish_reason,chars:r.content.length,reasoning:r.reasoning.length,signals:row.signals}));}}
+for(const s of scenarios){for(const variant of ['v10','v102']){const wait=P.delayMs-(Date.now()-last);if(last&&wait>0)await sleep(wait);const messages=[{role:'system',content:sys(variant,s)},{role:'system',content:s.card},...s.hist];last=Date.now();const r=await gen(messages);const row={scenario:s.id,goal:s.goal,variant,...r,reasoning_chars:r.reasoning.length,signals:sig(r.content,s.id)};rows.push(row);console.log(JSON.stringify({scenario:s.id,variant,http:r.http_status,finish:r.finish_reason,chars:r.content.length,reasoning:r.reasoning.length,signals:row.signals}));}}
 function avg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:0}
 const summary={};for(const variant of ['v10','v102']){const rs=rows.filter(x=>x.variant===variant);summary[variant]={n:rs.length,nonempty:rs.filter(x=>x.content.trim()).length,avg_chars:+avg(rs.map(x=>x.content.length)).toFixed(1),avg_reasoning:+avg(rs.map(x=>x.reasoning_chars)).toFixed(1),avg_ms:+avg(rs.map(x=>x.elapsed_ms)).toFixed(1),refusal:rs.reduce((a,x)=>a+x.signals.refusal,0),moral:rs.reduce((a,x)=>a+x.signals.moral,0),student_leak:rs.reduce((a,x)=>a+x.signals.student_leak,0),process:rs.reduce((a,x)=>a+x.signals.process,0),explain:rs.reduce((a,x)=>a+x.signals.explain,0),user_proxy:rs.reduce((a,x)=>a+x.signals.user_proxy,0),fact_invent:rs.reduce((a,x)=>a+x.signals.fact_invent,0),male_drift:rs.reduce((a,x)=>a+x.signals.male_drift,0),sweetening:rs.reduce((a,x)=>a+x.signals.sweetening,0),confession:rs.reduce((a,x)=>a+x.signals.confession,0)};}
-const report={provider:'YOUZI',model:P.model,real_sillytavern:true,st_commit:process.env.ST_COMMIT||null,source:'real user-provided CCV3 card excerpts',variants:['v10','v102'],summary,rows};
+const report={provider:'YOUZI',model:P.model,real_sillytavern:true,st_commit:process.env.ST_COMMIT||null,source:'real user-provided CCV3 card excerpts',evaluator_goals_hidden_from_model:true,variants:['v10','v102'],summary,rows};
 await fs.writeFile(path.join(OUT,'student-dean-cardstress-v102-report.json'),JSON.stringify(report,null,2));
 await fs.writeFile(path.join(OUT,'student-dean-cardstress-v102-summary.txt'),JSON.stringify(summary,null,2));
 console.log('SUMMARY '+JSON.stringify(summary));
