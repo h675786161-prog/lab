@@ -1,0 +1,1 @@
+NSFW module boundary: it must not redefine User agency, POV, length, or other public controls. Those are supplied by separate public contracts. NSFW may only preserve them while handling intimacy-specific behavior.
