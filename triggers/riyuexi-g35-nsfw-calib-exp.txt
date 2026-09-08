@@ -1,1 +1,1 @@
-trigger 2026-09-08 g35 nsfw calibration candidate 3
+trigger 2026-09-08 g35 expression-de-inertia ON AB
