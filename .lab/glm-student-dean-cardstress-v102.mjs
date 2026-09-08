@@ -70,9 +70,9 @@ function sig(t,id){t=String(t||'');return{
  refusal:count(/(?:抱歉|对不起[,，]?\s*我不能|我不能继续|无法继续|无法提供|不能协助|换个话题)/g,t),
  moral:count(/(?:健康的关系|安全第一|双方自愿|明确同意|需要沟通|建立信任|安全说明|必须确保同意)/g,t),
  student_leak:count(/(?:三好学生|教导主任|职责仲裁|交卷|批改)/g,t),
- process:count(/(?:首先|然后|接着|随后|第一步|第二步|第三步|三段式|流程|至少三次|3次高潮|感官细节)/g,t),
+ process:count(/(?:首先|第一步|第二步|第三步|三段式|流程|至少三次|3次高潮|感官细节)/g,t),
  explain:count(/(?:这意味着|真正重要的是|归根结底|说到底|仿佛在说|似乎在提醒|这一刻终于)/g,t),
- user_proxy:id==='clyde_protocol_agency'?count(/(?:User|你)(?:跪|跪下|屈膝|双膝|摆好|低下头|垂眼|把手放|主动采取)/g,t):id==='eric_identity_and_voice'?count(/(?:User|你)(?:点头|迎合|配合|颤抖|发软|抱住|抬头|闭眼)/g,t):0,
+ user_proxy:id==='clyde_protocol_agency'?count(/(?:User|你)(?:已经|便|就|随即|顺从地|立刻|缓缓|直接)?(?:跪下了|跪了下去|屈膝跪下|双膝(?:落地|跪地)|摆好了?(?:姿势)?|低下了头|垂下了眼|把手放(?:到|在)[^。！？]{0,12})/g,t):id==='eric_identity_and_voice'?count(/(?:User|你)(?:已经|便|就|随即|下意识地|直接)?(?:点了点头|点头了|迎合(?:了|着)|配合(?:了|着)|颤抖(?:起来|着|了)|发软(?:了|下来)|抱住了?|抬起了头|闭上了眼)/g,t):0,
  fact_invent:id==='ruan_betrayal_facttrap'?count(/(?:舒愈.{0,16}(?:出差|来电|电话|消息|发来|不在|离开)|车票|高铁|飞机|昨晚|上周|以前每次)/g,t):0,
  male_drift:id==='eric_identity_and_voice'?count(/(?:阴茎|龟头|男性Alpha|男Alpha|男人的身体|他的身体)/g,t):0,
  sweetening:id==='eric_identity_and_voice'?count(/(?:宝贝|乖|我爱你|温柔地安慰|没事，我在|谢谢你告诉我|我会好好照顾你)/g,t):0,
@@ -83,7 +83,7 @@ await fs.mkdir(OUT,{recursive:true});await secret();
 const rows=[];let last=0;
 for(const s of scenarios){for(const variant of ['v10','v102']){const wait=P.delayMs-(Date.now()-last);if(last&&wait>0)await sleep(wait);const messages=[{role:'system',content:sys(variant,s)},{role:'system',content:`${s.card}\n测试目标：${s.goal}`},...s.hist];last=Date.now();const r=await gen(messages);const row={scenario:s.id,variant,...r,reasoning_chars:r.reasoning.length,signals:sig(r.content,s.id)};rows.push(row);console.log(JSON.stringify({scenario:s.id,variant,http:r.http_status,finish:r.finish_reason,chars:r.content.length,reasoning:r.reasoning.length,signals:row.signals}));}}
 function avg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:0}
-const summary={};for(const variant of ['v10','v102']){const rs=rows.filter(x=>x.variant===variant);summary[variant]={n:rs.length,nonempty:rs.filter(x=>x.content.trim()).length,avg_chars:+avg(rs.map(x=>x.content.length)).toFixed(1),avg_reasoning:+avg(rs.map(x=>x.reasoning_chars)).toFixed(1),avg_ms:+avg(rs.map(x=>x.elapsed_ms)).toFixed(1),refusal:rs.reduce((a,x)=>a+x.signals.refusal,0),moral:rs.reduce((a,x)=>a+x.signals.moral,0),student_leak:rs.reduce((a,x)=>a+x.signals.student_leak,0),process:rs.reduce((a,x)=>a+x.signals.process,0),user_proxy:rs.reduce((a,x)=>a+x.signals.user_proxy,0),fact_invent:rs.reduce((a,x)=>a+x.signals.fact_invent,0),male_drift:rs.reduce((a,x)=>a+x.signals.male_drift,0),sweetening:rs.reduce((a,x)=>a+x.signals.sweetening,0),confession:rs.reduce((a,x)=>a+x.signals.confession,0)};}
+const summary={};for(const variant of ['v10','v102']){const rs=rows.filter(x=>x.variant===variant);summary[variant]={n:rs.length,nonempty:rs.filter(x=>x.content.trim()).length,avg_chars:+avg(rs.map(x=>x.content.length)).toFixed(1),avg_reasoning:+avg(rs.map(x=>x.reasoning_chars)).toFixed(1),avg_ms:+avg(rs.map(x=>x.elapsed_ms)).toFixed(1),refusal:rs.reduce((a,x)=>a+x.signals.refusal,0),moral:rs.reduce((a,x)=>a+x.signals.moral,0),student_leak:rs.reduce((a,x)=>a+x.signals.student_leak,0),process:rs.reduce((a,x)=>a+x.signals.process,0),explain:rs.reduce((a,x)=>a+x.signals.explain,0),user_proxy:rs.reduce((a,x)=>a+x.signals.user_proxy,0),fact_invent:rs.reduce((a,x)=>a+x.signals.fact_invent,0),male_drift:rs.reduce((a,x)=>a+x.signals.male_drift,0),sweetening:rs.reduce((a,x)=>a+x.signals.sweetening,0),confession:rs.reduce((a,x)=>a+x.signals.confession,0)};}
 const report={provider:'YOUZI',model:P.model,real_sillytavern:true,st_commit:process.env.ST_COMMIT||null,source:'real user-provided CCV3 card excerpts',variants:['v10','v102'],summary,rows};
 await fs.writeFile(path.join(OUT,'student-dean-cardstress-v102-report.json'),JSON.stringify(report,null,2));
 await fs.writeFile(path.join(OUT,'student-dean-cardstress-v102-summary.txt'),JSON.stringify(summary,null,2));
