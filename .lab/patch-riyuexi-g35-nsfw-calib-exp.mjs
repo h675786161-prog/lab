@@ -4,8 +4,8 @@ if(!src||!out) throw new Error('usage: node patch-riyuexi-g35-nsfw-calib-exp.mjs
 let s=await fs.readFile(src,'utf8');
 const anchor="  const tail=\"3.5\"==='3.5'?d['🌓Gemini3.5尾部']:d['🌓Gemini尾部①'];";
 if(!s.includes(anchor)) throw new Error('Gemini 3.5 calibration anchor missing');
-const add=`  calib.content += "\\n- 成人亲密场景里，不要为了让尊重、配合或慢节奏显得有张力，先替角色虚构一个相反的‘本能想更快/更深/更重/更占有，只是忍住了’；没有前文依据时，遵从反馈本身就是角色当下真实的动作与欲望，不需要额外的野兽冲动作陪衬。\\n- NSFW时人物仍然是完整的人，不要把整轮缩成‘器官动作→身体反应→再一个器官动作’的反馈机器；在符合人物和现场时，允许普通声口、短对白、走神、笑场、停顿或无关紧要的小反应自然混进来，但不要为了证明生活感硬塞新背景。";\n`;
+const add=`  calib.content += "\\n- 成人亲密场景里，不要为了让尊重、配合或慢节奏显得有张力，先替角色虚构一个相反的‘本能想更快/更深/更重/更占有，只是忍住了’；没有前文依据时，遵从反馈本身就是角色当下真实的动作与欲望。\\n- NSFW时人物仍然是完整的人；不要把整轮缩成‘器官动作→身体反应→再一个器官动作’的反馈机器。当前动作若没有实质变化，不要只换同义词、角度或微观部位重复描写同一件事；可以让人物说话、走神、笑场、停顿、注意别处，或干脆让这一拍保持安静。\\n- 写实不等于给性器官持续开微距镜头。只有新变化真的发生时才增加新的生理细节；没有新变化时，把输出空间留给人物、现场和自然停顿，不要为了维持色情密度硬造一串身体反馈。";\n`;
 s=s.replace(anchor,add+anchor);
-if(!s.includes('反馈机器')) throw new Error('experimental calibration patch failed');
+if(!s.includes('持续开微距镜头')) throw new Error('experimental calibration patch failed');
 await fs.writeFile(out,s,'utf8');
 console.log('wrote Gemini Flash NSFW calibration candidate',out);
