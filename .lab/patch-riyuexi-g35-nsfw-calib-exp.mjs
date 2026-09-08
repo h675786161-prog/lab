@@ -6,12 +6,12 @@ const oldLine="  let q=pack.sequence.map(x=>({...x})).filter(x=>!['😡表达去
 if(!s.includes(oldLine)) throw new Error('profile sequence anchor missing');
 const wlw={identifier:'lab-wlw-body-map-neutral',name:'🔥女女身体组合-LAB',role:'system',content:'{{setvar::常规性向4:: [身体组合：两名女性] - 本模块只提供身体结构与可用接触方式，不定义人物关系、性格、情绪、行为位置或强度。 - 可按双方已知身体设定使用手指、口舌、阴蒂与外阴刺激、身体摩擦、玩具、相互自慰或其他生理上成立的互动；本轮只使用上下文实际需要的部分。 - 高潮、潮吹、体液与连续次数按当前身体反应和已知设定写，不设同步、次数或必然结果。 - 除身体结构与动作可行性外，其余判断全部交给人物设定、当前互动与对应模块。 }}',marker:false,system_prompt:false};
 const g35Ecot={identifier:'lab-g35-nsfw-min-ecot',name:'📍常规创作思维',role:'system',content:'Ecot执行要求：\n- 仍读取并执行已有世界、人物、文风与NSFW模块，但Ecot只记录本轮绝对必要的信息，不把它们改写成色情导演手记。\n- Vol.1只写最新输入的直接作用与当前演绎/转述权限。\n- Vol.2只写已经明确存在、且不写就会导致连续性错误的事实。不要自行给身体、欲望、情绪或关系划分“上升期、临界点、积累阶段”等状态。\n- Vol.3只写“按当前人物、动作与节奏自然续写”，外加视角、代词和篇幅。不要做意象定位、刺激重点、张力设计、高潮目标、动作预演或结尾设计。\n- 信息不足就留空或写未知，不为填Vol补内容。\n\n【本轮模块参考｜只执行，不复述】\n输入：\n{{getvar::输入分析}}\n\n世界与连续性：\n{{getvar::世界构建}}\n{{getvar::世界构建EX-大型世界}}\n{{getvar::世界构建EX-主线规划}}\n{{getvar::世界构建EX-前文回扣}}\n{{getvar::世界构建EX-逻辑连贯}}\n\n人物：\n{{getvar::人物构建}}\n{{getvar::人物构建EX-好感规划}}\n{{getvar::人物构建EX-去同质化}}\n{{getvar::人物构建EX-多人锚定}}\n{{getvar::人物构建EX-嬷嬷思考}}\n{{getvar::人物构建EX-深度挖掘}}\n{{getvar::人物构建EX-同人锚定}}\n{{getvar::人物构建EX-人外锚定}}\n\n写法与专项：\n{{getvar::文风指导}}\n{{getvar::文风指导EX-额外素材}}\n{{getvar::涩涩设计}}\n{{getvar::涩涩设计EX-性癖定制}}\n{{getvar::叙事蓝图}}\n{{getvar::剧场COT}}\n{{getvar::吐槽COT}}\n{{getvar::title_COT}}\n{{getvar::echo_COT}}\n{{getvar::letter_COT}}\n{{getvar::image_COT}}\n{{getvar::角色COT}}\n{{getvar::自定义COT1}}\n{{getvar::自定义COT2}}\n【本轮模块参考结束】\n\n[Ecot_template]\n\"\"\"\n<electric>\n# 【日月华章·本轮校准】\n\n## Vol.1 输入与权限\n- 当前输入作用：只写最新输入对眼前动作的直接影响。\n- 转述：{{getglobalvar::转述授权}}\n- 演绎：{{getglobalvar::演绎授权}}\n\n## Vol.2 必要事实\n只写0—2条已经明确存在、且本轮必须守住的事实；没有就写“无额外事实”。\n\n## Vol.3 写法与输出\n- 按当前人物、动作与节奏自然续写。\n- 叙述视角：{{getglobalvar::叙述视角}}\n- char代词：{{getglobalvar::char代词}}；<user>代词：{{getglobalvar::user代词}}\n- 正文篇幅：{{getglobalvar::字数总要求}}\n{{getvar::giggle}}\n{{getvar::对话格式}}\n\n> 月读&天照：确认完毕，直接续写。\n</electric>\n\"\"\"\n<content>\n(在此处开始输出正文)',marker:false,system_prompt:false};
-const remove=['😡表达去惯性','✅GLM校准','🌓GLM尾部','💘BDSM前置'];
+const remove=['😡表达去惯性','✅GLM校准','🌓GLM尾部','💘BDSM前置','⛔综合禁令','😡防超雄+','😡防支配+'];
 const newLine=`  const wlw=${JSON.stringify(wlw)};\n  const g35Ecot=${JSON.stringify(g35Ecot)};\n  const remove=${JSON.stringify(remove)};\n  let q=pack.sequence.map(x=>({...x})).filter(x=>!remove.includes(String(x.name||''))).map(x=>x.name==='🔥男女模式'?wlw:(x.name==='📍常规创作思维'?g35Ecot:x));`;
 s=s.replace(oldLine,newLine);
 const oldLen="pack.sequence.length!==222";
 if(!s.includes(oldLen)) throw new Error('sequence length anchor missing');
-s=s.replace(oldLen,"pack.sequence.length!==221");
-if(!s.includes('女女身体组合-LAB')||!s.includes('lab-g35-nsfw-min-ecot')||!s.includes('length!==221')) throw new Error('G35 minimal NSFW Ecot isolate patch failed');
+s=s.replace(oldLen,"pack.sequence.length!==218");
+if(!s.includes('女女身体组合-LAB')||!s.includes('lab-g35-nsfw-min-ecot')||!s.includes('length!==218')) throw new Error('G35 original NSFW positive-only minimal Ecot patch failed');
 await fs.writeFile(out,s,'utf8');
-console.log('wrote Gemini 3.5 original NSFW + neutral WLW body-map + BDSM OFF + minimal NSFW Ecot runner',out);
+console.log('wrote Gemini 3.5 original NSFW + positive-only + neutral WLW body-map + BDSM OFF + minimal NSFW Ecot runner',out);
