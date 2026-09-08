@@ -80,12 +80,29 @@ Commit `8c67c60cf86e9ae841a4a9895bc55464e1c82c50` tightened the measurement laye
 
 These signals are diagnostic aids, not automatic literary truth. Final acceptance still requires reading the actual outputs.
 
+## Evaluator-leakage correction
+
+Commit `45851c54e9af4e96676b94f0a5f30490c63860f3` removed a serious A/B contamination bug.
+
+Previously each scenario's evaluator goal was appended to a system message sent to the model, and two card excerpts also contained test-side editorial guidance. That could teach both v1.0 and v1.0.2 the expected answer and hide the actual effect of the arbiter.
+
+Now:
+
+- Scenario `goal` remains in the report for human evaluation but is not sent to the model.
+- Clyde's card excerpt no longer contains the test-side sentence explaining that the protocol does not mean the User already performed the posture.
+- The park excerpt no longer contains the test-side sentence explaining which meta-writing instructions the benchmark expects to suppress.
+- Report metadata records `evaluator_goals_hidden_from_model: true`.
+
+This keeps the A/B delta closer to the intended comparison: same base prompt, same card-derived material, same history, with the v1.0.2 arbiter as the meaningful added intervention.
+
 ## GitHub Actions runner blocker
 
 Two independent runner labels have failed before step 1:
 
 1. `Runner Probe` using `ubuntu-latest`.
 2. `GLM Student Dean v1.0.2 Real-Card Stress` using `ubuntu-22.04`.
+
+Multiple fresh card-stress runs have repeated the same failure shape, including the run triggered after the evaluator-leakage fix.
 
 Observed failure shape:
 
