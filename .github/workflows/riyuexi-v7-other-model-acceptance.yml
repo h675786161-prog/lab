@@ -1,0 +1,95 @@
+name: LingQi Riyuexi V7 Other Model Acceptance
+on:
+  push:
+    branches: ['bench/riyuexi-depattern-v1']
+    paths:
+      - 'triggers/riyuexi-v7-other-model-acceptance.txt'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      ST_DIR: /tmp/lingqi-sillytavern
+      LAB_ST_URL: http://127.0.0.1:8000
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      OUT: ${{ github.workspace }}/lab-evidence-other-models
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build exact V7 Flash36 and Claude runners
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$OUT"; mkdir -p "$OUT/flash36" "$OUT/claude"
+          cat fixtures/riyuexi-v7-glm/active-pack.repair08.b64 fixtures/riyuexi-v7-glm/active-pack.repair09.b64 > fixtures/riyuexi-v7-glm/active-pack.part06.b64
+          cat fixtures/riyuexi-v7-glm/active-pack.part*.b64 | base64 -d | gzip -t
+          node --check .lab/riyuexi-v7-glm-exact.mjs
+          node --check .lab/make-riyuexi-v11-style-runner.mjs
+          node --check .lab/make-riyuexi-v7-other-model-runner.mjs
+          node .lab/make-riyuexi-v11-style-runner.mjs .lab/riyuexi-v7-glm-exact.mjs /tmp/riyuexi-v7-open.mjs
+          node .lab/make-riyuexi-v7-other-model-runner.mjs /tmp/riyuexi-v7-open.mjs /tmp/riyuexi-v7-flash36.mjs flash36
+          node .lab/make-riyuexi-v7-other-model-runner.mjs /tmp/riyuexi-v7-open.mjs /tmp/riyuexi-v7-claude.mjs claude
+          node --check /tmp/riyuexi-v7-flash36.mjs
+          node --check /tmp/riyuexi-v7-claude.mjs
+      - name: Discover model catalogs without generation
+        env:
+          GG: ${{ secrets.GG }}
+          YOUZI: ${{ secrets.YOUZI }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs=require('fs');
+          async function cat(url,key){try{const r=await fetch(url+'/models',{headers:{Authorization:`Bearer ${key}`}});const tx=await r.text();if(!r.ok)return [];const d=JSON.parse(tx);return(d.data||d.models||[]).map(x=>typeof x==='string'?x:(x.id||x.name)).filter(Boolean)}catch{return[]}}
+          (async()=>{const gg=await cat('https://gcli.ggchan.dev/v1',process.env.GG), yz=await cat('https://youzi.today/v1',process.env.YOUZI);
+            const flash=gg.find(x=>/gemini.*3[._-]?[6-8].*flash/i.test(x))||yz.find(x=>/gemini.*3[._-]?[6-8].*flash/i.test(x))||'';
+            const flashSrc=gg.includes(flash)?'GG':(yz.includes(flash)?'YOUZI':'');
+            const claude=yz.find(x=>/claude/i.test(x))||gg.find(x=>/claude/i.test(x))||'';
+            const claudeSrc=yz.includes(claude)?'YOUZI':(gg.includes(claude)?'GG':'');
+            fs.appendFileSync(process.env.GITHUB_ENV,`FLASH_MODEL=${flash}\nFLASH_SRC=${flashSrc}\nCLAUDE_MODEL=${claude}\nCLAUDE_SRC=${claudeSrc}\n`);
+            fs.writeFileSync(process.env.OUT+'/models.json',JSON.stringify({flash,flashSrc,claude,claudeSrc,ggMatches:gg.filter(x=>/gemini.*3[._-]?[6-8].*flash|claude/i.test(x)),youziMatches:yz.filter(x=>/gemini.*3[._-]?[6-8].*flash|claude/i.test(x))},null,2));
+            console.log('selected',{flash,flashSrc,claude,claudeSrc});
+          })();
+          NODE
+      - name: Prepare isolated real SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$ST_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+          cd "$ST_DIR"; npm ci
+      - name: Start isolated SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"; nohup node server.js --listen --port 8000 --disableCsrf > "$OUT/sillytavern-runtime.log" 2>&1 & echo $! >/tmp/lingqi-sillytavern.pid
+          for i in $(seq 1 90); do curl -fsS --max-time 2 "$LAB_ST_URL/" >/dev/null 2>&1 && exit 0; kill -0 "$(cat /tmp/lingqi-sillytavern.pid)" 2>/dev/null || exit 1; sleep 1; done; exit 1
+      - name: Run one low-bar RP sample per available line
+        env:
+          GG: ${{ secrets.GG }}
+          YOUZI: ${{ secrets.YOUZI }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          calls=0
+          run_one(){ kind="$1" model="$2" src="$3" runner="$4" dir="$5"; [ -n "$model" ] || { echo "$kind unavailable" > "$dir/unavailable.txt"; return; }; if [ "$calls" -gt 0 ]; then sleep 31; fi; if [ "$src" = GG ]; then url='https://gcli.ggchan.dev/v1'; key="$GG"; else url='https://youzi.today/v1'; key="$YOUZI"; fi; LAB_EVIDENCE_DIR="$dir" LAB_MODEL="$model" LAB_PROVIDER="$src" LAB_API_URL="$url" LAB_API_KEY="$key" node "$runner"; calls=$((calls+1)); }
+          run_one flash36 "$FLASH_MODEL" "$FLASH_SRC" /tmp/riyuexi-v7-flash36.mjs "$OUT/flash36"
+          run_one claude "$CLAUDE_MODEL" "$CLAUDE_SRC" /tmp/riyuexi-v7-claude.mjs "$OUT/claude"
+      - name: Runtime tail
+        if: always()
+        run: tail -n 500 "$OUT/sillytavern-runtime.log" > "$OUT/sillytavern-runtime-tail.log" 2>/dev/null || true
+      - name: Stop runtime
+        if: always()
+        run: '[ ! -f /tmp/lingqi-sillytavern.pid ] || kill "$(cat /tmp/lingqi-sillytavern.pid)" 2>/dev/null || true'
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: riyuexi-v7-other-model-acceptance
+          path: lab-evidence-other-models/
+          if-no-files-found: error
