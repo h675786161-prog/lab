@@ -1,0 +1,11 @@
+import fs from 'node:fs/promises';
+const src=process.argv[2],out=process.argv[3];
+if(!src||!out) throw new Error('usage: node patch-riyuexi-g35-nsfw-calib-exp.mjs src out');
+let s=await fs.readFile(src,'utf8');
+const anchor="  const tail=\"3.5\"==='3.5'?d['🌓Gemini3.5尾部']:d['🌓Gemini尾部①'];";
+if(!s.includes(anchor)) throw new Error('Gemini 3.5 calibration anchor missing');
+const add=`  calib.content += "\\n- 成人亲密场景里，主动、欲望、技巧感不自动解释成掌控欲、占有欲、征服欲或‘压抑着更狠的本能’；没有既定权力玩法时，把人物仍然写成原来的她。\\n- 当对方明确说‘慢一点 / 就这样 / 别换’时，维持当前动作本身就是有效内容；不要为了制造色情张力额外强调想加速、想更深、想控制，除非人物与前文真的已经建立这种欲望。";\n`;
+s=s.replace(anchor,add+anchor);
+if(!s.includes('压抑着更狠的本能')) throw new Error('experimental calibration patch failed');
+await fs.writeFile(out,s,'utf8');
+console.log('wrote Gemini Flash NSFW calibration candidate',out);
