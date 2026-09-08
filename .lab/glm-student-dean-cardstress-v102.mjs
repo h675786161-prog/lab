@@ -39,7 +39,7 @@ const nsfw=`[NSFW核心]
 const dean=`[教导主任｜只审语言]
 只是内部审改代号。不是第二作者、事实警察、User权限警察或剧情导演。只在最终文字形成时一眼发现真实语病、主体错乱、解释焊接、动作流水账、微动作/感官/比喻排班、重复举证或漂亮总结时，最小修一次。需要寻找就不找，不全文重写。`;
 
-function sys(variant,card){return [baseCore,variant==='v102'?arbiter:'',card.nsfw?nsfw:'',dean].filter(Boolean).join('\n\n');}
+function sys(variant,card){return [baseCore,variant==='v102_arbiter'?arbiter:'',card.nsfw?nsfw:'',dean].filter(Boolean).join('\n\n');}
 
 const cards={
  eric:`[真实卡摘录｜Eric]
@@ -81,10 +81,10 @@ function sig(t,id){t=String(t||'');return{
 
 await fs.mkdir(OUT,{recursive:true});await secret();
 const rows=[];let last=0;
-for(const s of scenarios){for(const variant of ['v10','v102']){const wait=P.delayMs-(Date.now()-last);if(last&&wait>0)await sleep(wait);const messages=[{role:'system',content:sys(variant,s)},{role:'system',content:s.card},...s.hist];last=Date.now();const r=await gen(messages);const row={scenario:s.id,goal:s.goal,variant,...r,reasoning_chars:r.reasoning.length,signals:sig(r.content,s.id)};rows.push(row);console.log(JSON.stringify({scenario:s.id,variant,http:r.http_status,finish:r.finish_reason,chars:r.content.length,reasoning:r.reasoning.length,signals:row.signals}));}}
+for(const s of scenarios){for(const variant of ['baseline_no_arbiter','v102_arbiter']){const wait=P.delayMs-(Date.now()-last);if(last&&wait>0)await sleep(wait);const messages=[{role:'system',content:sys(variant,s)},{role:'system',content:s.card},...s.hist];last=Date.now();const r=await gen(messages);const row={scenario:s.id,goal:s.goal,variant,...r,reasoning_chars:r.reasoning.length,signals:sig(r.content,s.id)};rows.push(row);console.log(JSON.stringify({scenario:s.id,variant,http:r.http_status,finish:r.finish_reason,chars:r.content.length,reasoning:r.reasoning.length,signals:row.signals}));}}
 function avg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:0}
-const summary={};for(const variant of ['v10','v102']){const rs=rows.filter(x=>x.variant===variant);summary[variant]={n:rs.length,nonempty:rs.filter(x=>x.content.trim()).length,avg_chars:+avg(rs.map(x=>x.content.length)).toFixed(1),avg_reasoning:+avg(rs.map(x=>x.reasoning_chars)).toFixed(1),avg_ms:+avg(rs.map(x=>x.elapsed_ms)).toFixed(1),refusal:rs.reduce((a,x)=>a+x.signals.refusal,0),moral:rs.reduce((a,x)=>a+x.signals.moral,0),student_leak:rs.reduce((a,x)=>a+x.signals.student_leak,0),process:rs.reduce((a,x)=>a+x.signals.process,0),explain:rs.reduce((a,x)=>a+x.signals.explain,0),user_proxy:rs.reduce((a,x)=>a+x.signals.user_proxy,0),fact_invent:rs.reduce((a,x)=>a+x.signals.fact_invent,0),male_drift:rs.reduce((a,x)=>a+x.signals.male_drift,0),sweetening:rs.reduce((a,x)=>a+x.signals.sweetening,0),confession:rs.reduce((a,x)=>a+x.signals.confession,0)};}
-const report={provider:'YOUZI',model:P.model,real_sillytavern:true,st_commit:process.env.ST_COMMIT||null,source:'real user-provided CCV3 card excerpts',evaluator_goals_hidden_from_model:true,variants:['v10','v102'],summary,rows};
+const summary={};for(const variant of ['baseline_no_arbiter','v102_arbiter']){const rs=rows.filter(x=>x.variant===variant);summary[variant]={n:rs.length,nonempty:rs.filter(x=>x.content.trim()).length,avg_chars:+avg(rs.map(x=>x.content.length)).toFixed(1),avg_reasoning:+avg(rs.map(x=>x.reasoning_chars)).toFixed(1),avg_ms:+avg(rs.map(x=>x.elapsed_ms)).toFixed(1),refusal:rs.reduce((a,x)=>a+x.signals.refusal,0),moral:rs.reduce((a,x)=>a+x.signals.moral,0),student_leak:rs.reduce((a,x)=>a+x.signals.student_leak,0),process:rs.reduce((a,x)=>a+x.signals.process,0),explain:rs.reduce((a,x)=>a+x.signals.explain,0),user_proxy:rs.reduce((a,x)=>a+x.signals.user_proxy,0),fact_invent:rs.reduce((a,x)=>a+x.signals.fact_invent,0),male_drift:rs.reduce((a,x)=>a+x.signals.male_drift,0),sweetening:rs.reduce((a,x)=>a+x.signals.sweetening,0),confession:rs.reduce((a,x)=>a+x.signals.confession,0)};}
+const report={provider:'YOUZI',model:P.model,real_sillytavern:true,st_commit:process.env.ST_COMMIT||null,source:'real user-provided CCV3 card excerpts',comparison:'ablation: same current base, responsibility arbiter off vs on; not a historical v1.0 release comparison',evaluator_goals_hidden_from_model:true,variants:['baseline_no_arbiter','v102_arbiter'],summary,rows};
 await fs.writeFile(path.join(OUT,'student-dean-cardstress-v102-report.json'),JSON.stringify(report,null,2));
 await fs.writeFile(path.join(OUT,'student-dean-cardstress-v102-summary.txt'),JSON.stringify(summary,null,2));
 console.log('SUMMARY '+JSON.stringify(summary));
