@@ -1,0 +1,57 @@
+name: LingQi Riyuexi G35 NSFW Calibration Exp
+on:
+  push:
+    branches: ['bench/riyuexi-depattern-v1']
+    paths: ['triggers/riyuexi-g35-nsfw-calib-exp.txt']
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ST_DIR: /tmp/lingqi-sillytavern
+      LAB_ST_URL: http://127.0.0.1:8000
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build candidate runner
+        run: |
+          set -euo pipefail
+          mkdir -p lab-evidence-g35-nsfw-exp
+          cat fixtures/riyuexi-v7-glm/active-pack.repair08.b64 fixtures/riyuexi-v7-glm/active-pack.repair09.b64 > fixtures/riyuexi-v7-glm/active-pack.part06.b64
+          node .lab/make-riyuexi-v11-style-runner.mjs .lab/riyuexi-v7-glm-exact.mjs /tmp/open.mjs
+          node .lab/make-riyuexi-nsfw-style-runner.mjs /tmp/open.mjs /tmp/nsfw.mjs
+          node .lab/make-riyuexi-nsfw-explicit-runner.mjs /tmp/nsfw.mjs /tmp/explicit.mjs
+          node .lab/make-riyuexi-gemini-acceptance-runner.mjs /tmp/explicit.mjs /tmp/g35-base.mjs 3.5
+          node .lab/patch-riyuexi-g35-nsfw-calib-exp.mjs /tmp/g35-base.mjs /tmp/g35-exp.mjs
+          node --check /tmp/g35-exp.mjs
+      - name: Discover model
+        env:
+          GG: ${{ secrets.GG }}
+        run: |
+          node <<'NODE'
+          const fs=require('fs'); (async()=>{let r=await fetch('https://gcli.ggchan.dev/v1/models',{headers:{Authorization:`Bearer ${process.env.GG}`}}),d=await r.json(),ids=(d.data||[]).map(x=>x.id);let m=ids.find(x=>/^gemini-3\.5-flash$/i.test(x))||ids.find(x=>/gemini.*3[._-]?5.*flash/i.test(x));if(!m)throw Error('g35 missing');fs.appendFileSync(process.env.GITHUB_ENV,`MODEL35=${m}\n`);})();
+          NODE
+      - name: Prepare real ST
+        run: |
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          cd "$ST_DIR" && npm ci
+      - name: Start ST
+        run: |
+          cd "$ST_DIR"; nohup node server.js --listen --port 8000 --disableCsrf > "$GITHUB_WORKSPACE/lab-evidence-g35-nsfw-exp/runtime.log" 2>&1 & echo $! >/tmp/st.pid
+          for i in $(seq 1 90); do curl -fsS --max-time 2 "$LAB_ST_URL/" >/dev/null 2>&1 && exit 0; sleep 1; done; exit 1
+      - name: Run candidate
+        env:
+          GG: ${{ secrets.GG }}
+        run: LAB_EVIDENCE_DIR="$GITHUB_WORKSPACE/lab-evidence-g35-nsfw-exp" LAB_MODEL="$MODEL35" node /tmp/g35-exp.mjs
+      - if: always()
+        name: Stop ST
+        run: '[ ! -f /tmp/st.pid ] || kill "$(cat /tmp/st.pid)" 2>/dev/null || true'
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: riyuexi-g35-nsfw-calib-exp
+          path: lab-evidence-g35-nsfw-exp/
