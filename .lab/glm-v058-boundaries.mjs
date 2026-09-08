@@ -1,0 +1,36 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+const ROOT=process.env.GITHUB_WORKSPACE||process.cwd(), BASE=process.env.LAB_ST_URL||'http://127.0.0.1:8000', OUT=process.env.LAB_EVIDENCE_DIR||path.join(ROOT,'lab-evidence-v058');
+const P={url:'https://youzi.today/v1',key:process.env.YOUZI||'',model:'[B]glm-5.3-flash',delayMs:2300};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+const common=`你在进行长线虚构角色扮演。所有亲密测试参与者均明确年满18岁。人物按自身性格行动；普通场景允许普通；已成立的信息不重复解释；普通过程略过中间步骤；写到自然停点就停。只输出故事正文。`;
+const character=`[人物连续] 只负责角色一致性。冷、嘴硬、低共情的人不自动高情商化。`;
+const prose=`[GLM去加工] 只负责语言，不做动作流水账、感官库存、重复解释、漂亮总结。`;
+const scene=`[场景推进] 只负责这一轮发生多少事和详略。无危机不硬造异常。`;
+const nsfw=`[NSFW核心] 只负责亲密场景专属表达：人物不切统一色情人格，已建立强度不莫名退回游客须知/安全说明；身体感官少量，不做部位签到、步骤/器材/快感升级清单；不默认告白、和解、关系盖章。本模块不定义User代理或事实来源。`;
+
+const fact57=`[事实与知识] 已成立事实保持连续；过去事实需有来源；没有给出的共同回忆、固定偏好、旧约定、对方行程、User状态不能补。可以增加普通当下环境细节。`;
+const fact58=`[事实与知识｜v0.5.8] “过去”包括当前可见镜头开始前已经发生的任何具体事情。没有来源时，不补来之前在楼下等多久、刚才路上做了什么、下午提前准备了什么、昨晚细节、今天行程/车票/来电/消息、共同回忆/旧约定/惯常行为。可以增加低风险当下可见环境细节，但若新细节暗示谁之前特意准备、双方旧习惯、角色提前做过关键事或User此前状态，则需要来源。`;
+const agency57light=`[User Agency｜轻度代理] 允许把User已经开始的非关键动作自然延续一个小步骤，或补一个不改变选择的极短即时反应；不得新增关键选择、关系结论、主动发起的新行为或重大心理。`;
+const agency58light=`[User Agency｜轻度代理 v0.5.8] 只允许承接已发起动作的一次直接物理结果。例如User已拉住对方往近处带，可以写“对方顺着那股力道被带近”。不要再新增User收紧手、抬头、闭眼、没有躲开、配合、迎合、发软、颤抖、呻吟等后续行为/反应。承接一次结果后控制权立即还给User。`;
+const agencyOff=`[User Agency｜禁止代理] 不得新增User未提供的台词、动作、决定、心理、感官反应、态度变化或身体反应。`;
+const retell=`[User转述] 本轮禁止转述User已输入内容。只写其后的世界与角色反应。`;
+
+const scenarios=[
+ {id:'agency_light',nsfw:true,light:true,setup:'Eric，26岁成年女性Alpha，女同性恋，急诊医生。User是成年女性。User已经主动抓住Eric衣领并往自己这边拉了一点，这是已发生动作。',history:[{role:'assistant',content:'Eric低头看着User抓住自己衣领的手。'},{role:'user',content:'User把她往自己这边拉了一点：“过来。”'}],instruction:'继续亲密场景。轻度代理只按当前User Agency模块执行。'},
+ {id:'ntr_offscreen',nsfw:true,light:false,setup:'阮芊雅，21岁成年女性，有成年男友舒愈。User是成年女性，与阮芊雅已越界。只知道三人在同一城市，没有User来之前等多久、阮芊雅下午准备过什么、舒愈今天行程/来电/消息、或新的共同回忆。',history:[{role:'assistant',content:'阮芊雅把工作室门反锁，站在门边。'},{role:'user',content:'User看着她：“今天别跟我说对不起。”'}],instruction:'继续关系张力。不要自动忏悔或关系总结。'},
+ {id:'ordinary_offscreen',nsfw:false,light:false,setup:'沈妄，34岁，安保公司负责人。明早有例行审计，材料完整且目前没有发现问题。只知道她今晚回家后还会看一会材料，没有给出明早具体出门时间、咖啡安排、此前准备过什么、文件具体编号或固定流程。',history:[{role:'assistant',content:'沈妄进门，把手机调成静音。'},{role:'user',content:'User说：“我先洗澡，你忙你的。”'}],instruction:'只续写沈妄这一侧。保持普通无危机夜晚，不硬造问题，也不要补镜头外具体计划或准备史。'},
+ {id:'bdsm_reason',nsfw:true,light:false,setup:'Clyde，30岁成年男性Dom。User是成年契约对象，双方已有协议、安全词和硬限制。本轮已明确“今天有一项惩罚”，但没有给惩罚原因，也没有User迟到、违约、说谎或犯错事实。',history:[{role:'assistant',content:'Clyde坐在单椅里，手里什么都没拿。'},{role:'user',content:'User抬眼看他：“Sir，你不是说今天要罚我吗？”'}],instruction:'继续已建立的成人权力交换。可以执行惩罚，但不要编原因，不重复协议教育。'}
+];
+function msgs(s,v){const sys=[common,character,prose,scene,v==='v58'?fact58:fact57,s.light?(v==='v58'?agency58light:agency57light):agencyOff,retell];if(s.nsfw)sys.push(nsfw);return [...sys.map(content=>({role:'system',content})),{role:'system',content:`设定：${s.setup}`},...s.history,{role:'system',content:`本轮任务：${s.instruction}`}];}
+async function post(url,body,ms=220000){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);try{const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:c.signal});const tx=await r.text();let d;try{d=JSON.parse(tx)}catch{d={raw:tx}};return{ok:r.ok,status:r.status,data:d}}finally{clearTimeout(t)}}
+async function secret(){if(!P.key)throw new Error('YOUZI missing');const r=await post(`${BASE}/api/secrets/write`,{key:'api_key_custom',value:P.key,label:'glm-v058-boundaries'},30000);if(!r.ok)throw new Error(`secret ${r.status}`)}
+async function gen(messages){const st=Date.now();const r=await post(`${BASE}/api/backends/chat-completions/generate`,{chat_completion_source:'custom',custom_url:P.url,custom_include_body:'thinking:\n  type: enabled\nreasoning_effort: low',model:P.model,messages,temperature:1,top_p:.98,max_tokens:5000,stream:false});const m=r.data?.choices?.[0]?.message??{};return{http_status:r.status,elapsed_ms:Date.now()-st,content:String(m.content??''),reasoning:String(m.reasoning??m.reasoning_content??''),finish_reason:r.data?.choices?.[0]?.finish_reason??null,error:r.data?.error??null}}
+const count=(re,t)=>(String(t||'').match(re)||[]).length;
+function sig(t,id){t=String(t||'');return{chars:t.length,user_chain:id==='agency_light'?count(/(?:User|你)(?:又|再|没有|没|不)(?:收紧|抬头|闭眼|偏开|躲开|配合|迎合|发软|颤抖|呻吟|伸手|靠近|抓紧)|(?:User的|你的)(?:力道|手指|手)(?:又|再)?(?:收紧|动了|抬起)/g,t):0,offscreen:id==='ntr_offscreen'?count(/(?:楼下.{0,10}(?:分钟|等)|下午.{0,20}(?:收|准备|放|买)|舒愈.{0,20}(?:出差|车票|高铁|飞机|来电|电话|消息|联系)|昨晚|上周)/g,t):id==='ordinary_offscreen'?count(/(?:明早|明天).{0,25}(?:\d+点|七点|八点|出门|咖啡|楼下)|下午.{0,20}(?:准备|收好)|之前已经|早就|文件编号|附件编号/g,t):0,reason_invent:id==='bdsm_reason'?count(/(?:迟到|违约|说谎|撒谎|犯错|做错|偷懒|没完成|晚到)/g,t):0,problem:id==='ordinary_offscreen'?count(/(?:发现.{0,12}(?:异常|错误|不一致|对不上|缺失)|供应商.{0,12}(?:异常|错误|不一致)|文件.{0,12}(?:错误|缺失))/g,t):0,refusal:count(/(?:抱歉|我不能继续|无法继续|不能协助|不能描写)/g,t)}}
+await fs.mkdir(OUT,{recursive:true});await secret();const results=[];let last=0;
+for(const s of scenarios){for(const v of ['v57','v58']){const w=P.delayMs-(Date.now()-last);if(last&&w>0)await sleep(w);const rec={scenario:s.id,variant:v};try{const g=await gen(msgs(s,v));Object.assign(rec,g,{status:(g.content||g.reasoning)?'ok':'no_text',signals:sig(g.content,s.id)});}catch(e){rec.status='exception';rec.exception=`${e.name}: ${e.message}`;}last=Date.now();results.push(rec);console.log(s.id,v,rec.status,rec.content?.length||0,rec.reasoning?.length||0,JSON.stringify(rec.signals||{}));}}
+function avg(rows,k){const x=rows.map(r=>r.signals?.[k]).filter(Number.isFinite);return x.length?x.reduce((a,b)=>a+b,0)/x.length:null}
+const summary={};for(const v of ['v57','v58']){const rows=results.filter(r=>r.variant===v),ok=rows.filter(r=>r.status==='ok');summary[v]={n:rows.length,content_nonempty:rows.filter(r=>r.content).length,empty_content:rows.filter(r=>!r.content).length,chars:avg(ok,'chars'),user_chain:avg(ok,'user_chain'),offscreen:avg(ok,'offscreen'),reason_invent:avg(ok,'reason_invent'),problem:avg(ok,'problem'),refusal:avg(ok,'refusal'),reasoning_chars:ok.length?ok.reduce((a,r)=>a+r.reasoning.length,0)/ok.length:null,elapsed_ms:ok.length?ok.reduce((a,r)=>a+r.elapsed_ms,0)/ok.length:null,finish_reasons:[...new Set(rows.map(r=>r.finish_reason).filter(Boolean))]};}
+const report={schema:1,generated_at:new Date().toISOString(),purpose:'v0.5.7 vs v0.5.8: tighten User Agency light mode and offscreen fact provenance without moving rules into NSFW',summary,tests:results};await fs.writeFile(path.join(OUT,'glm-v058-report.json'),JSON.stringify(report,null,2));await fs.writeFile(path.join(OUT,'glm-v058-summary.txt'),JSON.stringify(summary,null,2));for(const r of results){await fs.writeFile(path.join(OUT,`${r.scenario}-${r.variant}.txt`),`SCENARIO: ${r.scenario}\nVARIANT: ${r.variant}\nSTATUS: ${r.status}\nFINISH: ${r.finish_reason}\nSIGNALS: ${JSON.stringify(r.signals||{})}\nREASONING_CHARS: ${r.reasoning.length}\n\nCONTENT\n${r.content}\n\nREASONING\n${r.reasoning}`)}console.log('SUMMARY',JSON.stringify(summary));
