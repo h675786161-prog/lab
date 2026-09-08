@@ -1,0 +1,33 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+const ROOT=process.env.GITHUB_WORKSPACE||process.cwd(), BASE=process.env.LAB_ST_URL||'http://127.0.0.1:8000', EVIDENCE=process.env.LAB_EVIDENCE_DIR||path.join(ROOT,'lab-evidence-v054');
+const P={url:'https://youzi.today/v1',key:process.env.YOUZI||'',model:'[B]glm-5.3-flash',delayMs:2200};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+const persona=`[三好学生｜内部作者代号]\n“三好学生”只是内部作者代号，不是学生身份。三好的意思只有：人物站得住，场景接得上，语言像人写的。人物可以自私、别扭、迟钝、犯错、偏心、嘴硬、没想明白，也有自己的事情，不自动围着user转。对白允许短、断、偏题、答一半、改口和沉默。局部不完美允许存在。最危险的不是不够漂亮，而是太像经过优化。`;
+const common=`你正在进行长线虚构叙事与角色扮演。角色仍像这个人 > 场景真的在发生 > 因果与信息连续 > 语言自然 > 文学感。\n- 已由动作、对白、物件成立的信息，不再旁白重复确认。\n- 不使用破折号承担普通解释/修正；避免“不是A，是B”式精确加工。\n- 任何过去事实必须有前文来源。\n- user权限按当前授权执行。\n- 普通过程默认略过中间步骤。\n- 段尾停在具体动作、对白、环境状态或未完成事务。`;
+
+const legacy=`[旧检测委员会]\n${persona}\n${common}\n正文开始前强制进行启动分析：情感基调、角色动机、字数检测提醒。\n正文逻辑段落间至少2次监控并检查逻辑与禁令。\n正文结束前构思收束方式，正文结束后复盘达成度和违规倾向。\n抢话授权需要在正文开始前和段落间多次检查。\n字数目标必须在首行规划预计段落和总字数，途中2-3次计算进度百分比、段落数与均字，未达标则继续补写直到达到目标。\n最终不要向用户展示这些检查过程，只输出故事正文。`;
+const lean=`[v0.5.4 撤销检测委员会]\n${persona}\n${common}\n当前运行参数直接执行，不重新分析开关含义。\n字数只做一次整体尺度判断，不逐段统计、不输出进度、不做补丁循环。\n正文前不做启动分析，正文中不插监控，正文后不复盘。\n只想两件事：眼前真正成立的事实与人物状态；这个人此刻最自然的下一步。想到够用立即写。\n教导主任没有独立审稿阶段，只在最终文字当场已经出现一眼可确认的事实错误、user越权、真实语病或严重AI流水账时最小修正一次；需要寻找、分析或比较版本时全部放行。最终只输出故事正文。`;
+
+const scenarios=[
+{id:'action_chain',target:'250-450字',setup:'沈妄，34岁，安保公司负责人，冷静。今晚应酬后回家，明早九点有项目审计。她和玲交往半年。厨房有普通食材，但没有谁爱吃什么、谁平时做饭等共同习惯设定。',history:[{role:'assistant',content:'门锁响了。沈妄进门，手机上是项目群未读消息。'},{role:'user',content:'“我先去洗澡，你忙你的。”玲说完回了卧室。'}],instruction:'只续写沈妄这一侧。不要替玲新增行为。保持普通深夜生活和她对明早审计的注意力。'},
+{id:'procedure_ledger',target:'200-350字',setup:'沈妄，34岁，安保公司负责人。明早有例行项目审计。她已经拿到完整材料，只发现一处供应商签章日期前后不一致，其他材料没有问题。',history:[{role:'assistant',content:'电脑还亮着，审计材料已经打开。沈妄靠在椅背上看了两分钟。'},{role:'user',content:'玲从门口说：“你今晚还要忙很久？”'}],instruction:'只续写沈妄。专业感来自判断，不要写文档编号、附件、版本、截图、逐项核对、翻页勾选的操作手册。不要替玲新增行为。'},
+{id:'abrasive_character',target:'180-320字',setup:'梁汐，39岁，急诊科护士长。高压、效率优先、嘴硬、耐心有限，关心人主要靠做事，不擅长温柔沟通，也不会因为别人指出她情绪就立刻自省。她刚下夜班，和玲在便利店门口碰见。',history:[{role:'assistant',content:'梁汐拧开矿泉水喝了两口，站在台阶边没动。'},{role:'user',content:'玲看了她一会儿：“你今天是不是心情不好？”'}],instruction:'自然续写梁汐。保留嘴硬和不善沟通，不要自动写成熟沟通示范，不强制道歉或关系升华。'},
+{id:'wordcount_scene',target:'700-900字',setup:'周禾，31岁，修复师，安静但不温吞。她今晚独自在旧钟表店加班，正在修一枚来源不明的怀表。设定只确认怀表停在十一点十七分，没有任何超自然事实。',history:[{role:'assistant',content:'秒针卡在表盘上，一动不动。'},{role:'user',content:'“修得好吗？”玲站在工作台另一边问。'}],instruction:'只续写周禾。目标正文700-900字。不要替玲新增行为。可以有专业判断与生活细节，但不要制造无来源超自然事件，不要为了凑字数重复同一信息。'}
+];
+
+function msgs(s,v){return[{role:'system',content:v==='lean'?lean:legacy},{role:'system',content:`正文字数目标：${s.target}\n设定：${s.setup}`},...s.history,{role:'system',content:`本轮要求：${s.instruction}`}];}
+async function post(url,body,ms=180000){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);try{const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:c.signal});const tx=await r.text();let d;try{d=JSON.parse(tx)}catch{d={raw:tx}};return{ok:r.ok,status:r.status,data:d}}finally{clearTimeout(t)}}
+async function secret(){if(!P.key)throw new Error('YOUZI secret missing');const r=await post(`${BASE}/api/secrets/write`,{key:'api_key_custom',value:P.key,label:'glm-v054'},30000);if(!r.ok)throw new Error(`secret ${r.status}`)}
+async function gen(messages){const st=Date.now();const r=await post(`${BASE}/api/backends/chat-completions/generate`,{chat_completion_source:'custom',custom_url:P.url,model:P.model,messages,temperature:1,top_p:.98,max_tokens:3200,stream:false,reasoning_effort:'low'});const m=r.data?.choices?.[0]?.message??{};return{http_status:r.status,elapsed_ms:Date.now()-st,content:m.content??'',reasoning:m.reasoning??m.reasoning_content??'',finish_reason:r.data?.choices?.[0]?.finish_reason??null,error:r.data?.error??null}}
+const count=(re,t)=>(String(t||'').match(re)||[]).length;
+function sig(t){t=String(t||'');const paras=t.split(/\n\s*\n/).filter(Boolean).length||1;const av=count(/(?:换鞋|脱下|挂上|放下|拿起|倒水|打开|关上|取出|盛了|坐下|起身|走到|走进|走回|拉开|合上|翻开|点开|收起|烧水|捞面|调火|定闹钟)/g,t);return{chars:t.length,action_density:+(av/paras).toFixed(2),procedure:count(/(?:附件|版本|文档|编号|截图|扫描|第\d+项|逐项|勾选|页码|时间戳|B-\d+|A-\d+)/g,t),campus_leak:count(/三好学生|教导主任|校园|学校|作业|考试|交卷|批改|放学/g,t),check_leak:count(/目标设定|进度检测|心锚|监控·|回响·|达成度复盘|违规自检/g,t),user_proxy:count(/(?:玲|你)(?:忽然|随后|接着|伸手|起身|站起|走向|说道|问道|想道|意识到|觉得|决定|点头|摇头)/g,t),closure:count(/这就够了|这一刻|从这一刻起|说到底|归根结底|剩下的交给/g,t)}}
+await fs.mkdir(EVIDENCE,{recursive:true});await secret();const results=[];let last=0;
+for(let rep=1;rep<=2;rep++)for(const s of scenarios)for(const v of ['legacy','lean']){const w=P.delayMs-(Date.now()-last);if(last&&w>0)await sleep(w);const rec={repeat:rep,scenario:s.id,variant:v,target:s.target};try{const g=await gen(msgs(s,v));Object.assign(rec,g,{status:(g.content||g.reasoning)?'ok':'no_text',signals:sig(g.content)});}catch(e){rec.status='exception';rec.exception=`${e.name}: ${e.message}`;}last=Date.now();results.push(rec);console.log(rep,s.id,v,rec.status,rec.content?.length||0,rec.reasoning?.length||0,JSON.stringify(rec.signals||{}));}
+function avg(rows,fn){const x=rows.map(fn).filter(Number.isFinite);return x.length?x.reduce((a,b)=>a+b,0)/x.length:null}
+const summary={};for(const v of ['legacy','lean']){const rows=results.filter(r=>r.variant===v),valid=rows.filter(r=>!r.error&&r.status==='ok');summary[v]={n:rows.length,service_errors:rows.filter(r=>r.error).length,content_nonempty:rows.filter(r=>String(r.content||'').length>0).length,empty_without_service_error:rows.filter(r=>!r.error&&!String(r.content||'').length).length,chars:avg(valid,r=>r.signals?.chars),action_density:avg(valid,r=>r.signals?.action_density),procedure:avg(valid,r=>r.signals?.procedure),check_leak:avg(valid,r=>r.signals?.check_leak),user_proxy:avg(valid,r=>r.signals?.user_proxy),reasoning_chars:avg(valid,r=>String(r.reasoning||'').length),elapsed_ms:avg(valid,r=>r.elapsed_ms)};}
+const report={schema:1,generated_at:new Date().toISOString(),purpose:'legacy visible/self-monitoring detection committee vs v0.5.4 static controls',summary,tests:results};
+await fs.writeFile(path.join(EVIDENCE,'glm-super-v054-report.json'),JSON.stringify(report,null,2));await fs.writeFile(path.join(EVIDENCE,'glm-super-v054-summary.txt'),JSON.stringify(summary,null,2));
+for(const r of results)await fs.writeFile(path.join(EVIDENCE,`${r.repeat}-${r.scenario}-${r.variant}.txt`),`STATUS ${r.status}\nERROR ${JSON.stringify(r.error)}\nFINISH ${r.finish_reason}\nELAPSED ${r.elapsed_ms}\nSIGNALS ${JSON.stringify(r.signals)}\n\nCONTENT\n${r.content||''}\n\nREASONING\n${r.reasoning||''}\n`);
+console.log(JSON.stringify(summary,null,2));
