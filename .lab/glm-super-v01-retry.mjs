@@ -1,0 +1,23 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+const ROOT=process.env.GITHUB_WORKSPACE||process.cwd();
+const BASE=process.env.LAB_ST_URL||'http://127.0.0.1:8000';
+const EVIDENCE=process.env.LAB_EVIDENCE_DIR||path.join(ROOT,'lab-evidence');
+const key=process.env.YOUZI||'';
+async function postJson(url,body,timeoutMs=180000){const ctl=new AbortController();const timer=setTimeout(()=>ctl.abort(),timeoutMs);try{const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:ctl.signal});const tx=await res.text();let data;try{data=JSON.parse(tx)}catch{data={raw:tx}};return{status:res.status,ok:res.ok,data};}finally{clearTimeout(timer)}}
+if(!key) throw new Error('YOUZI secret missing');
+await fs.mkdir(EVIDENCE,{recursive:true});
+const source=await fs.readFile(path.join(ROOT,'.lab/glm-super-v01.mjs'),'utf8');
+const m=source.match(/const superPrompt = `([\s\S]*?)`;\n\nfunction makeMessages/);
+if(!m) throw new Error('cannot extract superPrompt');
+const superPrompt=m[1];
+const data=JSON.parse(await fs.readFile(path.join(ROOT,'fixtures/preset-benchmark/scenarios.json'),'utf8'));
+const s=data.scenarios.find(x=>x.id==='strong_character_quiet');
+const messages=[{role:'system',content:superPrompt},{role:'system',content:`角色与场景设定：\n${s.setup}`},...s.history,{role:'system',content:`本轮要求：${s.instruction}`}];
+let r=await postJson(`${BASE}/api/secrets/write`,{key:'api_key_custom',value:key,label:'glm-super-v01-retry'},30000);if(!r.ok)throw new Error(`secret HTTP ${r.status}`);
+const started=Date.now();
+r=await postJson(`${BASE}/api/backends/chat-completions/generate`,{chat_completion_source:'custom',custom_url:'https://youzi.today/v1',model:'[B]glm-5.3-flash',messages,temperature:1,top_p:.98,max_tokens:2600,stream:false},180000);
+const msg=r.data?.choices?.[0]?.message??{};
+const rec={http_status:r.status,http_ok:r.ok,elapsed_ms:Date.now()-started,content:msg.content??'',reasoning:msg.reasoning??msg.reasoning_content??'',finish_reason:r.data?.choices?.[0]?.finish_reason??null,upstream_error:r.data?.error??null};
+await fs.writeFile(path.join(EVIDENCE,'glm-super-v01-retry.json'),JSON.stringify(rec,null,2));
+console.log(JSON.stringify({status:rec.content||rec.reasoning?'ok':'no_text',chars:rec.content.length,reasoning:rec.reasoning.length,elapsed_ms:rec.elapsed_ms,finish_reason:rec.finish_reason,upstream_error:rec.upstream_error},null,2));
