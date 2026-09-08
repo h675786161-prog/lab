@@ -1,0 +1,16 @@
+{
+  "preset_name": "【玲×七】三好学生与教导主任_GLM专属预设_v1.0.1_ST保留ID修正版.json",
+  "sha256": "d5c5f2f8061b6c36e9efd096b22be2e58dcb181d07fddddf205c1c6fb8a2374f",
+  "bytes": 63564,
+  "prompts": 76,
+  "regex": 2,
+  "reasoning_effort": "low",
+  "reserved_ids": {
+    "main": "🧑‍🎓三好学生｜作者人格",
+    "nsfw": "🔥NSFW核心｜专属连续性",
+    "jailbreak": "Post-History Instructions",
+    "enhanceDefinitions": "Enhance Definitions"
+  },
+  "benchmark_script": ".lab/glm-student-dean-v10.mjs",
+  "note": "GitHub-hosted runner probe failed before step 1 with runner_id=0; benchmark is queued for retry when runner allocation is available."
+}
