@@ -16,7 +16,7 @@ const scenarios=`function scenarios(){return [{
   ]
 }]}
 `;
-const old=/function scenarios\(\)\{[\s\S]*?\n\]\}\nfunction stripComments/;
+const old=/function scenarios\(\)\{[\s\S]*?function stripComments/;
 if(!old.test(s)) throw new Error('scenarios anchor missing');
 s=s.replace(old,scenarios+'function stripComments');
 s=s.replace("scene:'adult_wlw_equal_slow'","scene:'adult_wlw_hold_rhythm_explicit'");
