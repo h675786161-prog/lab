@@ -1,0 +1,129 @@
+name: World Backstage Tutorial Capture
+
+on:
+  push:
+    branches: ['feature/world-backstage-tutorial-capture']
+    paths:
+      - '.github/workflows/world-backstage-tutorial-capture.yml'
+      - '.lab/world-backstage-tutorial-capture.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ST_DIR: /tmp/lingqi-sillytavern
+      BROWSER_DIR: /tmp/lingqi-browser-qa
+      LAB_EVIDENCE_DIR: ${{ github.workspace }}/world-backstage-tutorial-evidence
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      WORLD_BACKSTAGE_REF: 9adafde433c13e20cde88e3ac7c712855969a430
+      LAB_ST_URL: http://127.0.0.1:8000
+
+    steps:
+      - name: Checkout lab branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Prepare evidence directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$LAB_EVIDENCE_DIR"
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          {
+            echo "lab_repo=$GITHUB_REPOSITORY"
+            echo "lab_sha=$GITHUB_SHA"
+            echo "sillytavern_commit=$ST_COMMIT"
+            echo "world_backstage_ref=$WORLD_BACKSTAGE_REF"
+          } > "$LAB_EVIDENCE_DIR/run-context.txt"
+
+      - name: Clone exact SillyTavern runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$ST_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+
+      - name: Install SillyTavern dependencies
+        working-directory: /tmp/lingqi-sillytavern
+        run: npm ci
+
+      - name: Install real world-backstage into isolated runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          EXT_DIR="$ST_DIR/public/scripts/extensions/third-party/world-backstage"
+          TMP_DIR=/tmp/world-backstage-source
+          rm -rf "$TMP_DIR" "$EXT_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/h675786161-prog/world-backstage.git "$TMP_DIR"
+          git -C "$TMP_DIR" fetch origin "$WORLD_BACKSTAGE_REF" --depth=1
+          git -C "$TMP_DIR" checkout --detach "$WORLD_BACKSTAGE_REF"
+          mkdir -p "$EXT_DIR"
+          rsync -a --delete --exclude='.git/' "$TMP_DIR/" "$EXT_DIR/"
+          test -f "$EXT_DIR/manifest.json"
+          echo "$(git -C "$TMP_DIR" rev-parse HEAD)" > "$LAB_EVIDENCE_DIR/world-backstage-commit.txt"
+
+      - name: Start isolated SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8000 --disableCsrf > "$LAB_EVIDENCE_DIR/sillytavern-runtime.log" 2>&1 &
+          echo $! > /tmp/lingqi-sillytavern.pid
+          for i in $(seq 1 90); do
+            if curl -fsS --max-time 2 "$LAB_ST_URL/" >/dev/null 2>&1; then
+              echo "SillyTavern ready"
+              exit 0
+            fi
+            if ! kill -0 "$(cat /tmp/lingqi-sillytavern.pid)" 2>/dev/null; then
+              cat "$LAB_EVIDENCE_DIR/sillytavern-runtime.log"
+              exit 1
+            fi
+            sleep 1
+          done
+          cat "$LAB_EVIDENCE_DIR/sillytavern-runtime.log"
+          exit 1
+
+      - name: Prepare browser QA and Chinese fonts
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-cjk
+          rm -rf "$BROWSER_DIR"
+          mkdir -p "$BROWSER_DIR"
+          cd "$BROWSER_DIR"
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          echo "LAB_CHROME=$CHROME_BIN" >> "$GITHUB_ENV"
+          echo "LAB_PLAYWRIGHT_CORE_ENTRY=file://$BROWSER_DIR/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
+
+      - name: Capture populated real world-backstage UI
+        shell: bash
+        run: node "$GITHUB_WORKSPACE/.lab/world-backstage-tutorial-capture.mjs"
+
+      - name: Stop isolated runtime
+        if: always()
+        shell: bash
+        run: |
+          if [ -f /tmp/lingqi-sillytavern.pid ]; then
+            kill "$(cat /tmp/lingqi-sillytavern.pid)" 2>/dev/null || true
+          fi
+
+      - name: Upload tutorial screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: world-backstage-tutorial-real-ui
+          path: world-backstage-tutorial-evidence/
+          if-no-files-found: warn
