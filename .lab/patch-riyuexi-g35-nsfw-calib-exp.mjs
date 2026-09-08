@@ -10,6 +10,9 @@ const oldForbidden="for(const bad of ['😡表达去惯性','✅GLM校准','🌓
 const newForbidden="for(const bad of ['✅GLM校准','🌓GLM尾部','🔒Claude头部','✅Claude校准','🌓Claude尾部'])";
 if(!s.includes(oldForbidden)) throw new Error('forbidden anchor missing');
 s=s.replace(oldForbidden,newForbidden);
-if(!s.includes("['✅GLM校准','🌓GLM尾部']")) throw new Error('expression de-inertia AB patch failed');
+const oldLen="pack.sequence.length!==222";
+if(!s.includes(oldLen)) throw new Error('sequence length anchor missing');
+s=s.replace(oldLen,"pack.sequence.length!==223");
+if(!s.includes("['✅GLM校准','🌓GLM尾部']")||!s.includes('length!==223')) throw new Error('expression de-inertia AB patch failed');
 await fs.writeFile(out,s,'utf8');
 console.log('wrote Gemini 3.5 expression-de-inertia ON AB runner',out);
