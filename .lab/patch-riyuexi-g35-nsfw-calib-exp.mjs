@@ -4,8 +4,8 @@ if(!src||!out) throw new Error('usage: node patch-riyuexi-g35-nsfw-calib-exp.mjs
 let s=await fs.readFile(src,'utf8');
 const anchor="  const tail=\"3.5\"==='3.5'?d['🌓Gemini3.5尾部']:d['🌓Gemini尾部①'];";
 if(!s.includes(anchor)) throw new Error('Gemini 3.5 calibration anchor missing');
-const add=`  calib.content += "\\n- 成人亲密场景里，主动、欲望、技巧感不自动解释成掌控欲、占有欲、征服欲或‘压抑着更狠的本能’；没有既定权力玩法时，把人物仍然写成原来的她。\\n- 当对方明确说‘慢一点 / 就这样 / 别换’时，维持当前动作本身就是有效内容；不要为了制造色情张力额外强调想加速、想更深、想控制，除非人物与前文真的已经建立这种欲望。";\n`;
+const add=`  calib.content += "\\n- 成人亲密场景里，不要为了让尊重、配合或慢节奏显得有张力，先替角色虚构一个相反的‘本能想更快/更深/更重/更占有，只是忍住了’；没有前文依据时，遵从反馈本身就是角色当下真实的动作与欲望，不需要额外的野兽冲动作陪衬。\\n- NSFW时人物仍然是完整的人，不要把整轮缩成‘器官动作→身体反应→再一个器官动作’的反馈机器；在符合人物和现场时，允许普通声口、短对白、走神、笑场、停顿或无关紧要的小反应自然混进来，但不要为了证明生活感硬塞新背景。";\n`;
 s=s.replace(anchor,add+anchor);
-if(!s.includes('压抑着更狠的本能')) throw new Error('experimental calibration patch failed');
+if(!s.includes('反馈机器')) throw new Error('experimental calibration patch failed');
 await fs.writeFile(out,s,'utf8');
 console.log('wrote Gemini Flash NSFW calibration candidate',out);
