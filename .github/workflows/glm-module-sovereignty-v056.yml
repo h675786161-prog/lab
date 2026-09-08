@@ -1,11 +1,11 @@
-name: GLM Module Sovereignty v056
+name: GLM v058 Boundary via Known-Good Runner
 on:
   workflow_dispatch:
   push:
-    branches: ['bench/glm-module-sovereignty-v056']
+    branches: ['bench/glm-v058-boundaries']
     paths:
       - '.github/workflows/glm-module-sovereignty-v056.yml'
-      - '.lab/glm-module-sovereignty-v056.mjs'
+      - '.lab/glm-v058-boundaries.mjs'
 permissions:
   contents: read
 jobs:
@@ -15,7 +15,7 @@ jobs:
     env:
       ST_DIR: /tmp/lingqi-sillytavern
       LAB_ST_URL: http://127.0.0.1:8000
-      LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence-v056
+      LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence-v058
       ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
     steps:
       - uses: actions/checkout@v4
@@ -42,8 +42,8 @@ jobs:
         env:
           YOUZI: ${{ secrets.YOUZI }}
         run: |
-          node --check .lab/glm-module-sovereignty-v056.mjs
-          node .lab/glm-module-sovereignty-v056.mjs
+          node --check .lab/glm-v058-boundaries.mjs
+          node .lab/glm-v058-boundaries.mjs
       - name: Runtime tail
         if: always()
         run: tail -n 120 "$LAB_EVIDENCE_DIR/runtime.log" || true
@@ -54,6 +54,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: glm-module-sovereignty-v056
-          path: lab-evidence-v056/
+          name: glm-v058-boundaries-known-good
+          path: lab-evidence-v058/
           if-no-files-found: error
