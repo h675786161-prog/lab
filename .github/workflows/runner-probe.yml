@@ -1,0 +1,10 @@
+name: Runner Probe
+on:
+  push:
+    branches: ['bench/glm-student-dean-v10']
+    paths: ['.github/workflows/runner-probe.yml']
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo runner-ok
