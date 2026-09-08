@@ -1,1 +1,1 @@
-trigger 2026-09-08 g35 WLW BDSM OFF continue-control OFF AB rerun2
+trigger 2026-09-08 g35 WLW BDSM OFF pre-body-echo OFF AB
