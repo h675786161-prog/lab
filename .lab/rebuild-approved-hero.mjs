@@ -6,7 +6,7 @@ const root = process.env.GITHUB_WORKSPACE || process.cwd();
 const assetDir = path.join(root, '.lab', 'assets');
 const chunks = await Promise.all([
   fs.readFile(path.join(assetDir, 'guide-hero.b64.1'), 'utf8'),
-  fs.readFile(path.join(assetDir, 'guide-hero.b64.2'), 'utf8'),
+  fs.readFile(path.join(assetDir, 'guide-hero.b64.tail'), 'utf8'),
 ]);
 const bytes = Buffer.from(chunks.join('').replace(/\s+/g,''), 'base64');
 const sha256 = crypto.createHash('sha256').update(bytes).digest('hex');
