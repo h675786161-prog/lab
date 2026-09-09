@@ -7,8 +7,11 @@ on:
       - '.github/workflows/world-backstage-tutorial-capture.yml'
       - '.lab/world-backstage-tutorial-capture.mjs'
       - '.lab/build-world-backstage-guide.mjs'
+      - '.lab/rebuild-approved-hero.mjs'
       - '.lab/polish-world-backstage-guide.mjs'
       - '.lab/validate-world-backstage-guide.mjs'
+      - '.lab/assets/guide-hero.b64.1'
+      - '.lab/assets/guide-hero.b64.2'
       - '.lab/assets/world-backstage-guide-hero.webp'
   workflow_dispatch:
 
@@ -122,6 +125,7 @@ jobs:
         run: |
           set -euo pipefail
           node "$GITHUB_WORKSPACE/.lab/build-world-backstage-guide.mjs"
+          node "$GITHUB_WORKSPACE/.lab/rebuild-approved-hero.mjs"
           node "$GITHUB_WORKSPACE/.lab/polish-world-backstage-guide.mjs"
           test -f "$GUIDE_SITE_DIR/index.html"
           test -f "$GUIDE_SITE_DIR/assets/now.png"
