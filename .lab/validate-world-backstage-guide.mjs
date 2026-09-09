@@ -9,8 +9,17 @@ try {
   await page.goto(`${base}/index.html`, { waitUntil:'networkidle', timeout:30000 });
   const hero = page.locator('.hero');
   await hero.waitFor({state:'visible'});
-  const bg = await hero.evaluate(el => getComputedStyle(el).backgroundImage);
-  if (!bg.includes('hero.webp')) throw new Error(`hero art missing: ${bg}`);
+  const art = page.locator('.hero-art');
+  await art.waitFor({state:'visible'});
+  const artInfo = await art.evaluate(img => ({naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,complete:img.complete}));
+  if (!artInfo.complete || artInfo.naturalWidth < 500 || artInfo.naturalHeight < 250) throw new Error(`hero image did not render: ${JSON.stringify(artInfo)}`);
+  const heroBox = await hero.boundingBox();
+  const copyBox = await page.locator('.hero-copy').boundingBox();
+  const cardBox = await page.locator('.hero-card').boundingBox();
+  if (!heroBox || !copyBox || !cardBox) throw new Error('hero layout boxes missing');
+  if (copyBox.x > heroBox.x + heroBox.width * .52) throw new Error(`hero copy is not on left: ${JSON.stringify(copyBox)}`);
+  if (cardBox.x < heroBox.x + heroBox.width * .45) throw new Error(`hero state card is not on right: ${JSON.stringify(cardBox)}`);
+  await page.waitForTimeout(350);
   await page.screenshot({path:path.join(evidence,'site-home-polished.png'),fullPage:false});
   await page.locator('a[href="start.html"]').first().click();
   await page.waitForURL(/start\.html$/,{timeout:10000});
@@ -23,9 +32,11 @@ try {
 
   const mobile = await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
   await mobile.goto(`${base}/index.html`,{waitUntil:'networkidle'});
+  const mobileArt = await mobile.locator('.hero-art').evaluate(img => ({naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight}));
+  if (mobileArt.naturalWidth < 500) throw new Error('mobile hero art missing');
   await mobile.locator('.menu').click();
   if (!(await mobile.locator('.top nav').evaluate(el=>el.classList.contains('open')))) throw new Error('mobile menu did not open');
   await mobile.screenshot({path:path.join(evidence,'site-mobile-polished.png'),fullPage:false});
   await mobile.close();
-  await fs.writeFile(path.join(evidence,'site-validation.json'),JSON.stringify({ok:true,hero:true,crossPage:true,hotspot:true,mobileMenu:true},null,2));
+  await fs.writeFile(path.join(evidence,'site-validation.json'),JSON.stringify({ok:true,hero:true,heroRendered:artInfo,crossPage:true,hotspot:true,mobileMenu:true},null,2));
 } finally { await browser.close(); }
