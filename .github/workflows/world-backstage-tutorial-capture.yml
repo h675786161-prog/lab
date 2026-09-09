@@ -10,6 +10,7 @@ on:
       - '.lab/rebuild-approved-hero.mjs'
       - '.lab/polish-world-backstage-guide.mjs'
       - '.lab/reframe-world-backstage-guide.mjs'
+      - '.lab/fix-people-detail-layout.mjs'
       - '.lab/validate-world-backstage-guide.mjs'
       - '.lab/assets/guide-hero.b64.1'
       - '.lab/assets/guide-hero.b64.2'
@@ -130,6 +131,7 @@ jobs:
           node "$GITHUB_WORKSPACE/.lab/rebuild-approved-hero.mjs"
           node "$GITHUB_WORKSPACE/.lab/polish-world-backstage-guide.mjs"
           node "$GITHUB_WORKSPACE/.lab/reframe-world-backstage-guide.mjs"
+          node "$GITHUB_WORKSPACE/.lab/fix-people-detail-layout.mjs"
           test -f "$GUIDE_SITE_DIR/index.html"
           test -f "$GUIDE_SITE_DIR/assets/now.png"
           test -f "$GUIDE_SITE_DIR/assets/hero.webp"
@@ -175,6 +177,6 @@ jobs:
           git rm -rf . >/dev/null 2>&1 || true
           cp -a "$GUIDE_SITE_DIR"/. .
           git add -A
-          git commit -m "site: publish user-first world backstage tutorial"
+          git commit -m "site: publish roomier people detail layout"
           git push origin HEAD:world-backstage-guide-site --force
           git push origin HEAD:gh-pages --force
