@@ -6,10 +6,11 @@ on:
     paths:
       - '.github/workflows/world-backstage-tutorial-capture.yml'
       - '.lab/world-backstage-tutorial-capture.mjs'
+      - '.lab/build-world-backstage-guide.mjs'
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   capture:
@@ -19,6 +20,7 @@ jobs:
       ST_DIR: /tmp/lingqi-sillytavern
       BROWSER_DIR: /tmp/lingqi-browser-qa
       LAB_EVIDENCE_DIR: ${{ github.workspace }}/world-backstage-tutorial-evidence
+      GUIDE_SITE_DIR: /tmp/world-backstage-guide-site
       ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
       WORLD_BACKSTAGE_REF: 9adafde433c13e20cde88e3ac7c712855969a430
       LAB_ST_URL: http://127.0.0.1:8000
@@ -27,7 +29,7 @@ jobs:
       - name: Checkout lab branch
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
 
       - name: Prepare evidence directory
         shell: bash
@@ -112,6 +114,14 @@ jobs:
         shell: bash
         run: node "$GITHUB_WORKSPACE/.lab/world-backstage-tutorial-capture.mjs"
 
+      - name: Build tutorial website
+        shell: bash
+        run: |
+          set -euo pipefail
+          node "$GITHUB_WORKSPACE/.lab/build-world-backstage-guide.mjs"
+          test -f "$GUIDE_SITE_DIR/index.html"
+          test -f "$GUIDE_SITE_DIR/assets/now.png"
+
       - name: Stop isolated runtime
         if: always()
         shell: bash
@@ -127,3 +137,18 @@ jobs:
           name: world-backstage-tutorial-real-ui
           path: world-backstage-tutorial-evidence/
           if-no-files-found: warn
+
+      - name: Publish tutorial website branch
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          git config user.name "玲七实验酒馆"
+          git config user.email "actions@users.noreply.github.com"
+          git checkout --orphan world-backstage-guide-site
+          git rm -rf . >/dev/null 2>&1 || true
+          cp -a "$GUIDE_SITE_DIR"/. .
+          git add -A
+          git commit -m "site: publish world backstage tutorial"
+          git push origin HEAD:world-backstage-guide-site --force
