@@ -1,0 +1,32 @@
+name: Bench GLM narrative trust v1.6.2
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.lab/bench-narrative-trust-v162.mjs'
+      - '.github/workflows/bench-narrative-trust-v162.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      YOUZI_KEY: ${{ secrets.YOUZI }}
+      GLM_MODEL: '[B]glm-5.3-flash'
+      LAB_OUT: bench-evidence/narrative-trust-v162
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run GLM narrative trust benchmark
+        run: node .lab/bench-narrative-trust-v162.mjs
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: narrative-trust-v162
+          path: bench-evidence/narrative-trust-v162/
+          if-no-files-found: error
