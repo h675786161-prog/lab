@@ -56,6 +56,18 @@ try {
   if (!(await page.locator('.tip').isVisible())) throw new Error('hotspot tip did not open');
   await page.screenshot({path:path.join(evidence,'site-now-tip-user-first.png'),fullPage:false});
 
+  await page.goto(`${base}/people.html`,{waitUntil:'networkidle'});
+  const detail = page.locator('.detail-story');
+  const detailImage = detail.locator('img');
+  await detail.scrollIntoViewIfNeeded();
+  const detailBox = await detail.boundingBox();
+  const detailImageBox = await detailImage.boundingBox();
+  if (!detailBox || !detailImageBox) throw new Error('people detail layout boxes missing');
+  if (detailBox.width < 900) throw new Error(`people detail section too narrow: ${JSON.stringify(detailBox)}`);
+  if (detailImageBox.width < 420) throw new Error(`people detail image squeezed: ${JSON.stringify(detailImageBox)}`);
+  if (detailImageBox.width / detailBox.width < .38) throw new Error(`people detail image has too little visual weight: section=${detailBox.width}, image=${detailImageBox.width}`);
+  await page.screenshot({path:path.join(evidence,'site-people-roomy.png'),fullPage:false});
+
   await page.goto(`${base}/settings.html`,{waitUntil:'networkidle'});
   const settingsText = await page.locator('.docs-head h1').innerText();
   if (!settingsText.includes('一个都不用改')) throw new Error('settings page does not reassure first-time users');
@@ -80,6 +92,8 @@ try {
     crossPage:true,
     anchors:true,
     hotspot:true,
+    peopleDetail:true,
+    peopleDetailWidth:detailImageBox.width,
     firstUseGuidance:true,
     settingsReassurance:true,
     noFormalRepoLink:true,
