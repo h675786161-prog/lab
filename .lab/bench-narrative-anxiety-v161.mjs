@@ -126,63 +126,24 @@ async function runCase(test) {
   const started = Date.now();
   try {
     const response = await fetch(API, {
-      method: 'POST',
-      signal: controller.signal,
-      headers: {
-        'Authorization': `Bearer ${KEY}`,
-        'Content-Type': 'application/json',
-        'User-Agent': 'LingQi-GLM-Narrative-Anxiety-Lab/1.0',
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        temperature: 1,
-        top_p: 0.98,
-        max_tokens: 3200,
-        thinking: { type: 'enabled' },
-        reasoning_effort: 'low',
-        messages: [
-          { role: 'system', content: test.system },
-          { role: 'user', content: test.user },
-        ],
-      }),
+      method: 'POST', signal: controller.signal,
+      headers: { 'Authorization': `Bearer ${KEY}`, 'Content-Type': 'application/json', 'User-Agent': 'LingQi-GLM-Narrative-Anxiety-Lab/1.0' },
+      body: JSON.stringify({ model: MODEL, temperature: 1, top_p: 0.98, max_tokens: 3200, thinking: { type: 'enabled' }, reasoning_effort: 'low', messages: [{ role: 'system', content: test.system }, { role: 'user', content: test.user }] }),
     });
-    const raw = await response.text();
-    let data;
+    const raw = await response.text(); let data;
     try { data = JSON.parse(raw); } catch { data = { raw }; }
-    const choice = data?.choices?.[0] || {};
-    const msg = choice?.message || {};
-    const content = String(msg?.content || '');
-    const reasoning = String(msg?.reasoning_content || msg?.reasoning || '');
-    const ms = Date.now() - started;
+    const msg = data?.choices?.[0]?.message || {}; const content = String(msg?.content || ''); const reasoning = String(msg?.reasoning_content || msg?.reasoning || ''); const ms = Date.now() - started;
     return { ...test, status: response.status, ok: response.ok, content, reasoning, metrics: metrics(content, reasoning, ms), raw_error: response.ok ? null : raw.slice(0,1200) };
-  } catch (err) {
-    const ms = Date.now() - started;
-    return { ...test, status: 'error', ok: false, content: '', reasoning: '', metrics: metrics('', '', ms), raw_error: `${err?.name || 'Error'}: ${err?.message || err}` };
-  } finally {
-    clearTimeout(timer);
-  }
+  } catch (err) { const ms = Date.now() - started; return { ...test, status: 'error', ok: false, content: '', reasoning: '', metrics: metrics('', '', ms), raw_error: `${err?.name || 'Error'}: ${err?.message || err}` }; }
+  finally { clearTimeout(timer); }
 }
 
 const results = [];
-for (let i = 0; i < cases.length; i++) {
-  const test = cases[i];
-  console.log(`[${i+1}/${cases.length}] ${test.id}`);
-  const result = await runCase(test);
-  results.push(result);
-  console.log(JSON.stringify({ id: result.id, status: result.status, ...result.metrics }));
-  if (i < cases.length - 1) await sleep(3500);
-}
-
+for (let i = 0; i < cases.length; i++) { const test = cases[i]; console.log(`[${i+1}/${cases.length}] ${test.id}`); const result = await runCase(test); results.push(result); console.log(JSON.stringify({ id: result.id, status: result.status, ...result.metrics })); if (i < cases.length - 1) await sleep(3500); }
 await fs.writeFile(path.join(OUT, 'results.json'), JSON.stringify({ model: MODEL, generated_at: new Date().toISOString(), results }, null, 2));
-
 const lines = ['# GLM Narrative Anxiety Benchmark', '', `Model: ${MODEL}`, '', '| case | status | chars | reasoning | ms | explain | simile | summary | body | causal | fade | refusal |', '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|'];
-for (const r of results) {
-  const m = r.metrics;
-  lines.push(`| ${r.id} | ${r.status} | ${m.chars} | ${m.reasoning_chars} | ${m.ms} | ${m.explanationHits} | ${m.simileHits} | ${m.summaryHits} | ${m.bodyHits} | ${m.causalHits} | ${m.fadeHits} | ${m.refusalHits} |`);
-}
+for (const r of results) { const m = r.metrics; lines.push(`| ${r.id} | ${r.status} | ${m.chars} | ${m.reasoning_chars} | ${m.ms} | ${m.explanationHits} | ${m.simileHits} | ${m.summaryHits} | ${m.bodyHits} | ${m.causalHits} | ${m.fadeHits} | ${m.refusalHits} |`); }
 lines.push('', '## Full outputs for manual reading', '');
-for (const r of results) {
-  lines.push(`### ${r.id}`, '', `Status: ${r.status}`, '', '#### Content', '', r.content || '(EMPTY)', '', '#### Reasoning excerpt', '', (r.reasoning || '(EMPTY)').slice(0,5000), '', '---', '');
-}
+for (const r of results) { lines.push(`### ${r.id}`, '', `Status: ${r.status}`, '', '#### Content', '', r.content || '(EMPTY)', '', '#### Reasoning excerpt', '', (r.reasoning || '(EMPTY)').slice(0,5000), '', '---', ''); }
 await fs.writeFile(path.join(OUT, 'report.md'), lines.join('\n'));
 console.log(`Wrote ${results.length} cases to ${OUT}`);
