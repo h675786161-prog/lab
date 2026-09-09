@@ -1,5 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
+await import('./fix-world-backstage-hero.mjs');
 const { chromium } = await import(process.env.LAB_PLAYWRIGHT_CORE_ENTRY);
 const base = process.env.GUIDE_SITE_URL || 'http://127.0.0.1:4173';
 const evidence = process.env.LAB_EVIDENCE_DIR || process.cwd();
