@@ -7,6 +7,9 @@ on:
       - '.github/workflows/world-backstage-tutorial-capture.yml'
       - '.lab/world-backstage-tutorial-capture.mjs'
       - '.lab/build-world-backstage-guide.mjs'
+      - '.lab/polish-world-backstage-guide.mjs'
+      - '.lab/validate-world-backstage-guide.mjs'
+      - '.lab/assets/world-backstage-guide-hero.webp'
   workflow_dispatch:
 
 permissions:
@@ -114,13 +117,28 @@ jobs:
         shell: bash
         run: node "$GITHUB_WORKSPACE/.lab/world-backstage-tutorial-capture.mjs"
 
-      - name: Build tutorial website
+      - name: Build and polish tutorial website
         shell: bash
         run: |
           set -euo pipefail
           node "$GITHUB_WORKSPACE/.lab/build-world-backstage-guide.mjs"
+          node "$GITHUB_WORKSPACE/.lab/polish-world-backstage-guide.mjs"
           test -f "$GUIDE_SITE_DIR/index.html"
           test -f "$GUIDE_SITE_DIR/assets/now.png"
+          test -f "$GUIDE_SITE_DIR/assets/hero.webp"
+
+      - name: Validate tutorial website in browser
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory "$GUIDE_SITE_DIR" > /tmp/world-backstage-guide-http.log 2>&1 &
+          SITE_PID=$!
+          trap 'kill "$SITE_PID" 2>/dev/null || true' EXIT
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:4173/index.html >/dev/null && break
+            sleep 0.2
+          done
+          GUIDE_SITE_URL=http://127.0.0.1:4173 node "$GITHUB_WORKSPACE/.lab/validate-world-backstage-guide.mjs"
 
       - name: Stop isolated runtime
         if: always()
@@ -150,5 +168,5 @@ jobs:
           git rm -rf . >/dev/null 2>&1 || true
           cp -a "$GUIDE_SITE_DIR"/. .
           git add -A
-          git commit -m "site: publish world backstage tutorial"
+          git commit -m "site: publish polished world backstage tutorial"
           git push origin HEAD:world-backstage-guide-site --force
