@@ -160,7 +160,7 @@ jobs:
           path: world-backstage-tutorial-evidence/
           if-no-files-found: warn
 
-      - name: Publish tutorial website branch
+      - name: Publish tutorial website branches
         if: success()
         shell: bash
         run: |
@@ -174,3 +174,4 @@ jobs:
           git add -A
           git commit -m "site: publish polished world backstage tutorial"
           git push origin HEAD:world-backstage-guide-site --force
+          git push origin HEAD:gh-pages --force
