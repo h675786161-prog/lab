@@ -1,0 +1,32 @@
+name: Bench GLM narrative anxiety v1.6.1
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.lab/bench-narrative-anxiety-v161.mjs'
+      - '.github/workflows/bench-narrative-anxiety-v161.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      YOUZI_KEY: ${{ secrets.YOUZI }}
+      GLM_MODEL: '[B]glm-5.3-flash'
+      LAB_OUT: bench-evidence/narrative-anxiety-v161
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run GLM narrative anxiety benchmark
+        run: node .lab/bench-narrative-anxiety-v161.mjs
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: narrative-anxiety-v161
+          path: bench-evidence/narrative-anxiety-v161/
+          if-no-files-found: error
