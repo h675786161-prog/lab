@@ -70,24 +70,56 @@ try {
   const settingsText = await page.locator('.docs-head h1').innerText();
   if (!settingsText.includes('一个都不用改')) throw new Error('settings page does not reassure first-time users');
   if (await page.locator('.settings-chapter').count() !== 4) throw new Error('settings guide chapters missing');
-  const settingsVisuals = page.locator('.settings-tab-visual');
-  if (await settingsVisuals.count() !== 4) throw new Error('settings guide must contain four real tab visuals');
   if (await page.locator('main.docs > .lesson.simple').count() !== 0) throw new Error('old giant settings screenshot still dominates the page');
+  if (await page.locator('.settings-tab-visual').count() !== 0) throw new Error('old one-shot settings figures survived annotated atlas rebuild');
 
+  const atlases = page.locator('.settings-atlas');
+  const atlasCount = await atlases.count();
+  if (atlasCount !== 4) throw new Error(`settings atlas count mismatch: ${atlasCount}`);
+
+  const notes = page.locator('.setting-note');
+  const markers = page.locator('.setting-marker');
+  const noteCount = await notes.count();
+  const markerCount = await markers.count();
+  if (noteCount !== 31) throw new Error(`expected 31 settings explanations, got ${noteCount}`);
+  if (markerCount !== noteCount) throw new Error(`settings pins/notes mismatch: pins=${markerCount}, notes=${noteCount}`);
+
+  const expectedMinimumHeights = [2200, 3100, 4700, 8500];
   const settingsImageInfo = [];
   for (let i = 0; i < 4; i += 1) {
-    const image = settingsVisuals.nth(i).locator('img');
+    const image = atlases.nth(i).locator('.settings-atlas-stage img');
     await image.scrollIntoViewIfNeeded();
     const info = await image.evaluate(img => ({naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,complete:img.complete,src:img.getAttribute('src')}));
-    if (!info.complete || info.naturalWidth < 600 || info.naturalHeight < 600) throw new Error(`settings real screenshot ${i + 1} is missing or too soft: ${JSON.stringify(info)}`);
+    if (!info.complete || info.naturalWidth < 700 || info.naturalHeight < expectedMinimumHeights[i]) {
+      throw new Error(`full settings screenshot ${i + 1} missing/cropped: ${JSON.stringify(info)}`);
+    }
     settingsImageInfo.push(info);
   }
 
-  const commonTop = await page.locator('#common').evaluate(el => el.getBoundingClientRect().top + window.scrollY);
-  await page.evaluate(y => window.scrollTo(0, Math.max(0, y - 82)), commonTop);
-  await page.waitForTimeout(220);
-  await page.screenshot({path:path.join(evidence,'site-settings-guide-main.png'),fullPage:false});
+  // Clicking an explanation must highlight its matching pin and move the left screenshot to that location.
+  const injectionAtlas = page.locator('[data-settings-atlas="injection"]');
+  const injectionScroll = injectionAtlas.locator('[data-settings-scroll]');
+  await injectionAtlas.scrollIntoViewIfNeeded();
+  await injectionScroll.evaluate(node => { node.scrollTop = 0; });
+  const beforeScroll = await injectionScroll.evaluate(node => node.scrollTop);
+  const lastInjectionNote = page.locator('#setting-note-injection-12');
+  await lastInjectionNote.click();
+  await page.waitForTimeout(700);
+  const afterScroll = await injectionScroll.evaluate(node => node.scrollTop);
+  if (afterScroll <= beforeScroll + 50) throw new Error(`settings note did not move screenshot: ${beforeScroll} -> ${afterScroll}`);
+  if (!(await injectionAtlas.locator('[data-settings-note="injection-12"].setting-marker').evaluate(node => node.classList.contains('is-active')))) {
+    throw new Error('matching settings pin did not highlight');
+  }
 
+  const snapSection = async (id, file) => {
+    const section = page.locator(`#${id}`);
+    await section.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(250);
+    await page.screenshot({path:path.join(evidence,file),fullPage:false});
+  };
+  await snapSection('common','site-settings-atlas-common.png');
+  await snapSection('connection','site-settings-atlas-connection.png');
+  await snapSection('advanced','site-settings-atlas-advanced.png');
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(220);
   await page.screenshot({path:path.join(evidence,'site-settings-guide-full.png'),fullPage:true});
@@ -101,6 +133,11 @@ try {
   await mobile.locator('.menu').click();
   if (!(await mobile.locator('.top nav').evaluate(el=>el.classList.contains('open')))) throw new Error('mobile menu did not open');
   await mobile.screenshot({path:path.join(evidence,'site-mobile-user-first.png'),fullPage:false});
+  await mobile.goto(`${base}/settings.html`,{waitUntil:'networkidle'});
+  const settingsOverflow = await mobile.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+  if (settingsOverflow > 2) throw new Error(`mobile settings horizontal overflow: ${settingsOverflow}px`);
+  await mobile.locator('#common').scrollIntoViewIfNeeded();
+  await mobile.screenshot({path:path.join(evidence,'site-settings-atlas-mobile.png'),fullPage:false});
   await mobile.close();
 
   await fs.writeFile(path.join(evidence,'site-validation.json'),JSON.stringify({
@@ -117,12 +154,18 @@ try {
     firstUseGuidance:true,
     settingsReassurance:true,
     settingsGuideChapters:4,
-    settingsRealTabVisuals:4,
+    settingsAtlasCount:atlasCount,
+    settingsNotes:noteCount,
+    settingsPins:markerCount,
+    settingsFullRealScreens:true,
     settingsImageInfo,
+    settingsInteraction:true,
     oldSettingsHeroRemoved:true,
+    oldSettingsFiguresRemoved:true,
     noFormalRepoLink:true,
     noDeveloperJargon:true,
     mobileMenu:true,
     mobileOverflow:false,
+    mobileSettingsOverflow:false,
   },null,2));
 } finally { await browser.close(); }
