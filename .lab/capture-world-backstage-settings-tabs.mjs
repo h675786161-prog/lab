@@ -24,16 +24,15 @@ async function clickVisible(locator) {
 }
 
 async function captureTab(sectionKey, label, expectedText, file) {
-  // All four settings sections are rendered by the real plugin. For deterministic screenshots,
-  // select which real section CSS exposes rather than depending on restored host click state.
   await page.evaluate(({ sectionKey }) => {
-    const pop = document.querySelector('#world-backstage-root .wb-settings-popover');
+    window.scrollTo(0, 0);
+    const root = document.querySelector('#world-backstage-root');
+    const pop = root?.querySelector('.wb-settings-popover');
     if (!pop) throw new Error('settings popover missing');
     for (const key of ['common', 'injection', 'connection', 'advanced']) {
       pop.classList.remove(`wb-settings-section-${key}`);
     }
     pop.classList.add(`wb-settings-section-${sectionKey}`);
-    pop.scrollTop = 0;
     pop.querySelectorAll('button[data-wb-action="settings-section"]').forEach(button => {
       button.classList.toggle('is-active', button.dataset.section === sectionKey);
     });
@@ -41,6 +40,14 @@ async function captureTab(sectionKey, label, expectedText, file) {
     const advanced = pop.querySelector('details[data-settings-group="advanced"]');
     if (connection) connection.open = sectionKey === 'connection';
     if (advanced) advanced.open = sectionKey === 'advanced';
+
+    // Several nested pieces remember their own scroll positions. Reset every scrollable node,
+    // otherwise a screenshot can start halfway down the real panel even when the outer popover is at 0.
+    const nodes = [root, pop, ...pop.querySelectorAll('*')].filter(Boolean);
+    for (const node of nodes) {
+      if ('scrollTop' in node) node.scrollTop = 0;
+      if ('scrollLeft' in node) node.scrollLeft = 0;
+    }
   }, { sectionKey });
 
   const settings = page.locator(`#world-backstage-root .wb-settings-popover.wb-settings-section-${sectionKey}`).first();
@@ -48,7 +55,7 @@ async function captureTab(sectionKey, label, expectedText, file) {
   await settings.getByText(expectedText, { exact: false }).first().waitFor({ state: 'visible', timeout: 10_000 });
   const active = settings.locator(`button[data-wb-action="settings-section"][data-section="${sectionKey}"].is-active`);
   if (!(await active.count())) throw new Error(`${label}页签没有真正处于选中状态`);
-  await page.waitForTimeout(180);
+  await page.waitForTimeout(220);
   await settings.screenshot({
     path: path.join(out, file),
     animations: 'disabled',
