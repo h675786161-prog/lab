@@ -49,20 +49,62 @@ try {
   await page.waitForSelector('#world-backstage-root', { timeout: 30_000 });
   await dismissHostPopups();
 
+  // Build a clean, real World Backstage UI instance specifically for screenshots.
+  // This avoids depending on onboarding or whatever state the host page happened to restore.
+  await page.evaluate(async () => {
+    const ext = '/scripts/extensions/third-party/world-backstage';
+    const core = await import(`${ext}/core.js`);
+    const { createWorldBackstageUI } = await import(`${ext}/ui.js`);
+    const ctx = globalThis.SillyTavern?.getContext?.() || {};
+    const existing = ctx.extensionSettings?.world_backstage || globalThis.extension_settings?.world_backstage || {};
+    const state = core.createInitialState();
+    const settings = {
+      ...existing,
+      enabled: true,
+      theme: 'day',
+      uiScale: 'comfortable',
+      orbEnabled: true,
+      orbEdgeHide: false,
+      observerMode: 'backstage',
+      worldSimulationEnabled: true,
+      worldPromptInjection: true,
+      deliveryDensity: 'balanced',
+      sceneTiming: 'smart',
+      apiProfiles: Array.isArray(existing.apiProfiles) ? existing.apiProfiles : [],
+      apiModuleRoutes: existing.apiModuleRoutes || {},
+      generationModuleLimits: existing.generationModuleLimits || {},
+      tagFilterRules: Array.isArray(existing.tagFilterRules) ? existing.tagFilterRules : [],
+    };
+
+    document.querySelectorAll('#world-backstage-root').forEach(node => node.remove());
+    document.querySelectorAll('dialog.popup, .popup.wider_dialogue_popup').forEach(node => node.remove());
+
+    const ui = createWorldBackstageUI({
+      getState: () => state,
+      getSettings: () => settings,
+      getSyncStatus: () => ({
+        phase: 'idle',
+        message: '世界状态已同步',
+        connection: {},
+        memory: { phase: 'idle' },
+        lingqi: { phase: 'idle', notes: [] },
+        social: {},
+        opinion: {},
+      }),
+      getTavernProfiles: () => [],
+      onAction: async () => null,
+      pluginVersion: '2.5.7',
+    });
+    ui.open();
+    ui.render();
+    globalThis.__WB_SETTINGS_TUTORIAL_UI__ = ui;
+  });
+
   const root = page.locator('#world-backstage-root').first();
-  const onboarding = root.getByText('收好纸条', { exact: true });
-  if (await onboarding.isVisible().catch(() => false)) {
-    await onboarding.click({ force: true }).catch(() => {});
-    await page.waitForTimeout(250);
+  await root.locator('.wb-window').first().waitFor({ state: 'visible', timeout: 15_000 });
+  if (!(await clickVisible(root.locator('[data-wb-action="toggle-settings"]')))) {
+    throw new Error('找不到全局设置按钮');
   }
-
-  const win = root.locator('.wb-window').first();
-  if (!(await win.isVisible().catch(() => false))) {
-    await root.locator('[data-wb-action="toggle-panel"]').first().click({ force: true });
-    await page.waitForTimeout(300);
-  }
-
-  await root.locator('[data-wb-action="toggle-settings"]').first().click({ force: true });
   await page.waitForTimeout(350);
   const settings = root.locator('.wb-settings-popover').first();
   await settings.waitFor({ state: 'visible', timeout: 15_000 });
