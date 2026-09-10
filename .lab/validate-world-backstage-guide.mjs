@@ -72,11 +72,22 @@ try {
   const settingsText = await page.locator('.docs-head h1').innerText();
   if (!settingsText.includes('一个都不用改')) throw new Error('settings page does not reassure first-time users');
   if (await page.locator('.settings-chapter').count() !== 4) throw new Error('settings guide chapters missing');
-  await page.screenshot({path:path.join(evidence,'site-settings-guide-full.png'),fullPage:true});
-  const common = page.locator('#common');
-  await common.scrollIntoViewIfNeeded();
+
+  const settingsVisuals = page.locator('.settings-tab-visual');
+  if (await settingsVisuals.count() !== 4) throw new Error('settings guide must contain four real tab visuals');
+  if (await page.locator('main.docs > .lesson.simple').count() !== 0) throw new Error('old giant settings screenshot still dominates the page');
+  const settingsImageInfo = [];
+  for (let i = 0; i < 4; i += 1) {
+    const image = settingsVisuals.nth(i).locator('img');
+    await image.scrollIntoViewIfNeeded();
+    const info = await image.evaluate(img => ({naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,complete:img.complete,src:img.getAttribute('src')}));
+    if (!info.complete || info.naturalWidth < 300 || info.naturalHeight < 300) throw new Error(`settings real screenshot ${i + 1} did not load: ${JSON.stringify(info)}`);
+    settingsImageInfo.push(info);
+  }
+  await page.locator('#common').scrollIntoViewIfNeeded();
   await page.waitForTimeout(180);
   await page.screenshot({path:path.join(evidence,'site-settings-guide-main.png'),fullPage:false});
+  await page.screenshot({path:path.join(evidence,'site-settings-guide-full.png'),fullPage:true});
 
   const mobile = await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
   await mobile.goto(`${base}/index.html`,{waitUntil:'networkidle'});
@@ -103,7 +114,9 @@ try {
     firstUseGuidance:true,
     settingsReassurance:true,
     settingsGuideChapters:4,
-    settingsScreenshots:true,
+    settingsRealTabVisuals:4,
+    settingsImageInfo,
+    oldSettingsHeroRemoved:true,
     noFormalRepoLink:true,
     noDeveloperJargon:true,
     mobileMenu:true,
