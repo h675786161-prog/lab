@@ -6,10 +6,12 @@ on:
     paths:
       - '.github/workflows/world-backstage-tutorial-capture.yml'
       - '.lab/world-backstage-tutorial-capture.mjs'
+      - '.lab/capture-world-backstage-settings-tabs.mjs'
       - '.lab/build-world-backstage-guide.mjs'
       - '.lab/rebuild-approved-hero.mjs'
       - '.lab/polish-world-backstage-guide.mjs'
       - '.lab/reframe-world-backstage-guide.mjs'
+      - '.lab/enhance-settings-guide-visuals.mjs'
       - '.lab/fix-people-detail-layout.mjs'
       - '.lab/validate-world-backstage-guide.mjs'
       - '.lab/assets/guide-hero.b64.1'
@@ -123,6 +125,10 @@ jobs:
         shell: bash
         run: node "$GITHUB_WORKSPACE/.lab/world-backstage-tutorial-capture.mjs"
 
+      - name: Capture each real settings tab
+        shell: bash
+        run: node "$GITHUB_WORKSPACE/.lab/capture-world-backstage-settings-tabs.mjs"
+
       - name: Build and polish tutorial website
         shell: bash
         run: |
@@ -131,10 +137,15 @@ jobs:
           node "$GITHUB_WORKSPACE/.lab/rebuild-approved-hero.mjs"
           node "$GITHUB_WORKSPACE/.lab/polish-world-backstage-guide.mjs"
           node "$GITHUB_WORKSPACE/.lab/reframe-world-backstage-guide.mjs"
+          node "$GITHUB_WORKSPACE/.lab/enhance-settings-guide-visuals.mjs"
           node "$GITHUB_WORKSPACE/.lab/fix-people-detail-layout.mjs"
           test -f "$GUIDE_SITE_DIR/index.html"
           test -f "$GUIDE_SITE_DIR/assets/now.png"
           test -f "$GUIDE_SITE_DIR/assets/hero.webp"
+          test -f "$GUIDE_SITE_DIR/assets/settings-common.png"
+          test -f "$GUIDE_SITE_DIR/assets/settings-injection.png"
+          test -f "$GUIDE_SITE_DIR/assets/settings-connection.png"
+          test -f "$GUIDE_SITE_DIR/assets/settings-advanced.png"
 
       - name: Validate tutorial website in browser
         shell: bash
@@ -177,6 +188,6 @@ jobs:
           git rm -rf . >/dev/null 2>&1 || true
           cp -a "$GUIDE_SITE_DIR"/. .
           git add -A
-          git commit -m "site: publish roomier people detail layout"
+          git commit -m "site: publish settings guide with real tab screenshots"
           git push origin HEAD:world-backstage-guide-site --force
           git push origin HEAD:gh-pages --force
