@@ -1,0 +1,29 @@
+{
+  "populated": {
+    "people": 3,
+    "events": 3,
+    "facts": 3,
+    "clues": 2,
+    "summaries": 1
+  },
+  "shots": [
+    "00-sillytavern-with-world-backstage-entry.png",
+    "01-world-backstage-entry-orb.png",
+    "10-此刻-有内容.png",
+    "11-人物-有内容.png",
+    "12-记忆-有内容.png",
+    "11b-人物-伊芙详情.png",
+    "13-设置-真实界面.png"
+  ],
+  "checks": {
+    "window": {
+      "x": 210,
+      "y": 170,
+      "width": 1180,
+      "height": 760
+    },
+    "peopleHasEve": true,
+    "memoryHasNora": true,
+    "memoryHasWax": true
+  }
+}

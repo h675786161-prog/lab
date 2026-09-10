@@ -1,0 +1,4 @@
+lab_repo=h675786161-prog/lab
+lab_sha=c6e5990da5fd49496ef364ee9dfb6c94a538926c
+sillytavern_commit=8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+world_backstage_ref=9adafde433c13e20cde88e3ac7c712855969a430

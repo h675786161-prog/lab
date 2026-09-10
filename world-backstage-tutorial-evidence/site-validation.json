@@ -1,0 +1,57 @@
+{
+  "ok": true,
+  "userFirstRoutes": 6,
+  "storyDemo": true,
+  "heroRendered": {
+    "naturalWidth": 1672,
+    "naturalHeight": 941,
+    "complete": true
+  },
+  "heroHQ": true,
+  "crossPage": true,
+  "anchors": true,
+  "hotspot": true,
+  "peopleDetail": true,
+  "peopleDetailWidth": 475.53125,
+  "firstUseGuidance": true,
+  "settingsReassurance": true,
+  "settingsGuideChapters": 4,
+  "settingsAtlasCount": 4,
+  "settingsNotes": 31,
+  "settingsPins": 31,
+  "settingsFullRealScreens": true,
+  "settingsImageInfo": [
+    {
+      "naturalWidth": 780,
+      "naturalHeight": 2328,
+      "complete": true,
+      "src": "assets/settings-common.png"
+    },
+    {
+      "naturalWidth": 780,
+      "naturalHeight": 3274,
+      "complete": true,
+      "src": "assets/settings-injection.png"
+    },
+    {
+      "naturalWidth": 780,
+      "naturalHeight": 4942,
+      "complete": true,
+      "src": "assets/settings-connection.png"
+    },
+    {
+      "naturalWidth": 780,
+      "naturalHeight": 8902,
+      "complete": true,
+      "src": "assets/settings-advanced.png"
+    }
+  ],
+  "settingsInteraction": true,
+  "oldSettingsHeroRemoved": true,
+  "oldSettingsFiguresRemoved": true,
+  "noFormalRepoLink": true,
+  "noDeveloperJargon": true,
+  "mobileMenu": true,
+  "mobileOverflow": false,
+  "mobileSettingsOverflow": false
+}
