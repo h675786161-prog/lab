@@ -84,11 +84,21 @@ try {
   if (noteCount !== 31) throw new Error(`expected 31 settings explanations, got ${noteCount}`);
   if (markerCount !== noteCount) throw new Error(`settings pins/notes mismatch: pins=${markerCount}, notes=${noteCount}`);
 
+  // The four sheets are very tall and intentionally lazy in production. Force them to load for QA
+  // before measuring them, otherwise Chromium may leave lower-page images at naturalWidth 0.
+  await page.locator('.settings-atlas-stage img').evaluateAll(images => {
+    for (const img of images) {
+      img.loading = 'eager';
+      const src = img.getAttribute('src');
+      if (src) img.src = src;
+    }
+  });
+  await page.waitForFunction(() => [...document.querySelectorAll('.settings-atlas-stage img')].every(img => img.complete && img.naturalWidth > 0), null, { timeout: 20000 });
+
   const expectedMinimumHeights = [2200, 3100, 4700, 8500];
   const settingsImageInfo = [];
   for (let i = 0; i < 4; i += 1) {
     const image = atlases.nth(i).locator('.settings-atlas-stage img');
-    await image.scrollIntoViewIfNeeded();
     const info = await image.evaluate(img => ({naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,complete:img.complete,src:img.getAttribute('src')}));
     if (!info.complete || info.naturalWidth < 700 || info.naturalHeight < expectedMinimumHeights[i]) {
       throw new Error(`full settings screenshot ${i + 1} missing/cropped: ${JSON.stringify(info)}`);
@@ -96,7 +106,6 @@ try {
     settingsImageInfo.push(info);
   }
 
-  // Clicking an explanation must highlight its matching pin and move the left screenshot to that location.
   const injectionAtlas = page.locator('[data-settings-atlas="injection"]');
   const injectionScroll = injectionAtlas.locator('[data-settings-scroll]');
   await injectionAtlas.scrollIntoViewIfNeeded();
