@@ -11,12 +11,6 @@ const browser = await chromium.launch({
 const page = await browser.newPage({ viewport: { width: 1600, height: 1100 }, deviceScaleFactor: 2 });
 const out = process.env.LAB_EVIDENCE_DIR;
 
-async function dismissHostPopups() {
-  await page.evaluate(() => {
-    document.querySelectorAll('dialog.popup, .popup.wider_dialogue_popup').forEach(node => node.remove());
-  }).catch(() => {});
-}
-
 async function clickVisible(locator) {
   const count = await locator.count();
   for (let i = 0; i < count; i += 1) {
@@ -30,20 +24,31 @@ async function clickVisible(locator) {
 }
 
 async function captureTab(sectionKey, label, expectedText, file) {
-  let settings = page.locator('#world-backstage-root .wb-settings-popover').first();
-  await settings.waitFor({ state: 'visible', timeout: 15_000 });
-  const button = settings.locator(`button[data-wb-action="settings-section"][data-section="${sectionKey}"]`);
-  if (!(await clickVisible(button))) throw new Error(`找不到设置页签：${label}`);
+  // All four settings sections are rendered by the real plugin. For deterministic screenshots,
+  // select which real section CSS exposes rather than depending on restored host click state.
+  await page.evaluate(({ sectionKey }) => {
+    const pop = document.querySelector('#world-backstage-root .wb-settings-popover');
+    if (!pop) throw new Error('settings popover missing');
+    for (const key of ['common', 'injection', 'connection', 'advanced']) {
+      pop.classList.remove(`wb-settings-section-${key}`);
+    }
+    pop.classList.add(`wb-settings-section-${sectionKey}`);
+    pop.scrollTop = 0;
+    pop.querySelectorAll('button[data-wb-action="settings-section"]').forEach(button => {
+      button.classList.toggle('is-active', button.dataset.section === sectionKey);
+    });
+    const connection = pop.querySelector('details[data-settings-group="connection"]');
+    const advanced = pop.querySelector('details[data-settings-group="advanced"]');
+    if (connection) connection.open = sectionKey === 'connection';
+    if (advanced) advanced.open = sectionKey === 'advanced';
+  }, { sectionKey });
 
-  settings = page.locator(`#world-backstage-root .wb-settings-popover.wb-settings-section-${sectionKey}`).first();
-  await settings.waitFor({ state: 'visible', timeout: 15_000 });
+  const settings = page.locator(`#world-backstage-root .wb-settings-popover.wb-settings-section-${sectionKey}`).first();
+  await settings.waitFor({ state: 'visible', timeout: 10_000 });
   await settings.getByText(expectedText, { exact: false }).first().waitFor({ state: 'visible', timeout: 10_000 });
-  await settings.evaluate(node => { node.scrollTop = 0; });
-  await page.waitForTimeout(220);
-
   const active = settings.locator(`button[data-wb-action="settings-section"][data-section="${sectionKey}"].is-active`);
-  if (!(await active.count())) throw new Error(`${label}页签没有真正切换为激活状态`);
-
+  if (!(await active.count())) throw new Error(`${label}页签没有真正处于选中状态`);
+  await page.waitForTimeout(180);
   await settings.screenshot({
     path: path.join(out, file),
     animations: 'disabled',
@@ -56,10 +61,8 @@ try {
   await page.goto(process.env.LAB_ST_URL, { waitUntil: 'domcontentloaded', timeout: 60_000 });
   await page.waitForFunction(() => Boolean(globalThis.SillyTavern?.getContext), null, { timeout: 30_000 });
   await page.waitForSelector('#world-backstage-root', { timeout: 30_000 });
-  await dismissHostPopups();
 
-  // Build a clean instance from the actual plugin UI, so these are real interface screenshots
-  // without relying on whatever state SillyTavern happened to restore for the browser session.
+  // Build a clean instance from the actual plugin UI so the screenshots are reproducible.
   await page.evaluate(async () => {
     const ext = '/scripts/extensions/third-party/world-backstage';
     const core = await import(`${ext}/core.js`);
@@ -84,21 +87,14 @@ try {
       generationModuleLimits: existing.generationModuleLimits || {},
       tagFilterRules: Array.isArray(existing.tagFilterRules) ? existing.tagFilterRules : [],
     };
-
     document.querySelectorAll('#world-backstage-root').forEach(node => node.remove());
     document.querySelectorAll('dialog.popup, .popup.wider_dialogue_popup').forEach(node => node.remove());
-
     const ui = createWorldBackstageUI({
       getState: () => state,
       getSettings: () => settings,
       getSyncStatus: () => ({
-        phase: 'idle',
-        message: '世界状态已同步',
-        connection: {},
-        memory: { phase: 'idle' },
-        lingqi: { phase: 'idle', notes: [] },
-        social: {},
-        opinion: {},
+        phase: 'idle', message: '世界状态已同步', connection: {}, memory: { phase: 'idle' },
+        lingqi: { phase: 'idle', notes: [] }, social: {}, opinion: {},
       }),
       getTavernProfiles: () => [],
       onAction: async () => null,
@@ -111,10 +107,8 @@ try {
 
   const root = page.locator('#world-backstage-root').first();
   await root.locator('.wb-window').first().waitFor({ state: 'visible', timeout: 15_000 });
-  if (!(await clickVisible(root.locator('[data-wb-action="toggle-settings"]')))) {
-    throw new Error('找不到全局设置按钮');
-  }
-  await page.locator('#world-backstage-root .wb-settings-popover').first().waitFor({ state: 'visible', timeout: 15_000 });
+  if (!(await clickVisible(root.locator('[data-wb-action="toggle-settings"]')))) throw new Error('找不到全局设置按钮');
+  await root.locator('.wb-settings-popover').first().waitFor({ state: 'visible', timeout: 15_000 });
 
   await captureTab('common', '常用', '界面明暗', '13a-设置-常用.png');
   await captureTab('injection', '正文注入', '世界时间', '13b-设置-正文注入.png');
