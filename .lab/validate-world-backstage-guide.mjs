@@ -7,8 +7,6 @@ const evidence = process.env.LAB_EVIDENCE_DIR || process.cwd();
 const siteDir = process.env.GUIDE_SITE_DIR || '/tmp/world-backstage-guide-site';
 const pageNames = ['index.html','start.html','now.html','people.html','memory.html','settings.html','help.html'];
 
-// Static checks first: the public guide should read like a user guide, not leak repo/dev language,
-// and all local page/anchor links must actually resolve.
 for (const name of pageNames) {
   const html = await fs.readFile(path.join(siteDir,name),'utf8');
   if (/github\.com\/h675786161-prog\/world-backstage/i.test(html)) throw new Error(`${name}: formal repo link leaked into public guide`);
@@ -72,21 +70,26 @@ try {
   const settingsText = await page.locator('.docs-head h1').innerText();
   if (!settingsText.includes('一个都不用改')) throw new Error('settings page does not reassure first-time users');
   if (await page.locator('.settings-chapter').count() !== 4) throw new Error('settings guide chapters missing');
-
   const settingsVisuals = page.locator('.settings-tab-visual');
   if (await settingsVisuals.count() !== 4) throw new Error('settings guide must contain four real tab visuals');
   if (await page.locator('main.docs > .lesson.simple').count() !== 0) throw new Error('old giant settings screenshot still dominates the page');
+
   const settingsImageInfo = [];
   for (let i = 0; i < 4; i += 1) {
     const image = settingsVisuals.nth(i).locator('img');
     await image.scrollIntoViewIfNeeded();
     const info = await image.evaluate(img => ({naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,complete:img.complete,src:img.getAttribute('src')}));
-    if (!info.complete || info.naturalWidth < 300 || info.naturalHeight < 300) throw new Error(`settings real screenshot ${i + 1} did not load: ${JSON.stringify(info)}`);
+    if (!info.complete || info.naturalWidth < 600 || info.naturalHeight < 600) throw new Error(`settings real screenshot ${i + 1} is missing or too soft: ${JSON.stringify(info)}`);
     settingsImageInfo.push(info);
   }
-  await page.locator('#common').scrollIntoViewIfNeeded();
-  await page.waitForTimeout(180);
+
+  const commonTop = await page.locator('#common').evaluate(el => el.getBoundingClientRect().top + window.scrollY);
+  await page.evaluate(y => window.scrollTo(0, Math.max(0, y - 82)), commonTop);
+  await page.waitForTimeout(220);
   await page.screenshot({path:path.join(evidence,'site-settings-guide-main.png'),fullPage:false});
+
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(220);
   await page.screenshot({path:path.join(evidence,'site-settings-guide-full.png'),fullPage:true});
 
   const mobile = await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
