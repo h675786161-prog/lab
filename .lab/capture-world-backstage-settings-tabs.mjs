@@ -29,6 +29,7 @@ async function captureTab(sectionKey, label, expectedText, file) {
     const root = document.querySelector('#world-backstage-root');
     const pop = root?.querySelector('.wb-settings-popover');
     if (!pop) throw new Error('settings popover missing');
+
     for (const key of ['common', 'injection', 'connection', 'advanced']) {
       pop.classList.remove(`wb-settings-section-${key}`);
     }
@@ -36,18 +37,42 @@ async function captureTab(sectionKey, label, expectedText, file) {
     pop.querySelectorAll('button[data-wb-action="settings-section"]').forEach(button => {
       button.classList.toggle('is-active', button.dataset.section === sectionKey);
     });
+
     const connection = pop.querySelector('details[data-settings-group="connection"]');
     const advanced = pop.querySelector('details[data-settings-group="advanced"]');
     if (connection) connection.open = sectionKey === 'connection';
     if (advanced) advanced.open = sectionKey === 'advanced';
 
-    // Several nested pieces remember their own scroll positions. Reset every scrollable node,
-    // otherwise a screenshot can start halfway down the real panel even when the outer popover is at 0.
+    // Tutorial capture only: open every nested fold in the active page so a reader can see
+    // every setting without having to guess what is hidden behind a collapsed group.
+    pop.querySelectorAll('details').forEach(node => {
+      const style = getComputedStyle(node);
+      if (style.display !== 'none' && style.visibility !== 'hidden') node.open = true;
+    });
+
+    // Reset all remembered internal scroll positions first.
     const nodes = [root, pop, ...pop.querySelectorAll('*')].filter(Boolean);
     for (const node of nodes) {
       if ('scrollTop' in node) node.scrollTop = 0;
       if ('scrollLeft' in node) node.scrollLeft = 0;
     }
+
+    // The real settings window is intentionally scrollable. For documentation screenshots,
+    // temporarily unfold that scroll container into one tall sheet. This is still the real
+    // plugin DOM and controls, just photographed fully expanded.
+    pop.style.setProperty('max-height', 'none', 'important');
+    pop.style.setProperty('height', 'auto', 'important');
+    pop.style.setProperty('overflow', 'visible', 'important');
+    pop.style.setProperty('position', 'relative', 'important');
+    pop.querySelectorAll('*').forEach(node => {
+      const style = getComputedStyle(node);
+      if ((style.overflowY === 'auto' || style.overflowY === 'scroll') && node.scrollHeight > node.clientHeight + 4) {
+        node.style.setProperty('max-height', 'none', 'important');
+        node.style.setProperty('height', 'auto', 'important');
+        node.style.setProperty('overflow-y', 'visible', 'important');
+        node.scrollTop = 0;
+      }
+    });
   }, { sectionKey });
 
   const settings = page.locator(`#world-backstage-root .wb-settings-popover.wb-settings-section-${sectionKey}`).first();
@@ -55,11 +80,22 @@ async function captureTab(sectionKey, label, expectedText, file) {
   await settings.getByText(expectedText, { exact: false }).first().waitFor({ state: 'visible', timeout: 10_000 });
   const active = settings.locator(`button[data-wb-action="settings-section"][data-section="${sectionKey}"].is-active`);
   if (!(await active.count())) throw new Error(`${label}页签没有真正处于选中状态`);
-  await page.waitForTimeout(220);
+
+  // Give layout one frame to settle, then pin the expanded scrollHeight as the element height.
+  await page.waitForTimeout(260);
+  const measured = await settings.evaluate(node => {
+    const height = Math.ceil(node.scrollHeight);
+    node.style.setProperty('height', `${height}px`, 'important');
+    return { width: Math.ceil(node.scrollWidth), height };
+  });
+  if (measured.height < 700) throw new Error(`${label}设置页展开高度异常：${measured.height}`);
+  if (measured.height > 9000) throw new Error(`${label}设置页展开过高，疑似布局失控：${measured.height}`);
+  await page.waitForTimeout(120);
+
   await settings.screenshot({
     path: path.join(out, file),
     animations: 'disabled',
-    timeout: 20_000,
+    timeout: 30_000,
   });
 }
 
