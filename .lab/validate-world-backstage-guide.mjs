@@ -71,6 +71,12 @@ try {
   await page.goto(`${base}/settings.html`,{waitUntil:'networkidle'});
   const settingsText = await page.locator('.docs-head h1').innerText();
   if (!settingsText.includes('一个都不用改')) throw new Error('settings page does not reassure first-time users');
+  if (await page.locator('.settings-chapter').count() !== 4) throw new Error('settings guide chapters missing');
+  await page.screenshot({path:path.join(evidence,'site-settings-guide-full.png'),fullPage:true});
+  const common = page.locator('#common');
+  await common.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(180);
+  await page.screenshot({path:path.join(evidence,'site-settings-guide-main.png'),fullPage:false});
 
   const mobile = await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
   await mobile.goto(`${base}/index.html`,{waitUntil:'networkidle'});
@@ -96,6 +102,8 @@ try {
     peopleDetailWidth:detailImageBox.width,
     firstUseGuidance:true,
     settingsReassurance:true,
+    settingsGuideChapters:4,
+    settingsScreenshots:true,
     noFormalRepoLink:true,
     noDeveloperJargon:true,
     mobileMenu:true,
