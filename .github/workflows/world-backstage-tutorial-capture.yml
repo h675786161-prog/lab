@@ -13,6 +13,7 @@ on:
       - '.lab/reframe-world-backstage-guide.mjs'
       - '.lab/enhance-settings-guide-visuals.mjs'
       - '.lab/annotate-settings-guide.mjs'
+      - '.lab/run-annotated-settings-guide.mjs'
       - '.lab/fix-people-detail-layout.mjs'
       - '.lab/validate-world-backstage-guide.mjs'
       - '.lab/assets/guide-hero.b64.1'
@@ -140,7 +141,7 @@ jobs:
           node "$GITHUB_WORKSPACE/.lab/reframe-world-backstage-guide.mjs"
           node "$GITHUB_WORKSPACE/.lab/fix-people-detail-layout.mjs"
           node "$GITHUB_WORKSPACE/.lab/enhance-settings-guide-visuals.mjs"
-          node "$GITHUB_WORKSPACE/.lab/annotate-settings-guide.mjs"
+          node "$GITHUB_WORKSPACE/.lab/run-annotated-settings-guide.mjs"
           test -f "$GUIDE_SITE_DIR/index.html"
           test -f "$GUIDE_SITE_DIR/assets/now.png"
           test -f "$GUIDE_SITE_DIR/assets/hero.webp"
