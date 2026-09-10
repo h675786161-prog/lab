@@ -8,7 +8,7 @@ const browser = await chromium.launch({
   args: ['--no-sandbox', '--disable-dev-shm-usage'],
 });
 
-const page = await browser.newPage({ viewport: { width: 1600, height: 1100 }, deviceScaleFactor: 1.25 });
+const page = await browser.newPage({ viewport: { width: 1600, height: 1100 }, deviceScaleFactor: 2 });
 const out = process.env.LAB_EVIDENCE_DIR;
 
 async function dismissHostPopups() {
@@ -29,12 +29,21 @@ async function clickVisible(locator) {
   return false;
 }
 
-async function captureTab(settings, label, file) {
-  const button = settings.locator('button').filter({ hasText: new RegExp(`^${label}$`) });
+async function captureTab(sectionKey, label, expectedText, file) {
+  let settings = page.locator('#world-backstage-root .wb-settings-popover').first();
+  await settings.waitFor({ state: 'visible', timeout: 15_000 });
+  const button = settings.locator(`button[data-wb-action="settings-section"][data-section="${sectionKey}"]`);
   if (!(await clickVisible(button))) throw new Error(`找不到设置页签：${label}`);
-  await page.waitForTimeout(350);
+
+  settings = page.locator(`#world-backstage-root .wb-settings-popover.wb-settings-section-${sectionKey}`).first();
+  await settings.waitFor({ state: 'visible', timeout: 15_000 });
+  await settings.getByText(expectedText, { exact: false }).first().waitFor({ state: 'visible', timeout: 10_000 });
   await settings.evaluate(node => { node.scrollTop = 0; });
-  await page.waitForTimeout(120);
+  await page.waitForTimeout(220);
+
+  const active = settings.locator(`button[data-wb-action="settings-section"][data-section="${sectionKey}"].is-active`);
+  if (!(await active.count())) throw new Error(`${label}页签没有真正切换为激活状态`);
+
   await settings.screenshot({
     path: path.join(out, file),
     animations: 'disabled',
@@ -49,8 +58,8 @@ try {
   await page.waitForSelector('#world-backstage-root', { timeout: 30_000 });
   await dismissHostPopups();
 
-  // Build a clean, real World Backstage UI instance specifically for screenshots.
-  // This avoids depending on onboarding or whatever state the host page happened to restore.
+  // Build a clean instance from the actual plugin UI, so these are real interface screenshots
+  // without relying on whatever state SillyTavern happened to restore for the browser session.
   await page.evaluate(async () => {
     const ext = '/scripts/extensions/third-party/world-backstage';
     const core = await import(`${ext}/core.js`);
@@ -105,14 +114,12 @@ try {
   if (!(await clickVisible(root.locator('[data-wb-action="toggle-settings"]')))) {
     throw new Error('找不到全局设置按钮');
   }
-  await page.waitForTimeout(350);
-  const settings = root.locator('.wb-settings-popover').first();
-  await settings.waitFor({ state: 'visible', timeout: 15_000 });
+  await page.locator('#world-backstage-root .wb-settings-popover').first().waitFor({ state: 'visible', timeout: 15_000 });
 
-  await captureTab(settings, '常用', '13a-设置-常用.png');
-  await captureTab(settings, '正文注入', '13b-设置-正文注入.png');
-  await captureTab(settings, '连接与模型', '13c-设置-连接与模型.png');
-  await captureTab(settings, '高级维护', '13d-设置-高级维护.png');
+  await captureTab('common', '常用', '界面明暗', '13a-设置-常用.png');
+  await captureTab('injection', '正文注入', '世界时间', '13b-设置-正文注入.png');
+  await captureTab('connection', '连接与模型', '独立接口配置', '13c-设置-连接与模型.png');
+  await captureTab('advanced', '高级维护', '生成限制', '13d-设置-高级维护.png');
 } finally {
   await browser.close();
 }
