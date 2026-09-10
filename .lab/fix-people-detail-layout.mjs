@@ -55,3 +55,6 @@ css += String.raw`
 
 await fs.writeFile(cssFile, css);
 console.log('people detail layout widened');
+
+// Keep page-specific guide enrichments behind the main user-first rebuild so future runs stay reproducible.
+await import('./enrich-settings-guide.mjs');
