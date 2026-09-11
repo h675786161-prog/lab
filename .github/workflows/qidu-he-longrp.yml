@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   real-sillytavern:
@@ -23,7 +24,7 @@ jobs:
 
   long-rp:
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    timeout-minutes: 40
     env:
       YOUZI_KEY: ${{ secrets.YOUZI }}
       GLM_MODEL: '[B]glm-5.3-flash'
@@ -36,15 +37,44 @@ jobs:
       - name: Validate fixture JSON
         run: |
           node -e "JSON.parse(require('fs').readFileSync(process.env.CARD_PATH,'utf8')); JSON.parse(require('fs').readFileSync(process.env.PRESET_PATH,'utf8')); console.log('fixtures valid')"
-      - name: Adapt GLM benchmark for reasoning-only and transient upstream responses
+      - name: Restore turn-31 checkpoint from run 34632841483
+        uses: actions/download-artifact@v4
+        with:
+          name: qidu-he-longrp
+          path: bench-evidence/qidu-he-longrp
+          github-token: ${{ github.token }}
+          repository: h675786161-prog/lab
+          run-id: 34632841483
+      - name: Adapt benchmark for checkpoint resume and GLM reasoning budget
         run: |
           python - <<'PY'
           from pathlib import Path
           p = Path('.lab/qidu-he-longrp.mjs')
           s = p.read_text()
+          old_state = """let messages = [{ role: 'assistant', content: data.first_mes }];
+          const transcript = [{ turn: 0, role: 'assistant', content: data.first_mes }];"""
+          new_state = r"""const resumePath = path.join(OUT, 'transcript.partial.json');
+          let transcript;
+          let messages;
+          let completedTurns = 0;
+          try {
+            const resumeRaw = await fs.readFile(resumePath, 'utf8');
+            transcript = JSON.parse(resumeRaw);
+            const done = transcript.filter(x => x.role === 'assistant' && Number.isInteger(x.turn)).map(x => x.turn);
+            completedTurns = Math.max(0, ...done);
+            messages = transcript.map(x => ({ role: x.role, content: x.content }));
+            console.log(`resume checkpoint loaded: completed_turns=${completedTurns}`);
+          } catch (error) {
+            console.warn(`no usable checkpoint, starting fresh: ${String(error?.message || error)}`);
+            messages = [{ role: 'assistant', content: data.first_mes }];
+            transcript = [{ turn: 0, role: 'assistant', content: data.first_mes }];
+          }"""
+          if old_state not in s:
+              raise SystemExit('state anchor not found')
+          s = s.replace(old_state, new_state)
           start = s.index('async function callModel(')
           end = s.index('\n\nfor (let i', start)
-          replacement = r'''async function callModel(extraMessages, maxTokens = 6000) {
+          replacement = r'''async function callModel(extraMessages, maxTokens = 30000) {
             let lastError = null;
             for (let attempt = 1; attempt <= 8; attempt++) {
               const now = Date.now();
@@ -62,7 +92,7 @@ jobs:
                     top_p: preset.sampling?.top_p ?? 0.5,
                     frequency_penalty: preset.sampling?.frequency_penalty ?? 0,
                     presence_penalty: preset.sampling?.presence_penalty ?? 0,
-                    max_tokens: maxTokens,
+                    max_tokens: Math.max(maxTokens, preset.sampling?.openai_max_tokens ?? 30000),
                     stream: false,
                   }),
                 });
@@ -77,8 +107,15 @@ jobs:
                   throw lastError;
                 }
                 const json = JSON.parse(raw);
-                const message = json.choices?.[0]?.message || {};
+                const choice = json.choices?.[0] || {};
+                const message = choice.message || {};
                 const content = message.content ?? '';
+                if (choice.finish_reason === 'length') {
+                  lastError = new Error(`Truncated response: finish_reason=length visible_chars=${content.length}`);
+                  console.warn(`length-truncated response, retry ${attempt}/8 visible_chars=${content.length}`);
+                  await new Promise(r => setTimeout(r, Math.min(60000, attempt * 8000)));
+                  continue;
+                }
                 if (!content.trim()) {
                   const reasoningChars = String(message.reasoning_content ?? '').length;
                   lastError = new Error(`Reasoning-only response (${reasoningChars} chars), no visible RP content`);
@@ -86,7 +123,7 @@ jobs:
                   await new Promise(r => setTimeout(r, Math.min(60000, attempt * 8000)));
                   continue;
                 }
-                return { content, usage: json.usage || null };
+                return { content, usage: json.usage || null, finish_reason: choice.finish_reason || null };
               } catch (error) {
                 lastError = error;
                 if (attempt >= 8) break;
@@ -97,11 +134,14 @@ jobs:
             throw lastError || new Error('Model request failed after retries');
           }'''
           s = s[:start] + replacement + s[end:]
-          s = s.replace('], 850);', '], 6000);')
-          s = s.replace('], 1600);', '], 8000);')
+          s = s.replace('for (let i = 0; i < userTurns.length; i++) {', 'for (let i = completedTurns; i < userTurns.length; i++) {')
+          s = s.replace("transcript.push({ turn: i + 1, role: 'assistant', content: result.content, usage: result.usage });", "transcript.push({ turn: i + 1, role: 'assistant', content: result.content, usage: result.usage, finish_reason: result.finish_reason });")
+          s = s.replace('], 850);', '], 30000);')
+          s = s.replace('], 1600);', '], 30000);')
+          s = s.replace("operational_note: 'Generation max_tokens capped at 850 for repeatable benchmark runtime; sampling temperature/top_p/frequency/presence come from uploaded preset snapshot.',", "operational_note: 'Resumed from the 31-turn run-4 checkpoint. max_tokens follows uploaded preset openai_max_tokens (30000); finish_reason=length, reasoning-only, 429 and 503 responses are retried without discarding RP history.',")
           p.write_text(s)
           PY
-      - name: Run 36-turn GLM long-RP drift benchmark at 12 RPM
+      - name: Continue turns 32-36 and judge full 36-turn history at 12 RPM
         run: node .lab/qidu-he-longrp.mjs
       - name: Upload long-RP evidence
         if: always()
