@@ -23,7 +23,7 @@ jobs:
 
   long-rp:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 50
     env:
       YOUZI_KEY: ${{ secrets.YOUZI }}
       GLM_MODEL: '[B]glm-5.3-flash'
@@ -36,26 +36,73 @@ jobs:
       - name: Validate fixture JSON
         run: |
           node -e "JSON.parse(require('fs').readFileSync(process.env.CARD_PATH,'utf8')); JSON.parse(require('fs').readFileSync(process.env.PRESET_PATH,'utf8')); console.log('fixtures valid')"
-      - name: Adapt token budget for GLM reasoning + visible RP text
+      - name: Adapt GLM benchmark for reasoning-only and transient upstream responses
         run: |
-          sed -i 's/maxTokens = 850/maxTokens = 3000/' .lab/qidu-he-longrp.mjs
-          sed -i 's/], 850);/], 3000);/' .lab/qidu-he-longrp.mjs
-          sed -i 's/], 1600);/], 5000);/' .lab/qidu-he-longrp.mjs
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('.lab/qidu-he-longrp.mjs')
+          s = p.read_text()
+          start = s.index('async function callModel(')
+          end = s.index('\n\nfor (let i', start)
+          replacement = r'''async function callModel(extraMessages, maxTokens = 6000) {
+            let lastError = null;
+            for (let attempt = 1; attempt <= 8; attempt++) {
+              const now = Date.now();
+              const wait = Math.max(0, minStartGap - (now - lastStart));
+              if (wait) await new Promise(r => setTimeout(r, wait));
+              lastStart = Date.now();
+              try {
+                const response = await fetch(API, {
+                  method: 'POST',
+                  headers: { 'content-type': 'application/json', authorization: `Bearer ${KEY}` },
+                  body: JSON.stringify({
+                    model: MODEL,
+                    messages: extraMessages,
+                    temperature: preset.sampling?.temperature ?? 0.98,
+                    top_p: preset.sampling?.top_p ?? 0.5,
+                    frequency_penalty: preset.sampling?.frequency_penalty ?? 0,
+                    presence_penalty: preset.sampling?.presence_penalty ?? 0,
+                    max_tokens: maxTokens,
+                    stream: false,
+                  }),
+                });
+                const raw = await response.text();
+                if (!response.ok) {
+                  lastError = new Error(`HTTP ${response.status}: ${raw.slice(0, 1000)}`);
+                  if (response.status === 429 || response.status === 503) {
+                    console.warn(`transient upstream HTTP ${response.status}, request retry ${attempt}/8`);
+                    await new Promise(r => setTimeout(r, Math.min(90000, attempt * 12000)));
+                    continue;
+                  }
+                  throw lastError;
+                }
+                const json = JSON.parse(raw);
+                const message = json.choices?.[0]?.message || {};
+                const content = message.content ?? '';
+                if (!content.trim()) {
+                  const reasoningChars = String(message.reasoning_content ?? '').length;
+                  lastError = new Error(`Reasoning-only response (${reasoningChars} chars), no visible RP content`);
+                  console.warn(`reasoning-only response, request retry ${attempt}/8 reasoning_chars=${reasoningChars}`);
+                  await new Promise(r => setTimeout(r, Math.min(60000, attempt * 8000)));
+                  continue;
+                }
+                return { content, usage: json.usage || null };
+              } catch (error) {
+                lastError = error;
+                if (attempt >= 8) break;
+                console.warn(`request error retry ${attempt}/8: ${String(error?.message || error).slice(0, 300)}`);
+                await new Promise(r => setTimeout(r, Math.min(60000, attempt * 8000)));
+              }
+            }
+            throw lastError || new Error('Model request failed after retries');
+          }'''
+          s = s[:start] + replacement + s[end:]
+          s = s.replace('], 850);', '], 6000);')
+          s = s.replace('], 1600);', '], 8000);')
+          p.write_text(s)
+          PY
       - name: Run 36-turn GLM long-RP drift benchmark at 12 RPM
-        shell: bash
-        run: |
-          set -euo pipefail
-          for attempt in 1 2 3 4; do
-            echo "benchmark attempt=$attempt/4"
-            rm -rf "$LAB_OUT"
-            if node .lab/qidu-he-longrp.mjs; then
-              exit 0
-            fi
-            if [ "$attempt" -lt 4 ]; then
-              sleep $((attempt * 30))
-            fi
-          done
-          exit 1
+        run: node .lab/qidu-he-longrp.mjs
       - name: Upload long-RP evidence
         if: always()
         uses: actions/upload-artifact@v4
