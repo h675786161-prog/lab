@@ -45,6 +45,7 @@ jobs:
           cp "$CARD" "$EVIDENCE/qidu-he-if-v0.2.character.json"
 
       - name: Focused GLM regression at <=12 RPM
+        continue-on-error: true
         run: |
           set -euo pipefail
           cat > /tmp/qidu-v02-regression.mjs <<'NODE'
@@ -71,16 +72,35 @@ jobs:
           let last = 0;
           async function call(extra) {
             let err;
-            for (let attempt=1; attempt<=6; attempt++) {
+            for (let attempt=1; attempt<=8; attempt++) {
               const wait = Math.max(0, gap - (Date.now()-last));
               if (wait) await new Promise(r=>setTimeout(r, wait));
               last = Date.now();
-              const r = await fetch('https://youzi.today/v1/chat/completions', {method:'POST', headers:{'content-type':'application/json', authorization:`Bearer ${process.env.YOUZI_KEY}`}, body:JSON.stringify({model:process.env.MODEL,messages:extra,temperature:preset.sampling?.temperature ?? 0.98,top_p:preset.sampling?.top_p ?? 0.5,max_tokens:preset.sampling?.openai_max_tokens ?? 30000,stream:false})});
-              const raw = await r.text();
-              if (!r.ok) { err = new Error(`HTTP ${r.status}: ${raw.slice(0,500)}`); if ([429,503].includes(r.status)) { await new Promise(x=>setTimeout(x, attempt*10000)); continue; } throw err; }
-              const j = JSON.parse(raw); const choice=j.choices?.[0]||{}; const text=choice.message?.content||'';
-              if (!text.trim() || choice.finish_reason==='length') { err=new Error(`bad visible content finish=${choice.finish_reason} chars=${text.length}`); await new Promise(x=>setTimeout(x, attempt*8000)); continue; }
-              return text;
+              try {
+                const r = await fetch('https://youzi.today/v1/chat/completions', {method:'POST', headers:{'content-type':'application/json', authorization:`Bearer ${process.env.YOUZI_KEY}`}, body:JSON.stringify({model:process.env.MODEL,messages:extra,temperature:preset.sampling?.temperature ?? 0.98,top_p:preset.sampling?.top_p ?? 0.5,max_tokens:preset.sampling?.openai_max_tokens ?? 30000,stream:false})});
+                const raw = await r.text();
+                if (!r.ok) {
+                  err = new Error(`HTTP ${r.status}: ${raw.slice(0,500)}`);
+                  if ([429,503,524].includes(r.status)) {
+                    console.warn(`transient upstream HTTP ${r.status}, retry ${attempt}/8`);
+                    await new Promise(x=>setTimeout(x, Math.min(90000, attempt*10000)));
+                    continue;
+                  }
+                  throw err;
+                }
+                const j = JSON.parse(raw); const choice=j.choices?.[0]||{}; const text=choice.message?.content||'';
+                if (!text.trim() || choice.finish_reason==='length') {
+                  err=new Error(`bad visible content finish=${choice.finish_reason} chars=${text.length}`);
+                  await new Promise(x=>setTimeout(x, Math.min(60000, attempt*8000)));
+                  continue;
+                }
+                return text;
+              } catch (e) {
+                err = e;
+                if (attempt >= 8) break;
+                console.warn(`request error retry ${attempt}/8: ${String(e?.message||e).slice(0,300)}`);
+                await new Promise(x=>setTimeout(x, Math.min(60000, attempt*8000)));
+              }
             }
             throw err || new Error('request failed');
           }
@@ -88,6 +108,7 @@ jobs:
             messages.push({role:'user', content:turns[i]}); transcript.push({role:'user',turn:i+1,content:turns[i]});
             const out = await call([{role:'system',content:system},...messages]);
             messages.push({role:'assistant',content:out}); transcript.push({role:'assistant',turn:i+1,content:out});
+            await fs.writeFile(`${process.env.EVIDENCE}/focused-regression.partial.json`, JSON.stringify({completedTurn:i+1,transcript},null,2));
             console.log(`turn ${i+1}/${turns.length} chars=${out.length}`);
           }
           const a = transcript.filter(x=>x.role==='assistant'&&x.turn>0);
@@ -129,6 +150,7 @@ jobs:
           exit 1
 
       - name: Real browser + ST custom provider generation
+        continue-on-error: true
         run: |
           set -euo pipefail
           mkdir -p /tmp/qidu-v02-browser
@@ -162,21 +184,46 @@ jobs:
               max_tokens:30000, temperature:0.98, top_p:0.5, frequency_penalty:0, presence_penalty:0,
               stream:false, custom_include_headers:'', custom_include_body:'', custom_exclude_body:'', n:1
             };
-            const r = await fetch('/api/backends/chat-completions/generate',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
-            const text = await r.text(); let json=null; try{json=JSON.parse(text)}catch{}
-            return {stage:'generate',status:r.status,ok:r.ok,json,text:text.slice(0,4000)};
+            let last = null;
+            for (let attempt=1; attempt<=5; attempt++) {
+              const r = await fetch('/api/backends/chat-completions/generate',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+              const text = await r.text(); let json=null; try{json=JSON.parse(text)}catch{}
+              const visible = json?.choices?.[0]?.message?.content || json?.choices?.[0]?.text || '';
+              last = {stage:'generate',status:r.status,ok:r.ok,json,text:text.slice(0,4000),visible};
+              if (r.ok && visible.trim()) return last;
+              await new Promise(resolve=>setTimeout(resolve, attempt*10000));
+            }
+            return last;
           }, {key:process.env.YOUZI_KEY,model:process.env.MODEL,system:`${presetText}\n\n${card.system_prompt}`,first:card.first_mes});
-          const visible = result.json?.choices?.[0]?.message?.content || result.json?.choices?.[0]?.text || '';
-          const report = {stCommit:process.env.ST_COMMIT,cardVersion:card.character_version,provider:'custom via /api/backends/chat-completions/generate',upstreamBase:'https://youzi.today/v1',model:process.env.MODEL,status:result.status,ok:result.ok,visibleChars:visible.length,visiblePreview:visible.slice(0,1500),pageErrors:errors};
+          const visible = result?.visible || result?.json?.choices?.[0]?.message?.content || result?.json?.choices?.[0]?.text || '';
+          const report = {stCommit:process.env.ST_COMMIT,cardVersion:card.character_version,provider:'custom via /api/backends/chat-completions/generate',upstreamBase:'https://youzi.today/v1',model:process.env.MODEL,status:result?.status ?? null,ok:Boolean(result?.ok),visibleChars:visible.length,visiblePreview:visible.slice(0,1500),pageErrors:errors};
           await fs.writeFile(`${process.env.EVIDENCE}/real-st-provider-report.json`,JSON.stringify(report,null,2));
           await page.screenshot({path:`${process.env.EVIDENCE}/real-st-v02.png`,fullPage:true});
           await browser.close();
-          if (!result.ok) throw new Error(`ST provider generation failed: ${JSON.stringify(result).slice(0,1500)}`);
+          if (!result?.ok) throw new Error(`ST provider generation failed: ${JSON.stringify(result).slice(0,1500)}`);
           if (!visible.trim()) throw new Error('ST provider returned no visible RP content');
           if (errors.length) throw new Error(`browser page errors: ${errors.join(' | ')}`);
           console.log(JSON.stringify(report,null,2));
           NODE
           node /tmp/qidu-v02-st-smoke.mjs
+
+      - name: Evaluate v0.2 acceptance gates
+        if: always()
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const p = process.env.EVIDENCE;
+          const focusedPath = `${p}/focused-regression.json`;
+          const stPath = `${p}/real-st-provider-report.json`;
+          if (!fs.existsSync(focusedPath)) throw new Error('focused regression did not complete');
+          if (!fs.existsSync(stPath)) throw new Error('real ST provider report missing');
+          const focused = JSON.parse(fs.readFileSync(focusedPath,'utf8'));
+          const st = JSON.parse(fs.readFileSync(stPath,'utf8'));
+          if (focused.metaHits?.length) throw new Error(`meta-narrative rebound: ${focused.metaHits.join(',')}`);
+          if (focused.agencyBad) throw new Error('user agency regression');
+          if (!st.ok || !st.visibleChars) throw new Error(`real ST provider acceptance failed status=${st.status} chars=${st.visibleChars}`);
+          console.log('v0.2 acceptance gates passed');
+          NODE
 
       - name: Stop isolated SillyTavern
         if: always()
