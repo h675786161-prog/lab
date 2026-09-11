@@ -1,0 +1,106 @@
+/* v1.3 refinement: turn placeholder circles into integrated portrait scenes */
+
+/* frame body: asymmetric double-ring jewelry, no generic circle */
+#chat .mes:not([is_system="true"]) .mesAvatarWrapper::before{
+  inset:12px 16px 13px!important;
+  border:2px solid rgba(180,139,98,.62)!important;
+  border-radius:45% 55% 48% 52%/41% 44% 56% 59%!important;
+  background:transparent!important;
+  box-shadow:
+    0 0 0 5px rgba(255,249,244,.72),
+    0 0 0 7px rgba(178,136,98,.20),
+    0 0 0 10px rgba(220,199,231,.30),
+    inset 0 0 0 1px rgba(255,255,255,.76),
+    0 17px 24px rgba(56,39,70,.10)!important;
+  transform:rotate(-2.5deg)!important;
+}
+#chat .mes[is_user="true"] .mesAvatarWrapper::before{transform:rotate(2.3deg)!important}
+
+/* a bow is part of the portrait object, not a sticker floating elsewhere */
+#chat .mes:not([is_system="true"]) .mesAvatarWrapper::after{
+  content:""!important;position:absolute!important;z-index:8!important;
+  left:0!important;right:auto!important;top:4px!important;bottom:auto!important;
+  width:84px!important;height:58px!important;
+  background:
+    radial-gradient(ellipse at 18% 48%,rgba(247,213,227,.98) 0 30%,rgba(171,128,153,.32) 31% 34%,transparent 35%),
+    radial-gradient(ellipse at 82% 48%,rgba(234,207,238,.98) 0 30%,rgba(145,119,167,.30) 31% 34%,transparent 35%),
+    radial-gradient(circle at 50% 50%,#fff8ef 0 10%,#d9b889 11% 18%,#d6b9d6 19% 27%,transparent 28%),
+    linear-gradient(158deg,transparent 45%,rgba(205,155,180,.76) 46% 54%,transparent 55%)!important;
+  filter:drop-shadow(0 5px 6px rgba(59,42,72,.13))!important;
+  transform:rotate(-13deg)!important;pointer-events:none!important;
+}
+#chat .mes[is_user="true"] .mesAvatarWrapper::after{left:auto!important;right:-1px!important;transform:rotate(13deg) scaleX(-1)!important}
+
+/* avatar window remains the real avatar node, ornaments can overflow it */
+#chat .mes:not([is_system="true"]) .avatar{overflow:visible!important;background:transparent!important;box-shadow:none!important}
+#chat .mes:not([is_system="true"]) .avatar>div,#chat .mes:not([is_system="true"]) .avatar>img{
+  display:block!important;width:100%!important;height:100%!important;overflow:hidden!important;border-radius:48% 52% 47% 53%/43% 45% 55% 57%!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.80),0 0 0 1px rgba(122,87,118,.11)!important;
+}
+/* moon-and-pearl lower charm */
+#chat .mes:not([is_system="true"]) .avatar::before{
+  content:""!important;position:absolute!important;z-index:9!important;right:-31px!important;bottom:-20px!important;
+  width:47px!important;height:47px!important;border-radius:50%!important;
+  background:
+    radial-gradient(circle at 68% 42%,rgba(255,249,239,.92) 0 33%,transparent 35%),
+    radial-gradient(circle,#f7de9e 0 56%,#c8a16e 58% 61%,transparent 63%)!important;
+  filter:drop-shadow(0 5px 8px rgba(62,45,75,.14))!important;pointer-events:none!important;
+}
+#chat .mes:not([is_system="true"]) .avatar::after{
+  content:""!important;position:absolute!important;z-index:8!important;right:-15px!important;bottom:-43px!important;width:1px!important;height:33px!important;
+  background:linear-gradient(rgba(177,133,91,.65),rgba(177,133,91,.08))!important;
+  box-shadow:0 29px 0 2px rgba(255,248,238,.94),0 29px 0 3px rgba(177,133,91,.30)!important;pointer-events:none!important;
+}
+
+/* layered paper edge and tiny built-in corner jewelry */
+#chat .mes:not([is_system="true"]) .mes_block{filter:drop-shadow(0 2px 0 rgba(255,255,255,.22))!important}
+#chat .mes:not([is_system="true"]) .mes_text{position:relative!important}
+#chat .mes:not([is_system="true"]) .mes_text::after{
+  content:""!important;position:absolute!important;right:38px!important;bottom:19px!important;width:34px!important;height:14px!important;
+  background:
+    radial-gradient(circle at 7px 7px,#fff9ef 0 3px,#c8a273 3.5px 4.5px,transparent 5px),
+    radial-gradient(circle at 21px 7px,rgba(227,192,214,.95) 0 3px,#b88d6a 3.5px 4.2px,transparent 5px),
+    linear-gradient(90deg,rgba(181,137,94,.42),rgba(181,137,94,0)) left 9px top 7px/24px 1px no-repeat!important;
+  opacity:.82!important;pointer-events:none!important;
+}
+#chat .mes[is_user="true"] .mes_text::after{right:auto!important;left:35px!important;transform:scaleX(-1)!important}
+
+/* secondary glass-star object: less ghostly, more like a single scene anchor */
+#chat .mes:not([is_user="true"]):not([is_system="true"])::after{
+  right:-47px!important;top:52px!important;width:118px!important;height:134px!important;opacity:.72!important;
+  background:
+    radial-gradient(circle at 38% 30%,rgba(255,255,255,.94) 0 4%,transparent 5%),
+    linear-gradient(145deg,rgba(255,242,248,.68),rgba(209,198,235,.47) 54%,rgba(244,218,232,.58))!important;
+  outline:1px solid rgba(255,255,255,.40)!important;
+  filter:drop-shadow(0 12px 18px rgba(58,40,73,.12))!important;
+}
+#chat .mes:not([is_user="true"]):not([is_system="true"])::before{right:9px!important;top:79px!important;width:44px!important;opacity:.8!important}
+
+/* top constellation becomes a small hanging mobile, not one flat icon row */
+#top-settings-holder>.drawer:nth-child(2n){transform:translateY(4px)!important}
+#top-settings-holder>.drawer:nth-child(3n){transform:translateY(-4px)!important}
+#top-settings-holder>.drawer:nth-child(5n){transform:translateY(7px)!important}
+#top-settings-holder>.drawer::before{height:19px!important}
+
+/* input side controls become jewelry hardware while preserving actual click targets */
+#leftSendForm>div,#rightSendForm>div,#options_button,#send_but,#mes_stop,#mes_continue{
+  border-radius:50%!important;background:radial-gradient(circle at 36% 30%,rgba(255,255,255,.94),rgba(225,208,234,.68) 48%,rgba(192,156,180,.34))!important;
+  box-shadow:inset 0 0 0 1px rgba(183,139,97,.20),0 4px 8px rgba(59,42,72,.08)!important;
+}
+
+@media(max-width:900px){
+  #chat .mes:not([is_user="true"]):not([is_system="true"]) .mesAvatarWrapper{width:176px!important;min-width:176px!important;height:193px!important;top:-83px!important}
+  #chat .mes[is_user="true"] .mesAvatarWrapper{width:164px!important;min-width:164px!important;height:180px!important;top:-77px!important}
+  #chat .mes:not([is_system="true"]) .mesAvatarWrapper::after{width:59px!important;height:42px!important;left:0!important;top:8px!important}
+  #chat .mes[is_user="true"] .mesAvatarWrapper::after{left:auto!important;right:0!important}
+  #chat .mes:not([is_user="true"]):not([is_system="true"]) .avatar{left:35px!important;top:31px!important;width:106px!important;height:123px!important}
+  #chat .mes[is_user="true"] .avatar{left:33px!important;top:29px!important;width:99px!important;height:115px!important}
+  #chat .mes:not([is_system="true"]) .avatar::before{right:-20px!important;bottom:-14px!important;width:34px!important;height:34px!important}
+  #chat .mes:not([is_system="true"]) .avatar::after{right:-9px!important;bottom:-32px!important;height:25px!important;box-shadow:0 22px 0 1.5px rgba(255,248,238,.94),0 22px 0 2.5px rgba(177,133,91,.30)!important}
+  #chat .mes:not([is_user="true"]):not([is_system="true"]) .ch_name{padding-left:181px!important}
+  #chat .mes[is_user="true"] .ch_name{padding-right:169px!important}
+  #chat .mes:not([is_user="true"]):not([is_system="true"]) .mes_block::after{left:178px!important}
+  #chat .mes[is_user="true"] .mes_block::after{right:166px!important}
+  #chat .mes:not([is_user="true"]):not([is_system="true"])::after{right:-6px!important;width:62px!important;height:72px!important;top:66px!important;opacity:.38!important}
+  #chat .mes:not([is_system="true"]) .mes_text::after{display:none!important}
+}
