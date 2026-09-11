@@ -1,0 +1,47 @@
+name: Qidu HE IF long RP
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [qidu-he-if-longrp]
+    paths:
+      - '.github/workflows/qidu-he-longrp.yml'
+      - '.lab/qidu-he-longrp.mjs'
+      - '.lab/runtime-smoke.mjs'
+      - 'fixtures/qidu-he-if/**'
+
+permissions:
+  contents: read
+
+jobs:
+  real-sillytavern:
+    uses: ./.github/workflows/real-sillytavern.yml
+    with:
+      extension_name: qidu-he-if
+      run_project_smoke: true
+      artifact_name: qidu-he-real-sillytavern
+
+  long-rp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      YOUZI_KEY: ${{ secrets.YOUZI }}
+      GLM_MODEL: '[B]glm-5.3-flash'
+      RPM: '12'
+      LAB_OUT: bench-evidence/qidu-he-longrp
+      CARD_PATH: fixtures/qidu-he-if/qidu-he-if.character.json
+      PRESET_PATH: fixtures/qidu-he-if/riyuexi-glm-active.json
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate fixture JSON
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync(process.env.CARD_PATH,'utf8')); JSON.parse(require('fs').readFileSync(process.env.PRESET_PATH,'utf8')); console.log('fixtures valid')"
+      - name: Run 36-turn GLM long-RP drift benchmark at 12 RPM
+        run: node .lab/qidu-he-longrp.mjs
+      - name: Upload long-RP evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-he-longrp
+          path: bench-evidence/qidu-he-longrp/
+          if-no-files-found: warn
