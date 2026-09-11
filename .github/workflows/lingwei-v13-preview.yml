@@ -38,7 +38,7 @@ jobs:
           pathlib.Path('${{ github.workspace }}/lab-evidence-v13/asset-names.txt').write_text('\n'.join(n for n,_ in found),encoding='utf-8')
           print('recovered image vars:',len(found))
           PY
-          cat /tmp/lingwei-v13-assets.css fixtures/lingwei-v13/theme.css > /tmp/lingwei-v13.css
+          cat /tmp/lingwei-v13-assets.css fixtures/lingwei-v13/theme.css fixtures/lingwei-v13/refine.css > /tmp/lingwei-v13.css
           test -s /tmp/lingwei-v13.css
       - name: Clone exact SillyTavern
         shell: bash
