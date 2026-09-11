@@ -23,7 +23,7 @@ jobs:
           set -euo pipefail
           mkdir -p "$EVIDENCE"
           cat fixtures/lingwei-v09/p00a.b64 fixtures/lingwei-v09/p00b.b64 fixtures/lingwei-v09/p00c.b64 fixtures/lingwei-v09/part01.b64 fixtures/lingwei-v09/part02.b64 fixtures/lingwei-v09/part03.b64 | base64 -d | gunzip > /tmp/lingwei-v11.css
-          cat fixtures/lingwei-v10/structural.css fixtures/lingwei-v10/fix.css fixtures/lingwei-v11/override.css >> /tmp/lingwei-v11.css
+          cat fixtures/lingwei-v10/structural.css fixtures/lingwei-v10/fix.css fixtures/lingwei-v11/override.css fixtures/lingwei-v11/refine.css >> /tmp/lingwei-v11.css
           test -s /tmp/lingwei-v11.css
       - name: Clone exact SillyTavern
         shell: bash
