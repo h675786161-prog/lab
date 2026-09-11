@@ -1,0 +1,18 @@
+/* v1.2 coordinate-system fix, verified from real boundingClientRect */
+#top-settings-holder{
+  position:absolute!important;
+  left:50%!important;
+  right:auto!important;
+  transform:translateX(-50%)!important;
+}
+#form_sheld{
+  position:relative!important;
+  left:auto!important;
+  right:auto!important;
+  transform:none!important;
+  margin:0 auto!important;
+}
+@media(max-width:900px){
+  #top-settings-holder{position:fixed!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important}
+  #form_sheld{position:relative!important;left:auto!important;right:auto!important;transform:none!important;margin:0 auto!important}
+}
