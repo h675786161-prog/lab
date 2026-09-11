@@ -1,0 +1,27 @@
+/* v1.2 native specificity fixes */
+html body.no-blur #top-bar#top-bar,
+html body #top-bar#top-bar,
+html body.no-blur #top-bar#top-bar[style],
+html body #top-bar#top-bar[style]{
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+html body.no-blur #send_form#send_form,
+html body #send_form#send_form,
+html body.no-blur #send_form#send_form[style],
+html body #send_form#send_form[style]{
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+html body #form_sheld#form_sheld,
+html body #form_sheld#form_sheld[style]{background:transparent!important;background-color:transparent!important;background-image:none!important;border:0!important;box-shadow:none!important}
