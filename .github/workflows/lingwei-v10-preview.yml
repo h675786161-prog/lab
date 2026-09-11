@@ -64,18 +64,11 @@ jobs:
           nohup node server.js --listen --port 8000 --disableCsrf > "$EVIDENCE/sillytavern.log" 2>&1 &
           echo $! > /tmp/lingwei-v10.pid
           for i in $(seq 1 90); do
-            if curl -fsS --max-time 2 http://127.0.0.1:8000/ >/dev/null 2>&1; then
-              echo "HTTP 200 from real SillyTavern"
-              exit 0
-            fi
-            if ! kill -0 "$(cat /tmp/lingwei-v10.pid)" 2>/dev/null; then
-              cat "$EVIDENCE/sillytavern.log"
-              exit 1
-            fi
+            if curl -fsS --max-time 2 http://127.0.0.1:8000/ >/dev/null 2>&1; then exit 0; fi
+            if ! kill -0 "$(cat /tmp/lingwei-v10.pid)" 2>/dev/null; then cat "$EVIDENCE/sillytavern.log"; exit 1; fi
             sleep 1
           done
-          cat "$EVIDENCE/sillytavern.log"
-          exit 1
+          cat "$EVIDENCE/sillytavern.log"; exit 1
 
       - name: Install browser QA
         shell: bash
@@ -102,40 +95,42 @@ jobs:
           const evidence = process.env.EVIDENCE;
           const pageErrors = [];
           const consoleErrors = [];
-          const browser = await chromium.launch({ headless: true, executablePath: process.env.CHROME_BIN, args: ['--no-sandbox','--disable-dev-shm-usage'] });
+          const browser = await chromium.launch({ headless:true, executablePath:process.env.CHROME_BIN, args:['--no-sandbox','--disable-dev-shm-usage'] });
 
           async function prepare(page) {
             page.on('pageerror', e => pageErrors.push(String(e?.stack || e)));
-            page.on('console', m => { if (m.type() === 'error') consoleErrors.push(m.text()); });
+            page.on('console', m => { if (m.type()==='error') consoleErrors.push(m.text()); });
             const response = await page.goto('http://127.0.0.1:8000/', { waitUntil:'domcontentloaded', timeout:60000 });
             await page.waitForTimeout(2500);
+            await page.addStyleTag({ content: css });
+            await page.waitForTimeout(500);
             await page.evaluate(() => {
-              for (const el of document.querySelectorAll('.popup, .popup-container, .welcomePanel, #dialogue_popup')) {
+              for (const el of document.querySelectorAll('.popup,.popup-container,.welcomePanel,#dialogue_popup,#dialogue_popup_holder,.modal,.modal-backdrop')) {
                 if (el instanceof HTMLElement) el.style.setProperty('display','none','important');
               }
+              const chat=document.querySelector('#chat'); if(!chat) return; chat.innerHTML='';
+              const makeMessage=({user,name,text,time})=>{const row=document.createElement('div');row.className='mes last_mes';row.setAttribute('is_user',user?'true':'false');row.setAttribute('is_system','false');row.innerHTML=`<div class="mesAvatarWrapper"><div class="avatar"><div style="width:100%;height:100%;border-radius:inherit;background:linear-gradient(145deg,rgba(248,218,233,.92),rgba(205,194,234,.92));"></div></div></div><div class="mes_block"><div class="ch_name"><span class="name_text">${name}</span><span class="timestamp">${time}</span></div>${user?'':'<div class="mes_reasoning_details"><div class="mes_reasoning_header">Thought trace</div><div class="mes_reasoning">A quiet reasoning layer stays subordinate to the reply.</div></div>'}<div class="mes_text">${text}</div><div class="mes_buttons"></div></div>`;return row;};
+              chat.appendChild(makeMessage({user:false,name:'Elaine',time:'04:31',text:'The light outside the window has turned pale violet. I left the notes beside the glass, where the little stars catch the last warm reflection.'}));
+              chat.appendChild(makeMessage({user:true,name:'Ling',time:'04:32',text:'Then keep the window open a little longer. I want the room to feel airy, soft, and lived in, not like decorations pasted onto a card.'}));
+              chat.appendChild(makeMessage({user:false,name:'Elaine',time:'04:33',text:'Fine. The ornaments can overlap the structure, but the structure itself still has to carry the composition.'}));
+              chat.scrollTop=0;
             });
-            await page.addStyleTag({ content: css });
-            await page.waitForTimeout(800);
-            const keyNodes = await page.evaluate(() => ({
-              chat:!!document.querySelector('#chat'), topBar:!!document.querySelector('#top-bar,#top-settings-holder'), sendForm:!!document.querySelector('#send_form'), textarea:!!document.querySelector('#send_textarea'), send:!!document.querySelector('#send_but'), stop:!!document.querySelector('#mes_stop'), cont:!!document.querySelector('#mes_continue')
-            }));
-            if (keyNodes.chat) {
-              await page.evaluate(() => {
-                const chat=document.querySelector('#chat'); if(!chat) return; chat.innerHTML='';
-                const makeMessage=({user,name,text,time})=>{const row=document.createElement('div');row.className='mes last_mes';row.setAttribute('is_user',user?'true':'false');row.setAttribute('is_system','false');row.innerHTML=`<div class="mesAvatarWrapper"><div class="avatar"><div style="width:100%;height:100%;border-radius:inherit;background:linear-gradient(145deg,rgba(248,218,233,.92),rgba(205,194,234,.92));"></div></div></div><div class="mes_block"><div class="ch_name"><span class="name_text">${name}</span><span class="timestamp">${time}</span></div>${user?'':'<div class="mes_reasoning_details"><div class="mes_reasoning_header">Thought trace</div><div class="mes_reasoning">A quiet reasoning layer stays subordinate to the reply.</div></div>'}<div class="mes_text">${text}</div><div class="mes_buttons"></div></div>`;return row;};
-                chat.appendChild(makeMessage({user:false,name:'Elaine',time:'04:31',text:'The light outside the window has turned pale violet. I left the notes beside the glass, where the little stars catch the last warm reflection.'}));
-                chat.appendChild(makeMessage({user:true,name:'Ling',time:'04:32',text:'Then keep the window open a little longer. I want the room to feel airy, soft, and lived in, not like decorations pasted onto a card.'}));
-                chat.appendChild(makeMessage({user:false,name:'Elaine',time:'04:33',text:'Fine. The ornaments can overlap the structure, but the structure itself still has to carry the composition.'}));
-                chat.scrollTop=0;
-              });
-              await page.waitForTimeout(500);
-            }
-            return { httpStatus:response?.status()??null, title:await page.title(), keyNodes };
+            await page.waitForTimeout(500);
+            const diagnostics = await page.evaluate(() => {
+              const snap = (sel) => {
+                const el=document.querySelector(sel); if(!el) return null;
+                const cs=getComputedStyle(el), b=getComputedStyle(el,'::before'), a=getComputedStyle(el,'::after'), r=el.getBoundingClientRect();
+                return {sel,tag:el.tagName,id:el.id,cls:el.className,rect:{x:r.x,y:r.y,w:r.width,h:r.height},display:cs.display,position:cs.position,backgroundColor:cs.backgroundColor,backgroundImage:cs.backgroundImage,boxShadow:cs.boxShadow,opacity:cs.opacity,before:{display:b.display,backgroundColor:b.backgroundColor,backgroundImage:b.backgroundImage,boxShadow:b.boxShadow,content:b.content},after:{display:a.display,backgroundColor:a.backgroundColor,backgroundImage:a.backgroundImage,boxShadow:a.boxShadow,content:a.content}};
+              };
+              const point = (x,y) => { const out=[]; let el=document.elementFromPoint(x,y); while(el&&out.length<8){const cs=getComputedStyle(el),r=el.getBoundingClientRect();out.push({tag:el.tagName,id:el.id,cls:el.className,backgroundColor:cs.backgroundColor,backgroundImage:cs.backgroundImage,rect:{x:r.x,y:r.y,w:r.width,h:r.height}});el=el.parentElement;} return out; };
+              return { topBar:snap('#top-bar'), topSettings:snap('#top-settings-holder'), form:snap('#form_sheld'), send:snap('#send_form'), nonQR:snap('#nonQRFormItems'), textarea:snap('#send_textarea'), topPoint:point(Math.round(innerWidth/2),40), inputPoint:point(Math.round(innerWidth/2),Math.round(innerHeight-60)), hiddenPopups:[...document.querySelectorAll('.popup,.popup-container,.welcomePanel,#dialogue_popup,#dialogue_popup_holder')].map(el=>({id:el.id,cls:el.className,display:getComputedStyle(el).display})) };
+            });
+            return { httpStatus:response?.status()??null, title:await page.title(), diagnostics };
           }
 
           const desktop=await browser.newPage({viewport:{width:1480,height:1027}}); const desktopReport=await prepare(desktop); await desktop.screenshot({path:path.join(evidence,'lingwei-v10-desktop.png'),fullPage:false});
-          const mobile=await browser.newPage({viewport:{width:430,height:844},deviceScaleFactor:1}); const mobileReport=await prepare(mobile); const mobileMetrics=await mobile.evaluate(()=>({innerWidth:window.innerWidth,scrollWidth:document.documentElement.scrollWidth,horizontalOverflow:document.documentElement.scrollWidth-window.innerWidth})); await mobile.screenshot({path:path.join(evidence,'lingwei-v10-mobile.png'),fullPage:false});
-          await fs.writeFile(path.join(evidence,'report.json'),JSON.stringify({desktop:desktopReport,mobile:mobileReport,mobileMetrics,pageErrors,consoleErrors,note:'Real SillyTavern runtime with v0.9 base + v1.0 structural override. Decorative image assets are still omitted in this layout proof.'},null,2));
+          const mobile=await browser.newPage({viewport:{width:430,height:844},deviceScaleFactor:1}); const mobileReport=await prepare(mobile); const mobileMetrics=await mobile.evaluate(()=>({innerWidth:innerWidth,scrollWidth:document.documentElement.scrollWidth,horizontalOverflow:document.documentElement.scrollWidth-innerWidth})); await mobile.screenshot({path:path.join(evidence,'lingwei-v10-mobile.png'),fullPage:false});
+          await fs.writeFile(path.join(evidence,'report.json'),JSON.stringify({desktop:desktopReport,mobile:mobileReport,mobileMetrics,pageErrors,consoleErrors},null,2));
           await browser.close();
           NODE
           EVIDENCE="$EVIDENCE" node /tmp/lingwei-v10-shot.mjs
