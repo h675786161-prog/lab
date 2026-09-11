@@ -5,6 +5,10 @@ const css = await fs.readFile('/tmp/lingwei-v12.css','utf8');
 const evidence = process.env.EVIDENCE;
 const pageErrors=[]; const consoleErrors=[];
 const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_BIN,args:['--no-sandbox','--disable-dev-shm-usage']});
+function rectInfo(){
+  const one=(sel)=>{const e=document.querySelector(sel);if(!e)return null;const r=e.getBoundingClientRect();return{sel,parent:e.parentElement?.id||e.parentElement?.className||null,left:r.left,top:r.top,width:r.width,height:r.height,right:r.right,bottom:r.bottom,position:getComputedStyle(e).position,transform:getComputedStyle(e).transform}};
+  return{topBar:one('#top-bar'),topHolder:one('#top-settings-holder'),sheld:one('#sheld'),form:one('#form_sheld'),send:one('#send_form'),chat:one('#chat')};
+}
 async function prepare(page){
   page.on('pageerror',e=>pageErrors.push(String(e?.stack||e)));
   page.on('console',m=>{if(m.type()==='error') consoleErrors.push(m.text())});
@@ -22,7 +26,8 @@ async function prepare(page){
     chat.scrollTop=0;
   });
   await page.waitForTimeout(550);
-  return {status:response?.status()??null,title:await page.title(),nodes:{chat:!!await page.$('#chat'),send:!!await page.$('#send_but'),stop:!!await page.$('#mes_stop'),cont:!!await page.$('#mes_continue')}};
+  const layout=await page.evaluate(rectInfo);
+  return {status:response?.status()??null,title:await page.title(),nodes:{chat:!!await page.$('#chat'),send:!!await page.$('#send_but'),stop:!!await page.$('#mes_stop'),cont:!!await page.$('#mes_continue')},layout};
 }
 const d=await browser.newPage({viewport:{width:1480,height:1027}});const dr=await prepare(d);await d.screenshot({path:path.join(evidence,'lingwei-v12-desktop.png')});
 const m=await browser.newPage({viewport:{width:430,height:844}});const mr=await prepare(m);const metrics=await m.evaluate(()=>({innerWidth,scrollWidth:document.documentElement.scrollWidth,horizontalOverflow:document.documentElement.scrollWidth-innerWidth}));await m.screenshot({path:path.join(evidence,'lingwei-v12-mobile.png')});
