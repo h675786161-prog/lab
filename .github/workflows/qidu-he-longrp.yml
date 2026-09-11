@@ -36,6 +36,11 @@ jobs:
       - name: Validate fixture JSON
         run: |
           node -e "JSON.parse(require('fs').readFileSync(process.env.CARD_PATH,'utf8')); JSON.parse(require('fs').readFileSync(process.env.PRESET_PATH,'utf8')); console.log('fixtures valid')"
+      - name: Adapt token budget for GLM reasoning + visible RP text
+        run: |
+          sed -i 's/maxTokens = 850/maxTokens = 3000/' .lab/qidu-he-longrp.mjs
+          sed -i 's/], 850);/], 3000);/' .lab/qidu-he-longrp.mjs
+          sed -i 's/], 1600);/], 5000);/' .lab/qidu-he-longrp.mjs
       - name: Run 36-turn GLM long-RP drift benchmark at 12 RPM
         shell: bash
         run: |
