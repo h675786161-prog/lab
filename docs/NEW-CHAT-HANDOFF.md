@@ -8,7 +8,7 @@
 第一件事：先核对并使用公共实机环境【玲七实验酒馆】。
 
 实验酒馆仓库：
-h675786161-prog/sillytavern-lab
+h675786161-prog/lab
 
 它是整个项目共用的 SillyTavern 实机基础设施，不属于世界背面、小手机或任何单个插件。
 
@@ -34,4 +34,4 @@ commit: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
 
 ## 一句话版
 
-> 所有与 SillyTavern 有关的开发，第一步先使用 `h675786161-prog/sillytavern-lab` 核对隔离真实酒馆环境；最终必须经过真实 SillyTavern + 浏览器实机验收，不能用业务仓库里的 mock/fixture 代替完整实机证据。
+> 所有与 SillyTavern 有关的开发，第一步先使用 `h675786161-prog/lab` 核对隔离真实酒馆环境；最终必须经过真实 SillyTavern + 浏览器实机验收，不能用业务仓库里的 mock/fixture 代替完整实机证据。
