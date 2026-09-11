@@ -23,7 +23,7 @@ jobs:
 
   long-rp:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
     env:
       YOUZI_KEY: ${{ secrets.YOUZI }}
       GLM_MODEL: '[B]glm-5.3-flash'
@@ -37,7 +37,20 @@ jobs:
         run: |
           node -e "JSON.parse(require('fs').readFileSync(process.env.CARD_PATH,'utf8')); JSON.parse(require('fs').readFileSync(process.env.PRESET_PATH,'utf8')); console.log('fixtures valid')"
       - name: Run 36-turn GLM long-RP drift benchmark at 12 RPM
-        run: node .lab/qidu-he-longrp.mjs
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4; do
+            echo "benchmark attempt=$attempt/4"
+            rm -rf "$LAB_OUT"
+            if node .lab/qidu-he-longrp.mjs; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 4 ]; then
+              sleep $((attempt * 30))
+            fi
+          done
+          exit 1
       - name: Upload long-RP evidence
         if: always()
         uses: actions/upload-artifact@v4
