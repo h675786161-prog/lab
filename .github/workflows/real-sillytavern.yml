@@ -127,7 +127,7 @@ jobs:
           EXT_NAME="$REQUESTED_EXTENSION_NAME"
           SOURCE_DIR="$GITHUB_WORKSPACE"
 
-          if [ "$GITHUB_REPOSITORY" = "h675786161-prog/sillytavern-lab" ]; then
+          if [ "$GITHUB_REPOSITORY" = "h675786161-prog/lab" ]; then
             SELF_TEST=true
             EXT_NAME="lingqi-lab-probe"
             SOURCE_DIR="$GITHUB_WORKSPACE/fixtures/probe-extension"
