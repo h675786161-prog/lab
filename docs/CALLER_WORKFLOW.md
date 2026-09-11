@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   real-sillytavern:
-    uses: h675786161-prog/sillytavern-lab/.github/workflows/real-sillytavern.yml@main
+    uses: h675786161-prog/lab/.github/workflows/real-sillytavern.yml@main
     with:
       extension_name: your-extension-folder-name
       run_project_smoke: true
@@ -26,17 +26,17 @@ jobs:
 
 把 `your-extension-folder-name` 换成这个插件安装到 `public/scripts/extensions/third-party/` 后应使用的目录名。
 
-## 私有仓库第一次需要做的一次性设置
+## 仓库访问说明
 
-因为 `sillytavern-lab` 是私有仓库，GitHub 要求显式允许同一账号下的其他私有仓库复用它的 Actions/workflows：
+当前玲七实验酒馆仓库是公开仓库：`h675786161-prog/lab`。
 
-`SillyTavern Lab 仓库 -> Settings -> Actions -> General -> Access`
+业务仓库调用上面的 reusable workflow 时，不需要再为实验酒馆额外配置 Actions -> General -> Access。即使业务仓库本身是私有仓库，也可以直接引用这个公开 workflow。
 
-选择：
+如果以后实验酒馆再次改成私有仓库，再到实验酒馆仓库的：
 
-`Accessible from repositories owned by 'h675786161-prog' user`
+`Settings -> Actions -> General -> Access`
 
-保存即可。这个设置只需要做一次。
+按 GitHub 当时的访问规则显式允许需要调用它的仓库即可。
 
 ## 默认安装规则
 
