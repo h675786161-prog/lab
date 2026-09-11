@@ -1,0 +1,49 @@
+name: LingWei v1.0.1 Real Preview
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/lingwei-v101-preview.yml','fixtures/lingwei-v10/**']
+permissions: {contents: read}
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ST_DIR: /tmp/lingwei-v101-st
+      EVIDENCE: ${{ github.workspace }}/lab-evidence-v101
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build CSS
+        shell: bash
+        run: |
+          set -euo pipefail; mkdir -p "$EVIDENCE"
+          cat fixtures/lingwei-v09/p00a.b64 fixtures/lingwei-v09/p00b.b64 fixtures/lingwei-v09/p00c.b64 fixtures/lingwei-v09/part01.b64 fixtures/lingwei-v09/part02.b64 fixtures/lingwei-v09/part03.b64 | base64 -d | gunzip > /tmp/lingwei-v101.css
+          cat fixtures/lingwei-v10/structural.css fixtures/lingwei-v10/fix.css >> /tmp/lingwei-v101.css
+      - name: Clone exact SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail; rm -rf "$ST_DIR"; git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"; git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1; git -C "$ST_DIR" checkout --detach "$ST_COMMIT"; test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+      - name: Install
+        working-directory: /tmp/lingwei-v101-st
+        run: npm ci
+      - name: Start
+        shell: bash
+        run: |
+          cd "$ST_DIR"; nohup node server.js --listen --port 8000 --disableCsrf > "$EVIDENCE/sillytavern.log" 2>&1 & echo $! >/tmp/lingwei-v101.pid
+          for i in $(seq 1 90); do curl -fsS --max-time 2 http://127.0.0.1:8000/ >/dev/null 2>&1 && exit 0; sleep 1; done; cat "$EVIDENCE/sillytavern.log"; exit 1
+      - name: Browser
+        shell: bash
+        run: |
+          mkdir -p /tmp/lingwei-v101-browser; cd /tmp/lingwei-v101-browser; npm init -y >/dev/null 2>&1; npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"; echo "CHROME_BIN=$CHROME_BIN" >> "$GITHUB_ENV"; echo "PW_ENTRY=file:///tmp/lingwei-v101-browser/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
+      - name: Screenshot
+        run: EVIDENCE="$EVIDENCE" node fixtures/lingwei-v10/shot.mjs
+      - name: Stop
+        if: always()
+        run: test ! -f /tmp/lingwei-v101.pid || kill "$(cat /tmp/lingwei-v101.pid)" 2>/dev/null || true
+      - name: Upload
+        if: always()
+        uses: actions/upload-artifact@v4
+        with: {name: lingwei-v101-preview, path: lab-evidence-v101, if-no-files-found: warn}

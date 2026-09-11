@@ -1,0 +1,15 @@
+/* v1.0.1 real-LAB fix */
+html body #top-bar#top-bar,html body #top-bar#top-bar[style]{background:transparent!important;background-color:transparent!important;background-image:none!important;border:0!important;box-shadow:none!important}
+html body #send_form#send_form,html body #send_form#send_form[style]{background:transparent!important;background-color:transparent!important;background-image:none!important;border:0!important;box-shadow:none!important}
+#chat .mes:not([is_system="true"]) .mes_reasoning_details,#chat .mes:not([is_system="true"]) .mes_reasoning,#chat .mes:not([is_system="true"]) .mes_reasoning_header{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;backdrop-filter:none!important}
+#chat .mes:not([is_system="true"]) .mes_reasoning_details{min-height:0!important;padding-top:12px!important;padding-bottom:0!important;opacity:.68!important}
+#chat .mes:not([is_system="true"]) .mes_reasoning_header{padding:0 0 3px!important;color:rgba(116,96,126,.55)!important;font-size:9px!important;letter-spacing:.13em!important;text-transform:uppercase!important}
+#chat .mes:not([is_system="true"]) .mes_reasoning{padding:0!important;color:rgba(101,86,113,.58)!important;font-size:10px!important;line-height:1.42!important;font-style:italic!important}
+#chat .mes:not([is_user="true"]):not([is_system="true"]){min-height:202px!important;margin-bottom:104px!important}
+#chat .mes[is_user="true"]{min-height:180px!important;margin-bottom:96px!important}
+#chat{padding-top:122px!important;padding-bottom:138px!important}
+#form_sheld{bottom:14px!important}
+#send_form,#nonQRFormItems{min-height:64px!important;height:64px!important}
+#send_textarea{min-height:46px!important;height:46px!important}
+#send_form::before{inset:3px 14px 4px!important}
+@media(max-width:900px){#chat{padding-top:105px!important;padding-bottom:128px!important}#chat .mes:not([is_user="true"]):not([is_system="true"]){min-height:198px!important;margin-bottom:82px!important}#chat .mes[is_user="true"]{min-height:180px!important;margin-bottom:80px!important}#send_form,#nonQRFormItems{min-height:62px!important;height:62px!important}#send_textarea{min-height:44px!important;height:44px!important}}
