@@ -21,7 +21,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$EVIDENCE"
-          cat fixtures/lingwei-v12/theme.css fixtures/lingwei-v12/fix.css > /tmp/lingwei-v12.css
+          cat fixtures/lingwei-v12/theme.css fixtures/lingwei-v12/fix.css fixtures/lingwei-v12/axis-fix.css > /tmp/lingwei-v12.css
           test -s /tmp/lingwei-v12.css
       - name: Clone exact SillyTavern
         run: |
