@@ -1,0 +1,192 @@
+name: Qidu HE IF v0.2 acceptance
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [qidu-he-if-longrp]
+    paths:
+      - '.github/workflows/qidu-he-v02-acceptance.yml'
+      - '.lab/qidu-he-v02-patch.py'
+      - 'fixtures/qidu-he-if/**'
+
+permissions:
+  contents: read
+
+jobs:
+  v02-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      YOUZI_KEY: ${{ secrets.YOUZI }}
+      MODEL: '[B]glm-5.3-flash'
+      RPM: '12'
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      ST_DIR: /tmp/qidu-v02-st
+      EVIDENCE: ${{ github.workspace }}/bench-evidence/qidu-he-v02
+      CARD: fixtures/qidu-he-if/qidu-he-if.character.json
+      PRESET: fixtures/qidu-he-if/riyuexi-glm-active.json
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply evidence-based v0.2 card patch
+        run: |
+          set -euo pipefail
+          python .lab/qidu-he-v02-patch.py
+          node - <<'NODE'
+          const fs = require('fs');
+          const c = JSON.parse(fs.readFileSync(process.env.CARD, 'utf8'));
+          if (c.data.character_version !== '0.2.0') throw new Error('v0.2 patch did not apply');
+          for (const marker of ['防高情商AI化','禁止原作元叙事回弹','用户动作边界补充']) {
+            if (!c.data.system_prompt.includes(marker)) throw new Error(`missing marker ${marker}`);
+          }
+          console.log('v0.2 card patch validated');
+          NODE
+          mkdir -p "$EVIDENCE"
+          cp "$CARD" "$EVIDENCE/qidu-he-if-v0.2.character.json"
+
+      - name: Focused GLM regression at <=12 RPM
+        run: |
+          set -euo pipefail
+          cat > /tmp/qidu-v02-regression.mjs <<'NODE'
+          import fs from 'node:fs/promises';
+          const card = JSON.parse(await fs.readFile(process.env.CARD, 'utf8')).data;
+          const preset = JSON.parse(await fs.readFile(process.env.PRESET, 'utf8'));
+          const wanted = new Set(['⚖️RP模式','🪐均衡调度','🎈烟火气息','🎈群像塑造','🌊自由变奏','👤平衡主导','🐚人格基底','🐚去中心化','🐚角色成长','🐚标签隐身','🤝健康恋爱','⬆️自然推进']);
+          const presetText = preset.prompts.filter(p => wanted.has(p.name)).map(p => `[${p.name}]\n${p.content}`).join('\n\n');
+          const entries = card.character_book.entries || [];
+          const system = `${presetText}\n\n${card.system_prompt}\n\n${entries.filter(e => e.constant).map(e => e.content).join('\n\n')}`;
+          const turns = [
+            '早餐时我忽然说：“指挥使。脑子里冒出来的怪词。你们听过吗？”只把它当我的猜测。',
+            '我又问塞拉菲姆：“网上能查到《永远的7日之都》这个名字吗？”不要因为我的问题改变世界设定。',
+            '晚上我告诉彼安汀：“我最近确实对希罗有点兴趣。”',
+            '我故意问彼安汀：“你不应该吃醋然后阻止我吗？”不要替我补动作。',
+            '几天后我去见希罗，直接问：“你是不是很喜欢研究别人？”',
+            '我接着说：“如果有天我觉得不舒服，你是不是就会什么都停下来？”让希罗按自己性格回答，不需要健康恋爱标准答案。',
+            '回家后我只说：“今晚有点累。”没有要求任何人安慰，也没有主动靠近谁。',
+            '第二天我说我想去书店，但没有说哪一家，也没有出门。请停在我尚未选择具体地点的状态。'
+          ];
+          let messages = [{role:'assistant', content: card.first_mes}];
+          const transcript = [{role:'assistant', turn:0, content:card.first_mes}];
+          const gap = Math.ceil(60000 / Math.min(12, Number(process.env.RPM || 12)));
+          let last = 0;
+          async function call(extra) {
+            let err;
+            for (let attempt=1; attempt<=6; attempt++) {
+              const wait = Math.max(0, gap - (Date.now()-last));
+              if (wait) await new Promise(r=>setTimeout(r, wait));
+              last = Date.now();
+              const r = await fetch('https://youzi.today/v1/chat/completions', {method:'POST', headers:{'content-type':'application/json', authorization:`Bearer ${process.env.YOUZI_KEY}`}, body:JSON.stringify({model:process.env.MODEL,messages:extra,temperature:preset.sampling?.temperature ?? 0.98,top_p:preset.sampling?.top_p ?? 0.5,max_tokens:preset.sampling?.openai_max_tokens ?? 30000,stream:false})});
+              const raw = await r.text();
+              if (!r.ok) { err = new Error(`HTTP ${r.status}: ${raw.slice(0,500)}`); if ([429,503].includes(r.status)) { await new Promise(x=>setTimeout(x, attempt*10000)); continue; } throw err; }
+              const j = JSON.parse(raw); const choice=j.choices?.[0]||{}; const text=choice.message?.content||'';
+              if (!text.trim() || choice.finish_reason==='length') { err=new Error(`bad visible content finish=${choice.finish_reason} chars=${text.length}`); await new Promise(x=>setTimeout(x, attempt*8000)); continue; }
+              return text;
+            }
+            throw err || new Error('request failed');
+          }
+          for (let i=0;i<turns.length;i++) {
+            messages.push({role:'user', content:turns[i]}); transcript.push({role:'user',turn:i+1,content:turns[i]});
+            const out = await call([{role:'system',content:system},...messages]);
+            messages.push({role:'assistant',content:out}); transcript.push({role:'assistant',turn:i+1,content:out});
+            console.log(`turn ${i+1}/${turns.length} chars=${out.length}`);
+          }
+          const a = transcript.filter(x=>x.role==='assistant'&&x.turn>0);
+          const t1 = a.find(x=>x.turn===1)?.content || '';
+          const t2 = a.find(x=>x.turn===2)?.content || '';
+          const t8 = a.find(x=>x.turn===8)?.content || '';
+          const metaForbidden = ['永远的7日之都','神器使','七日倒计时','七天倒计时'];
+          const metaHits = metaForbidden.filter(x => (t1+t2).includes(x));
+          const agencyBad = /你(?:转身|出门|走进|来到了|到了).{0,20}书店/.test(t8);
+          const result = {metaHits, agencyBad, turns:a.map(x=>({turn:x.turn,content:x.content}))};
+          await fs.writeFile(`${process.env.EVIDENCE}/focused-regression.json`, JSON.stringify(result,null,2));
+          if (metaHits.length) throw new Error(`meta-narrative rebound: ${metaHits.join(',')}`);
+          if (agencyBad) throw new Error('user agency regression: model moved user to a bookstore');
+          NODE
+          node /tmp/qidu-v02-regression.mjs
+
+      - name: Clone exact SillyTavern and install dependencies
+        run: |
+          set -euo pipefail
+          rm -rf "$ST_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+          cd "$ST_DIR"
+          npm ci
+
+      - name: Start isolated SillyTavern
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8000 --disableCsrf > "$EVIDENCE/st-runtime.log" 2>&1 &
+          echo $! > /tmp/qidu-v02-st.pid
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:8000/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat "$EVIDENCE/st-runtime.log"
+          exit 1
+
+      - name: Real browser + ST custom provider generation
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/qidu-v02-browser
+          cd /tmp/qidu-v02-browser
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          export CHROME_BIN
+          cd "$GITHUB_WORKSPACE"
+          cat > /tmp/qidu-v02-st-smoke.mjs <<'NODE'
+          import fs from 'node:fs/promises';
+          const { chromium } = await import('file:///tmp/qidu-v02-browser/node_modules/playwright-core/index.mjs');
+          const raw = await fs.readFile(process.env.CARD,'utf8');
+          const card = JSON.parse(raw).data;
+          const preset = JSON.parse(await fs.readFile(process.env.PRESET,'utf8'));
+          const wanted = new Set(['⚖️RP模式','🪐均衡调度','🎈烟火气息','🎈群像塑造','🌊自由变奏','👤平衡主导','🐚人格基底','🐚去中心化','🐚角色成长','🐚标签隐身','🤝健康恋爱','⬆️自然推进']);
+          const presetText = preset.prompts.filter(p=>wanted.has(p.name)).map(p=>`[${p.name}]\n${p.content}`).join('\n\n');
+          const form = new FormData(); form.set('file_type','json'); form.set('avatar',new Blob([raw],{type:'application/json'}),'qidu-he-if-v02.character.json');
+          const imp = await fetch('http://127.0.0.1:8000/api/characters/import',{method:'POST',body:form});
+          if (!imp.ok) throw new Error(`import failed ${imp.status}: ${(await imp.text()).slice(0,500)}`);
+          const browser = await chromium.launch({headless:true,executablePath:process.env.CHROME_BIN,args:['--no-sandbox','--disable-dev-shm-usage']});
+          const page = await browser.newPage({viewport:{width:1440,height:1000}});
+          const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+          await page.goto('http://127.0.0.1:8000/',{waitUntil:'domcontentloaded',timeout:60000}); await page.waitForTimeout(2500);
+          const result = await page.evaluate(async ({key,model,system,first}) => {
+            const sec = await fetch('/api/secrets/write',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({key:'api_key_custom',value:key,label:'qidu-v02-ci'})});
+            if (!sec.ok) return {stage:'secret',status:sec.status,body:await sec.text()};
+            const body = {
+              chat_completion_source:'custom', custom_url:'https://youzi.today/v1', model,
+              messages:[{role:'system',content:system},{role:'assistant',content:first},{role:'user',content:'我醒着看了你们一会儿，只问：“今天早饭是什么？”不要替我下床。'}],
+              max_tokens:30000, temperature:0.98, top_p:0.5, frequency_penalty:0, presence_penalty:0,
+              stream:false, custom_include_headers:'', custom_include_body:'', custom_exclude_body:'', n:1
+            };
+            const r = await fetch('/api/backends/chat-completions/generate',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+            const text = await r.text(); let json=null; try{json=JSON.parse(text)}catch{}
+            return {stage:'generate',status:r.status,ok:r.ok,json,text:text.slice(0,4000)};
+          }, {key:process.env.YOUZI_KEY,model:process.env.MODEL,system:`${presetText}\n\n${card.system_prompt}`,first:card.first_mes});
+          const visible = result.json?.choices?.[0]?.message?.content || result.json?.choices?.[0]?.text || '';
+          const report = {stCommit:process.env.ST_COMMIT,cardVersion:card.character_version,provider:'custom via /api/backends/chat-completions/generate',upstreamBase:'https://youzi.today/v1',model:process.env.MODEL,status:result.status,ok:result.ok,visibleChars:visible.length,visiblePreview:visible.slice(0,1500),pageErrors:errors};
+          await fs.writeFile(`${process.env.EVIDENCE}/real-st-provider-report.json`,JSON.stringify(report,null,2));
+          await page.screenshot({path:`${process.env.EVIDENCE}/real-st-v02.png`,fullPage:true});
+          await browser.close();
+          if (!result.ok) throw new Error(`ST provider generation failed: ${JSON.stringify(result).slice(0,1500)}`);
+          if (!visible.trim()) throw new Error('ST provider returned no visible RP content');
+          if (errors.length) throw new Error(`browser page errors: ${errors.join(' | ')}`);
+          console.log(JSON.stringify(report,null,2));
+          NODE
+          node /tmp/qidu-v02-st-smoke.mjs
+
+      - name: Stop isolated SillyTavern
+        if: always()
+        run: |
+          if [ -f /tmp/qidu-v02-st.pid ]; then kill "$(cat /tmp/qidu-v02-st.pid)" 2>/dev/null || true; fi
+
+      - name: Upload v0.2 acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-he-v02-acceptance
+          path: bench-evidence/qidu-he-v02/
+          if-no-files-found: error
