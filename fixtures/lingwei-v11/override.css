@@ -1,0 +1,99 @@
+/* LingWei v1.1 structural rewrite: airy jewel stationery, no generic glass cards */
+html,body{overflow-x:hidden!important}
+body{background:
+radial-gradient(ellipse at 12% 6%,rgba(255,249,238,.96) 0 20%,rgba(255,249,238,0) 48%),
+radial-gradient(ellipse at 82% 12%,rgba(198,207,239,.70) 0 24%,rgba(198,207,239,0) 53%),
+linear-gradient(128deg,#f6eee7 0%,#eee6ef 35%,#d9d7ed 67%,#b9afd6 100%)!important;color:#55485f!important}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-3;background:
+linear-gradient(90deg,transparent 0 19%,rgba(255,255,255,.16) 19.1% 19.22%,transparent 19.32% 49.2%,rgba(255,255,255,.13) 49.3% 49.42%,transparent 49.52% 80.4%,rgba(255,255,255,.12) 80.5% 80.62%,transparent 80.72%),
+radial-gradient(circle at 7% 21%,rgba(255,255,255,.78) 0 1px,transparent 1.8px),
+radial-gradient(circle at 78% 29%,rgba(255,255,255,.58) 0 1px,transparent 1.8px),
+radial-gradient(circle at 56% 9%,rgba(255,255,255,.62) 0 1px,transparent 1.8px);background-size:auto,82px 82px,111px 111px,137px 137px;opacity:.78}
+
+/* top constellation: real drawer nodes remain the click targets */
+#top-bar{height:70px!important;top:5px!important;width:min(960px,calc(100vw - 70px))!important}
+#top-settings-holder{width:min(840px,calc(100vw - 96px))!important;height:66px!important;padding:2px 24px 0!important;gap:8px!important;justify-content:center!important;overflow:visible!important}
+#top-settings-holder::before{top:25px!important;width:72%!important;height:1px!important;background:linear-gradient(90deg,transparent,rgba(169,132,92,.28) 12%,rgba(255,255,255,.80) 46%,rgba(169,132,92,.28) 88%,transparent)!important;box-shadow:0 5px 18px rgba(97,72,111,.10)!important}
+#top-settings-holder> .drawer{width:50px!important;min-width:50px!important;height:62px!important;flex:0 0 50px!important}
+#top-settings-holder> .drawer::before{top:7px!important;height:15px!important;background:linear-gradient(rgba(159,125,90,.48),rgba(255,255,255,.18))!important}
+#top-settings-holder .drawer-toggle{position:relative!important;width:44px!important;height:44px!important;margin-top:18px!important;background-image:none!important;background:linear-gradient(145deg,rgba(255,248,246,.94),rgba(226,210,236,.90))!important;border:1px solid rgba(255,255,255,.80)!important;box-shadow:0 6px 15px rgba(76,58,95,.12),inset 0 0 0 1px rgba(171,132,98,.16)!important;clip-path:polygon(50% 0,61% 35%,100% 50%,61% 65%,50% 100%,39% 65%,0 50%,39% 35%)!important;opacity:.93!important}
+#top-settings-holder> .drawer:nth-child(2n) .drawer-toggle{transform:translateY(4px) scale(.88) rotate(9deg)!important}
+#top-settings-holder> .drawer:nth-child(3n) .drawer-toggle{transform:translateY(-3px) scale(.80) rotate(-8deg)!important}
+#top-settings-holder .drawer-toggle:hover{filter:brightness(1.04) saturate(1.06)!important;transform:translateY(-2px) scale(1.05)!important}
+#top-settings-holder .drawer-icon{opacity:0!important}
+
+/* open chat space: remove giant frosted shell */
+#sheld{top:74px!important;width:min(1020px,calc(100vw - 70px))!important;height:calc(100dvh - 82px)!important;background:transparent!important;overflow:visible!important}
+#sheld::before{content:""!important;position:absolute!important;inset:18px 22px 96px!important;border:0!important;border-left:1px solid rgba(255,255,255,.18)!important;border-right:1px solid rgba(151,123,158,.10)!important;border-radius:0!important;background:linear-gradient(90deg,rgba(255,255,255,.04),transparent 12%,transparent 88%,rgba(255,255,255,.035))!important;box-shadow:none!important;opacity:1!important;pointer-events:none!important}
+#sheld::after{content:""!important;position:absolute!important;left:70px!important;right:70px!important;top:63px!important;height:1px!important;background:linear-gradient(90deg,transparent,rgba(178,144,105,.18),rgba(255,255,255,.48),rgba(178,144,105,.16),transparent)!important;opacity:1!important;pointer-events:none!important}
+#chat{padding:130px 54px 168px!important;background:transparent!important;overflow-x:hidden!important;scrollbar-gutter:stable!important}
+#chat::before{display:none!important}
+
+/* scene rows: airy islands rather than software cards */
+#chat .mes:not([is_system="true"]){position:relative!important;display:block!important;overflow:visible!important;background:transparent!important;border:0!important;box-shadow:none!important;flex-shrink:0!important}
+#chat .mes:not([is_user="true"]):not([is_system="true"]){width:min(760px,86%)!important;min-height:228px!important;margin:0 auto 138px 2%!important}
+#chat .mes[is_user="true"]{width:min(690px,80%)!important;min-height:206px!important;margin:0 2% 128px auto!important}
+#chat .mes:not([is_system="true"]) .mes_block{position:relative!important;width:100%!important;min-height:inherit!important;padding:0!important;margin:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important;color:#574c61!important}
+#chat .mes:not([is_system="true"]) .mes_block::before{content:""!important;position:absolute!important;top:18px!important;bottom:4px!important;z-index:-1!important;border:0!important;border-radius:0!important;clip-path:polygon(1.2% 6%,5% 1%,92% 0,99% 9%,100% 86%,95% 98%,8% 100%,0 91%)!important;background:
+linear-gradient(90deg,rgba(185,145,100,.20),rgba(185,145,100,.20)) left 12px top 25px/1px calc(100% - 46px) no-repeat,
+linear-gradient(90deg,rgba(255,255,255,.70),rgba(255,255,255,.12)) top 17px left 28px/calc(100% - 58px) 1px no-repeat,
+radial-gradient(ellipse at 18% 0%,rgba(255,255,255,.82),transparent 35%),
+linear-gradient(118deg,rgba(255,252,246,.91),rgba(246,239,245,.78) 62%,rgba(225,219,237,.62))!important;box-shadow:0 22px 42px rgba(75,56,89,.12),0 2px 0 rgba(255,255,255,.38)!important;backdrop-filter:none!important}
+#chat .mes:not([is_user="true"]):not([is_system="true"]) .mes_block::before{left:104px!important;right:0!important}
+#chat .mes[is_user="true"] .mes_block::before{left:0!important;right:96px!important;background:
+linear-gradient(90deg,rgba(185,145,100,.15),rgba(185,145,100,.15)) right 12px top 25px/1px calc(100% - 46px) no-repeat,
+linear-gradient(90deg,rgba(255,255,255,.72),rgba(255,255,255,.10)) top 17px left 28px/calc(100% - 58px) 1px no-repeat,
+radial-gradient(ellipse at 82% 0%,rgba(255,255,255,.75),transparent 35%),
+linear-gradient(242deg,rgba(252,248,246,.89),rgba(241,233,243,.76) 62%,rgba(221,216,237,.61))!important}
+#chat .mes:not([is_system="true"]) .mes_block::after{content:""!important;position:absolute!important;top:72px!important;height:1px!important;background:linear-gradient(90deg,transparent,rgba(169,130,88,.26),rgba(255,255,255,.62),rgba(169,130,88,.18),transparent)!important;opacity:.72!important}
+#chat .mes:not([is_user="true"]):not([is_system="true"]) .mes_block::after{left:250px!important;right:42px!important}
+#chat .mes[is_user="true"] .mes_block::after{left:42px!important;right:224px!important}
+
+/* CSS-built portrait jewelry until original PNG ornaments are remounted */
+#chat .mes:not([is_system="true"]) .mesAvatarWrapper{position:absolute!important;z-index:10!important;margin:0!important;padding:0!important;overflow:visible!important;filter:none!important}
+#chat .mes:not([is_user="true"]):not([is_system="true"]) .mesAvatarWrapper{left:10px!important;top:-92px!important;width:212px!important;height:232px!important;min-width:212px!important}
+#chat .mes[is_user="true"] .mesAvatarWrapper{right:6px!important;left:auto!important;top:-82px!important;width:192px!important;height:210px!important;min-width:192px!important}
+#chat .mes:not([is_system="true"]) .mesAvatarWrapper::before{content:""!important;position:absolute!important;inset:0!important;z-index:2!important;border:1px solid rgba(255,255,255,.86)!important;border-radius:48% 52% 49% 51% / 44% 45% 55% 56%!important;background:
+linear-gradient(145deg,rgba(255,255,255,.64),rgba(255,255,255,0) 28%) padding-box,
+conic-gradient(from 220deg,rgba(181,142,95,.50),rgba(255,255,255,.90),rgba(202,168,194,.58),rgba(170,143,209,.45),rgba(181,142,95,.50)) border-box!important;box-shadow:0 17px 28px rgba(72,54,89,.16),inset 0 0 0 5px rgba(249,241,244,.55),inset 0 0 0 7px rgba(179,143,101,.12)!important;transform:rotate(-2deg)!important}
+#chat .mes[is_user="true"] .mesAvatarWrapper::before{transform:rotate(2deg)!important}
+#chat .mes:not([is_system="true"]) .mesAvatarWrapper::after{content:"✦"!important;position:absolute!important;z-index:5!important;width:40px!important;height:40px!important;right:-12px!important;bottom:12px!important;display:grid!important;place-items:center!important;color:rgba(157,119,88,.74)!important;font-size:22px!important;line-height:1!important;background:radial-gradient(circle,rgba(255,251,243,.98) 0 34%,rgba(223,205,233,.88) 36% 62%,transparent 64%)!important;filter:drop-shadow(0 5px 8px rgba(88,66,101,.13))!important}
+#chat .mes:not([is_system="true"]) .avatar{position:absolute!important;z-index:3!important;overflow:hidden!important;border:0!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.58)!important;background:linear-gradient(150deg,#f4cfdf,#c9c2e7)!important}
+#chat .mes:not([is_user="true"]):not([is_system="true"]) .avatar{left:26px!important;top:24px!important;width:160px!important;height:182px!important;border-radius:48% 52% 48% 52%/44% 46% 54% 56%!important}
+#chat .mes[is_user="true"] .avatar{left:24px!important;top:22px!important;width:145px!important;height:164px!important;border-radius:49% 51% 48% 52%/44% 46% 54% 56%!important}
+#chat .mes:not([is_system="true"]) .avatar img,#chat .mes:not([is_system="true"]) .avatar>div{width:100%!important;height:100%!important;object-fit:cover!important;border-radius:inherit!important}
+
+#chat .mes:not([is_system="true"]) .ch_name{display:flex!important;align-items:center!important;gap:9px!important;min-height:48px!important;padding-top:33px!important;background:transparent!important}
+#chat .mes:not([is_user="true"]):not([is_system="true"]) .ch_name{padding-left:238px!important;padding-right:38px!important}
+#chat .mes[is_user="true"] .ch_name{justify-content:flex-end!important;padding-left:38px!important;padding-right:207px!important}
+#chat .mes:not([is_system="true"]) .name_text{padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:#6a5870!important;font-weight:700!important;letter-spacing:.07em!important}
+#chat .mes:not([is_system="true"]) .timestamp{color:rgba(106,88,112,.34)!important;font-size:9px!important}
+#chat .mes:not([is_system="true"]) .mes_reasoning_details{background:transparent!important;border:0!important;box-shadow:none!important;opacity:.54!important}
+#chat .mes:not([is_user="true"]):not([is_system="true"]) .mes_reasoning_details,#chat .mes:not([is_user="true"]):not([is_system="true"]) .mes_text{padding-left:238px!important;padding-right:44px!important}
+#chat .mes[is_user="true"] .mes_reasoning_details,#chat .mes[is_user="true"] .mes_text{padding-left:44px!important;padding-right:208px!important}
+#chat .mes:not([is_system="true"]) .mes_text{padding-top:25px!important;padding-bottom:32px!important;color:#5d5265!important;line-height:1.78!important;font-size:14px!important}
+
+/* writing desk input, not a generic pill */
+#form_sheld{bottom:14px!important;width:min(820px,calc(100vw - 118px))!important;background:transparent!important;pointer-events:none!important}
+#send_form{min-height:72px!important;height:72px!important;background:transparent!important;border:0!important;box-shadow:none!important;overflow:visible!important;pointer-events:auto!important}
+#send_form::before{content:""!important;position:absolute!important;inset:4px 10px 5px!important;border:0!important;border-radius:0!important;clip-path:polygon(3% 0,93% 0,100% 20%,98% 86%,93% 100%,5% 100%,0 82%,1.5% 18%)!important;background:
+linear-gradient(90deg,rgba(175,136,93,.28),rgba(175,136,93,.28)) left 26px bottom 10px/calc(100% - 52px) 1px no-repeat,
+linear-gradient(110deg,rgba(255,253,247,.94),rgba(242,234,244,.88))!important;box-shadow:0 18px 30px rgba(73,54,87,.14),inset 0 1px rgba(255,255,255,.82)!important;backdrop-filter:none!important}
+#send_form::after{content:""!important;position:absolute!important;left:50%!important;top:-9px!important;width:84px!important;height:18px!important;transform:translateX(-50%)!important;background:radial-gradient(ellipse,rgba(255,255,255,.82),rgba(211,190,224,.46) 50%,transparent 72%)!important;opacity:.9!important}
+#nonQRFormItems{min-height:72px!important;height:72px!important;padding:10px 18px!important;background:transparent!important;border:0!important}
+#send_textarea{min-height:48px!important;height:48px!important;max-height:132px!important;padding:12px 15px 9px!important;margin:0 6px!important;background:transparent!important;border:0!important;border-bottom:1px solid rgba(158,126,148,.20)!important;border-radius:0!important;box-shadow:none!important;color:#5f5266!important}
+#leftSendForm>div,#rightSendForm>div{background:linear-gradient(145deg,rgba(255,251,247,.90),rgba(224,211,236,.84))!important;border:1px solid rgba(255,255,255,.62)!important;border-radius:50%!important;box-shadow:0 4px 10px rgba(77,57,90,.10)!important}
+
+/* dense UI surfaces share the same paper/jewel language */
+.drawer-content,.popup,.popup-content,#options,.options-content,.select2-dropdown{background:linear-gradient(132deg,rgba(253,249,244,.97),rgba(235,227,240,.95))!important;border:1px solid rgba(255,255,255,.70)!important;border-radius:16px!important;box-shadow:0 22px 46px rgba(71,53,85,.16)!important;backdrop-filter:none!important;color:#594e62!important}
+input:not([type="range"]),textarea,select,.text_pole{background:rgba(255,252,248,.58)!important;border:1px solid rgba(143,111,139,.16)!important;box-shadow:inset 0 1px rgba(255,255,255,.58)!important;color:#5d5265!important}
+
+@media(max-width:900px){
+#top-bar{width:calc(100vw - 10px)!important;top:3px!important}#top-settings-holder{width:calc(100vw - 16px)!important;height:60px!important;padding:0 6px!important;gap:0!important;justify-content:flex-start!important;overflow-x:auto!important;overflow-y:hidden!important}#top-settings-holder> .drawer{width:42px!important;min-width:42px!important;flex-basis:42px!important}#top-settings-holder .drawer-toggle{width:37px!important;height:37px!important;margin-top:18px!important}
+#sheld{top:66px!important;width:100vw!important;height:calc(100dvh - 68px)!important}#sheld::before{inset:12px 6px 82px!important}#sheld::after{left:32px!important;right:32px!important;top:50px!important}
+#chat{padding:108px 13px 136px!important}#chat .mes:not([is_user="true"]):not([is_system="true"]),#chat .mes[is_user="true"]{width:calc(100% - 10px)!important;max-width:calc(100% - 10px)!important;margin-left:5px!important;margin-right:5px!important}#chat .mes:not([is_user="true"]):not([is_system="true"]){min-height:230px!important;margin-bottom:100px!important}#chat .mes[is_user="true"]{min-height:210px!important;margin-bottom:94px!important}
+#chat .mes:not([is_user="true"]):not([is_system="true"]) .mesAvatarWrapper{left:3px!important;top:-67px!important;width:139px!important;height:154px!important;min-width:139px!important}#chat .mes[is_user="true"] .mesAvatarWrapper{right:1px!important;top:-62px!important;width:132px!important;height:146px!important;min-width:132px!important}#chat .mes:not([is_user="true"]):not([is_system="true"]) .avatar{left:18px!important;top:17px!important;width:104px!important;height:119px!important}#chat .mes[is_user="true"] .avatar{left:17px!important;top:16px!important;width:99px!important;height:112px!important}#chat .mes:not([is_system="true"]) .mesAvatarWrapper::after{width:29px!important;height:29px!important;right:-5px!important;bottom:7px!important;font-size:16px!important}
+#chat .mes:not([is_user="true"]):not([is_system="true"]) .mes_block::before{left:30px!important;right:0!important}#chat .mes[is_user="true"] .mes_block::before{left:0!important;right:28px!important}#chat .mes:not([is_system="true"]) .mes_block::after{top:87px!important}#chat .mes:not([is_user="true"]):not([is_system="true"]) .mes_block::after{left:142px!important;right:18px!important}#chat .mes[is_user="true"] .mes_block::after{left:18px!important;right:136px!important}
+#chat .mes:not([is_user="true"]):not([is_system="true"]) .ch_name{min-height:70px!important;padding-top:47px!important;padding-left:146px!important;padding-right:16px!important}#chat .mes[is_user="true"] .ch_name{min-height:70px!important;padding-top:47px!important;padding-left:16px!important;padding-right:139px!important}#chat .mes:not([is_user="true"]):not([is_system="true"]) .mes_reasoning_details,#chat .mes:not([is_user="true"]):not([is_system="true"]) .mes_text{padding-left:24px!important;padding-right:19px!important}#chat .mes[is_user="true"] .mes_reasoning_details,#chat .mes[is_user="true"] .mes_text{padding-left:19px!important;padding-right:24px!important}#chat .mes:not([is_system="true"]) .mes_text{padding-top:25px!important;padding-bottom:28px!important;font-size:13px!important;line-height:1.7!important}
+#form_sheld{bottom:8px!important;width:calc(100vw - 14px)!important}#send_form,#nonQRFormItems{min-height:64px!important;height:64px!important}#nonQRFormItems{padding:8px 10px!important}#send_textarea{min-height:44px!important;height:44px!important;margin:0 3px!important;padding:10px 10px 7px!important}
+}
