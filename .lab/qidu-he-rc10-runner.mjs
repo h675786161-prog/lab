@@ -29,13 +29,39 @@ const out = '/tmp/qidu-he-rc10-wrapper-fixed.mjs';
 await fs.writeFile(out, s, 'utf8');
 console.log('rc10 wrapper syntax and base-source agency anchor preprocessed');
 
+const outDir = process.env.LAB_OUT || 'bench-evidence/qidu-he-rc10-real-st-glm';
+const timeoutMs = Math.max(60000, Number(process.env.RC10_ATTEMPT_TIMEOUT_MS || 150000));
+let settled = false;
+const hardTimeout = setTimeout(async () => {
+  if (settled) return;
+  const reason = `RC10 attempt exceeded hard timeout ${timeoutMs}ms; classify as upstream/runtime blocked, not card behavior failure.`;
+  try {
+    await fs.mkdir(outDir, { recursive: true });
+    await fs.writeFile(`${outDir}/rc10-status.json`, JSON.stringify({
+      status: 'blocked_upstream',
+      model: process.env.GLM_MODEL || null,
+      upstream: process.env.GLM_API || null,
+      rpm: Number(process.env.RPM || 12),
+      reason,
+      timeout_ms: timeoutMs,
+    }, null, 2));
+  } catch (writeError) {
+    console.error('RC10_TIMEOUT_STATUS_WRITE_FAILED', String(writeError?.stack || writeError));
+  }
+  console.error('RC10_BLOCKED_UPSTREAM_TIMEOUT', reason);
+  process.exit(75);
+}, timeoutMs);
+
 try {
   await import(`${pathToFileURL(out).href}?v=${Date.now()}`);
+  settled = true;
+  clearTimeout(hardTimeout);
 } catch (error) {
+  settled = true;
+  clearTimeout(hardTimeout);
   const text = String(error?.stack || error?.message || error);
-  const blocked = /Service Unavailable|insufficient_user_quota|账户额度不足|model_not_found|no available channel|no visible completion:.*(?:Service Unavailable|quota)/is.test(text);
+  const blocked = /Service Unavailable|insufficient_user_quota|账户额度不足|model_not_found|no available channel|no visible completion:.*(?:Service Unavailable|quota)|HTTP\s*(?:429|500|502|503|504|524)/is.test(text);
   if (!blocked) throw error;
-  const outDir = process.env.LAB_OUT || 'bench-evidence/qidu-he-rc10-real-st-glm';
   await fs.mkdir(outDir, { recursive: true });
   await fs.writeFile(`${outDir}/rc10-status.json`, JSON.stringify({
     status: 'blocked_upstream',
@@ -45,5 +71,5 @@ try {
     reason: text.slice(0, 3000),
   }, null, 2));
   console.error('RC10_BLOCKED_UPSTREAM', text.slice(0, 1200));
-  process.exitCode = 75;
+  process.exit(75);
 }
