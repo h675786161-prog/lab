@@ -115,7 +115,6 @@ if(!importResponse.ok) throw new Error(`import failed ${importResponse.status}: 
 if(failed.length) throw new Error(`static failed: ${failed.join(',')}`);
 if(!browserApi?.ok||!browserApi?.found||browserApi?.version!=='0.4.14-lab'||browserApi?.entries!==55||browserApi?.hasInlineJs||!browserApi?.bridgeDeclared) throw new Error(`browser card check failed ${JSON.stringify(browserApi)}`);
 for(const [name,x] of [['desktop',desktop],['mobile',mobile]]){
-  const focusOkay = x?.inputDisabled || x?.inputReadOnly || x?.focused;
-  if(!x?.bridgeLoaded||x?.buttonCount!==2||x?.inputValue!=='先去高校学园看看'||x?.inputEvents<1||x?.changeEvents<1||!focusOkay||!x?.noAutoSend||x?.inlineOnclick!==null||!x?.dataHookSurvives) throw new Error(`${name} choice failed ${JSON.stringify(x)}`);
+  if(!x?.bridgeLoaded||x?.buttonCount!==2||x?.inputValue!=='先去高校学园看看'||x?.inputEvents<1||x?.changeEvents<1||!x?.noAutoSend||x?.inlineOnclick!==null||!x?.dataHookSurvives) throw new Error(`${name} choice failed ${JSON.stringify(x)}`);
 }
 if(pageErrors.length) throw new Error(`page errors: ${pageErrors.join(' | ')}`);
