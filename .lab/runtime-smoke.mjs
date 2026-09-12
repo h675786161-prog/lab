@@ -1,16 +1,35 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import zlib from 'node:zlib';
+import crypto from 'node:crypto';
 
 const baseUrl = process.env.LAB_ST_URL || 'http://127.0.0.1:8000';
 const evidenceDir = process.env.LAB_EVIDENCE_DIR || 'lab-evidence';
+const workspace = process.env.GITHUB_WORKSPACE || process.cwd();
 const reportPath = path.join(evidenceDir, 'qidu-card-runtime-report.json');
-const packedPath = path.join(process.env.GITHUB_WORKSPACE || process.cwd(), 'fixtures/qidu-card/card-v0.4.12-lab.json.gz.b64');
+const basePackedPath = path.join(workspace, 'fixtures/qidu-card/card-v0.4.11-lab.json.gz.b64');
+const patchPaths = [
+  path.join(workspace, 'fixtures/qidu-card/v0412-patch-top.json'),
+  path.join(workspace, 'fixtures/qidu-card/v0412-patch-a.json'),
+  path.join(workspace, 'fixtures/qidu-card/v0412-patch-b.json'),
+];
+const EXPECTED_COMPACT_SHA256 = '126b403a70c27a53fbc6ad31ac67808c9e7291a1e23d8d00b9d8225daa36764b';
 await fs.mkdir(evidenceDir, { recursive: true });
 
-const packed = (await fs.readFile(packedPath, 'utf8')).trim();
-const raw = zlib.gunzipSync(Buffer.from(packed, 'base64'));
-const card = JSON.parse(raw.toString('utf8'));
+const basePacked = (await fs.readFile(basePackedPath, 'utf8')).trim();
+const baseRaw = zlib.gunzipSync(Buffer.from(basePacked, 'base64'));
+const card = JSON.parse(baseRaw.toString('utf8'));
+for (const patchPath of patchPaths) {
+  const patch = JSON.parse(await fs.readFile(patchPath, 'utf8'));
+  if (patch.data) Object.assign(card.data, patch.data);
+  for (const [index, entry] of Object.entries(patch.entries || {})) {
+    card.data.character_book.entries[Number(index)] = entry;
+  }
+}
+const raw = Buffer.from(JSON.stringify(card), 'utf8');
+const compactSha256 = crypto.createHash('sha256').update(raw).digest('hex');
+await fs.writeFile(path.join(evidenceDir, 'qidu-card-v0.4.12-lab.json'), raw);
+
 const expectedName = card.data.name;
 const firstMes = String(card.data.first_mes || '');
 const entries = card.data.character_book?.entries || [];
@@ -36,6 +55,7 @@ const stateRules = get('91｜f7d_state字段与更新规则');
 const timelineText = [day7, day4, day3, day2, day1, school, sybilla].join('\n');
 
 const staticChecks = {
+  exactAuditedCandidateHash: compactSha256 === EXPECTED_COMPACT_SHA256,
   specV3: card.spec === 'chara_card_v3' && card.spec_version === '3.0',
   version: card.data.character_version === '0.4.12-lab',
   worldbookSize: entries.length >= 55,
@@ -50,7 +70,7 @@ const staticChecks = {
   arashiIllusion: arashi.includes('男性神器使') && arashi.includes('高度沉浸的幻境') && arashi.includes('海湾侧城黑核链'),
   oldTownCore: oldtown.includes('核心人物固定为艾露比与薇拉') && oldtown.includes('瞬、虎彻等只能'),
   sacrificeAudit: sacrifice.includes("artifact_view='weapon'") && sacrifice.includes("ann_release='released'") && sacrifice.includes("antoneva_choice='help_release'"),
-  wenziBranch: wenzi.includes('雯梓受伤') && wenzi.includes('暂不加入'),
+  wenziBranch: wenzi.includes('雯梓负伤') && wenzi.includes('本阶段不加入'),
   hiroAgreeNotJoin: hiro.includes('支持≠加入') && hiro.includes('不等于“加入希罗阵营”'),
   stateSchemaNoLegacyRiskFields: stateRules.includes('hiro={intel:0,handled:[]}') && stateRules.includes('当前母版不使用old_risk/seaside_risk/institute_risk'),
 };
@@ -86,7 +106,7 @@ try {
     }
     const arr = Array.isArray(data) ? data : (Array.isArray(data?.characters) ? data.characters : (data && typeof data==='object' ? Object.values(data) : []));
     const matches = arr.filter(x => (x?.data?.name || x?.name) === name);
-    const found = matches.sort((a,b) => String(b?.data?.character_version||'').localeCompare(String(a?.data?.character_version||'')))[0];
+    const found = matches.find(x => x?.data?.character_version === '0.4.12-lab') || matches[0];
     const first = String(found?.data?.first_mes || found?.first_mes || '');
     const book = found?.data?.character_book?.entries || [];
     const joinedBook = book.map(e => String(e?.content || '')).join('\n');
@@ -112,7 +132,7 @@ try {
   await page.screenshot({ path:path.join(evidenceDir,'qidu-card-v0412-real-st.png'), fullPage:true });
 } finally { await browser.close(); }
 
-const report={expectedName,source:'fixtures/qidu-card/card-v0.4.12-lab.json.gz.b64',rawBytes:raw.length,import:{status:importResponse.status,ok:importResponse.ok,text:importText.slice(0,500)},staticChecks,browserApi,uiHasName,pageErrors,consoleErrors};
+const report={expectedName,source:'v0.4.11 full fixture + audited v0.4.12 patch set',rawBytes:raw.length,compactSha256,expectedCompactSha256:EXPECTED_COMPACT_SHA256,import:{status:importResponse.status,ok:importResponse.ok,text:importText.slice(0,500)},staticChecks,browserApi,uiHasName,pageErrors,consoleErrors};
 await fs.writeFile(reportPath,JSON.stringify(report,null,2));
 console.log(JSON.stringify(report,null,2));
 const failedStatic=Object.entries(staticChecks).filter(([,ok])=>!ok).map(([k])=>k);
