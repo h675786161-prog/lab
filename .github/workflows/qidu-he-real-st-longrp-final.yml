@@ -1,0 +1,73 @@
+name: Qidu HE real ST long RP final
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [qidu-he-if-longrp]
+    paths:
+      - '.github/workflows/qidu-he-real-st-longrp-final.yml'
+      - '.lab/qidu-he-real-st-longrp.mjs'
+      - 'fixtures/qidu-he-if/**'
+
+permissions:
+  contents: read
+
+jobs:
+  real-st-long-rp:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      YOUZI_KEY: ${{ secrets.YOUZI }}
+      GLM_API: https://youzi.today/v1
+      GLM_MODEL: '[NV]GLM-5.3-flash'
+      RPM: '12'
+      LAB_OUT: bench-evidence/qidu-he-real-st-longrp
+      CARD_PATH: fixtures/qidu-he-if/qidu-he-if.character.json
+      PRESET_PATH: fixtures/qidu-he-if/riyuexi-glm-active.json
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      ST_DIR: /tmp/qidu-real-longrp-st
+      ST_URL: http://127.0.0.1:8000/
+      PLAYWRIGHT_MODULE: file:///tmp/qidu-real-longrp-browser/node_modules/playwright-core/index.mjs
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare exact SillyTavern and browser
+        run: |
+          set -euo pipefail
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+          cd "$ST_DIR"
+          npm ci
+          mkdir -p /tmp/qidu-real-longrp-browser
+          cd /tmp/qidu-real-longrp-browser
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          echo "CHROME_BIN=$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)" >> "$GITHUB_ENV"
+          mkdir -p "$GITHUB_WORKSPACE/$LAB_OUT" /tmp/qidu-real-longrp-data
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8000 --disableCsrf --dataRoot /tmp/qidu-real-longrp-data > "$GITHUB_WORKSPACE/$LAB_OUT/st-runtime.log" 2>&1 &
+          echo $! > /tmp/qidu-real-longrp-st.pid
+          for i in $(seq 1 90); do
+            if curl -fsS "$ST_URL" >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+
+      - name: Run 36-turn browser RP through real SillyTavern and GLM
+        run: node .lab/qidu-he-real-st-longrp.mjs
+
+      - name: Stop ST
+        if: always()
+        run: |
+          if [ -f /tmp/qidu-real-longrp-st.pid ]; then kill "$(cat /tmp/qidu-real-longrp-st.pid)" 2>/dev/null || true; fi
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-he-real-st-longrp-final
+          path: bench-evidence/qidu-he-real-st-longrp/
+          if-no-files-found: error
+
