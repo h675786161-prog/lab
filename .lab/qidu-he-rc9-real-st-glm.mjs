@@ -33,8 +33,14 @@ replaceOnce(
 const requestCheck = "    if (turn.request.source !== 'custom' || turn.request.model !== MODEL || turn.request.custom_url !== API_URL) failures.push(`${row.id}: ST generation request used wrong backend/model`);";
 replaceOnce(
   requestCheck,
-  `${requestCheck}\n    if (!String(turn.request.custom_include_body || '').includes('type: disabled')) failures.push(\`${'${row.id}'}: ST generation request did not carry thinking disabled\`);\n    if (!lm.some(m => m.role === 'user' && m.content.includes('【玩家当前状态冻结｜禁止凭空发身份与道具】'))) failures.push(\`${'${row.id}'}: ST request missing rc9 state-freeze lock near chat tail\`);`,
+  `${requestCheck}\n    if (!String(turn.request.custom_include_body || '').includes('type: disabled')) failures.push(\`${'${row.id}'}: ST generation request did not carry thinking disabled\`);`,
   'request check',
+);
+const oldDepthLock = "    if (!lm.some(m => m.role === 'user' && m.content.includes('【单边RP末端锁｜当前玩家输入后的强制指令】'))) failures.push(`${row.id}: ST request missing depth-zero user-role lock near chat tail`);";
+replaceOnce(
+  oldDepthLock,
+  `${oldDepthLock}\n    if (!lm.some(m => m.role === 'user' && m.content.includes('【玩家当前状态冻结｜禁止凭空发身份与道具】'))) failures.push(\`${'${row.id}'}: ST request missing rc9 state-freeze lock near chat tail\`);`,
+  'state-freeze request-tail check',
 );
 
 replaceOnce(
@@ -55,7 +61,6 @@ replaceOnce(
   'Ash direct identity question',
 );
 
-// Familiar characters may coincidentally appear in a public place; only actual apartment/default-scene snapback is fatal.
 replaceOnce(
   "if (/(公寓|晚饭|彼安汀|塞拉菲姆)/u.test(m1)) failures.push('mila turn1 snapped back to apartment/default scenario');",
   "if (/(公寓|厨房|早餐|回家吃饭|卧室)/u.test(m1)) failures.push('mila turn1 snapped back to apartment/default scenario');",
@@ -76,7 +81,6 @@ const oldPatterns = `const obviousAgencyPatterns = [\n  /你(?:靠在|靠着|低
 const newPatterns = `const obviousAgencyPatterns = [\n  /你(?:靠在|靠着|低头(?:看|翻)|抬头|准备离开|转身离开|起身|走上前|走近|退后|离开|拿出手机|掏出手机|点头|摇头|笑了|喝了一口|闻到|听见自己|感到|觉得|想起|决定|回答|答道|回应)/u,\n  /你的手(?:指)?(?:无意识|下意识)/u,\n  /不久前[，,]?你.{0,20}(?:离开|走出|走到|去了)/u,\n];`;
 replaceOnce(oldPatterns, newPatterns, 'expanded agency patterns');
 
-// The first Qianxue input says only "stand at the door". Leaning is a newly invented posture.
 replaceOnce(
   "const q2 = q?.second?.displayed || '';",
   "const q1 = q?.first?.displayed || '';\nconst q2 = q?.second?.displayed || '';\nif (/(?:门框|门边).{0,16}(?:倚着|倚在|靠着|靠在)/u.test(q1)) failures.push('qianxue turn1 changed user standing posture into leaning');",
