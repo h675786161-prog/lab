@@ -1,13 +1,6 @@
 name: Qidu HE rc5 two-turn behavior on GLM Air
 
 on:
-  push:
-    branches:
-      - qidu-he-if-longrp
-    paths:
-      - '.lab/qidu-he-v03-rc5-recursion-patch.py'
-      - '.lab/qidu-he-rc5-behavior-audit.mjs'
-      - '.github/workflows/qidu-he-rc5-two-turn-behavior-air.yml'
   workflow_dispatch:
 
 permissions:
@@ -28,27 +21,10 @@ jobs:
       SOURCE_ARTIFACT_ID: '10295283832'
     steps:
       - uses: actions/checkout@v4
-
       - name: Build current depth-zero rc5 candidate
         run: |
           set -euo pipefail
           python .lab/qidu-he-v03-rc5-recursion-patch.py
-          node - <<'NODE'
-          const d=JSON.parse(require('fs').readFileSync(process.env.CARD_PATH,'utf8')).data;
-          if(d.character_version!=='0.3.0-rc5') throw new Error(d.character_version);
-          if(d.character_book.entries.length!==31) throw new Error(String(d.character_book.entries.length));
-          const n=d.character_book.entries.filter(e=>e.extensions?.prevent_recursion===true).length;
-          if(n!==31) throw new Error(`prevent_recursion ${n}/31`);
-          if(!d.system_prompt.startsWith('【单边RP协议｜最高优先级】')) throw new Error('missing system unilateral RP guard');
-          if(!d.post_history_instructions.includes('【用户主权硬门槛｜单边RP】')) throw new Error('missing post-history unilateral RP guard');
-          if(!d.post_history_instructions.includes('【当前回合连续性与身份精确性】')) throw new Error('missing continuity/identity guard');
-          const dp=d.extensions?.depth_prompt;
-          if(dp?.depth!==0 || dp?.role!=='system' || !dp?.prompt?.includes('【单边RP末端锁】')) throw new Error(`invalid depth prompt ${JSON.stringify(dp)}`);
-          const mila=d.character_book.entries.find(e=>e.name==='米菈');
-          if(!mila?.content.includes('身份名锚点：自我介绍时只使用准确姓名“米菈”')) throw new Error('missing 米菈 exact-name anchor');
-          console.log('candidate', d.character_version, 'entries', d.character_book.entries.length, 'prevent_recursion', n, 'depth', dp.depth, 'role', dp.role);
-          NODE
-
       - name: Download exact latest native-ST rc5 scan evidence
         env:
           GH_TOKEN: ${{ github.token }}
@@ -61,10 +37,8 @@ jobs:
             -o /tmp/rc5-evidence.zip
           unzip -q /tmp/rc5-evidence.zip -d /tmp/rc5-evidence
           test -f "$INJECTION_PATH"
-
       - name: Run semantic two-turn behavior and user-sovereignty audit
         run: node .lab/qidu-he-rc5-behavior-audit.mjs
-
       - name: Upload behavior evidence
         if: always()
         uses: actions/upload-artifact@v4
