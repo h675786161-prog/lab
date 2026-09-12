@@ -73,16 +73,22 @@ data['post_history_instructions'] += '''
 【米菈姓名禁写串】
 米菈当前只有单名“米菈”。输出中禁止出现“米菈·”或“米菈・”。'''
 
-# SillyTavern 1.18.0 inserts character depth prompts in-chat. Depth 0 means
-# the last message in context, and role=system keeps this rule immediately next
-# to generation instead of forcing it to compete with a large preset far above.
-depth_guard = '''【单边RP末端锁】
-只写NPC与环境，不续写{{user}}。禁止为{{user}}新增、补完或代写任何动作、台词、心理、感官、姿态、持有物、位置变化或决定；不要复述本轮用户内容。{{user}}只可作为NPC行为的对象或视线参照。下一步需要{{user}}反应时立即停在NPC动作、对白或环境变化处。'''
+# SillyTavern 1.18.0 supports character depth prompts as in-chat messages.
+# The role probe showed that, under the user's stress preset, a depth-zero USER
+# instruction suppresses player proxying more reliably than SYSTEM, while
+# ASSISTANT may terminate with an empty completion. Keep this compact and next
+# to the latest user message.
+depth_guard = '''【单边RP末端锁｜当前玩家输入后的强制指令】
+只写NPC与环境，不续写玩家。
+- 旁白不要以“你/你的”作为新动作、感官、心理、姿态、持有物或位置变化的叙述主体；NPC“看向你、走近你、对你说话”可以。
+- 不复述、扩写或补完玩家本轮已经写出的行为与台词，不替玩家做自然过渡。
+- 玩家已经完成的物品归属、人物位置、先后顺序不得回滚或偷换；不确定就不写。
+- 下一步需要玩家回应、接取、移动、选择或决定时，立即停在NPC的动作、对白或环境变化处。'''
 ext = data.setdefault('extensions', {})
 ext['depth_prompt'] = {
     'prompt': depth_guard,
     'depth': 0,
-    'role': 'system',
+    'role': 'user',
 }
 
 notes = data.get('creator_notes', '')
@@ -93,7 +99,7 @@ recursion_note = '''
 behavior_note = '''
 
 【v0.3 rc5 用户主权与连续性强化】
-真实GLM行为回归发现，仅靠system_prompt/post-history仍会被部分预设的“平衡主导/自由变奏”续写习惯冲淡。rc5 因此在保留双层规则的同时，新增SillyTavern原生character depth prompt：system角色、depth=0，把“只写NPC与环境、不续写user”的单边RP末端锁插到聊天上下文最后一条消息附近。当前物品状态不得倒带，详细条目提供的姓名必须精确输出。'''
+真实GLM行为回归发现，仅靠system_prompt/post-history会被部分预设的“平衡主导/自由变奏”续写习惯冲淡。rc5 在保留双层规则的同时使用SillyTavern原生character depth prompt，depth=0，并经同预设角色矩阵选择role=user：末端直接要求只写NPC与环境、不续写玩家，并在同一锁中保护本轮物品归属与位置连续性。'''
 if '【v0.3 rc5 世界书递归隔离】' not in notes:
     notes += recursion_note
 for old_title in ['【v0.3 rc5 用户主权强化】', '【v0.3 rc5 用户主权与连续性强化】']:
@@ -115,5 +121,6 @@ print(
     'agency_guard=', '【用户主权硬门槛｜单边RP】' in data.get('post_history_instructions', ''),
     'continuity_guard=', '【当前回合连续性与身份精确性】' in data.get('post_history_instructions', ''),
     'depth_prompt=', data.get('extensions', {}).get('depth_prompt', {}).get('depth') == 0,
+    'depth_role=', data.get('extensions', {}).get('depth_prompt', {}).get('role'),
     'mila_name_anchor=', '身份名锚点：自我介绍时只使用准确姓名“米菈”' in mila.get('content', ''),
 )
