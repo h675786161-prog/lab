@@ -1,0 +1,12 @@
+{
+  "display_name": "七都选项回填桥",
+  "loading_order": 50,
+  "requires": [],
+  "optional": [],
+  "dependencies": [],
+  "js": "index.js",
+  "author": "七都项目",
+  "version": "0.1.0",
+  "auto_update": false,
+  "minimum_client_version": "1.18.0"
+}
