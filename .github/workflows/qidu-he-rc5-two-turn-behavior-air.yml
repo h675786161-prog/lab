@@ -1,13 +1,6 @@
 name: Qidu HE rc5 two-turn behavior on GLM Air
 
 on:
-  push:
-    branches:
-      - qidu-he-if-longrp
-    paths:
-      - '.lab/qidu-he-v03-rc5-recursion-patch.py'
-      - '.lab/qidu-he-rc5-behavior-audit.mjs'
-      - '.github/workflows/qidu-he-rc5-two-turn-behavior-air.yml'
   workflow_dispatch:
 
 permissions:
