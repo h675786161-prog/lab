@@ -17,7 +17,7 @@ jobs:
     env:
       YOUZI_KEY: ${{ secrets.YOUZI }}
       BASE_URL: https://youzi.today/v1
-      TARGET_MODEL: '[B]glm-5.3-flash'
+      TARGET_MODEL: '[NV]GLM-5.3-flash'
       OUT: provider-evidence/qidu-he-rc4
     steps:
       - uses: actions/checkout@v4
