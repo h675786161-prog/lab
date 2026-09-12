@@ -5,7 +5,7 @@ import zlib from 'node:zlib';
 
 const ROOT = process.cwd();
 const FIXTURE_DIR = path.join(ROOT, 'fixtures', 'f7d');
-const EXPECTED_SHA = 'fb917134104909203d5a7652f43671f06e57a119f1e0d0ae7d9109cb2140e548';
+const EXPECTED_SHA = 'd85a240e3ada1300349ba205149e936346da2bc4d7746e26e84d5f76e3f8d982';
 const EXPECTED_NAME = '永远的7日之都｜七日轮回文本互动';
 const OUT = process.env.LAB_EVIDENCE_DIR || path.join(ROOT, 'lab-evidence');
 const baseUrl = process.env.LAB_ST_URL || 'http://127.0.0.1:8000';
@@ -34,6 +34,7 @@ if (preflight.name !== EXPECTED_NAME) throw new Error(`Unexpected card name: ${p
 if (preflight.spec !== 'chara_card_v3') throw new Error(`Unexpected spec: ${preflight.spec}`);
 if (preflight.entries !== 55) throw new Error(`Expected 55 lore entries, got ${preflight.entries}`);
 if (preflight.regex_scripts !== 2) throw new Error(`Expected 2 regex scripts, got ${preflight.regex_scripts}`);
+if (preflight.version !== '0.4.4-lab') throw new Error(`Unexpected version: ${preflight.version}`);
 await fs.writeFile(path.join(OUT, 'f7d-preflight.json'), JSON.stringify(preflight, null, 2));
 
 const { chromium } = await import(process.env.LAB_PLAYWRIGHT_CORE_ENTRY);
@@ -57,7 +58,7 @@ try {
   const importResult = await page.evaluate(async ({ cardText }) => {
     const form = new FormData();
     form.set('file_type', 'json');
-    form.set('avatar', new File([cardText], 'f7d-v040.json', { type: 'application/json' }));
+    form.set('avatar', new File([cardText], 'f7d-v044.json', { type: 'application/json' }));
     const res = await fetch('/api/characters/import', { method: 'POST', body: form });
     return { status: res.status, ok: res.ok, text: await res.text() };
   }, { cardText });
@@ -79,27 +80,35 @@ try {
   }
 
   const found = allResult.json.find(x => (x?.data?.name || x?.name) === EXPECTED_NAME);
-  if (!found) throw new Error(`Imported card not found in /api/characters/all`);
+  if (!found) throw new Error('Imported card not found in /api/characters/all');
   let parsed = found;
   if (!found?.data?.character_book && typeof found?.json_data === 'string') {
     try { parsed = JSON.parse(found.json_data); } catch {}
   }
 
+  const lore = parsed?.data?.character_book?.entries || [];
   const readback = {
     name: parsed?.data?.name || parsed?.name,
     creator: parsed?.data?.creator ?? null,
     version: parsed?.data?.character_version ?? null,
-    entries: parsed?.data?.character_book?.entries?.length ?? null,
+    entries: lore.length,
     regex_scripts: parsed?.data?.extensions?.regex_scripts?.length ?? null,
     has_post_history_rules: String(parsed?.data?.post_history_instructions || '').includes('七都项目每轮运行规则'),
-    has_state_protocol: (parsed?.data?.character_book?.entries || []).some(e => String(e?.content || '').includes('<f7d_state>')),
-    has_ann: (parsed?.data?.character_book?.entries || []).some(e => String(e?.name || e?.comment || '').includes('安')),
-    has_hiro: (parsed?.data?.character_book?.entries || []).some(e => String(e?.name || e?.comment || '').includes('希罗')),
+    has_state_protocol: lore.some(e => String(e?.content || '').includes('<f7d_state>')),
+    has_state_first: String(parsed?.data?.post_history_instructions || '').includes('状态先提交'),
+    has_atomic_settlement: String(parsed?.data?.post_history_instructions || '').includes('自动结算原子性'),
+    has_day4_harbor: lore.some(e => String(e?.content || '').includes('DAY4_HARBOR')),
+    has_sybilla_split: lore.some(e => String(e?.content || '').includes('sybilla_condition_obtained')) && lore.some(e => String(e?.content || '').includes('sybilla_rescued')),
+    has_ann: lore.some(e => String(e?.name || e?.comment || '').includes('安')),
+    has_hiro: lore.some(e => String(e?.name || e?.comment || '').includes('希罗')),
   };
 
   if (readback.entries !== 55) throw new Error(`Readback lore count mismatch: ${readback.entries}`);
   if (readback.regex_scripts !== 2) throw new Error(`Readback regex count mismatch: ${readback.regex_scripts}`);
-  if (!readback.has_post_history_rules || !readback.has_state_protocol) throw new Error('Readback lost F7D runtime rules');
+  if (readback.version !== '0.4.4-lab') throw new Error(`Readback version mismatch: ${readback.version}`);
+  if (!readback.has_post_history_rules || !readback.has_state_protocol || !readback.has_state_first || !readback.has_atomic_settlement || !readback.has_day4_harbor || !readback.has_sybilla_split) {
+    throw new Error(`Readback lost v0.4.4 runtime rules: ${JSON.stringify(readback)}`);
+  }
 
   let uiNameVisible = false;
   try {
@@ -112,15 +121,7 @@ try {
   } catch {}
 
   await page.screenshot({ path: path.join(OUT, 'f7d-after-import.png'), fullPage: true });
-  report = {
-    ...report,
-    url: page.url(),
-    importResult,
-    readback,
-    uiNameVisible,
-    pageErrors,
-    consoleErrors,
-  };
+  report = { ...report, url: page.url(), importResult, readback, uiNameVisible, pageErrors, consoleErrors };
   if (pageErrors.length) throw new Error(`Browser page errors: ${pageErrors.join(' | ')}`);
 } finally {
   await fs.writeFile(path.join(OUT, 'f7d-runtime-report.json'), JSON.stringify(report, null, 2));
