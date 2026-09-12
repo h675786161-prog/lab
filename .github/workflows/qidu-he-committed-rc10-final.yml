@@ -1,0 +1,147 @@
+name: Qidu HE committed rc10 final acceptance
+
+on:
+  push:
+    branches:
+      - qidu-he-if-longrp
+    paths:
+      - '.github/workflows/qidu-he-committed-rc10-final.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  committed-final:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      YOUZI_KEY: ${{ secrets.YOUZI }}
+      GLM_API: https://youzi.today/v1
+      GLM_MODEL: '[NV]GLM-5.3-flash'
+      RPM: '12'
+      CARD_PATH: fixtures/qidu-he-if/qidu-he-if.character.json
+      PRESET_PATH: fixtures/qidu-he-if/riyuexi-glm-active.json
+      LAB_OUT: bench-evidence/qidu-he-committed-rc10-final
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      ST_DIR: /tmp/qidu-he-committed-rc10-st
+      ST_URL: http://127.0.0.1:8000/
+      PLAYWRIGHT_MODULE: file:///tmp/qidu-committed-rc10-browser/node_modules/playwright-core/index.mjs
+      RC10_ATTEMPT_TIMEOUT_MS: '150000'
+      EXPECTED_CARD_SHA256: f153adc1c89d32cc92d2edb52129947ee04d7267f9a3c3e58d3e49ddd78868e1
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify committed card is exactly the promoted rc10 artifact
+        run: |
+          set -euo pipefail
+          mkdir -p "$LAB_OUT"
+          node - <<'NODE'
+          const fs=require('fs');
+          const crypto=require('crypto');
+          const raw=fs.readFileSync(process.env.CARD_PATH);
+          const d=JSON.parse(raw).data;
+          const sha=crypto.createHash('sha256').update(raw).digest('hex');
+          const dp=d.extensions?.depth_prompt;
+          if(d.character_version!=='0.3.0-rc10') throw new Error(`expected committed rc10, got ${d.character_version}`);
+          if(sha!==process.env.EXPECTED_CARD_SHA256) throw new Error(`committed card sha mismatch ${sha}`);
+          if(dp?.depth!==0 || dp?.role!=='user') throw new Error(`bad depth prompt ${JSON.stringify(dp)}`);
+          if(d.character_book.entries.filter(e=>e.extensions?.prevent_recursion===true).length!==31) throw new Error('prevent_recursion count mismatch');
+          for (const marker of ['【玩家当前状态冻结｜禁止凭空发身份与道具】','【当前输入必须被承接｜不代写也不失聪】','【当前场景即时落点｜禁止补前情镜头】']) {
+            if(!String(dp.prompt||'').includes(marker)) throw new Error(`missing ${marker}`);
+          }
+          fs.writeFileSync(process.env.LAB_OUT+'/committed-card.json',raw);
+          fs.writeFileSync(process.env.LAB_OUT+'/committed-card-identity.json',JSON.stringify({version:d.character_version,sha256:sha,bytes:raw.length,git_sha:process.env.GITHUB_SHA},null,2));
+          console.log('COMMITTED_CARD_VERIFIED',d.character_version,sha,raw.length);
+          NODE
+
+      - name: Prepare exact SillyTavern runtime
+        run: |
+          set -euo pipefail
+          rm -rf "$ST_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+          cd "$ST_DIR" && npm ci
+
+      - name: Install browser driver
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/qidu-committed-rc10-browser
+          mkdir -p /tmp/qidu-committed-rc10-browser
+          cd /tmp/qidu-committed-rc10-browser
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          echo "CHROME_BIN=$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)" >> "$GITHUB_ENV"
+
+      - name: Send real browser messages through fresh SillyTavern and GLM
+        run: |
+          set +e
+          sed -i 's/openai_max_tokens: 1200,/openai_max_tokens: 30000,/' .lab/qidu-he-rc5-real-st-glm-v2.mjs
+          grep -q 'openai_max_tokens: 30000,' .lab/qidu-he-rc5-real-st-glm-v2.mjs || { echo 'token-budget patch failed'; exit 1; }
+          rm -f "$LAB_OUT/rc10-status.json" "$LAB_OUT/final-run-result.json"
+          for attempt in 1 2 3; do
+            echo "committed rc10 real ST attempt $attempt/3 with fresh data root"
+            if [ -f /tmp/qidu-he-committed-rc10-st.pid ]; then
+              kill "$(cat /tmp/qidu-he-committed-rc10-st.pid)" 2>/dev/null || true
+              sleep 2
+            fi
+            data_root="/tmp/qidu-he-committed-rc10-data-$attempt"
+            rm -rf "$data_root"
+            cd "$ST_DIR"
+            nohup node server.js --listen --port 8000 --disableCsrf --dataRoot "$data_root" > "$GITHUB_WORKSPACE/$LAB_OUT/st-runtime-attempt-$attempt.log" 2>&1 &
+            echo $! > /tmp/qidu-he-committed-rc10-st.pid
+            ready=0
+            for i in $(seq 1 90); do
+              if curl -fsS http://127.0.0.1:8000/ >/dev/null; then ready=1; break; fi
+              sleep 1
+            done
+            if [ "$ready" -ne 1 ]; then
+              echo "SillyTavern failed to start for attempt $attempt"
+              cat "$GITHUB_WORKSPACE/$LAB_OUT/st-runtime-attempt-$attempt.log" || true
+              echo "{\"status\":\"runtime_fail\",\"attempt\":$attempt,\"reason\":\"st_start_failed\"}" > "$GITHUB_WORKSPACE/$LAB_OUT/final-run-result.json"
+              exit 1
+            fi
+            cd "$GITHUB_WORKSPACE"
+            rm -f "$LAB_OUT/rc10-status.json"
+            node .lab/qidu-he-rc10-runner.mjs
+            code=$?
+            if [ "$code" -eq 0 ]; then
+              echo "{\"status\":\"runtime_pass\",\"attempt\":$attempt}" > "$LAB_OUT/final-run-result.json"
+              exit 0
+            fi
+            if [ "$code" -ne 75 ]; then
+              echo "{\"status\":\"runtime_fail\",\"attempt\":$attempt,\"exit_code\":$code}" > "$LAB_OUT/final-run-result.json"
+              exit "$code"
+            fi
+            if [ "$attempt" -lt 3 ]; then sleep $((attempt * 15)); fi
+          done
+          echo '{"status":"blocked_upstream","attempts":3}' > "$LAB_OUT/final-run-result.json"
+          exit 0
+
+      - name: Require real committed-card acceptance PASS
+        if: always()
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs=require('fs');
+          const p=process.env.LAB_OUT+'/final-run-result.json';
+          if(!fs.existsSync(p)) throw new Error('final run result missing');
+          const r=JSON.parse(fs.readFileSync(p,'utf8'));
+          console.log('COMMITTED_RC10_FINAL_STATE',r.status,'attempt',r.attempt ?? r.attempts ?? 'n/a');
+          if(r.status!=='runtime_pass') throw new Error(`committed rc10 did not obtain real-ST behavior PASS: ${JSON.stringify(r)}`);
+          NODE
+
+      - name: Stop ST
+        if: always()
+        run: |
+          if [ -f /tmp/qidu-he-committed-rc10-st.pid ]; then kill "$(cat /tmp/qidu-he-committed-rc10-st.pid)" 2>/dev/null || true; fi
+
+      - name: Upload committed final evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-he-committed-rc10-final
+          path: bench-evidence/qidu-he-committed-rc10-final/
+          if-no-files-found: error
