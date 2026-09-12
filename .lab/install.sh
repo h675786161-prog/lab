@@ -2,10 +2,11 @@
 set -euo pipefail
 mkdir -p "${LAB_EVIDENCE_DIR:?}"
 
+# Rebuild the exact v0.4.8 candidate from the retained v0.4.5 fixture.
 python3 .lab/build-v048.py
 
-# Ensure v0.4.8-only runtime readback anchors are inserted even if formatting
-# around the base has_hiro line changes slightly.
+# Ensure v0.4.8 runtime readback anchors exist before the v0.4.9 compiler
+# extends the smoke test.
 python3 - <<'PY'
 from pathlib import Path
 p = Path('.lab/runtime-smoke.mjs')
@@ -26,10 +27,13 @@ if required not in s:
 p.write_text(s, encoding='utf-8')
 PY
 
+# Apply the v0.4.9 narrative/epistemic layer and verify its exact SHA.
+python3 .lab/build-v049.py
+
 {
-  echo "project=f7d-v0.4.8-lab"
+  echo "project=f7d-v0.4.9-lab"
   echo "mode=character-card-only"
   echo "target_dir=${TARGET_DIR:-}"
   echo "st_dir=${ST_DIR:-}"
-  echo "card_sha256=c285ca4cab2bf986ee242a6edaa607ac7a2967299ee70506ee7c3836767f249b"
+  echo "card_sha256=faa2bd4afd5d3d0bca4f6aa4a987d0e0cb75f1905ce653201e7257fbc4f7ae98"
 } > "$LAB_EVIDENCE_DIR/f7d-install.txt"
