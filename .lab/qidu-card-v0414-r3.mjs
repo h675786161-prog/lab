@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { loadV0414FinalCard, entryMap } from './qidu-card-v0414-final.mjs';
 
-export const EXPECTED_V0414_R3_SHA256 = '1792818dd4915f27d21f2704e0fb9f5438a996825011c5654ba8eda95338894c';
+export const EXPECTED_V0414_R3_SHA256 = '1221d3392e08313abf55fd89d63bf0560102cedd2c8ed10d7387c2df79b38cd9';
 
 export async function loadV0414R3Card(workspace = process.env.GITHUB_WORKSPACE || process.cwd(), options = {}) {
   const { card } = await loadV0414FinalCard(workspace);
