@@ -1,0 +1,148 @@
+name: Qidu HE IF v0.3 rc3 canon and roster audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [qidu-he-if-longrp]
+    paths:
+      - '.github/workflows/qidu-he-v03-rc3-audit.yml'
+      - '.lab/qidu-he-v03-coverage-patch.py'
+      - '.lab/qidu-he-v03-rc2-patch.py'
+      - '.lab/qidu-he-v03-rc3-patch.py'
+      - 'fixtures/qidu-he-if/coverage-manifest.v03.rc2.json'
+      - 'fixtures/qidu-he-if/qidu-he-if.character.json'
+
+permissions:
+  contents: read
+
+jobs:
+  rc3-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CARD: fixtures/qidu-he-if/qidu-he-if.character.json
+      MANIFEST: fixtures/qidu-he-if/coverage-manifest.v03.rc2.json
+      EVIDENCE: ${{ github.workspace }}/bench-evidence/qidu-he-v03-rc3
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      ST_DIR: /tmp/qidu-he-v03-rc3-st
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build rc3 candidate
+        run: |
+          set -euo pipefail
+          mkdir -p "$EVIDENCE"
+          python .lab/qidu-he-v03-rc3-patch.py
+          cp "$CARD" "$EVIDENCE/qidu-he-if-v0.3.0-rc3.character.json"
+
+      - name: Audit canon corrections and 118-character reachability
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          card=json.loads(Path(os.environ['CARD']).read_text(encoding='utf-8'))['data']
+          manifest=json.loads(Path(os.environ['MANIFEST']).read_text(encoding='utf-8'))
+          entries=card['character_book']['entries']; by={e.get('name'):e for e in entries}
+          full=json.dumps(card,ensure_ascii=False)
+          if card.get('character_version')!='0.3.0-rc3': raise SystemExit('wrong version')
+          house=manifest['house_roster']
+          if len(house)!=118 or len(set(house))!=118: raise SystemExit('bad roster source')
+          absent=[n for n in house if n not in full]
+          if absent: raise SystemExit('undiscoverable house names '+repr(absent))
+          extras=[n for n in manifest['npc_and_group_extras'] if n not in full]
+          if extras: raise SystemExit('missing npc extras '+repr(extras))
+          checks={
+            '丽': ['早熟的财团大小姐','高傲','自尊心','人情','机甲','蜂蜜','贫困幼年','黄金伞集团'],
+            '雯梓与钟函谷': ['万葬亭','神秘','丧葬文化','民俗','风水','中餐','交换','雯梓','棋'],
+            '安托涅瓦': ['文学系研究生','文字','记录','巨细无遗','会开玩笑','坚强','理念'],
+            '妮维': ['未成年','正式警察','正式巡警'],
+            '源千雪': ['芭蕾','好胜','自由'],
+            '米菈': ['小学生','摇滚','贝斯'],
+            '亚修': ['高中生侦探','毒舌','黑眼圈'],
+            '圣星教会群像': ['伊萨克','赛斯','格雷穆','瑟雷斯','伊斯卡里奥'],
+            '悠久乐园群像': ['达格','尤梨','拉奥拉','星灼','赛德','鲁特'],
+          }
+          for entry,markers in checks.items():
+            text=by[entry]['content']
+            miss=[m for m in markers if m not in text]
+            if miss: raise SystemExit(f'{entry} missing {miss}')
+          if by['城市角色覆盖路由'].get('constant'): raise SystemExit('relation roster should be on-demand')
+          if by['扩展原作角色发现池'].get('constant'): raise SystemExit('118 extension should be on-demand')
+          if not by['角色发现与触发机制'].get('constant'): raise SystemExit('discovery rules must be constant')
+          ext=by['扩展原作角色发现池']
+          for k in ['黑羽莲华','伊薇','韦迪','乌鹭','新面孔','本地活动','本地新闻','朋友介绍']:
+            if k not in ext.get('keys',[]): raise SystemExit('missing expanded key '+k)
+          # Requested low-frequency direct trigger probes.
+          probes={
+            '芭蕾舞蹈室':'源千雪',
+            '喷泉广场街头演出':'米菈',
+            '警局侦探案件':'亚修',
+            '教会礼拜花房':'圣星教会群像',
+            '马戏团巡演篷车':'悠久乐园群像',
+            '本地新闻里找新面孔':'扩展原作角色发现池',
+            '黑羽莲华':'扩展原作角色发现池',
+          }
+          routes={}
+          for text,target in probes.items():
+            hit=[e['name'] for e in entries if e.get('enabled') and any(k and k in text for k in e.get('keys',[]))]
+            routes[text]=hit
+            if target not in hit: raise SystemExit(f'route miss {text}->{target}, got {hit}')
+          # Prevent phone-book injection during ordinary dialogue.
+          const='\n'.join(e.get('content','') for e in entries if e.get('constant'))
+          const_hits=[n for n in house if n in const]
+          if len(const_hits)>45: raise SystemExit('too many roster names permanently injected '+str(len(const_hits)))
+          report={'version':card['character_version'],'houseRoster':118,'extraNpc':len(manifest['npc_and_group_extras']),'namedBaseline':len(set(house)|set(manifest['npc_and_group_extras'])),'worldbookEntries':len(entries),'constantRosterNameHits':len(const_hits),'keywordRoutes':routes,'result':'PASS'}
+          Path(os.environ['EVIDENCE'],'rc3-static.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(report,ensure_ascii=False,indent=2))
+          PY
+
+      - name: Start exact SillyTavern
+        run: |
+          set -euo pipefail
+          rm -rf "$ST_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+          cd "$ST_DIR"
+          npm ci
+          nohup node server.js --listen --port 8000 --disableCsrf > "$EVIDENCE/st-runtime.log" 2>&1 &
+          echo $! > /tmp/qidu-he-v03-rc3.pid
+          for i in $(seq 1 90); do if curl -fsS http://127.0.0.1:8000/ >/dev/null; then exit 0; fi; sleep 1; done
+          cat "$EVIDENCE/st-runtime.log"; exit 1
+
+      - name: Real browser import rc3 and inspect stored card
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/qidu-v03-rc3-browser && cd /tmp/qidu-v03-rc3-browser
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"; export CHROME_BIN
+          cd "$GITHUB_WORKSPACE"
+          cat > /tmp/qidu-v03-rc3-import.mjs <<'NODE'
+          import fs from 'node:fs/promises';
+          const {chromium}=await import('file:///tmp/qidu-v03-rc3-browser/node_modules/playwright-core/index.mjs');
+          const raw=await fs.readFile(process.env.CARD,'utf8');
+          const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_BIN,args:['--no-sandbox','--disable-dev-shm-usage']});
+          const page=await browser.newPage({viewport:{width:1440,height:1000}});const errs=[];page.on('pageerror',e=>errs.push(String(e)));
+          await page.goto('http://127.0.0.1:8000/',{waitUntil:'domcontentloaded',timeout:60000});await page.waitForTimeout(2500);
+          const out=await page.evaluate(async(raw)=>{const f=new FormData();f.set('file_type','json');f.set('avatar',new Blob([raw],{type:'application/json'}),'qidu-he-v030-rc3.character.json');const i=await fetch('/api/characters/import',{method:'POST',body:f});const a=await fetch('/api/characters/all',{method:'POST',headers:{'content-type':'application/json'},body:'{}'});return{importOk:i.ok,importStatus:i.status,allOk:a.ok,allStatus:a.status,allText:(await a.text()).slice(0,220000)}} ,raw);
+          const checks={};for(const s of ['0.3.0-rc3','源千雪','米菈','亚修','悠久乐园','圣星教会','黑羽莲华','万葬亭','贫困幼年','文学系研究生'])checks[s]=out.allText.includes(s);
+          await page.screenshot({path:`${process.env.EVIDENCE}/real-st-rc3.png`,fullPage:true});
+          const report={stCommit:process.env.ST_COMMIT,importOk:out.importOk,importStatus:out.importStatus,allOk:out.allOk,allStatus:out.allStatus,checks,pageErrors:errs};await fs.writeFile(`${process.env.EVIDENCE}/real-st-rc3.json`,JSON.stringify(report,null,2));await browser.close();
+          if(!report.importOk||!report.allOk||Object.values(checks).some(x=>!x)||errs.length)throw new Error(JSON.stringify(report));console.log(JSON.stringify(report,null,2));
+          NODE
+          node /tmp/qidu-v03-rc3-import.mjs
+
+      - name: Stop ST
+        if: always()
+        run: if [ -f /tmp/qidu-he-v03-rc3.pid ]; then kill "$(cat /tmp/qidu-he-v03-rc3.pid)" 2>/dev/null || true; fi
+
+      - name: Upload rc3 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-he-v03-rc3-audit
+          path: bench-evidence/qidu-he-v03-rc3/
+          if-no-files-found: error
