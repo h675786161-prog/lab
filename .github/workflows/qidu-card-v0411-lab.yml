@@ -11,6 +11,13 @@ permissions:
   contents: read
 
 jobs:
+  candidate-hash:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Print reconstructed candidate hash
+        run: node .lab/print-qidu-v0414-hash.mjs
+
   real-sillytavern:
     uses: h675786161-prog/lab/.github/workflows/real-sillytavern.yml@main
     with:
@@ -39,7 +46,7 @@ jobs:
           if-no-files-found: error
 
   package:
-    needs: [real-sillytavern, ooc-bench]
+    needs: [candidate-hash, real-sillytavern, ooc-bench]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
