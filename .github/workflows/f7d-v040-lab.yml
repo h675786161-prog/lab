@@ -1,4 +1,4 @@
-name: F7D v0.4.1 Real Lab
+name: F7D v0.4.2 Real Lab
 
 on:
   pull_request:
@@ -9,6 +9,7 @@ on:
       - '.lab/install.sh'
       - '.lab/runtime-smoke.mjs'
       - '.lab/f7d-live-bench.mjs'
+      - '.lab/f7d-targeted-v042.mjs'
       - 'fixtures/f7d/**'
   workflow_dispatch:
 
@@ -22,48 +23,33 @@ jobs:
       extension_name: f7d-card
       sillytavern_commit: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
       run_project_smoke: true
-      artifact_name: f7d-v041-real-sillytavern
+      artifact_name: f7d-v042-real-sillytavern
       extra_extensions_json: '[]'
 
-  live-behavior:
+  targeted-behavior:
     runs-on: ubuntu-latest
     timeout-minutes: 55
     env:
       YOUZI_KEY: ${{ secrets.YOUZI }}
       F7D_MODEL: '[B]glm-5.3-flash'
-      LAB_OUT: bench-evidence/f7d-v041
+      LAB_OUT: bench-evidence/f7d-v042-targeted
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build exact v0.4.1 candidate
+      - name: Build exact v0.4.2 candidate
         env:
-          LAB_EVIDENCE_DIR: bench-evidence/f7d-v041
+          LAB_EVIDENCE_DIR: bench-evidence/f7d-v042-targeted
           TARGET_DIR: ${{ github.workspace }}
           ST_DIR: /tmp/f7d-behavior-no-st
         run: bash .lab/install.sh
 
-      - name: Stabilize behavior harness
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p=Path('.lab/f7d-live-bench.mjs')
-          s=p.read_text(encoding='utf-8')
-          s=s.replace('100_000', '180_000')
-          old='const j=await judge(test,r.content,stOut);'
-          new="const j={pass:null,severity:'manual',reasons:['manual_review_required'],ooc:null,trigger_error:null,knowledge_leak:null};"
-          if old not in s:
-              raise SystemExit('judge call patch target missing')
-          s=s.replace(old,new)
-          p.write_text(s,encoding='utf-8')
-          PY
+      - name: Run focused v0.4.2 regression
+        run: node .lab/f7d-targeted-v042.mjs
 
-      - name: Run F7D v0.4.1 OOC and trigger benchmark
-        run: node .lab/f7d-live-bench.mjs
-
-      - name: Upload behavior evidence
+      - name: Upload targeted evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: f7d-v041-live-behavior
-          path: bench-evidence/f7d-v041/
+          name: f7d-v042-targeted
+          path: bench-evidence/f7d-v042-targeted/
           if-no-files-found: warn
