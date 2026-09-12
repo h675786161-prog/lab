@@ -213,7 +213,7 @@ const configured = await page.evaluate(async ({ apiRoot, model, preset, key }) =
     top_p: preset.sampling?.top_p ?? 0.5,
     frequency_penalty: preset.sampling?.frequency_penalty ?? 0,
     presence_penalty: preset.sampling?.presence_penalty ?? 0,
-    openai_max_tokens: 900,
+    openai_max_tokens: 30000,
     openai_max_context: 200000,
     max_context_unlocked: true,
     stream_openai: false,
@@ -327,6 +327,7 @@ async function callModel(extraMessages, maxTokens = 850) {
       frequency_penalty: preset.sampling?.frequency_penalty ?? 0,
       presence_penalty: preset.sampling?.presence_penalty ?? 0,
       max_tokens: maxTokens,
+      thinking: { type: 'disabled' },
       stream: false,
     }),
   });
