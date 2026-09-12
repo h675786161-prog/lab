@@ -14,16 +14,23 @@ await fs.mkdir(OUT, { recursive: true });
 const card = JSON.parse(await fs.readFile(CARD_PATH, 'utf8')).data;
 const preset = JSON.parse(await fs.readFile(PRESET_PATH, 'utf8'));
 const evidence = JSON.parse(await fs.readFile(INJECTION_PATH, 'utf8'));
+const depthPrompt = card.extensions?.depth_prompt;
 
 if (card.character_version !== '0.3.0-rc5') throw new Error(`expected rc5 candidate, got ${card.character_version}`);
 if (!card.system_prompt?.startsWith('【单边RP协议｜最高优先级】')) throw new Error('candidate missing system unilateral RP guard');
 if (!card.post_history_instructions?.includes('【用户主权硬门槛｜单边RP】')) throw new Error('candidate missing post-history unilateral RP guard');
 if (!card.post_history_instructions?.includes('【当前回合连续性与身份精确性】')) throw new Error('candidate missing continuity/identity guard');
+if (!depthPrompt?.prompt?.includes('【单边RP末端锁】') || depthPrompt.depth !== 0 || depthPrompt.role !== 'system') {
+  throw new Error(`candidate missing depth-zero unilateral RP lock: ${JSON.stringify(depthPrompt)}`);
+}
 if (evidence?.stState?.sortedCount !== 31 || evidence?.stState?.preventRecursionCount !== 31) {
   throw new Error(`native ST evidence is not rc5-selective: ${JSON.stringify(evidence?.stState)}`);
 }
-if (!evidence?.guards?.systemUnilateralRP || !evidence?.guards?.userSovereignty || !evidence?.guards?.continuityIdentity || !evidence?.guards?.milaExactName) {
+if (!evidence?.guards?.systemUnilateralRP || !evidence?.guards?.userSovereignty || !evidence?.guards?.continuityIdentity || !evidence?.guards?.depthZeroUnilateralRP || !evidence?.guards?.milaExactName) {
   throw new Error(`native ST evidence predates current rc5 guards: ${JSON.stringify(evidence?.guards)}`);
+}
+if (evidence?.stState?.depthPromptDepth !== 0 || evidence?.stState?.depthPromptRole !== 'system' || !evidence?.stState?.depthPromptLock) {
+  throw new Error(`native ST did not preserve depth-zero lock: ${JSON.stringify(evidence?.stState)}`);
 }
 
 const plans = {
@@ -90,6 +97,8 @@ for (const scan of scans) {
   }
 }
 
+// Keep the conflicting modules deliberately. If the card survives this, the
+// fix belongs to the card rather than to a sanitized lab-only preset.
 const wantedPresetNames = new Set([
   '⚖️RP模式', '🪐均衡调度', '🪐喜剧幽默', '🎈烟火气息', '🎈情感浓郁', '🎈群像塑造',
   '🌊自由变奏', '👤平衡主导', '🐚人格基底', '🐚需求层析', '🐚去中心化', '🐚角色成长',
@@ -204,7 +213,7 @@ async function judgeAgency(allowedUserText, output) {
   const judged = await callModel([
     { role: 'system', content: judgeSystem },
     { role: 'user', content: judgeUser },
-  ], { temperature: 0.05, topP: 0.2, maxTokens: 320 });
+  ], { temperature: 0.05, topP: 0.2, maxTokens: 1600 });
   const raw = judged.content.trim();
   const start = raw.indexOf('{');
   const end = raw.lastIndexOf('}');
@@ -229,10 +238,13 @@ const failures = [];
 for (const scan of scans) {
   const plan = plans[scan.id];
   const system = `${baseSystem}\n\n[SillyTavern本轮原生世界书扫描实际注入]\n${scan.injection}`;
+
+  // ST depth=0 is re-injected for each generation next to the last message.
   const firstMessages = [
     { role: 'system', content: system },
     { role: 'assistant', content: card.first_mes },
     { role: 'user', content: scan.user },
+    { role: 'system', content: depthPrompt.prompt },
   ];
   const first = await callModel(firstMessages);
   console.log(`===== ${scan.id} / TURN 1 =====\n${first.content}`);
@@ -252,7 +264,16 @@ for (const scan of scans) {
   let secondJudge = null;
   let secondChecks = [];
   if (plan.follow) {
-    const secondMessages = [...firstMessages, { role: 'assistant', content: first.content }, { role: 'user', content: plan.follow }];
+    // Rebuild without carrying the previous ephemeral depth lock as chat
+    // history; ST injects the same lock afresh after the latest user turn.
+    const secondMessages = [
+      { role: 'system', content: system },
+      { role: 'assistant', content: card.first_mes },
+      { role: 'user', content: scan.user },
+      { role: 'assistant', content: first.content },
+      { role: 'user', content: plan.follow },
+      { role: 'system', content: depthPrompt.prompt },
+    ];
     second = await callModel(secondMessages);
     console.log(`===== ${scan.id} / TURN 2 =====\n${second.content}`);
     secondJudge = await judgeAgency(`${scan.user}\n${plan.follow}`, second.content);
@@ -284,6 +305,7 @@ const report = {
   cardVersion: card.character_version,
   sourceArtifact: process.env.SOURCE_ARTIFACT_ID || null,
   preset: preset.source || PRESET_PATH,
+  depthPrompt: { depth: depthPrompt.depth, role: depthPrompt.role, prompt: depthPrompt.prompt },
   guards: evidence.guards,
   failures,
   rows,
@@ -296,4 +318,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('RC5 BEHAVIOR AUDIT PASS', JSON.stringify({ model: MODEL, cases: rows.length, sourceArtifact: report.sourceArtifact }));
+console.log('RC5 BEHAVIOR AUDIT PASS', JSON.stringify({ model: MODEL, cases: rows.length, sourceArtifact: report.sourceArtifact, depth: depthPrompt.depth }));
