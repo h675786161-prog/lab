@@ -1,4 +1,4 @@
-run=v0.4.14-r5-final-acceptance
-reason=final acceptance after Ann boundary hardening and standalone qidu-choice-bridge packaging; require real ST + narrative bench + package artifact
-candidate_compact_sha256=1221d3392e08313abf55fd89d63bf0560102cedd2c8ed10d7387c2df79b38cd9
+run=v0.4.14-r6-whitespace-tolerant-hash
+reason=recompute candidate after whitespace-tolerant f7d choice regex + canonical syntax reinforcement; real-ST smoke now tests canonical desktop and spaced-tag mobile using standalone bridge
+previous_candidate_compact_sha256=1221d3392e08313abf55fd89d63bf0560102cedd2c8ed10d7387c2df79b38cd9
 bridge_version=1.0.0
