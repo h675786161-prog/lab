@@ -4,12 +4,12 @@ mkdir -p "${LAB_EVIDENCE_DIR:?}"
 
 python3 - <<'PY'
 from pathlib import Path
-import base64, gzip, hashlib, json
+import base64, gzip, hashlib, json, re
 
 root = Path.cwd()
 fix = root / 'fixtures' / 'f7d'
 base_sha = 'fb917134104909203d5a7652f43671f06e57a119f1e0d0ae7d9109cb2140e548'
-new_sha = '3db2e5951017f308903784cef7d82a96a027b83b5bf9f1643a0590466b1550bb'
+new_sha = '0a313a38b492c64d5472623c37d8da940a1f636ff478a41a370a55a3c273c3b6'
 parts = sorted(fix.glob('card.*.b64'))
 if not parts:
     raise SystemExit('F7D base fixture chunks missing')
@@ -83,25 +83,88 @@ notes = d['data'].get('creator_notes', '')
 if note2 not in notes:
     d['data']['creator_notes'] = notes.rstrip() + ('\n' if notes.strip() else '') + note2
 
+# v0.4.3: transactional state-first output
+d['data']['character_version'] = '0.4.3-lab'
+phi = d['data'].get('post_history_instructions', '')
+phi = phi.replace(
+    '- 普通正文结束后输出玩家可见<f7d_terminal>，再输出完整<f7d_state>。终端绝不泄露隐藏结局阈值、后台关系阶段或NPC未知秘密。',
+    '- 【状态先提交】每轮先完成本轮结算，并把更新后的完整<f7d_state>作为assistant回复的第一个块输出；然后写自然正文；最后输出玩家可见<f7d_terminal>。状态块通过角色正则隐藏。这样即使正文因长度被截断，已提交状态仍保留。终端绝不泄露隐藏结局阈值、后台关系阶段或NPC未知秘密。'
+)
+if '【状态先提交】' not in phi:
+    phi += '\n- 【状态先提交】每轮先完成本轮结算，并把更新后的完整<f7d_state>作为assistant回复的第一个块输出；然后写自然正文；最后输出玩家可见<f7d_terminal>。状态块通过角色正则隐藏。正文不得在状态块之后再反向改写已提交结算。'
+d['data']['post_history_instructions'] = phi
+
+dp = d['data']['extensions']['depth_prompt']['prompt']
+if '状态块先于正文提交' not in dp:
+    dp = dp.rstrip() + ' ④每轮状态块先于正文提交：先算状态、先输出完整<f7d_state>，再写正文与终端，避免长回复截断导致存档丢失。'
+d['data']['extensions']['depth_prompt']['prompt'] = dp
+
+e1 = byid[1]
+e1['content'] = e1['content'].replace(
+    '每个已接受的assistant回复最多结算一次状态变化，并在正文后输出一个更新后的完整<f7d_state>。',
+    '每个已接受的assistant回复最多结算一次状态变化。先完成最小差分结算，并把更新后的完整<f7d_state>作为该回复第一个块提交，再写正文；不要把状态块拖到正文末尾。'
+)
+
+e4 = byid[4]
+e4['name'] = '04｜输出协议：隐藏状态、正文、终端'
+e4['comment'] = '04｜输出协议：隐藏状态、正文、终端'
+e4['content'] = '''每轮剧情输出顺序严格固定：
+1. <f7d_state>：先完成本轮结算，再立刻输出更新后的完整后台状态块。它必须是assistant回复的第一个块，通过角色正则隐藏，不是玩家界面。不要在正文解释它。
+2. 自然正文：第二人称小说式互动，只写NPC、环境与{{user}}明确行动的外部结果；关键决定停在用户可继续行动的位置。
+3. <f7d_terminal>：最后简短显示“第几天/已用节点/当前位置/进行中任务/区域与黑核的玩家可知状态/当前通讯异常”。不得显示隐藏结局条件、后台关系阶段、未发现秘密。
+
+【事务式提交】
+- 必须先算完本轮最小状态差分，再输出状态块；状态块输出后，正文只能表现已提交结果，不能在正文里临时追加另一套结算。
+- 即使预计本轮正文很长，也不能把<f7d_state>推迟到末尾。
+- 若输出额度不足，优先保证完整<f7d_state>，其次保证必要正文，最后才是终端装饰信息；绝不能为了多写剧情而牺牲状态块完整性。
+- 状态JSON保持紧凑，不添加解释性字段、注释、重复摘要或漂亮缩进。
+- 查看/OOC/纯聊天也照样先输出一个“原样继承”的完整状态块，以建立稳定基线。
+
+不要每轮强制给选择题。若场景确实存在明确分叉，可以给2~4个“可选行动提示”，但玩家始终可以自由输入。'''
+
+if '【状态提交时机】' not in se['content']:
+    se['content'] = se['content'].rstrip() + '''
+
+
+【状态提交时机】
+- 读取上一轮最后一个有效<f7d_state> → 计算本轮最小差分 → 立即输出新的完整<f7d_state> → 再写正文与终端。
+- 正文只是对已提交状态的叙事呈现；不能在正文写到一半又想起一个条件，于是让后续文字与开头状态块互相矛盾。
+- 若生成可能被截断，优先完整提交状态；绝不允许“正文完整但状态缺失”。'''
+
+fm = d['data']['first_mes']
+m = re.search(r'(<f7d_state>[\s\S]*?</f7d_state>)\s*$', fm)
+if not m:
+    raise SystemExit('first_mes state block missing at end')
+state_block = m.group(1)
+rest = fm[:m.start()].rstrip()
+d['data']['first_mes'] = state_block + '\n\n' + rest + '\n'
+
+note3 = 'v0.4.3-lab：改为“状态先提交”的事务式输出协议，优先保证长回复/截断场景下的存档完整性。'
+notes = d['data'].get('creator_notes', '')
+if note3 not in notes:
+    d['data']['creator_notes'] = notes.rstrip() + ('\n' if notes.strip() else '') + note3
+
 patched = json.dumps(d, ensure_ascii=False, indent=2).encode('utf-8')
 patched_sha = hashlib.sha256(patched).hexdigest()
 if patched_sha != new_sha:
-    raise SystemExit(f'v0.4.2 sha mismatch: {patched_sha}')
+    raise SystemExit(f'v0.4.3 sha mismatch: {patched_sha}')
 
 for p in parts:
     p.unlink()
 encoded = base64.b64encode(gzip.compress(patched, compresslevel=9, mtime=0)).decode('ascii')
 (fix / 'card.00.b64').write_text(encoded, encoding='utf-8')
 
-for rel in ('.lab/runtime-smoke.mjs', '.lab/f7d-live-bench.mjs'):
+for rel in ('.lab/runtime-smoke.mjs', '.lab/f7d-live-bench.mjs', '.lab/f7d-targeted-v042.mjs'):
     p = root / rel
+    if not p.exists():
+        continue
     s = p.read_text(encoding='utf-8')
-    s = s.replace(base_sha, new_sha)
+    s = s.replace(base_sha, new_sha).replace('3db2e5951017f308903784cef7d82a96a027b83b5bf9f1643a0590466b1550bb', new_sha)
     p.write_text(s, encoding='utf-8')
 
 out = Path(__import__('os').environ['LAB_EVIDENCE_DIR'])
-(out / 'f7d-v042-card.json').write_bytes(patched)
-(out / 'f7d-v042-patch.json').write_text(json.dumps({
+(out / 'f7d-v043-card.json').write_bytes(patched)
+(out / 'f7d-v043-patch.json').write_text(json.dumps({
     'base_sha256': base_sha,
     'patched_sha256': new_sha,
     'version': d['data']['character_version'],
@@ -110,14 +173,16 @@ out = Path(__import__('os').environ['LAB_EVIDENCE_DIR'])
     'state_diff_guard': '差分守恒' in byid[91]['content'],
     'source_blank_guard': '资料空白不补机制' in d['data']['post_history_instructions'],
     'sybilla_hard_boundary': all('【西比尔救援机制｜严格空白】' in byid[x]['content'] for x in (10,30,66)),
+    'state_first_protocol': d['data']['post_history_instructions'].find('【状态先提交】') >= 0,
+    'first_mes_state_first': d['data']['first_mes'].lstrip().startswith('<f7d_state>'),
 }, ensure_ascii=False, indent=2), encoding='utf-8')
 print('F7D patched to', new_sha)
 PY
 
 {
-  echo "project=f7d-v0.4.2-lab"
+  echo "project=f7d-v0.4.3-lab"
   echo "mode=character-card-only"
   echo "target_dir=${TARGET_DIR:-}"
   echo "st_dir=${ST_DIR:-}"
-  echo "card_sha256=3db2e5951017f308903784cef7d82a96a027b83b5bf9f1643a0590466b1550bb"
+  echo "card_sha256=0a313a38b492c64d5472623c37d8da940a1f636ff478a41a370a55a3c273c3b6"
 } > "$LAB_EVIDENCE_DIR/f7d-install.txt"
