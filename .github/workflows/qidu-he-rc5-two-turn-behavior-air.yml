@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build rc5 candidate with literal sovereignty and continuity fixes
+      - name: Build frozen-user rc5 candidate
         run: |
           set -euo pipefail
           python .lab/qidu-he-v03-rc5-recursion-patch.py
@@ -39,24 +39,30 @@ jobs:
           if(d.character_book.entries.length!==31) throw new Error(String(d.character_book.entries.length));
           const n=d.character_book.entries.filter(e=>e.extensions?.prevent_recursion===true).length;
           if(n!==31) throw new Error(`prevent_recursion ${n}/31`);
-          if(!d.post_history_instructions.includes('【用户主权硬门槛｜逐字约束】')) throw new Error('missing literal user sovereignty guard');
+          if(!d.post_history_instructions.includes('【用户主权硬门槛｜冻结User状态】')) throw new Error('missing frozen-user sovereignty guard');
           if(!d.post_history_instructions.includes('【当前回合连续性与身份精确性】')) throw new Error('missing continuity/identity guard');
           const mila=d.character_book.entries.find(e=>e.name==='米菈');
           if(!mila?.content.includes('身份名锚点：自我介绍时只使用准确姓名“米菈”')) throw new Error('missing 米菈 exact-name anchor');
-          console.log('candidate', d.character_version, 'entries', d.character_book.entries.length, 'prevent_recursion', n, 'literal_agency', true, 'continuity_guard', true, 'mila_exact_name', true);
+          console.log('candidate', d.character_version, 'entries', d.character_book.entries.length, 'prevent_recursion', n, 'frozen_user', true, 'continuity_guard', true, 'mila_exact_name', true);
           NODE
 
-      - name: Adapt behavior harness to current rc5 rules
+      - name: Adapt behavior harness to frozen-user rc5 rules
         run: |
           python - <<'PY'
           from pathlib import Path
           p=Path('.lab/qidu-he-rc5-two-turn-behavior.mjs')
           s=p.read_text(encoding='utf-8')
-          s=s.replace("【用户主权硬门槛】", "【用户主权硬门槛｜逐字约束】")
+          s=s.replace('【用户主权硬门槛】','【用户主权硬门槛｜冻结User状态】')
           s=s.replace('身份名锚点：自我介绍时姓名使用“米菈”','身份名锚点：自我介绍时只使用准确姓名“米菈”')
           s=s.replace("if (/(我是警察|我是刑警|我是警员|当警察|当刑警|当警员)/u.test(output)) failures.push('turned 亚修 into police staff');", "if (/(我是警察|我是刑警|我是警员|我是警务人员|我在警局工作)/u.test(output)) failures.push('turned 亚修 into police staff');")
-          s=s.replace("'你走近'],", "'你走近', '你靠在', '你把水杯换', '你换了个手'],", 1)
+          s=s.replace("'你走近'],", "'你走近', '你靠在', '你把水杯换', '你换了个手', '你擦掉', '你继续看'],", 1)
+          s=s.replace("'你把材料递'],", "'你把材料递', '你站起身', '你坐在', '你手里捏', '你攥着', '你拿着编号'],")
           s=s.replace("'你喝了一口'],", "'你喝了一口', '你面前放着一杯', '一杯美式'],")
+          old='''function bannedUserActions(output, bans) {\n  return bans.filter(x => output.includes(x));\n}'''
+          new='''function bannedUserActions(output, bans) {\n  const prose = output.replace(/[“\"][\\s\\S]*?[”\"]/g, '');\n  return bans.filter(x => prose.includes(x));\n}'''
+          if old not in s:
+              raise SystemExit('bannedUserActions anchor not found')
+          s=s.replace(old,new)
           p.write_text(s,encoding='utf-8')
           PY
 
