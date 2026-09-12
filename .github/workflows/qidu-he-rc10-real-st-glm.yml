@@ -22,7 +22,7 @@ jobs:
     env:
       YOUZI_KEY: ${{ secrets.YOUZI }}
       GLM_API: https://youzi.today/v1
-      GLM_MODEL: glm-4.5-air
+      GLM_MODEL: '[B]glm-5.3-flash'
       RPM: '12'
       CARD_PATH: fixtures/qidu-he-if/qidu-he-if.character.json
       PRESET_PATH: fixtures/qidu-he-if/riyuexi-glm-active.json
@@ -47,7 +47,7 @@ jobs:
           for (const marker of ['【玩家当前状态冻结｜禁止凭空发身份与道具】','【当前输入必须被承接｜不代写也不失聪】','【当前场景即时落点｜禁止补前情镜头】']) {
             if(!String(dp.prompt||'').includes(marker)) throw new Error(`missing ${marker}`);
           }
-          console.log('candidate ready',d.character_version,'depth',dp.depth,'role',dp.role,'rpm<=',process.env.RPM);
+          console.log('candidate ready',d.character_version,'depth',dp.depth,'role',dp.role,'model',process.env.GLM_MODEL,'rpm<=',process.env.RPM);
           NODE
 
       - name: Start exact SillyTavern
