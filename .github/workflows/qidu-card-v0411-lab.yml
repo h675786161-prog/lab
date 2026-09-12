@@ -2,8 +2,6 @@ name: Qidu Card v0.4.12 LAB
 
 on:
   workflow_dispatch:
-  push:
-    branches: ['feature/qidu-card-v0411-lab']
 
 permissions:
   contents: read
