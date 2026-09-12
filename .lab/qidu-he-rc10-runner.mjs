@@ -28,4 +28,22 @@ s = s.replace(
 const out = '/tmp/qidu-he-rc10-wrapper-fixed.mjs';
 await fs.writeFile(out, s, 'utf8');
 console.log('rc10 wrapper syntax and base-source agency anchor preprocessed');
-await import(`${pathToFileURL(out).href}?v=${Date.now()}`);
+
+try {
+  await import(`${pathToFileURL(out).href}?v=${Date.now()}`);
+} catch (error) {
+  const text = String(error?.stack || error?.message || error);
+  const blocked = /Service Unavailable|insufficient_user_quota|账户额度不足|model_not_found|no available channel|no visible completion:.*(?:Service Unavailable|quota)/is.test(text);
+  if (!blocked) throw error;
+  const outDir = process.env.LAB_OUT || 'bench-evidence/qidu-he-rc10-real-st-glm';
+  await fs.mkdir(outDir, { recursive: true });
+  await fs.writeFile(`${outDir}/rc10-status.json`, JSON.stringify({
+    status: 'blocked_upstream',
+    model: process.env.GLM_MODEL || null,
+    upstream: process.env.GLM_API || null,
+    rpm: Number(process.env.RPM || 12),
+    reason: text.slice(0, 3000),
+  }, null, 2));
+  console.error('RC10_BLOCKED_UPSTREAM', text.slice(0, 1200));
+  process.exitCode = 75;
+}
