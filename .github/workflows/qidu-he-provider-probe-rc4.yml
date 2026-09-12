@@ -1,0 +1,125 @@
+name: Qidu HE rc4 provider sanity probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [qidu-he-if-longrp]
+    paths:
+      - '.github/workflows/qidu-he-provider-probe-rc4.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      YOUZI_KEY: ${{ secrets.YOUZI }}
+      BASE_URL: https://youzi.today/v1
+      TARGET_MODEL: '[B]glm-5.3-flash'
+      OUT: provider-evidence/qidu-he-rc4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe model registry and one tiny completion
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$OUT"
+          python - <<'PY'
+          import json, os, urllib.request, urllib.error
+          key=os.environ.get('YOUZI_KEY','')
+          base=os.environ['BASE_URL'].rstrip('/')
+          target=os.environ['TARGET_MODEL']
+          out=os.environ['OUT']
+          if not key:
+              raise SystemExit('YOUZI secret is unavailable to this workflow')
+
+          def request(path, method='GET', payload=None, timeout=35):
+              data=None if payload is None else json.dumps(payload,ensure_ascii=False).encode('utf-8')
+              req=urllib.request.Request(base+path,data=data,method=method,headers={
+                  'Authorization':'Bearer '+key,
+                  'Accept':'application/json',
+                  'Content-Type':'application/json',
+                  'User-Agent':'Qidu-HE-RC4-Lab-Probe/1.0',
+              })
+              try:
+                  with urllib.request.urlopen(req,timeout=timeout) as r:
+                      raw=r.read(2_000_000).decode('utf-8','replace')
+                      return r.status, raw, None
+              except urllib.error.HTTPError as e:
+                  raw=e.read(10000).decode('utf-8','replace')
+                  return e.code, raw, f'HTTPError {e.code}'
+              except Exception as e:
+                  return None, '', type(e).__name__+': '+str(e)[:500]
+
+          mstatus,mraw,merr=request('/models')
+          ids=[]
+          try:
+              data=json.loads(mraw) if mraw else {}
+              seq=data.get('data') or data.get('models') or [] if isinstance(data,dict) else []
+              if isinstance(seq,list):
+                  for item in seq:
+                      if isinstance(item,dict):
+                          mid=item.get('id') or item.get('name') or item.get('model')
+                      else:
+                          mid=str(item)
+                      if mid: ids.append(str(mid))
+          except Exception:
+              pass
+
+          target_seen=target in ids
+          glm_candidates=[x for x in ids if 'glm' in x.lower()][:100]
+          report={
+              'base_url':base,
+              'models_status':mstatus,
+              'models_error':merr,
+              'model_count_seen':len(ids),
+              'target_model':target,
+              'target_seen':target_seen,
+              'glm_candidates':glm_candidates,
+          }
+
+          if mstatus and 200 <= mstatus < 300 and target_seen:
+              payload={
+                  'model':target,
+                  'messages':[{'role':'user','content':'Reply with exactly: OK'}],
+                  'temperature':0,
+                  'max_tokens':8,
+              }
+              cstatus,craw,cerr=request('/chat/completions','POST',payload,timeout=45)
+              content=''
+              finish=None
+              try:
+                  cdata=json.loads(craw) if craw else {}
+                  choices=cdata.get('choices') or []
+                  if choices:
+                      first=choices[0] or {}
+                      msg=first.get('message') or {}
+                      content=str(msg.get('content') or '')[:200]
+                      finish=first.get('finish_reason')
+              except Exception:
+                  pass
+              report['completion']={'status':cstatus,'error':cerr,'content_excerpt':content,'finish_reason':finish}
+          else:
+              report['completion']={'status':'skipped','reason':'target model not confirmed in current registry'}
+
+          with open(out+'/probe.json','w',encoding='utf-8') as f:
+              json.dump(report,f,ensure_ascii=False,indent=2)
+          print(json.dumps(report,ensure_ascii=False,indent=2))
+
+          comp=report['completion']
+          if not (mstatus and 200 <= mstatus < 300):
+              raise SystemExit('model registry probe failed')
+          if not target_seen:
+              raise SystemExit('target model is not present in current provider registry')
+          if not (isinstance(comp.get('status'),int) and 200 <= comp['status'] < 300):
+              raise SystemExit('tiny completion probe failed')
+          PY
+      - name: Upload probe evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-he-rc4-provider-probe
+          path: provider-evidence/qidu-he-rc4/
+          if-no-files-found: error
