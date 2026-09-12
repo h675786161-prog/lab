@@ -1,0 +1,91 @@
+name: Qidu HE rc8 real SillyTavern GLM browser acceptance
+
+on:
+  push:
+    branches:
+      - qidu-he-if-longrp
+    paths:
+      - '.lab/qidu-he-rc8-real-st-glm.mjs'
+      - '.lab/qidu-he-v03-rc8-agency-hardlock-patch.py'
+      - '.lab/qidu-he-rc7-real-st-glm.mjs'
+      - '.github/workflows/qidu-he-rc8-real-st-glm.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-st-glm:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      YOUZI_KEY: ${{ secrets.YOUZI }}
+      GLM_API: https://youzi.today/v1
+      GLM_MODEL: glm-4.5-air
+      RPM: '12'
+      CARD_PATH: fixtures/qidu-he-if/qidu-he-if.character.json
+      PRESET_PATH: fixtures/qidu-he-if/riyuexi-glm-active.json
+      LAB_OUT: bench-evidence/qidu-he-rc8-real-st-glm
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      ST_DIR: /tmp/qidu-he-rc8-real-st
+      ST_URL: http://127.0.0.1:8000/
+      PLAYWRIGHT_MODULE: file:///tmp/qidu-rc8-real-browser/node_modules/playwright-core/index.mjs
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build current rc8 candidate
+        run: |
+          set -euo pipefail
+          python .lab/qidu-he-v03-rc8-agency-hardlock-patch.py
+          node - <<'NODE'
+          const d=JSON.parse(require('fs').readFileSync(process.env.CARD_PATH,'utf8')).data;
+          const dp=d.extensions?.depth_prompt;
+          if(d.character_version!=='0.3.0-rc8') throw new Error(d.character_version);
+          if(dp?.depth!==0 || dp?.role!=='user') throw new Error(JSON.stringify(dp));
+          if(d.character_book.entries.filter(e=>e.extensions?.prevent_recursion===true).length!==31) throw new Error('prevent_recursion');
+          if(!d.system_prompt.includes('【当前消息场景锁｜禁止回弹】')) throw new Error('scene lock missing');
+          if(!String(dp.prompt||'').includes('【玩家主权硬锁｜生成正文前最后检查】')) throw new Error('hard agency lock missing');
+          console.log('candidate ready',d.character_version,'depth',dp.depth,'role',dp.role,'rpm<=',process.env.RPM);
+          NODE
+
+      - name: Start exact SillyTavern
+        run: |
+          set -euo pipefail
+          mkdir -p "$LAB_OUT"
+          rm -rf "$ST_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+          cd "$ST_DIR" && npm ci
+          nohup node server.js --listen --port 8000 --disableCsrf > "$GITHUB_WORKSPACE/$LAB_OUT/st-runtime.log" 2>&1 &
+          echo $! > /tmp/qidu-he-rc8-real-st.pid
+          for i in $(seq 1 90); do curl -fsS http://127.0.0.1:8000/ >/dev/null && exit 0; sleep 1; done
+          cat "$GITHUB_WORKSPACE/$LAB_OUT/st-runtime.log"
+          exit 1
+
+      - name: Install browser driver
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/qidu-rc8-real-browser
+          mkdir -p /tmp/qidu-rc8-real-browser
+          cd /tmp/qidu-rc8-real-browser
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          echo "CHROME_BIN=$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)" >> "$GITHUB_ENV"
+
+      - name: Send real browser messages through SillyTavern and GLM
+        run: node .lab/qidu-he-rc8-real-st-glm.mjs
+
+      - name: Stop ST
+        if: always()
+        run: |
+          if [ -f /tmp/qidu-he-rc8-real-st.pid ]; then kill "$(cat /tmp/qidu-he-rc8-real-st.pid)" 2>/dev/null || true; fi
+
+      - name: Upload real ST browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-he-rc8-real-st-glm
+          path: bench-evidence/qidu-he-rc8-real-st-glm/
+          if-no-files-found: error
