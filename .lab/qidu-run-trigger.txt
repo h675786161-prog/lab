@@ -1,3 +1,3 @@
-run=v0.4.14-choice-ui-r2
-reason=rerun after deterministic candidate hash correction; validate real ST choice rendering/refill and qualitative regressions
-candidate_compact_sha256=c19ba47420a627ea7bad56579651b0b26eb30116e4d2f603851383bea8e842cf
+run=v0.4.14-r3-choice-ui
+reason=use delegated choice bridge because real ST strips inline onclick; strengthen Ann/Yanhua/decision guards and rerun desktop+mobile browser acceptance
+candidate_compact_sha256=df7193649b5b7046b3f6d8e9815caad9fc37f0ba4657d52204139f5fe87d957d
