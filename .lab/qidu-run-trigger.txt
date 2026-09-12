@@ -1,2 +1,3 @@
-run=v0.4.12-exact-full
-reason=verified split fixture + exact-card real ST + OOC drift bench
+run=v0.4.12-exact-full-r2
+reason=verified chunk transport repaired; run exact-card real ST import/browser plus OOC drift bench
+fixture_packed_sha256=0323df7c0cfc250854df3023b25d3d60c75c9950a7d25dc672db43d6d1792b9a
