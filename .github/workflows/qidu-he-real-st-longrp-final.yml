@@ -11,11 +11,12 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   real-st-long-rp:
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 90
     env:
       YOUZI_KEY: ${{ secrets.YOUZI }}
       GLM_API: https://youzi.today/v1
@@ -30,6 +31,15 @@ jobs:
       PLAYWRIGHT_MODULE: file:///tmp/qidu-real-longrp-browser/node_modules/playwright-core/index.mjs
     steps:
       - uses: actions/checkout@v4
+
+      - name: Restore latest verified real-ST turn checkpoint
+        uses: actions/download-artifact@v4
+        with:
+          name: qidu-he-real-st-longrp-final
+          path: bench-evidence/qidu-he-real-st-longrp
+          github-token: ${{ github.token }}
+          repository: h675786161-prog/lab
+          run-id: 34716004149
 
       - name: Prepare exact SillyTavern and browser
         run: |
@@ -50,9 +60,10 @@ jobs:
       - name: Run 36-turn browser RP through real SillyTavern and GLM
         run: |
           set +e
-          for attempt in 1 2 3; do
+          for attempt in 1 2 3 4 5 6 7 8; do
             if [ -f /tmp/qidu-real-longrp-st.pid ]; then
               kill "$(cat /tmp/qidu-real-longrp-st.pid)" 2>/dev/null || true
+              sleep 2
             fi
             data_root="/tmp/qidu-real-longrp-data-$attempt"
             rm -rf "$data_root"
@@ -69,7 +80,7 @@ jobs:
             node .lab/qidu-he-real-st-longrp.mjs
             code=$?
             if [ "$code" -eq 0 ]; then exit 0; fi
-            if [ "$attempt" -lt 3 ]; then sleep $((attempt * 15)); fi
+            if [ "$attempt" -lt 8 ]; then sleep 15; fi
           done
           exit 1
 
