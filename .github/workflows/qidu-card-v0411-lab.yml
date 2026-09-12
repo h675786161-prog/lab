@@ -37,3 +37,17 @@ jobs:
           name: qidu-card-v0414-r4-ooc-bench
           path: bench-evidence/qidu-card-v0414-r4/
           if-no-files-found: error
+
+  package:
+    needs: [real-sillytavern, ooc-bench]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build tested release-candidate package
+        run: node .lab/package-qidu-v0414-r4.mjs
+      - name: Upload tested release-candidate package
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-card-v0414-r4-release-candidate
+          path: dist/qidu-card-v0414-r4/
+          if-no-files-found: error
