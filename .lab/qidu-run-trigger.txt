@@ -1,4 +1,4 @@
-run=v0.4.14-r5-standalone-choice-bridge
-reason=replace lab probe dependency with distributable qidu-choice-bridge; remove probe before project browser acceptance and verify desktop/mobile refill + no autosend
-candidate_compact_sha256=1792818dd4915f27d21f2704e0fb9f5438a996825011c5654ba8eda95338894c
+run=v0.4.14-r5-ann-boundary-hash-probe
+reason=harden Ann dismantling response; forbid invented internal mechanical anatomy; align card bridge metadata to standalone qidu-choice-bridge 1.0.0; print new compact hash before final acceptance
+previous_candidate_compact_sha256=1792818dd4915f27d21f2704e0fb9f5438a996825011c5654ba8eda95338894c
 bridge_version=1.0.0
