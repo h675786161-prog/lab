@@ -12,10 +12,14 @@ await fs.mkdir(OUT, { recursive: true });
 
 const card = JSON.parse(await fs.readFile(CARD_PATH, 'utf8'));
 const data = card.data;
+const depthPrompt = data.extensions?.depth_prompt;
 if (data.character_version !== '0.3.0-rc5') throw new Error(`expected rc5 candidate, got ${data.character_version}`);
 if (!data.system_prompt?.startsWith('【单边RP协议｜最高优先级】')) throw new Error('missing system-level unilateral RP guard');
 if (!data.post_history_instructions?.includes('【用户主权硬门槛｜单边RP】')) throw new Error('missing post-history unilateral RP guard');
 if (!data.post_history_instructions?.includes('【当前回合连续性与身份精确性】')) throw new Error('missing continuity/identity guard');
+if (!depthPrompt?.prompt?.includes('【单边RP末端锁】') || depthPrompt.depth !== 0 || depthPrompt.role !== 'system') {
+  throw new Error(`invalid depth-zero unilateral RP lock: ${JSON.stringify(depthPrompt)}`);
+}
 if (data.character_book?.entries?.length !== 31) throw new Error(`expected 31 entries, got ${data.character_book?.entries?.length}`);
 if (data.character_book.entries.filter(e => e.extensions?.prevent_recursion === true).length !== 31) throw new Error('candidate does not contain 31/31 prevent_recursion flags');
 const milaEntry = data.character_book.entries.find(e => e.name === '米菈');
@@ -162,12 +166,17 @@ const stState = await page.evaluate(async () => {
   const st = await import('/script.js');
   const wi = await import('/scripts/world-info.js');
   const sorted = await wi.getSortedEntries();
+  const current = st.characters?.[st.this_chid]?.data || {};
+  const dp = current.extensions?.depth_prompt || {};
   return {
     thisChid: st.this_chid,
     chat: st.getCurrentChatId?.() || null,
     worldNames: [...(wi.world_names || [])],
     sortedCount: sorted.length,
     preventRecursionCount: sorted.filter(e => e.preventRecursion === true).length,
+    depthPromptDepth: dp.depth,
+    depthPromptRole: dp.role,
+    depthPromptLock: String(dp.prompt || '').includes('【单边RP末端锁】'),
   };
 });
 
@@ -185,6 +194,7 @@ const scanEvidence = {
     systemUnilateralRP: data.system_prompt.startsWith('【单边RP协议｜最高优先级】'),
     userSovereignty: data.post_history_instructions.includes('【用户主权硬门槛｜单边RP】'),
     continuityIdentity: data.post_history_instructions.includes('【当前回合连续性与身份精确性】'),
+    depthZeroUnilateralRP: depthPrompt.depth === 0 && depthPrompt.role === 'system' && depthPrompt.prompt.includes('【单边RP末端锁】'),
     milaExactName: milaEntry.content.includes('身份名锚点：自我介绍时只使用准确姓名“米菈”'),
   },
   scans: scans.map(x => ({
@@ -201,6 +211,9 @@ await fs.writeFile(path.join(OUT, 'st-native-injections.json'), JSON.stringify(s
 if (pageErrors.length) throw new Error(`ST page errors: ${JSON.stringify(pageErrors)}`);
 if (stState.sortedCount !== 31 || stState.preventRecursionCount !== 31 || !stState.worldNames.includes(data.extensions.world)) {
   throw new Error(`ST world state invalid: ${JSON.stringify(stState)}`);
+}
+if (stState.depthPromptDepth !== 0 || stState.depthPromptRole !== 'system' || !stState.depthPromptLock) {
+  throw new Error(`ST did not preserve depth-zero unilateral RP lock: ${JSON.stringify(stState)}`);
 }
 for (const s of scans.filter(x => x.target)) {
   if (!s.injectionHit) throw new Error(`native ST scanner missed ${s.target} for ${s.id}`);
