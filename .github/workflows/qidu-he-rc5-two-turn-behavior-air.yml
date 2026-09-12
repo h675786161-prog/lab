@@ -25,11 +25,11 @@ jobs:
       PRESET_PATH: fixtures/qidu-he-if/riyuexi-glm-active.json
       INJECTION_PATH: /tmp/rc5-evidence/st-native-injections.json
       LAB_OUT: bench-evidence/qidu-he-rc5-two-turn-air
-      SOURCE_ARTIFACT_ID: '10294380280'
+      SOURCE_ARTIFACT_ID: '10295045905'
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build rc5 candidate with recursion and user-sovereignty fixes
+      - name: Build rc5 candidate with recursion, sovereignty, and continuity fixes
         run: |
           set -euo pipefail
           python .lab/qidu-he-v03-rc5-recursion-patch.py
@@ -40,10 +40,13 @@ jobs:
           const n=d.character_book.entries.filter(e=>e.extensions?.prevent_recursion===true).length;
           if(n!==31) throw new Error(`prevent_recursion ${n}/31`);
           if(!d.post_history_instructions.includes('【用户主权硬门槛】')) throw new Error('missing user sovereignty guard');
-          console.log('candidate', d.character_version, 'entries', d.character_book.entries.length, 'prevent_recursion', n, 'agency_guard', true);
+          if(!d.post_history_instructions.includes('【当前回合连续性与身份精确性】')) throw new Error('missing continuity/identity guard');
+          const mila=d.character_book.entries.find(e=>e.name==='米菈');
+          if(!mila?.content.includes('身份名锚点：自我介绍时姓名使用“米菈”')) throw new Error('missing 米菈 exact-name anchor');
+          console.log('candidate', d.character_version, 'entries', d.character_book.entries.length, 'prevent_recursion', n, 'agency_guard', true, 'continuity_guard', true, 'mila_exact_name', true);
           NODE
 
-      - name: Download exact native-ST rc5 scan evidence
+      - name: Download exact current native-ST rc5 scan evidence
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
