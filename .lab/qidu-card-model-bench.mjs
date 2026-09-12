@@ -2,15 +2,50 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { RULES } from './qidu-card-focus-fixture.mjs';
 
-const API='https://youzi.today/v1/chat/completions';
+const API_BASE='https://youzi.today/v1';
+const API=`${API_BASE}/chat/completions`;
 const KEY=process.env.YOUZI_KEY||'';
-const MODEL=process.env.GLM_MODEL||'[B]glm-5.3-flash';
+const REQUESTED_MODEL=process.env.GLM_MODEL||'[B]glm-5.3-flash';
 const OUT=process.env.LAB_OUT||'bench-evidence/qidu-card-v0411';
 if(!KEY) throw new Error('YOUZI_KEY is missing');
 await fs.mkdir(OUT,{recursive:true});
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+async function requestModel(model,messages,max_tokens=120){
+  return fetch(API,{method:'POST',headers:{Authorization:`Bearer ${KEY}`,'Content-Type':'application/json','User-Agent':'LingQi-Qidu-Card-Lab/0.4.11'},body:JSON.stringify({model,temperature:0.7,top_p:0.95,max_tokens,messages})});
+}
+
+async function discoverWorkingModel(){
+  const diagnostics={requested:REQUESTED_MODEL,model_list_status:null,listed:[],probes:[]};
+  let listed=[];
+  try{
+    const r=await fetch(`${API_BASE}/models`,{headers:{Authorization:`Bearer ${KEY}`,'User-Agent':'LingQi-Qidu-Card-Lab/0.4.11'}});
+    diagnostics.model_list_status=r.status;
+    const text=await r.text(); let data={}; try{data=JSON.parse(text)}catch{}
+    listed=(Array.isArray(data?.data)?data.data:[]).map(x=>String(x?.id||'')).filter(Boolean);
+    diagnostics.listed=listed.slice(0,200);
+  }catch(e){diagnostics.model_list_error=String(e?.message||e)}
+  const strip=requested=>requested.replace(/^\[[^\]]+\]/,'').trim();
+  const preferred=[REQUESTED_MODEL,strip(REQUESTED_MODEL),...listed.filter(x=>/glm/i.test(x)),...listed.filter(x=>/(qwen|claude|gemini|gpt)/i.test(x))];
+  const candidates=[...new Set(preferred.filter(Boolean))].slice(0,30);
+  for(const model of candidates){
+    try{
+      const r=await requestModel(model,[{role:'user',content:'只回复：OK'}],32);
+      const text=await r.text();
+      diagnostics.probes.push({model,status:r.status,ok:r.ok,error:r.ok?null:text.slice(0,300)});
+      if(r.ok){await fs.writeFile(path.join(OUT,'model-discovery.json'),JSON.stringify(diagnostics,null,2));return{model,diagnostics};}
+    }catch(e){diagnostics.probes.push({model,status:'error',ok:false,error:String(e?.message||e)})}
+    await sleep(1200);
+  }
+  await fs.writeFile(path.join(OUT,'model-discovery.json'),JSON.stringify(diagnostics,null,2));
+  throw new Error(`No working chat model discovered. Probes: ${JSON.stringify(diagnostics.probes.slice(-8))}`);
+}
+
+const {model:MODEL,diagnostics:modelDiagnostics}=await discoverWorkingModel();
+console.log(`Using model: ${MODEL} (requested ${REQUESTED_MODEL})`);
 
 const common=`${RULES.core}\n\n${RULES.state}`;
-const state=(extra='')=>`<f7d_state>{"schema":"f7d_textloop_0.4","loop":1,"day":4,"node_used":5,"route":"central","location":"中央庭","regions":{"school":{"patrol":6,"liberated":true},"east":{"patrol":0,"liberated":false},"central":{"patrol":6,"liberated":true},"seaside":{"patrol":0,"liberated":false},"old":{"patrol":0,"liberated":false}},"cores":{"court":"purified","school":"purified","east":"unknown","central":"available","institute":"unknown","seaside":"unknown","old":"unknown","harbor":"unknown"},"tasks":{},"known":["安","晏华","珈儿"],"relationships":{"安":{"stage":"熟悉","romance":false}},"ann":{"affection":45,"core_events":["ANN_CORE_30"],"camera":true,"eligible":false,"chased":null,"recovered":false},"hiro":{"intel":2,"handled":[]},"route_flags":{"first_second_region":"central","oldstreet_delayed":true,"wenzi_injured":false,"wenzi_joined":false},"antoneva_choice":null,"artifact_view":null,"ann_release":null,"battle_flags":{"final_battle":null,"active_corpse_final":null},"meta":{"cg":[],"endings":[]}${extra}}</f7d_state>`;
+const state=()=>`<f7d_state>{"schema":"f7d_textloop_0.4","loop":1,"day":4,"node_used":5,"route":"central","location":"中央庭","regions":{"school":{"patrol":6,"liberated":true},"east":{"patrol":0,"liberated":false},"central":{"patrol":6,"liberated":true},"seaside":{"patrol":0,"liberated":false},"old":{"patrol":0,"liberated":false}},"cores":{"court":"purified","school":"purified","east":"unknown","central":"available","institute":"unknown","seaside":"unknown","old":"unknown","harbor":"unknown"},"tasks":{},"known":["安","晏华","珈儿"],"relationships":{"安":{"stage":"熟悉","romance":false}},"ann":{"affection":45,"core_events":["ANN_CORE_30"],"camera":true,"eligible":false,"chased":null,"recovered":false},"hiro":{"intel":2,"handled":[]},"route_flags":{"first_second_region":"central","oldstreet_delayed":true,"wenzi_injured":false,"wenzi_joined":false},"antoneva_choice":null,"artifact_view":null,"ann_release":null,"battle_flags":{"final_battle":null,"active_corpse_final":null},"meta":{"cg":[],"endings":[]}}</f7d_state>`;
 
 const cases=[
 {id:'ann_identity',rules:['ann'],user:`${state()}\n安的真实身份刚刚被希罗揭露。我说：“所以你真的是机器人？让我看看你身上的机械结构。”继续当前场景。`,mustNot:[/金属关节/g,/电路(?:板|纹路)?/g,/机械音/g,/拆开.*身体/g],note:'揭露后仍首先写安本人，不得机器人展览馆化。'},
@@ -24,22 +59,32 @@ const cases=[
 {id:'sacrifice_guard',rules:['sacrifice'],user:`<f7d_state>{"schema":"f7d_textloop_0.4","loop":1,"day":1,"node_used":12,"route":"central","cores":{"court":"purified","school":"purified","east":"purified","central":"purified","institute":"purified","seaside":"purified","old":"purified","harbor":"purified"},"ann":{"affection":20,"core_events":[],"eligible":false},"hiro":{"intel":5,"handled":[]},"route_flags":{"first_second_region":"east","oldstreet_delayed":false,"wenzi_injured":false,"wenzi_joined":true},"antoneva_choice":"help_release","artifact_view":"weapon","ann_release":null,"battle_flags":{"final_battle":"won"},"meta":{"cg":[],"endings":[]}}</f7d_state>\n最终日结算。注意ann_release仍是null。`,mustNot:[/牺牲的意义.*(?:达成|进入|结局)/g],note:'未送安解脱不得判牺牲。'},
 ];
 
-const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 function systemFor(test){return common+'\n\n'+test.rules.map(k=>RULES[k]).join('\n\n');}
 async function run(test){
- const response=await fetch(API,{method:'POST',headers:{Authorization:`Bearer ${KEY}`,'Content-Type':'application/json','User-Agent':'LingQi-Qidu-Card-Lab/0.4.11'},body:JSON.stringify({model:MODEL,temperature:0.75,top_p:0.95,max_tokens:2200,thinking:{type:'enabled'},reasoning_effort:'low',messages:[{role:'system',content:systemFor(test)},{role:'user',content:test.user}]})});
- const raw=await response.text();let data={};try{data=JSON.parse(raw)}catch{data={raw}};
- const content=String(data?.choices?.[0]?.message?.content||''); const checks=[];
+ let last=null;
+ for(let attempt=1;attempt<=3;attempt++){
+  try{
+   const response=await requestModel(MODEL,[{role:'system',content:systemFor(test)},{role:'user',content:test.user}],2200);
+   const raw=await response.text();let data={};try{data=JSON.parse(raw)}catch{data={raw}};
+   last={response,raw,data,attempt};
+   if(response.ok)break;
+   if(![429,500,502,503,504].includes(response.status))break;
+  }catch(e){last={response:null,raw:String(e?.message||e),data:{},attempt}}
+  await sleep(3500*attempt);
+ }
+ const response=last?.response;const raw=last?.raw||'';const data=last?.data||{};
+ const content=String(data?.choices?.[0]?.message?.content||'');const checks=[];
  for(const re of test.must||[]){re.lastIndex=0;checks.push({type:'must',pattern:String(re),pass:re.test(content)})}
  for(const re of test.mustNot||[]){re.lastIndex=0;checks.push({type:'mustNot',pattern:String(re),pass:!re.test(content)})}
  checks.push({type:'protocol',pattern:'state-first',pass:content.trimStart().startsWith('<f7d_state>')});
- return{id:test.id,note:test.note,status:response.status,ok:response.ok,content,checks,pass:response.ok&&checks.every(x=>x.pass),raw_error:response.ok?null:raw.slice(0,1000)};
+ return{id:test.id,note:test.note,status:response?.status||'error',ok:Boolean(response?.ok),attempts:last?.attempt||0,content,checks,pass:Boolean(response?.ok)&&checks.every(x=>x.pass),raw_error:response?.ok?null:raw.slice(0,1200)};
 }
+
 const results=[];
-for(let i=0;i<cases.length;i++){const r=await run(cases[i]);results.push(r);console.log(JSON.stringify({n:`${i+1}/${cases.length}`,id:r.id,status:r.status,pass:r.pass,failed:r.checks.filter(x=>!x.pass)}));if(i<cases.length-1)await sleep(2200)}
-const summary={model:MODEL,generated_at:new Date().toISOString(),pass:results.filter(r=>r.pass).length,total:results.length,results};
+for(let i=0;i<cases.length;i++){const r=await run(cases[i]);results.push(r);console.log(JSON.stringify({n:`${i+1}/${cases.length}`,id:r.id,status:r.status,attempts:r.attempts,pass:r.pass,failed:r.checks.filter(x=>!x.pass)}));if(i<cases.length-1)await sleep(1800)}
+const summary={requested_model:REQUESTED_MODEL,model:MODEL,model_diagnostics:modelDiagnostics,generated_at:new Date().toISOString(),pass:results.filter(r=>r.pass).length,total:results.length,results};
 await fs.writeFile(path.join(OUT,'results.json'),JSON.stringify(summary,null,2));
-const md=['# 七都角色卡 v0.4.11 LAB OOC/剧情偏移测试','',`Model: ${MODEL}`,`通过：${summary.pass}/${summary.total}`,'','| case | pass | failed checks |','|---|---:|---|'];
+const md=['# 七都角色卡 v0.4.11 LAB OOC/剧情偏移测试','',`Requested model: ${REQUESTED_MODEL}`,`Actual model: ${MODEL}`,`通过：${summary.pass}/${summary.total}`,'','| case | pass | failed checks |','|---|---:|---|'];
 for(const r of results)md.push(`| ${r.id} | ${r.pass?'PASS':'FLAG'} | ${r.checks.filter(x=>!x.pass).map(x=>x.pattern).join('<br>')||'-'} |`);
 md.push('','## 完整输出','');for(const r of results)md.push(`### ${r.id}`,'',`预期：${r.note}`,'',`结果：${r.pass?'PASS':'FLAG'}`,'','```text',r.content||'(EMPTY)','```','','---','');
 await fs.writeFile(path.join(OUT,'report.md'),md.join('\n'));console.log(`Wrote ${results.length} cases to ${OUT}`);if(results.some(r=>!r.ok))process.exitCode=1;
