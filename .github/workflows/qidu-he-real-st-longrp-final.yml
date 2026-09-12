@@ -45,18 +45,33 @@ jobs:
           npm init -y >/dev/null 2>&1
           npm install --no-audit --no-fund playwright-core@1.55.0
           echo "CHROME_BIN=$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)" >> "$GITHUB_ENV"
-          mkdir -p "$GITHUB_WORKSPACE/$LAB_OUT" /tmp/qidu-real-longrp-data
-          cd "$ST_DIR"
-          nohup node server.js --listen --port 8000 --disableCsrf --dataRoot /tmp/qidu-real-longrp-data > "$GITHUB_WORKSPACE/$LAB_OUT/st-runtime.log" 2>&1 &
-          echo $! > /tmp/qidu-real-longrp-st.pid
-          for i in $(seq 1 90); do
-            if curl -fsS "$ST_URL" >/dev/null; then exit 0; fi
-            sleep 1
-          done
-          exit 1
+          mkdir -p "$GITHUB_WORKSPACE/$LAB_OUT"
 
       - name: Run 36-turn browser RP through real SillyTavern and GLM
-        run: node .lab/qidu-he-real-st-longrp.mjs
+        run: |
+          set +e
+          for attempt in 1 2 3; do
+            if [ -f /tmp/qidu-real-longrp-st.pid ]; then
+              kill "$(cat /tmp/qidu-real-longrp-st.pid)" 2>/dev/null || true
+            fi
+            data_root="/tmp/qidu-real-longrp-data-$attempt"
+            rm -rf "$data_root"
+            cd "$ST_DIR"
+            nohup node server.js --listen --port 8000 --disableCsrf --dataRoot "$data_root" > "$GITHUB_WORKSPACE/$LAB_OUT/st-runtime-attempt-$attempt.log" 2>&1 &
+            echo $! > /tmp/qidu-real-longrp-st.pid
+            ready=0
+            for i in $(seq 1 90); do
+              if curl -fsS "$ST_URL" >/dev/null; then ready=1; break; fi
+              sleep 1
+            done
+            if [ "$ready" -ne 1 ]; then exit 1; fi
+            cd "$GITHUB_WORKSPACE"
+            node .lab/qidu-he-real-st-longrp.mjs
+            code=$?
+            if [ "$code" -eq 0 ]; then exit 0; fi
+            if [ "$attempt" -lt 3 ]; then sleep $((attempt * 15)); fi
+          done
+          exit 1
 
       - name: Stop ST
         if: always()
@@ -70,4 +85,3 @@ jobs:
           name: qidu-he-real-st-longrp-final
           path: bench-evidence/qidu-he-real-st-longrp/
           if-no-files-found: error
-
