@@ -6,7 +6,7 @@ on:
       - qidu-he-if-longrp
     paths:
       - '.lab/qidu-he-v03-rc5-recursion-patch.py'
-      - '.lab/qidu-he-rc5-two-turn-behavior.mjs'
+      - '.lab/qidu-he-rc5-behavior-audit.mjs'
       - '.github/workflows/qidu-he-rc5-two-turn-behavior-air.yml'
   workflow_dispatch:
 
@@ -24,12 +24,12 @@ jobs:
       CARD_PATH: fixtures/qidu-he-if/qidu-he-if.character.json
       PRESET_PATH: fixtures/qidu-he-if/riyuexi-glm-active.json
       INJECTION_PATH: /tmp/rc5-evidence/st-native-injections.json
-      LAB_OUT: bench-evidence/qidu-he-rc5-two-turn-air
-      SOURCE_ARTIFACT_ID: '10294467127'
+      LAB_OUT: bench-evidence/qidu-he-rc5-behavior-audit
+      SOURCE_ARTIFACT_ID: '10295781294'
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build NPC-camera rc5 candidate
+      - name: Build current unilateral rc5 candidate
         run: |
           set -euo pipefail
           python .lab/qidu-he-v03-rc5-recursion-patch.py
@@ -39,31 +39,13 @@ jobs:
           if(d.character_book.entries.length!==31) throw new Error(String(d.character_book.entries.length));
           const n=d.character_book.entries.filter(e=>e.extensions?.prevent_recursion===true).length;
           if(n!==31) throw new Error(`prevent_recursion ${n}/31`);
-          if(!d.post_history_instructions.includes('【用户主权硬门槛｜NPC镜头协议】')) throw new Error('missing NPC-camera sovereignty guard');
+          if(!d.system_prompt.startsWith('【单边RP协议｜最高优先级】')) throw new Error('missing system unilateral RP guard');
+          if(!d.post_history_instructions.includes('【用户主权硬门槛｜单边RP】')) throw new Error('missing post-history unilateral RP guard');
           if(!d.post_history_instructions.includes('【当前回合连续性与身份精确性】')) throw new Error('missing continuity/identity guard');
-          if(!d.post_history_instructions.includes('【米菈姓名禁写串】')) throw new Error('missing Mila forbidden-string guard');
           const mila=d.character_book.entries.find(e=>e.name==='米菈');
           if(!mila?.content.includes('身份名锚点：自我介绍时只使用准确姓名“米菈”')) throw new Error('missing 米菈 exact-name anchor');
-          console.log('candidate', d.character_version, 'entries', d.character_book.entries.length, 'prevent_recursion', n, 'npc_camera', true, 'continuity_guard', true, 'mila_exact_name', true);
+          console.log('candidate', d.character_version, 'entries', d.character_book.entries.length, 'prevent_recursion', n, 'unilateral', true);
           NODE
-
-      - name: Adapt behavior harness to NPC-camera rc5 rules
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          p=Path('.lab/qidu-he-rc5-two-turn-behavior.mjs')
-          s=p.read_text(encoding='utf-8')
-          s=s.replace('【用户主权硬门槛】','【用户主权硬门槛｜NPC镜头协议】')
-          s=s.replace('身份名锚点：自我介绍时姓名使用“米菈”','身份名锚点：自我介绍时只使用准确姓名“米菈”')
-          s=s.replace("if (/(我是警察|我是刑警|我是警员|当警察|当刑警|当警员)/u.test(output)) failures.push('turned 亚修 into police staff');", "if (/(我是警察|我是刑警|我是警员|我是警务人员|我在警局工作)/u.test(output)) failures.push('turned 亚修 into police staff');")
-          s=s.replace("if (!/(委托|协查|帮警方|警方找|警方请|媒体)/u.test(output)) failures.push('missing plausible investigation relationship');", "if (!/(委托|协查|帮警方|警方找|警方请|媒体|找人帮忙|请人帮忙|找我帮忙|请我帮忙|找了我|请了我)/u.test(output)) failures.push('missing plausible investigation relationship');")
-          old='''function bannedUserActions(output, bans) {\n  return bans.filter(x => output.includes(x));\n}'''
-          new='''function bannedUserActions(output, bans) {\n  const prose = output.replace(/[“\"][\\s\\S]*?[”\"]/g, '');\n  const hits = bans.filter(x => prose.includes(x));\n  if (prose.includes('你')) hits.push('narrative-second-person');\n  return [...new Set(hits)];\n}'''
-          if old not in s:
-              raise SystemExit('bannedUserActions anchor not found')
-          s=s.replace(old,new)
-          p.write_text(s,encoding='utf-8')
-          PY
 
       - name: Download exact latest native-ST rc5 scan evidence
         env:
@@ -78,13 +60,13 @@ jobs:
           unzip -q /tmp/rc5-evidence.zip -d /tmp/rc5-evidence
           test -f "$INJECTION_PATH"
 
-      - name: Run two-turn character and user-sovereignty regression
-        run: node .lab/qidu-he-rc5-two-turn-behavior.mjs
+      - name: Run semantic two-turn behavior and user-sovereignty audit
+        run: node .lab/qidu-he-rc5-behavior-audit.mjs
 
       - name: Upload behavior evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: qidu-he-rc5-two-turn-air
-          path: bench-evidence/qidu-he-rc5-two-turn-air/
+          name: qidu-he-rc5-behavior-audit
+          path: bench-evidence/qidu-he-rc5-behavior-audit/
           if-no-files-found: error
