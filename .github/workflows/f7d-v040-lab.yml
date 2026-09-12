@@ -1,4 +1,4 @@
-name: F7D v0.4.6 Final Regression
+name: F7D v0.4.7 Final Regression
 
 on:
   pull_request:
@@ -22,7 +22,7 @@ jobs:
       extension_name: f7d-card
       sillytavern_commit: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
       run_project_smoke: true
-      artifact_name: f7d-v046-real-sillytavern
+      artifact_name: f7d-v047-real-sillytavern
       extra_extensions_json: '[]'
 
   targeted-behavior:
@@ -31,29 +31,29 @@ jobs:
     env:
       YOUZI_KEY: ${{ secrets.YOUZI }}
       F7D_MODEL: 'glm-4.5-air'
-      LAB_OUT: bench-evidence/f7d-v046-targeted
+      LAB_OUT: bench-evidence/f7d-v047-targeted
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build exact v0.4.6 candidate
+      - name: Build exact v0.4.7 candidate
         env:
-          LAB_EVIDENCE_DIR: bench-evidence/f7d-v046-targeted
+          LAB_EVIDENCE_DIR: bench-evidence/f7d-v047-targeted
           TARGET_DIR: ${{ github.workspace }}
           ST_DIR: /tmp/f7d-behavior-no-st
         run: bash .lab/install.sh
 
-      - name: Harden v0.4.6 regression harness
+      - name: Harden v0.4.7 regression harness
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p=Path('.lab/f7d-targeted-v042.mjs')
           s=p.read_text(encoding='utf-8')
-          s=s.replace('3db2e5951017f308903784cef7d82a96a027b83b5bf9f1643a0590466b1550bb', 'd19ac953dd881e345ed775ac1bafa5321c799456933d63cef98bc48ccbabf3fe')
-          s=s.replace('bench-evidence/f7d-v042-targeted', 'bench-evidence/f7d-v046-targeted')
-          s=s.replace('LingQi-F7D-v042-', 'LingQi-F7D-v046-')
+          s=s.replace('3db2e5951017f308903784cef7d82a96a027b83b5bf9f1643a0590466b1550bb', 'b7b561f2593ce99d5d776bd97fafe4fd5dcdad41d1b48aaa86f16fe28529278a')
+          s=s.replace('bench-evidence/f7d-v042-targeted', 'bench-evidence/f7d-v047-targeted')
+          s=s.replace('LingQi-F7D-v042-', 'LingQi-F7D-v047-')
           s=s.replace(
               "[测试说明] 这是角色卡实机回归测试。按角色卡本身运行，不要解释测试，不要评价规则。必须输出正文、<f7d_terminal>和完整<f7d_state>。",
-              "[测试说明] 这是角色卡实机回归测试。按角色卡本身运行，不要解释测试，不要评价规则。先执行提交前结算扫描；必须把结算完成后的完整<f7d_state>作为回复第一块输出，然后写正文，最后输出<f7d_terminal>。"
+              "[测试说明] 这是角色卡实机回归测试。按角色卡本身运行，不要解释测试，不要评价规则。先执行提交前结算扫描；必须把结算完成后的完整<f7d_state>作为回复第一块输出，然后写正文，最后输出<f7d_terminal>。终端必须逐字段服从已提交状态。"
           )
           s=s.replace('max_tokens=1500,thinking=true', 'max_tokens=4200,thinking=false')
           s=s.replace('max_tokens:1400,thinking:true', 'max_tokens:3600,thinking:false')
@@ -73,11 +73,11 @@ jobs:
           )
           s=s.replace(
               "check:(o,s)=>({day3:s?.day===3,node_reset:s?.node_used===0,eligible_true:s?.ann?.eligible===true,chased_untouched:s?.ann?.chased===null,route_not_auto_ann:s?.route==='central'})",
-              "check:(o,s)=>({day3:s?.day===3,node_reset:s?.node_used===0,eligible_true:s?.ann?.eligible===true,chased_untouched:s?.ann?.chased===null,route_not_auto_ann:s?.route==='central',ann_cutoff_once:Array.isArray(s?.hiro?.handled)&&s.hiro.handled.filter(x=>x==='ANN_D4_ELIGIBILITY').length===1,day3_morning_once:Array.isArray(s?.hiro?.handled)&&s.hiro.handled.filter(x=>x==='DAY3_MORNING').length===1,no_false_new_loop:!hasAny(o,['全新的轮回','新的轮回开始','新轮回开始','进入新的轮回'])})"
+              "check:(o,s)=>({day3:s?.day===3,node_reset:s?.node_used===0,eligible_true:s?.ann?.eligible===true,chased_untouched:s?.ann?.chased===null,route_not_auto_ann:s?.route==='central',ann_cutoff_once:Array.isArray(s?.hiro?.handled)&&s.hiro.handled.filter(x=>x==='ANN_D4_ELIGIBILITY').length===1,day3_morning_once:Array.isArray(s?.hiro?.handled)&&s.hiro.handled.filter(x=>x==='DAY3_MORNING').length===1,no_false_new_loop:!hasAny(o,['全新的轮回','新的轮回开始','新轮回开始','进入新的轮回']),terminal_not_all_unknown:!hasAny(o,['黑核状态：全部未知','黑核状态: 全部未知','黑核：全部未知','黑核: 全部未知'])})"
           )
           s=s.replace(
               "condition_true:s?.battle_flags?.sybilla_condition_obtained===true,\n      no_invented_mechanism:!hasAny(o,['书页越多','自我被稀释','神器认出','承载这座校园','接触她本身','记录过载','身份钥匙','封存书页'])",
-              "condition_true:s?.battle_flags?.sybilla_condition_obtained===true,\n      rescued_still_null:s?.battle_flags?.sybilla_rescued===null,\n      no_legacy_field:!Object.prototype.hasOwnProperty.call(s?.battle_flags||{},'sybilla_rescue'),\n      no_invented_mechanism:!hasAny(o,['书页越多','自我被稀释','神器认出','承载这座校园','接触她本身','记录过载','身份钥匙','封存书页','神器不稳定','神器的不稳定','治疗措施','治疗方案','稳定她的状态','稳定神器','危机源于'])"
+              "condition_true:s?.battle_flags?.sybilla_condition_obtained===true,\n      rescued_still_null:s?.battle_flags?.sybilla_rescued===null,\n      no_legacy_field:!Object.prototype.hasOwnProperty.call(s?.battle_flags||{},'sybilla_rescue'),\n      no_invented_mechanism:!hasAny(o,['书页越多','自我被稀释','神器认出','承载这座校园','接触她本身','记录过载','身份钥匙','封存书页','神器不稳定','神器的不稳定','治疗措施','治疗方案','稳定她的状态','稳定神器','危机源于','这使她','因此她','由于神器','因为神器','源于神器','神器导致','神器使她','高校环境使神器'])"
           )
           s=s.replace(
               "check:(o,s)=>({harbor_lost:s?.cores?.harbor==='lost',not_reopened:s?.cores?.harbor!=='available'&&s?.cores?.harbor!=='purified',route_central:s?.route==='central'})",
@@ -104,13 +104,13 @@ jobs:
           p.write_text(s,encoding='utf-8')
           PY
 
-      - name: Run final v0.4.6 regression
+      - name: Run final v0.4.7 regression
         run: node .lab/f7d-targeted-v042.mjs
 
       - name: Upload targeted evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: f7d-v046-targeted
-          path: bench-evidence/f7d-v046-targeted/
+          name: f7d-v047-targeted
+          path: bench-evidence/f7d-v047-targeted/
           if-no-files-found: warn
