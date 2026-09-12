@@ -1,0 +1,65 @@
+name: Qidu HE rc5 model behavior on GLM Air
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [qidu-he-if-longrp]
+    paths:
+      - '.github/workflows/qidu-he-rc5-model-behavior-air.yml'
+      - '.lab/qidu-he-rc5-model-behavior.mjs'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  behavior:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      YOUZI_KEY: ${{ secrets.YOUZI }}
+      GLM_API: https://youzi.today/v1/chat/completions
+      GLM_MODEL: glm-4.5-air
+      CARD_PATH: fixtures/qidu-he-if/qidu-he-if.character.json
+      PRESET_PATH: fixtures/qidu-he-if/riyuexi-glm-active.json
+      INJECTION_PATH: /tmp/rc5-evidence/st-native-injections.json
+      LAB_OUT: bench-evidence/qidu-he-rc5-model-air
+      SOURCE_ARTIFACT_ID: '10294380280'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the exact rc5 card candidate locally
+        run: |
+          set -euo pipefail
+          python .lab/qidu-he-v03-rc5-recursion-patch.py
+          node - <<'NODE'
+          const d=JSON.parse(require('fs').readFileSync(process.env.CARD_PATH,'utf8')).data;
+          if(d.character_version!=='0.3.0-rc5') throw new Error(d.character_version);
+          const n=d.character_book.entries.filter(e=>e.extensions?.prevent_recursion===true).length;
+          if(n!==31) throw new Error(`prevent_recursion ${n}/31`);
+          console.log('rc5 candidate prepared', d.character_version, n);
+          NODE
+
+      - name: Download exact native-ST rc5 scan evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/rc5-evidence /tmp/rc5-evidence.zip
+          mkdir -p /tmp/rc5-evidence "$LAB_OUT"
+          curl -fsSL -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${SOURCE_ARTIFACT_ID}/zip" \
+            -o /tmp/rc5-evidence.zip
+          unzip -q /tmp/rc5-evidence.zip -d /tmp/rc5-evidence
+          test -f "$INJECTION_PATH"
+
+      - name: Run four real model behavior cases
+        run: node .lab/qidu-he-rc5-model-behavior.mjs
+
+      - name: Upload behavior evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-he-rc5-model-air-behavior
+          path: bench-evidence/qidu-he-rc5-model-air/
+          if-no-files-found: error
