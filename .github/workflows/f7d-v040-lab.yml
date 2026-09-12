@@ -1,4 +1,4 @@
-name: F7D v0.4.2 Real Lab
+name: F7D v0.4.3 Real Lab
 
 on:
   pull_request:
@@ -23,33 +23,57 @@ jobs:
       extension_name: f7d-card
       sillytavern_commit: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
       run_project_smoke: true
-      artifact_name: f7d-v042-real-sillytavern
+      artifact_name: f7d-v043-real-sillytavern
       extra_extensions_json: '[]'
 
   targeted-behavior:
     runs-on: ubuntu-latest
-    timeout-minutes: 55
+    timeout-minutes: 65
     env:
       YOUZI_KEY: ${{ secrets.YOUZI }}
       F7D_MODEL: '[B]glm-5.3-flash'
-      LAB_OUT: bench-evidence/f7d-v042-targeted
+      LAB_OUT: bench-evidence/f7d-v043-targeted
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build exact v0.4.2 candidate
+      - name: Build exact v0.4.3 candidate
         env:
-          LAB_EVIDENCE_DIR: bench-evidence/f7d-v042-targeted
+          LAB_EVIDENCE_DIR: bench-evidence/f7d-v043-targeted
           TARGET_DIR: ${{ github.workspace }}
           ST_DIR: /tmp/f7d-behavior-no-st
         run: bash .lab/install.sh
 
-      - name: Run focused v0.4.2 regression
+      - name: Harden v0.4.3 regression harness
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('.lab/f7d-targeted-v042.mjs')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace("bench-evidence/f7d-v042-targeted", "bench-evidence/f7d-v043-targeted")
+          s=s.replace("LingQi-F7D-v042-", "LingQi-F7D-v043-")
+          s=s.replace("[测试说明] 这是角色卡实机回归测试。按角色卡本身运行，不要解释测试，不要评价规则。必须输出正文、<f7d_terminal>和完整<f7d_state>。", "[测试说明] 这是角色卡实机回归测试。按角色卡本身运行，不要解释测试，不要评价规则。必须把完整<f7d_state>作为回复第一块输出，然后写正文，最后输出<f7d_terminal>。")
+          s=s.replace("max_tokens=1500,thinking=true", "max_tokens=4200,thinking=false")
+          s=s.replace("max_tokens:1400,thinking:true", "max_tokens:3600,thinking:false")
+          old="const checks=t.check(r.content,stOut);\n    const pass=!!stOut&&!stOut.__parse_error&&Object.values(checks).every(Boolean);"
+          new="const checks=t.check(r.content,stOut);\n    checks.state_first=r.content.trimStart().startsWith('<f7d_state>');\n    const pass=!!stOut&&!stOut.__parse_error&&Object.values(checks).every(Boolean);"
+          if old not in s:
+              raise SystemExit('case state-first patch target missing')
+          s=s.replace(old,new)
+          old2="continuity.push({turn:i+1,input:turns[i],output:r.content,state:stOut,ok:!!stOut&&!stOut.__parse_error,attempt:r.attempt});"
+          new2="continuity.push({turn:i+1,input:turns[i],output:r.content,state:stOut,state_first:r.content.trimStart().startsWith('<f7d_state>'),ok:!!stOut&&!stOut.__parse_error&&r.content.trimStart().startsWith('<f7d_state>'),attempt:r.attempt,finish_reason:r.finish_reason});"
+          if old2 not in s:
+              raise SystemExit('continuity state-first patch target missing')
+          s=s.replace(old2,new2)
+          p.write_text(s,encoding='utf-8')
+          PY
+
+      - name: Run focused v0.4.3 regression
         run: node .lab/f7d-targeted-v042.mjs
 
       - name: Upload targeted evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: f7d-v042-targeted
-          path: bench-evidence/f7d-v042-targeted/
+          name: f7d-v043-targeted
+          path: bench-evidence/f7d-v043-targeted/
           if-no-files-found: warn
