@@ -5,7 +5,7 @@ import zlib from 'node:zlib';
 
 const ROOT = process.cwd();
 const FIXTURE_DIR = path.join(ROOT, 'fixtures', 'f7d');
-const EXPECTED_SHA = 'd85a240e3ada1300349ba205149e936346da2bc4d7746e26e84d5f76e3f8d982';
+const EXPECTED_SHA = '4737dfc9abd5f4faf70b29d647b4e8694607fd86446c596bf737b3f41241f5f2';
 const EXPECTED_NAME = '永远的7日之都｜七日轮回文本互动';
 const OUT = process.env.LAB_EVIDENCE_DIR || path.join(ROOT, 'lab-evidence');
 const baseUrl = process.env.LAB_ST_URL || 'http://127.0.0.1:8000';
@@ -34,7 +34,7 @@ if (preflight.name !== EXPECTED_NAME) throw new Error(`Unexpected card name: ${p
 if (preflight.spec !== 'chara_card_v3') throw new Error(`Unexpected spec: ${preflight.spec}`);
 if (preflight.entries !== 55) throw new Error(`Expected 55 lore entries, got ${preflight.entries}`);
 if (preflight.regex_scripts !== 2) throw new Error(`Expected 2 regex scripts, got ${preflight.regex_scripts}`);
-if (preflight.version !== '0.4.4-lab') throw new Error(`Unexpected version: ${preflight.version}`);
+if (preflight.version !== '0.4.5-lab') throw new Error(`Unexpected version: ${preflight.version}`);
 await fs.writeFile(path.join(OUT, 'f7d-preflight.json'), JSON.stringify(preflight, null, 2));
 
 const { chromium } = await import(process.env.LAB_PLAYWRIGHT_CORE_ENTRY);
@@ -58,7 +58,7 @@ try {
   const importResult = await page.evaluate(async ({ cardText }) => {
     const form = new FormData();
     form.set('file_type', 'json');
-    form.set('avatar', new File([cardText], 'f7d-v044.json', { type: 'application/json' }));
+    form.set('avatar', new File([cardText], 'f7d-v045.json', { type: 'application/json' }));
     const res = await fetch('/api/characters/import', { method: 'POST', body: form });
     return { status: res.status, ok: res.ok, text: await res.text() };
   }, { cardText });
@@ -87,17 +87,22 @@ try {
   }
 
   const lore = parsed?.data?.character_book?.entries || [];
+  const post = String(parsed?.data?.post_history_instructions || '');
   const readback = {
     name: parsed?.data?.name || parsed?.name,
     creator: parsed?.data?.creator ?? null,
     version: parsed?.data?.character_version ?? null,
     entries: lore.length,
     regex_scripts: parsed?.data?.extensions?.regex_scripts?.length ?? null,
-    has_post_history_rules: String(parsed?.data?.post_history_instructions || '').includes('七都项目每轮运行规则'),
+    has_post_history_rules: post.includes('七都项目每轮运行规则'),
     has_state_protocol: lore.some(e => String(e?.content || '').includes('<f7d_state>')),
-    has_state_first: String(parsed?.data?.post_history_instructions || '').includes('状态先提交'),
-    has_atomic_settlement: String(parsed?.data?.post_history_instructions || '').includes('自动结算原子性'),
+    has_state_first: post.includes('状态先提交'),
+    has_atomic_settlement: post.includes('自动结算原子性'),
+    has_precommit_sweep: post.includes('提交前结算扫描'),
+    has_submit_barrier: post.includes('提交屏障'),
     has_day4_harbor: lore.some(e => String(e?.content || '').includes('DAY4_HARBOR')),
+    has_ann_d4_atomic: lore.some(e => String(e?.content || '').includes('ANN_D4_ELIGIBILITY')),
+    has_day3_morning_atomic: lore.some(e => String(e?.content || '').includes('DAY3_MORNING')),
     has_sybilla_split: lore.some(e => String(e?.content || '').includes('sybilla_condition_obtained')) && lore.some(e => String(e?.content || '').includes('sybilla_rescued')),
     has_ann: lore.some(e => String(e?.name || e?.comment || '').includes('安')),
     has_hiro: lore.some(e => String(e?.name || e?.comment || '').includes('希罗')),
@@ -105,9 +110,10 @@ try {
 
   if (readback.entries !== 55) throw new Error(`Readback lore count mismatch: ${readback.entries}`);
   if (readback.regex_scripts !== 2) throw new Error(`Readback regex count mismatch: ${readback.regex_scripts}`);
-  if (readback.version !== '0.4.4-lab') throw new Error(`Readback version mismatch: ${readback.version}`);
-  if (!readback.has_post_history_rules || !readback.has_state_protocol || !readback.has_state_first || !readback.has_atomic_settlement || !readback.has_day4_harbor || !readback.has_sybilla_split) {
-    throw new Error(`Readback lost v0.4.4 runtime rules: ${JSON.stringify(readback)}`);
+  if (readback.version !== '0.4.5-lab') throw new Error(`Readback version mismatch: ${readback.version}`);
+  const required = ['has_post_history_rules','has_state_protocol','has_state_first','has_atomic_settlement','has_precommit_sweep','has_submit_barrier','has_day4_harbor','has_ann_d4_atomic','has_day3_morning_atomic','has_sybilla_split'];
+  if (required.some(k => !readback[k])) {
+    throw new Error(`Readback lost v0.4.5 runtime rules: ${JSON.stringify(readback)}`);
   }
 
   let uiNameVisible = false;
