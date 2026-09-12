@@ -39,6 +39,13 @@ replaceOnce(
   'request check',
 );
 
+// Enforce the user-requested <=12 RPM at the actual SillyTavern send boundary.
+replaceOnce(
+  "async function send(text) {",
+  "let rc6LastSendStart = 0;\nconst rc6Rpm = Math.min(12, Math.max(1, Number(process.env.RPM || 12)));\nconst rc6MinStartGap = Math.ceil(60000 / rc6Rpm);\nasync function send(text) {\n  const rc6Wait = Math.max(0, rc6MinStartGap - (Date.now() - rc6LastSendStart));\n  if (rc6Wait) await new Promise(r => setTimeout(r, rc6Wait));\n  rc6LastSendStart = Date.now();",
+  'RPM limiter',
+);
+
 // rc5 proved the first turn already established Ash as a high-school student. Do not
 // force an NPC to recite the same identity every turn. The second turn *does* directly
 // ask why he can see case material, so require a detective/commission/assistance source.
@@ -48,5 +55,5 @@ replaceOnce(oldAsh, newAsh, 'Ash acceptance');
 
 const runtimePath = '/tmp/qidu-he-rc6-real-st-runtime.mjs';
 await fs.writeFile(runtimePath, source, 'utf8');
-console.log('REAL ST RC6 HARNESS', crypto.createHash('sha256').update(source).digest('hex'), 'thinking=disabled');
+console.log('REAL ST RC6 HARNESS', crypto.createHash('sha256').update(source).digest('hex'), 'thinking=disabled', `rpm<=${Math.min(12, Math.max(1, Number(process.env.RPM || 12)))}`);
 await import(`${pathToFileURL(runtimePath).href}?v=${Date.now()}`);
