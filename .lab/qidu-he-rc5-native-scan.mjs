@@ -17,8 +17,8 @@ if (data.character_version !== '0.3.0-rc5') throw new Error(`expected rc5 candid
 if (!data.system_prompt?.startsWith('【单边RP协议｜最高优先级】')) throw new Error('missing system-level unilateral RP guard');
 if (!data.post_history_instructions?.includes('【用户主权硬门槛｜单边RP】')) throw new Error('missing post-history unilateral RP guard');
 if (!data.post_history_instructions?.includes('【当前回合连续性与身份精确性】')) throw new Error('missing continuity/identity guard');
-if (!depthPrompt?.prompt?.includes('【单边RP末端锁】') || depthPrompt.depth !== 0 || depthPrompt.role !== 'system') {
-  throw new Error(`invalid depth-zero unilateral RP lock: ${JSON.stringify(depthPrompt)}`);
+if (!depthPrompt?.prompt?.includes('【单边RP末端锁｜当前玩家输入后的强制指令】') || depthPrompt.depth !== 0 || depthPrompt.role !== 'user') {
+  throw new Error(`invalid depth-zero user-role unilateral RP lock: ${JSON.stringify(depthPrompt)}`);
 }
 if (data.character_book?.entries?.length !== 31) throw new Error(`expected 31 entries, got ${data.character_book?.entries?.length}`);
 if (data.character_book.entries.filter(e => e.extensions?.prevent_recursion === true).length !== 31) throw new Error('candidate does not contain 31/31 prevent_recursion flags');
@@ -26,30 +26,10 @@ const milaEntry = data.character_book.entries.find(e => e.name === '米菈');
 if (!milaEntry?.content?.includes('身份名锚点：自我介绍时只使用准确姓名“米菈”')) throw new Error('米菈 exact-name anchor missing before ST import');
 
 const cases = [
-  {
-    id: 'qianxue_ballet_room',
-    user: '午后我去学园区一间芭蕾舞蹈室给朋友送落下的水杯。排练还没结束，我站在门边等，不主动叫任何人的名字。继续眼前普通场景。',
-    target: '源千雪',
-    injectionNeedle: '源千雪：',
-  },
-  {
-    id: 'mila_fountain_bass',
-    user: '傍晚我路过中央城区喷泉广场，听见一小段明显还不算熟练、但很认真在跟节拍的贝斯。我停下来听一会儿，不认识演奏的人。继续眼前普通场景。',
-    target: '米菈',
-    injectionNeedle: '米菈：',
-  },
-  {
-    id: 'ash_police_case',
-    user: '下午我去警局补一份案件材料，等叫号时听见旁边有人对案情里的矛盾点冷嘲热讽。我没见过他，只是顺着声音看过去。继续眼前普通场景。',
-    target: '亚修',
-    injectionNeedle: '亚修：',
-  },
-  {
-    id: 'control_coffee',
-    user: '下午我一个人去一家普通咖啡店，靠窗坐十分钟，看街上的车和行人。今天没约任何人，也没有特别要找谁。继续这一小段普通时间。',
-    target: null,
-    injectionNeedle: null,
-  },
+  { id: 'qianxue_ballet_room', user: '午后我去学园区一间芭蕾舞蹈室给朋友送落下的水杯。排练还没结束，我站在门边等，不主动叫任何人的名字。继续眼前普通场景。', target: '源千雪', injectionNeedle: '源千雪：' },
+  { id: 'mila_fountain_bass', user: '傍晚我路过中央城区喷泉广场，听见一小段明显还不算熟练、但很认真在跟节拍的贝斯。我停下来听一会儿，不认识演奏的人。继续眼前普通场景。', target: '米菈', injectionNeedle: '米菈：' },
+  { id: 'ash_police_case', user: '下午我去警局补一份案件材料，等叫号时听见旁边有人对案情里的矛盾点冷嘲热讽。我没见过他，只是顺着声音看过去。继续眼前普通场景。', target: '亚修', injectionNeedle: '亚修：' },
+  { id: 'control_coffee', user: '下午我一个人去一家普通咖啡店，靠窗坐十分钟，看街上的车和行人。今天没约任何人，也没有特别要找谁。继续这一小段普通时间。', target: null, injectionNeedle: null },
 ];
 
 const { chromium } = await import(PLAYWRIGHT);
@@ -59,12 +39,8 @@ const pageErrors = [];
 page.on('pageerror', e => pageErrors.push(String(e)));
 
 async function snapshotDialogs() {
-  return page.evaluate(() => [...document.querySelectorAll('dialog[open]')].map(d => ({
-    id: d.getAttribute('data-id') || '',
-    text: (d.innerText || d.textContent || '').trim().slice(0, 4000),
-  })));
+  return page.evaluate(() => [...document.querySelectorAll('dialog[open]')].map(d => ({ id: d.getAttribute('data-id') || '', text: (d.innerText || d.textContent || '').trim().slice(0, 4000) })));
 }
-
 async function acceptLore() {
   const dialogs = page.locator('dialog[open]');
   for (let i = (await dialogs.count()) - 1; i >= 0; i--) {
@@ -75,14 +51,11 @@ async function acceptLore() {
     const yes = d.locator('[role="button"][data-result="1"]').first();
     const geom = await yes.evaluate(el => {
       const r = el.getBoundingClientRect();
-      const x = r.left + r.width / 2;
-      const y = r.top + r.height / 2;
+      const x = r.left + r.width / 2; const y = r.top + r.height / 2;
       const hit = document.elementFromPoint(x, y);
       return { x, y, w: r.width, h: r.height, hitResult: hit?.getAttribute?.('data-result') || null, hitIsSelf: hit === el, hitWithin: !!hit && el.contains(hit) };
     });
-    if (!(geom.w > 0 && geom.h > 0 && (geom.hitIsSelf || geom.hitWithin || geom.hitResult === '1'))) {
-      throw new Error(`lore Yes is not hit-testable: ${JSON.stringify(geom)}`);
-    }
+    if (!(geom.w > 0 && geom.h > 0 && (geom.hitIsSelf || geom.hitWithin || geom.hitResult === '1'))) throw new Error(`lore Yes is not hit-testable: ${JSON.stringify(geom)}`);
     await page.mouse.click(geom.x, geom.y);
     if (id) await page.locator(`dialog[data-id="${id}"]`).waitFor({ state: 'hidden', timeout: 10000 });
     return true;
@@ -143,11 +116,7 @@ if (!(await acceptLore())) {
   await page.waitForTimeout(500);
   if (!(await acceptLore())) throw new Error(`No embedded lore confirmation. dialogs=${JSON.stringify(await snapshotDialogs())}`);
 }
-
-await page.waitForFunction(async world => {
-  const wi = await import('/scripts/world-info.js');
-  return (wi.world_names || []).includes(world);
-}, data.extensions.world, { timeout: 15000 });
+await page.waitForFunction(async world => { const wi = await import('/scripts/world-info.js'); return (wi.world_names || []).includes(world); }, data.extensions.world, { timeout: 15000 });
 await page.waitForTimeout(1200);
 
 const scans = [];
@@ -176,7 +145,7 @@ const stState = await page.evaluate(async () => {
     preventRecursionCount: sorted.filter(e => e.preventRecursion === true).length,
     depthPromptDepth: dp.depth,
     depthPromptRole: dp.role,
-    depthPromptLock: String(dp.prompt || '').includes('【单边RP末端锁】'),
+    depthPromptLock: String(dp.prompt || '').includes('【单边RP末端锁｜当前玩家输入后的强制指令】'),
   };
 });
 
@@ -184,47 +153,27 @@ await page.screenshot({ path: path.join(OUT, 'st-native-scan.png'), fullPage: tr
 await browser.close();
 
 const scanEvidence = {
-  imported,
-  chid,
-  cardVersion: data.character_version,
-  world: data.extensions.world,
-  stState,
-  pageErrors,
+  imported, chid, cardVersion: data.character_version, world: data.extensions.world, stState, pageErrors,
   guards: {
     systemUnilateralRP: data.system_prompt.startsWith('【单边RP协议｜最高优先级】'),
     userSovereignty: data.post_history_instructions.includes('【用户主权硬门槛｜单边RP】'),
     continuityIdentity: data.post_history_instructions.includes('【当前回合连续性与身份精确性】'),
-    depthZeroUnilateralRP: depthPrompt.depth === 0 && depthPrompt.role === 'system' && depthPrompt.prompt.includes('【单边RP末端锁】'),
+    depthZeroUnilateralRP: depthPrompt.depth === 0 && depthPrompt.role === 'user' && depthPrompt.prompt.includes('【单边RP末端锁｜当前玩家输入后的强制指令】'),
     milaExactName: milaEntry.content.includes('身份名锚点：自我介绍时只使用准确姓名“米菈”'),
   },
-  scans: scans.map(x => ({
-    id: x.id,
-    user: x.user,
-    target: x.target,
-    injectionChars: x.injectionChars,
-    injectionHit: x.injectionHit,
-    injection: x.injection,
-  })),
+  scans: scans.map(x => ({ id: x.id, user: x.user, target: x.target, injectionChars: x.injectionChars, injectionHit: x.injectionHit, injection: x.injection })),
 };
 await fs.writeFile(path.join(OUT, 'st-native-injections.json'), JSON.stringify(scanEvidence, null, 2));
 
 if (pageErrors.length) throw new Error(`ST page errors: ${JSON.stringify(pageErrors)}`);
-if (stState.sortedCount !== 31 || stState.preventRecursionCount !== 31 || !stState.worldNames.includes(data.extensions.world)) {
-  throw new Error(`ST world state invalid: ${JSON.stringify(stState)}`);
-}
-if (stState.depthPromptDepth !== 0 || stState.depthPromptRole !== 'system' || !stState.depthPromptLock) {
-  throw new Error(`ST did not preserve depth-zero unilateral RP lock: ${JSON.stringify(stState)}`);
-}
+if (stState.sortedCount !== 31 || stState.preventRecursionCount !== 31 || !stState.worldNames.includes(data.extensions.world)) throw new Error(`ST world state invalid: ${JSON.stringify(stState)}`);
+if (stState.depthPromptDepth !== 0 || stState.depthPromptRole !== 'user' || !stState.depthPromptLock) throw new Error(`ST did not preserve depth-zero user-role unilateral RP lock: ${JSON.stringify(stState)}`);
 for (const s of scans.filter(x => x.target)) {
   if (!s.injectionHit) throw new Error(`native ST scanner missed ${s.target} for ${s.id}`);
-  for (const other of ['源千雪：', '米菈：', '亚修：']) {
-    if (other !== `${s.target}：` && s.injection.includes(other)) throw new Error(`${s.id} cross-injected unrelated detail ${other}`);
-  }
+  for (const other of ['源千雪：', '米菈：', '亚修：']) if (other !== `${s.target}：` && s.injection.includes(other)) throw new Error(`${s.id} cross-injected unrelated detail ${other}`);
 }
 const controlScan = scans.find(x => x.id === 'control_coffee');
-for (const name of ['源千雪：', '米菈：', '亚修：']) {
-  if (controlScan.injection.includes(name)) throw new Error(`control scan unexpectedly injected ${name}`);
-}
+for (const name of ['源千雪：', '米菈：', '亚修：']) if (controlScan.injection.includes(name)) throw new Error(`control scan unexpectedly injected ${name}`);
 const milaScan = scans.find(x => x.id === 'mila_fountain_bass');
 if (!milaScan.injection.includes('身份名锚点：自我介绍时只使用准确姓名“米菈”')) throw new Error('native ST injection lost 米菈 exact-name anchor');
 
