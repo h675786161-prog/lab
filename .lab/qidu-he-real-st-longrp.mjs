@@ -307,7 +307,34 @@ async function sendThroughST(userText) {
 }
 
 let messages = [{ role: 'assistant', content: data.first_mes }];
-const transcript = [{ turn: 0, role: 'assistant', content: data.first_mes }];
+let transcript = [{ turn: 0, role: 'assistant', content: data.first_mes }];
+let completedTurns = 0;
+try {
+  const saved = JSON.parse(await fs.readFile(path.join(OUT, 'transcript.partial.json'), 'utf8'));
+  const completed = saved.filter(x => x.role === 'assistant' && Number(x.turn) > 0).map(x => Number(x.turn));
+  completedTurns = completed.length ? Math.max(...completed) : 0;
+  if (completedTurns > 0) {
+    transcript = saved.filter(x => Number(x.turn) <= completedTurns);
+    messages = transcript.map(x => ({ role: x.role, content: x.content }));
+    const restored = transcript.filter(x => Number(x.turn) > 0).map(x => ({ turn: x.turn, role: x.role, content: x.content }));
+    await page.evaluate(async ({ restored, characterName }) => {
+      const st = await import('/script.js');
+      const history = restored.map(x => ({
+        name: x.role === 'user' ? 'User' : characterName,
+        is_user: x.role === 'user',
+        is_system: false,
+        mes: x.content,
+        send_date: Date.now(),
+        extra: {},
+      }));
+      st.chat.splice(1, st.chat.length - 1, ...history);
+      await st.saveChatConditional();
+    }, { restored, characterName: data.name });
+    console.log('restored real ST checkpoint through turn ' + completedTurns);
+  }
+} catch (error) {
+  console.log('no real ST checkpoint restored: ' + String(error?.message || error));
+}
 let lastStart = 0;
 const minStartGap = Math.ceil(60_000 / RPM);
 
@@ -339,7 +366,7 @@ async function callModel(extraMessages, maxTokens = 850) {
   return { content, usage: json.usage || null };
 }
 
-for (let i = 0; i < userTurns.length; i++) {
+for (let i = completedTurns; i < userTurns.length; i++) {
   const user = userTurns[i];
   messages.push({ role: 'user', content: user });
   transcript.push({ turn: i + 1, role: 'user', content: user });
