@@ -77,7 +77,37 @@ jobs:
           echo "CHROME_BIN=$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)" >> "$GITHUB_ENV"
 
       - name: Send real browser messages through SillyTavern and GLM
-        run: node .lab/qidu-he-rc10-runner.mjs
+        run: |
+          set +e
+          rm -f "$LAB_OUT/rc10-status.json"
+          for attempt in 1 2 3; do
+            echo "rc10 real ST attempt $attempt/3"
+            node .lab/qidu-he-rc10-runner.mjs
+            code=$?
+            if [ "$code" -eq 0 ]; then
+              echo '{"status":"runtime_pass"}' > "$LAB_OUT/rc10-run-result.json"
+              exit 0
+            fi
+            if [ "$code" -ne 75 ]; then
+              exit "$code"
+            fi
+            if [ "$attempt" -lt 3 ]; then sleep $((attempt * 15)); fi
+          done
+          echo '{"status":"blocked_upstream","attempts":3}' > "$LAB_OUT/rc10-run-result.json"
+          echo 'RC10 acceptance blocked by upstream after 3 attempts; card behavior not adjudicated.'
+          exit 0
+
+      - name: Classify acceptance state
+        if: always()
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const p=process.env.LAB_OUT+'/rc10-run-result.json';
+          if(!fs.existsSync(p)) throw new Error('rc10 run result missing');
+          const r=JSON.parse(fs.readFileSync(p,'utf8'));
+          console.log('RC10_ACCEPTANCE_STATE',r.status);
+          if(r.status==='blocked_upstream') console.log('Requested [B]glm-5.3-flash did not provide usable completions; do not mark rc10 behavior PASS.');
+          NODE
 
       - name: Stop ST
         if: always()
