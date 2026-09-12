@@ -30,7 +30,7 @@ jobs:
     timeout-minutes: 80
     env:
       YOUZI_KEY: ${{ secrets.YOUZI }}
-      F7D_MODEL: '[B]glm-5.3-flash'
+      F7D_MODEL: 'glm-4.5-air'
       LAB_OUT: bench-evidence/f7d-v045-targeted
     steps:
       - uses: actions/checkout@v4
