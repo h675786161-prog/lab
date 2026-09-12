@@ -8,24 +8,25 @@ export const EXPECTED_PACKED_SHA256 = '0323df7c0cfc250854df3023b25d3d60c75c9950a
 export const EXPECTED_RAW_SHA256 = '27fdfc545385d88966e01d09e105852424813e3103aaae6d2ca3bed008d05c54';
 export const EXPECTED_PACKED_CHARS = 63400;
 
-async function readExactPart(packedDir, part) {
-  if (part !== 5 && part !== 7) {
-    return (await fs.readFile(path.join(packedDir, `part-${String(part).padStart(2, '0')}.txt`), 'utf8')).trim();
-  }
-  const subdir = path.join(packedDir, `part-${String(part).padStart(2, '0')}`);
-  const count = 8;
-  const pieces = [];
-  for (let i = 0; i < count; i++) {
-    pieces.push((await fs.readFile(path.join(subdir, `${String(i).padStart(2, '0')}.txt`), 'utf8')).trim());
-  }
-  return pieces.join('');
-}
+const CHUNK_FILES = [
+  'part00.txt',
+  'part01.txt',
+  'part02.txt',
+  'part03a.txt',
+  'part03b0.txt',
+  'part03b1.txt',
+  'part03b2.txt',
+  'part04a.txt',
+  'part04b.txt',
+];
 
 export async function loadV0412Card(workspace = process.env.GITHUB_WORKSPACE || process.cwd()) {
-  const packedDir = path.join(workspace, 'fixtures/qidu-card/v0412-packed');
-  const chunks = [];
-  for (let i = 0; i < 8; i++) chunks.push(await readExactPart(packedDir, i));
-  const packed = chunks.join('');
+  const packedDir = path.join(workspace, 'fixtures/qidu-card/v0412-chunks');
+  const pieces = [];
+  for (const file of CHUNK_FILES) {
+    pieces.push((await fs.readFile(path.join(packedDir, file), 'utf8')).trim());
+  }
+  const packed = pieces.join('');
   const packedSha256 = crypto.createHash('sha256').update(packed, 'utf8').digest('hex');
   if (packed.length !== EXPECTED_PACKED_CHARS) throw new Error(`Packed candidate length mismatch: ${packed.length}`);
   if (packedSha256 !== EXPECTED_PACKED_SHA256) throw new Error(`Packed candidate hash mismatch: ${packedSha256}`);
@@ -38,7 +39,7 @@ export async function loadV0412Card(workspace = process.env.GITHUB_WORKSPACE || 
   const raw = Buffer.from(JSON.stringify(card), 'utf8');
   const compactSha256 = crypto.createHash('sha256').update(raw).digest('hex');
   if (compactSha256 !== EXPECTED_COMPACT_SHA256) throw new Error(`Compact candidate hash mismatch: ${compactSha256}`);
-  return { card, raw, compactSha256, packedSha256, rawSha256 };
+  return { card, raw, compactSha256, packedSha256, rawSha256, chunkFiles: [...CHUNK_FILES] };
 }
 
 export function entryMap(card) {
