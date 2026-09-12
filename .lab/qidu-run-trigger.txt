@@ -1,3 +1,3 @@
-run=v0.4.14-r4-choice-ui-3
-reason=final r4 acceptance: real ST responsive choice render + click refill + no autosend; corrected narrative regression false-positive
+run=v0.4.14-r4-choice-ui-4
+reason=rerun after correcting focus-only false failure; actual requirements are render + click refill + input/change + no autosend on desktop/mobile
 candidate_compact_sha256=1792818dd4915f27d21f2704e0fb9f5438a996825011c5654ba8eda95338894c
