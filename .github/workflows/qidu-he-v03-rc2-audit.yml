@@ -1,0 +1,177 @@
+name: Qidu HE IF v0.3 rc2 full-roster audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [qidu-he-if-longrp]
+    paths:
+      - '.github/workflows/qidu-he-v03-rc2-audit.yml'
+      - '.lab/qidu-he-v03-coverage-patch.py'
+      - '.lab/qidu-he-v03-rc2-patch.py'
+      - 'fixtures/qidu-he-if/coverage-manifest.v03.rc2.json'
+      - 'fixtures/qidu-he-if/qidu-he-if.character.json'
+
+permissions:
+  contents: read
+
+jobs:
+  rc2-static-st:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CARD: fixtures/qidu-he-if/qidu-he-if.character.json
+      MANIFEST: fixtures/qidu-he-if/coverage-manifest.v03.rc2.json
+      EVIDENCE: ${{ github.workspace }}/bench-evidence/qidu-he-v03-rc2
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      ST_DIR: /tmp/qidu-he-v03-rc2-st
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build rc2 candidate
+        run: |
+          set -euo pipefail
+          mkdir -p "$EVIDENCE"
+          python .lab/qidu-he-v03-rc2-patch.py
+          cp "$CARD" "$EVIDENCE/qidu-he-if-v0.3.0-rc2.character.json"
+
+      - name: Audit 118-character discoverability and context shape
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          card = json.loads(Path(os.environ['CARD']).read_text(encoding='utf-8'))['data']
+          manifest = json.loads(Path(os.environ['MANIFEST']).read_text(encoding='utf-8'))
+          entries = card['character_book']['entries']
+          by = {e.get('name'):e for e in entries}
+          full = json.dumps(card,ensure_ascii=False)
+          if card.get('character_version') != '0.3.0-rc2': raise SystemExit('wrong version')
+          house = manifest['house_roster']
+          if len(house) != 118 or len(set(house)) != 118: raise SystemExit(f'bad house roster count {len(house)}/{len(set(house))}')
+          missing = [n for n in house if n not in full]
+          if missing: raise SystemExit('house roster not discoverable: '+repr(missing))
+          extras_missing = [n for n in manifest['npc_and_group_extras'] if n not in full]
+          if extras_missing: raise SystemExit('npc extras absent: '+repr(extras_missing))
+          for n in ['源千雪','米菈','亚修','圣星教会群像','悠久乐园群像','角色发现与触发机制','扩展原作角色发现池']:
+              if n not in by: raise SystemExit('missing entry '+n)
+          if by['城市角色覆盖路由'].get('constant'): raise SystemExit('73-name route must not be constant in rc2')
+          if by['扩展原作角色发现池'].get('constant'): raise SystemExit('expanded roster must not be constant')
+          if not by['角色发现与触发机制'].get('constant'): raise SystemExit('discovery mechanism must stay constant')
+          nivi=by['妮维']['content']
+          for marker in ['未成年','正式警察','正式巡警']:
+              if marker not in nivi: raise SystemExit('Nivi canon marker missing '+marker)
+          if '协查员' in nivi or '见习警务' in nivi: raise SystemExit('Nivi was normalized away from canon')
+          ext=by['扩展原作角色发现池']
+          for probe in ['黑羽莲华','彼安汀','伊薇','零','韦迪','乌鹭']:
+              # already-covered names need not all be in expanded keys, but every probe must occur somewhere in the card.
+              if probe not in full: raise SystemExit('probe missing '+probe)
+          # Generic discovery must call the extended pool, while direct rare names in that pool must also be keys.
+          for key in ['新面孔','本地活动','本地新闻','朋友介绍','认识新的人','陌生人']:
+              if key not in ext.get('keys',[]): raise SystemExit('extended discovery key missing '+key)
+          for key in ['黑羽莲华','伊薇','韦迪','乌鹭']:
+              if key not in ext.get('keys',[]): raise SystemExit('rare direct-name key missing '+key)
+          const_text='\n'.join(e.get('content','') for e in entries if e.get('constant'))
+          const_name_hits=[n for n in house if n in const_text]
+          if len(const_name_hits) > 45:
+              raise SystemExit(f'too much roster permanently injected: {len(const_name_hits)} names')
+          discovery=by['角色发现与触发机制']['content']
+          for marker in ['1~3个场景转换内','低频角色','118名','不得垄断所有剧情']:
+              if marker not in discovery: raise SystemExit('discovery guard missing '+marker)
+          # Deterministic keyword-level reachability probes.
+          probes={
+              '芭蕾舞蹈室':'源千雪',
+              '喷泉广场街头演出':'米菈',
+              '警局侦探案件':'亚修',
+              '教会礼拜花房':'圣星教会群像',
+              '马戏团巡演篷车':'悠久乐园群像',
+              '我想通过本地活动认识新的人':'扩展原作角色发现池',
+              '黑羽莲华':'扩展原作角色发现池',
+          }
+          def triggered(text):
+              out=[]
+              for e in entries:
+                  if e.get('enabled') and any(k and k in text for k in e.get('keys',[])):
+                      out.append(e.get('name'))
+              return out
+          trigger_report={}
+          for text,target in probes.items():
+              hit=triggered(text)
+              trigger_report[text]=hit
+              if target not in hit: raise SystemExit(f'keyword route miss {text} -> {target}; got {hit}')
+          report={
+              'version':card['character_version'],
+              'houseRosterCount':len(house),
+              'extraNpcCount':len(manifest['npc_and_group_extras']),
+              'discoverableNamedUnion':len(set(house)|set(manifest['npc_and_group_extras'])),
+              'constantRosterNameHits':len(const_name_hits),
+              'constantRosterNames':const_name_hits,
+              'worldbookEntryCount':len(entries),
+              'keywordRoutes':trigger_report,
+              'result':'PASS'
+          }
+          Path(os.environ['EVIDENCE'],'rc2-static.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(report,ensure_ascii=False,indent=2))
+          PY
+
+      - name: Start exact SillyTavern
+        run: |
+          set -euo pipefail
+          rm -rf "$ST_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+          cd "$ST_DIR"
+          npm ci
+          nohup node server.js --listen --port 8000 --disableCsrf > "$EVIDENCE/st-runtime.log" 2>&1 &
+          echo $! > /tmp/qidu-he-v03-rc2.pid
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:8000/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat "$EVIDENCE/st-runtime.log"
+          exit 1
+
+      - name: Real browser import and stored-key audit
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/qidu-v03-rc2-browser && cd /tmp/qidu-v03-rc2-browser
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          export CHROME_BIN
+          cd "$GITHUB_WORKSPACE"
+          cat > /tmp/qidu-v03-rc2-import.mjs <<'NODE'
+          import fs from 'node:fs/promises';
+          const {chromium}=await import('file:///tmp/qidu-v03-rc2-browser/node_modules/playwright-core/index.mjs');
+          const raw=await fs.readFile(process.env.CARD,'utf8');
+          const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_BIN,args:['--no-sandbox','--disable-dev-shm-usage']});
+          const page=await browser.newPage({viewport:{width:1440,height:1000}}); const pageErrors=[]; page.on('pageerror',e=>pageErrors.push(String(e)));
+          await page.goto('http://127.0.0.1:8000/',{waitUntil:'domcontentloaded',timeout:60000}); await page.waitForTimeout(2500);
+          const result=await page.evaluate(async(raw)=>{
+            const f=new FormData(); f.set('file_type','json'); f.set('avatar',new Blob([raw],{type:'application/json'}),'qidu-he-v030-rc2.character.json');
+            const imp=await fetch('/api/characters/import',{method:'POST',body:f});
+            const all=await fetch('/api/characters/all',{method:'POST',headers:{'content-type':'application/json'},body:'{}'});
+            return {importOk:imp.ok,importStatus:imp.status,allOk:all.ok,allStatus:all.status,allText:(await all.text()).slice(0,180000)};
+          },raw);
+          const checks={};
+          for(const s of ['0.3.0-rc2','源千雪','米菈','亚修','悠久乐园','圣星教会','黑羽莲华','扩展原作角色发现池']) checks[s]=result.allText.includes(s);
+          await page.screenshot({path:`${process.env.EVIDENCE}/real-st-rc2.png`,fullPage:true});
+          const report={stCommit:process.env.ST_COMMIT,...result,checks,pageErrors}; delete report.allText;
+          await fs.writeFile(`${process.env.EVIDENCE}/real-st-rc2.json`,JSON.stringify(report,null,2)); await browser.close();
+          if(!result.importOk||!result.allOk||Object.values(checks).some(x=>!x)||pageErrors.length) throw new Error(JSON.stringify(report));
+          console.log(JSON.stringify(report,null,2));
+          NODE
+          node /tmp/qidu-v03-rc2-import.mjs
+
+      - name: Stop ST
+        if: always()
+        run: if [ -f /tmp/qidu-he-v03-rc2.pid ]; then kill "$(cat /tmp/qidu-he-v03-rc2.pid)" 2>/dev/null || true; fi
+
+      - name: Upload rc2 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-he-v03-rc2-audit
+          path: bench-evidence/qidu-he-v03-rc2/
+          if-no-files-found: error
