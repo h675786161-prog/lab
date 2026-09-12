@@ -274,7 +274,7 @@ async function sendThroughST(userText) {
   const bodyText = await response.text();
   if (!response.ok()) throw new Error('ST backend HTTP ' + response.status() + ': ' + bodyText.slice(0, 1000));
   const backend = extractCompletion(bodyText);
-  if (!backend.trim()) throw new Error('empty ST backend completion');
+  if (!backend.trim()) throw new Error('empty ST backend completion: ' + bodyText.slice(0, 1600));
   const request = response.request().postDataJSON();
   const requestMessages = Array.isArray(request?.messages) ? request.messages : [];
   const joined = requestMessages.map(m => String(m?.content ?? '')).join('\n');
@@ -413,4 +413,3 @@ report.status = deterministicFailures.length ? 'FAIL' : 'PASS';
 await fs.writeFile(path.join(OUT, 'report.json'), JSON.stringify(report, null, 2));
 console.log(JSON.stringify(report, null, 2));
 if (deterministicFailures.length) throw new Error('real ST long RP failed: ' + JSON.stringify(deterministicFailures));
-
