@@ -1,0 +1,37 @@
+name: Qidu Card v0.4.11 LAB
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['feature/qidu-card-v0411-lab']
+
+permissions:
+  contents: read
+
+jobs:
+  real-sillytavern:
+    uses: h675786161-prog/lab/.github/workflows/real-sillytavern.yml@main
+    with:
+      extension_name: qidu-card-v0411
+      run_project_smoke: true
+      artifact_name: qidu-card-v0411-real-st
+    secrets: inherit
+
+  ooc-bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      YOUZI_KEY: ${{ secrets.YOUZI }}
+      GLM_MODEL: '[B]glm-5.3-flash'
+      LAB_OUT: bench-evidence/qidu-card-v0411
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Qidu OOC and plot drift benchmark
+        run: node .lab/qidu-card-model-bench.mjs
+      - name: Upload narrative evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-card-v0411-ooc-bench
+          path: bench-evidence/qidu-card-v0411/
+          if-no-files-found: error
