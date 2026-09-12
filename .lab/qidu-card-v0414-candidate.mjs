@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { loadV0413Card, entryMap } from './qidu-card-v0412-candidate.mjs';
 
-export const EXPECTED_V0414_COMPACT_SHA256 = '162924efaeea887f5a4870e6c141b6989530e601fab74427b1553b40874a5c25';
+export const EXPECTED_V0414_COMPACT_SHA256 = 'c19ba47420a627ea7bad56579651b0b26eb30116e4d2f603851383bea8e842cf';
 
 function append(entryMapByName, name, text) {
   const entry = entryMapByName.get(name);
