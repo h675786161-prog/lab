@@ -1,0 +1,62 @@
+name: Qidu real GLM route probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [qidu-he-if-longrp]
+    paths:
+      - '.github/workflows/qidu-he-real-glm-route-probe.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      YOUZI_KEY: ${{ secrets.YOUZI }}
+      API: https://youzi.today/v1/chat/completions
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe real Chinese RP generation on current GLM routes
+        run: |
+          mkdir -p provider-evidence/qidu-real-glm
+          node - <<'NODE'
+          const fs=require('fs');
+          const key=process.env.YOUZI_KEY;
+          if(!key) throw new Error('YOUZI secret missing');
+          const models=['[NV]GLM-5.3-flash','glm-4.5-air','glm-4.6v'];
+          const api=process.env.API;
+          const messages=[
+            {role:'system',content:'你在写自然的中文日常角色扮演。人物说话像真人，不做总结，不讨论规则或提示词。'},
+            {role:'user',content:'傍晚我推开便利店玻璃门，外面刚下过雨。店员正蹲在货架边整理饮料，我拿了一瓶水，在收银台前停下。继续这一小段普通场景。'}
+          ];
+          const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+          (async()=>{
+            const results=[];
+            for(let i=0;i<models.length;i++){
+              if(i) await sleep(6000);
+              const model=models[i];
+              const body=JSON.stringify({model,messages,temperature:0.8,top_p:0.6,max_tokens:160,stream:false});
+              const row={model,requestJsonChars:body.length};
+              try{
+                const r=await fetch(api,{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${key}`},body});
+                const text=await r.text();
+                row.status=r.status; row.ok=r.ok;
+                if(r.ok){
+                  try{const j=JSON.parse(text);row.output=(j.choices?.[0]?.message?.content||'').slice(0,1200);row.finishReason=j.choices?.[0]?.finish_reason||null;row.usage=j.usage||null;}catch(e){row.parseError=String(e)}
+                }else row.errorExcerpt=text.replace(/\s+/g,' ').slice(0,500);
+              }catch(e){row.status='network_error';row.errorExcerpt=String(e).slice(0,500)}
+              results.push(row); console.log(JSON.stringify(row,null,2));
+            }
+            fs.writeFileSync('provider-evidence/qidu-real-glm/routes.json',JSON.stringify({results},null,2));
+          })().catch(e=>{console.error(e);process.exitCode=1});
+          NODE
+      - name: Upload route evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-real-glm-route-probe
+          path: provider-evidence/qidu-real-glm/
+          if-no-files-found: error
