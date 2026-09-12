@@ -1,4 +1,4 @@
-run=v0.4.14-r6-whitespace-tolerant-hash
-reason=recompute candidate after whitespace-tolerant f7d choice regex + canonical syntax reinforcement; real-ST smoke now tests canonical desktop and spaced-tag mobile using standalone bridge
-previous_candidate_compact_sha256=1221d3392e08313abf55fd89d63bf0560102cedd2c8ed10d7387c2df79b38cd9
+run=v0.4.14-r6-final-acceptance
+reason=final acceptance for whitespace-tolerant choice renderer + standalone qidu-choice-bridge 1.0.0 + Ann boundary hardening; require hash, real ST desktop/mobile, six narrative regressions, and release package
+candidate_compact_sha256=0612aba0c24a7df96796e5218bcab13c9e62941ec3b846c3551b3b421d5b7e5b
 bridge_version=1.0.0
