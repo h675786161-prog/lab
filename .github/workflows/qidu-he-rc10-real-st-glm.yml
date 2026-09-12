@@ -22,7 +22,7 @@ jobs:
     env:
       YOUZI_KEY: ${{ secrets.YOUZI }}
       GLM_API: https://youzi.today/v1
-      GLM_MODEL: '[B]glm-5.3-flash'
+      GLM_MODEL: '[NV]GLM-5.3-flash'
       RPM: '12'
       CARD_PATH: fixtures/qidu-he-if/qidu-he-if.character.json
       PRESET_PATH: fixtures/qidu-he-if/riyuexi-glm-active.json
@@ -125,7 +125,7 @@ jobs:
           if(!fs.existsSync(p)) throw new Error('rc10 run result missing');
           const r=JSON.parse(fs.readFileSync(p,'utf8'));
           console.log('RC10_ACCEPTANCE_STATE',r.status,'attempt',r.attempt ?? r.attempts ?? 'n/a');
-          if(r.status==='blocked_upstream') console.log('Requested [B]glm-5.3-flash did not provide usable completions; do not mark rc10 behavior PASS.');
+          if(r.status==='blocked_upstream') console.log('Requested GLM 5.3 Flash channel did not provide usable completions; do not mark rc10 behavior PASS.');
           if(r.status==='runtime_fail') throw new Error(`rc10 runtime/card acceptance failed: ${JSON.stringify(r)}`);
           NODE
 
