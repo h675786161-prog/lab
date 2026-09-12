@@ -53,6 +53,7 @@ jobs:
           p=Path('.lab/qidu-he-rc5-two-turn-behavior.mjs')
           s=p.read_text(encoding='utf-8')
           s=s.replace("【用户主权硬门槛】", "【用户主权硬门槛｜逐字约束】")
+          s=s.replace('身份名锚点：自我介绍时姓名使用“米菈”','身份名锚点：自我介绍时只使用准确姓名“米菈”')
           s=s.replace("if (/(我是警察|我是刑警|我是警员|当警察|当刑警|当警员)/u.test(output)) failures.push('turned 亚修 into police staff');", "if (/(我是警察|我是刑警|我是警员|我是警务人员|我在警局工作)/u.test(output)) failures.push('turned 亚修 into police staff');")
           s=s.replace("'你走近'],", "'你走近', '你靠在', '你把水杯换', '你换了个手'],", 1)
           s=s.replace("'你喝了一口'],", "'你喝了一口', '你面前放着一杯', '一杯美式'],")
