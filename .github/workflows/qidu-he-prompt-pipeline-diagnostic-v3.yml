@@ -146,7 +146,7 @@ jobs:
           if(!captures.length) throw new Error('no generation request captured');
           const req=captures.at(-1); const msgs=Array.isArray(req.messages)?req.messages:[]; const joined=msgs.map(m=>String(m.content??'')).join('\n');
           const moduleChecks=selected.filter(p=>p.system_prompt===false && !p.marker).map(p=>{
-            const anchor=p.content.split('{{')[0].trim();
+            const anchor=p.content.split('{{')[0].trim().replaceAll('<user>','User').replaceAll('{{user}}','User').replaceAll('{{char}}',data.name||'');
             return {id:p.identifier,name:p.name,present:!!anchor&&joined.includes(anchor)};
           });
           const checks={
