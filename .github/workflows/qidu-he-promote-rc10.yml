@@ -1,0 +1,56 @@
+name: Qidu HE promote validated rc10 card
+
+on:
+  push:
+    branches:
+      - qidu-he-if-longrp
+    paths:
+      - '.github/workflows/qidu-he-promote-rc10.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: qidu-he-if-longrp
+          fetch-depth: 0
+
+      - name: Build exactly the already-validated rc10 candidate
+        run: |
+          set -euo pipefail
+          python .lab/qidu-he-v03-rc10-response-scene-patch.py
+          node - <<'NODE'
+          const fs=require('fs');
+          const crypto=require('crypto');
+          const p='fixtures/qidu-he-if/qidu-he-if.character.json';
+          const raw=fs.readFileSync(p);
+          const d=JSON.parse(raw).data;
+          const dp=d.extensions?.depth_prompt;
+          if(d.character_version!=='0.3.0-rc10') throw new Error(`unexpected version ${d.character_version}`);
+          if(dp?.depth!==0 || dp?.role!=='user') throw new Error(`bad depth prompt ${JSON.stringify(dp)}`);
+          if(d.character_book.entries.filter(e=>e.extensions?.prevent_recursion===true).length!==31) throw new Error('prevent_recursion count mismatch');
+          for(const marker of ['【玩家当前状态冻结｜禁止凭空发身份与道具】','【当前输入必须被承接｜不代写也不失聪】','【当前场景即时落点｜禁止补前情镜头】']) {
+            if(!String(dp.prompt||'').includes(marker)) throw new Error(`missing ${marker}`);
+          }
+          console.log('PROMOTE_RC10_SHA256',crypto.createHash('sha256').update(raw).digest('hex'));
+          console.log('PROMOTE_RC10_BYTES',raw.length);
+          NODE
+          changes="$(git status --porcelain)"
+          echo "$changes"
+          test -n "$changes"
+          bad="$(printf '%s\n' "$changes" | grep -v 'fixtures/qidu-he-if/qidu-he-if.character.json' || true)"
+          if [ -n "$bad" ]; then echo "unexpected modified paths:"; echo "$bad"; exit 1; fi
+
+      - name: Commit validated card to the branch only
+        run: |
+          set -euo pipefail
+          git config user.name 'qidu-lab-bot'
+          git config user.email 'qidu-lab-bot@users.noreply.github.com'
+          git add fixtures/qidu-he-if/qidu-he-if.character.json
+          git commit -m 'feat(qidu): promote validated rc10 card [skip ci]'
+          git push origin HEAD:qidu-he-if-longrp
