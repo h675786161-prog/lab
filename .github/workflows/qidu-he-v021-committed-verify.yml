@@ -1,0 +1,179 @@
+name: Qidu HE IF v0.2.1 committed verify
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [qidu-he-if-longrp]
+    paths:
+      - '.github/workflows/qidu-he-v021-committed-verify.yml'
+      - 'fixtures/qidu-he-if/qidu-he-if.character.json'
+
+permissions:
+  contents: read
+
+jobs:
+  committed-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CARD: fixtures/qidu-he-if/qidu-he-if.character.json
+      PRESET: fixtures/qidu-he-if/riyuexi-glm-active.json
+      EXPECTED_SHA256: a26dc7b893776649ba51699bb9ac38749ca253c34b8db56515b4dc9ca02ac17f
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      ST_DIR: /tmp/qidu-v021-committed-st
+      EVIDENCE: ${{ github.workspace }}/bench-evidence/qidu-he-v021-committed
+      YOUZI_KEY: ${{ secrets.YOUZI }}
+      MODEL: '[B]glm-5.3-flash'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify committed card is byte-identical to accepted candidate
+        run: |
+          set -euo pipefail
+          mkdir -p "$EVIDENCE"
+          actual="$(sha256sum "$CARD" | awk '{print $1}')"
+          echo "accepted_sha256=$EXPECTED_SHA256" | tee "$EVIDENCE/identity.txt"
+          echo "committed_sha256=$actual" | tee -a "$EVIDENCE/identity.txt"
+          test "$actual" = "$EXPECTED_SHA256"
+          node - <<'NODE'
+          const fs = require('fs');
+          const c = JSON.parse(fs.readFileSync(process.env.CARD,'utf8'));
+          if (c.data.character_version !== '0.2.1') throw new Error(`unexpected version ${c.data.character_version}`);
+          for (const marker of ['禁止原作元叙事回弹','失忆前事实冻结','用户动作边界补充']) {
+            if (!c.data.system_prompt.includes(marker)) throw new Error(`missing committed marker ${marker}`);
+          }
+          console.log('committed v0.2.1 identity and anchors verified');
+          NODE
+          cp "$CARD" "$EVIDENCE/qidu-he-if-v0.2.1.committed.character.json"
+
+      - name: Clone and start exact SillyTavern
+        run: |
+          set -euo pipefail
+          rm -rf "$ST_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+          cd "$ST_DIR"
+          npm ci
+          nohup node server.js --listen --port 8000 --disableCsrf > "$EVIDENCE/st-runtime.log" 2>&1 &
+          echo $! > /tmp/qidu-v021-committed-st.pid
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:8000/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat "$EVIDENCE/st-runtime.log"
+          exit 1
+
+      - name: Real browser and committed-card ST provider smoke
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/qidu-v021-browser
+          cd /tmp/qidu-v021-browser
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          export CHROME_BIN
+          cd "$GITHUB_WORKSPACE"
+          cat > /tmp/qidu-v021-committed-smoke.mjs <<'NODE'
+          import fs from 'node:fs/promises';
+          import crypto from 'node:crypto';
+          const { chromium } = await import('file:///tmp/qidu-v021-browser/node_modules/playwright-core/index.mjs');
+          const raw = await fs.readFile(process.env.CARD,'utf8');
+          const cardObj = JSON.parse(raw);
+          const card = cardObj.data;
+          const preset = JSON.parse(await fs.readFile(process.env.PRESET,'utf8'));
+          const sha = crypto.createHash('sha256').update(raw).digest('hex');
+          if (sha !== process.env.EXPECTED_SHA256) throw new Error(`runtime card hash drift ${sha}`);
+          const wanted = new Set(['⚖️RP模式','🪐均衡调度','🎈烟火气息','🎈群像塑造','🌊自由变奏','👤平衡主导','🐚人格基底','🐚去中心化','🐚角色成长','🐚标签隐身','🤝健康恋爱','⬆️自然推进']);
+          const presetText = preset.prompts.filter(p=>wanted.has(p.name)).map(p=>`[${p.name}]\n${p.content}`).join('\n\n');
+          const entries = card.character_book?.entries || [];
+          const constantWorld = entries.filter(e=>e.constant).map(e=>e.content).join('\n\n');
+
+          const form = new FormData();
+          form.set('file_type','json');
+          form.set('avatar',new Blob([raw],{type:'application/json'}),'qidu-he-if-v0.2.1.character.json');
+          const imp = await fetch('http://127.0.0.1:8000/api/characters/import',{method:'POST',body:form});
+          if (!imp.ok) throw new Error(`committed card import failed ${imp.status}: ${(await imp.text()).slice(0,500)}`);
+
+          const browser = await chromium.launch({headless:true,executablePath:process.env.CHROME_BIN,args:['--no-sandbox','--disable-dev-shm-usage']});
+          const page = await browser.newPage({viewport:{width:1440,height:1000}});
+          const pageErrors=[];
+          page.on('pageerror',e=>pageErrors.push(String(e)));
+          await page.goto('http://127.0.0.1:8000/',{waitUntil:'domcontentloaded',timeout:60000});
+          await page.waitForTimeout(2500);
+
+          const result = await page.evaluate(async ({key,model,system,first}) => {
+            const sec = await fetch('/api/secrets/write',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({key:'api_key_custom',value:key,label:'qidu-v021-committed-ci'})});
+            if (!sec.ok) return {stage:'secret',status:sec.status,ok:false,text:await sec.text()};
+            const body = {
+              chat_completion_source:'custom',
+              custom_url:'https://youzi.today/v1',
+              model,
+              messages:[
+                {role:'system',content:system},
+                {role:'assistant',content:first},
+                {role:'user',content:'我看着彼安汀，只问：“我以前是不是只吃半熟蛋？”除此之外什么都没做。'}
+              ],
+              max_tokens:30000,
+              temperature:0.98,
+              top_p:0.5,
+              frequency_penalty:0,
+              presence_penalty:0,
+              stream:false,
+              custom_include_headers:'',
+              custom_include_body:'',
+              custom_exclude_body:'',
+              n:1
+            };
+            let last=null;
+            for (let attempt=1; attempt<=5; attempt++) {
+              const r = await fetch('/api/backends/chat-completions/generate',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+              const text = await r.text();
+              let json=null; try { json=JSON.parse(text); } catch {}
+              const visible = json?.choices?.[0]?.message?.content || json?.choices?.[0]?.text || '';
+              last={stage:'generate',status:r.status,ok:r.ok,json,visible,text:text.slice(0,4000),attempt};
+              if (r.ok && visible.trim()) return last;
+              await new Promise(resolve=>setTimeout(resolve,attempt*10000));
+            }
+            return last;
+          }, {key:process.env.YOUZI_KEY,model:process.env.MODEL,system:`${presetText}\n\n${card.system_prompt}\n\n${constantWorld}`,first:card.first_mes});
+
+          const visible = result?.visible || result?.json?.choices?.[0]?.message?.content || result?.json?.choices?.[0]?.text || '';
+          const report = {
+            committedSha256: sha,
+            acceptedSha256: process.env.EXPECTED_SHA256,
+            byteIdentical: sha === process.env.EXPECTED_SHA256,
+            cardVersion: card.character_version,
+            stCommit: process.env.ST_COMMIT,
+            provider: 'SillyTavern custom via /api/backends/chat-completions/generate',
+            upstreamBase: 'https://youzi.today/v1',
+            model: process.env.MODEL,
+            status: result?.status ?? null,
+            ok: Boolean(result?.ok),
+            visibleChars: visible.length,
+            visiblePreview: visible.slice(0,1800),
+            pageErrors
+          };
+          await fs.writeFile(`${process.env.EVIDENCE}/committed-real-st-report.json`,JSON.stringify(report,null,2));
+          await page.screenshot({path:`${process.env.EVIDENCE}/committed-real-st.png`,fullPage:true});
+          await browser.close();
+          if (!report.byteIdentical) throw new Error('committed card is not byte-identical to accepted candidate');
+          if (!report.ok || !visible.trim()) throw new Error(`real ST committed-card generation failed status=${report.status} chars=${visible.length}`);
+          if (pageErrors.length) throw new Error(`browser page errors: ${pageErrors.join(' | ')}`);
+          console.log(JSON.stringify(report,null,2));
+          NODE
+          node /tmp/qidu-v021-committed-smoke.mjs
+
+      - name: Stop ST
+        if: always()
+        run: |
+          if [ -f /tmp/qidu-v021-committed-st.pid ]; then kill "$(cat /tmp/qidu-v021-committed-st.pid)" 2>/dev/null || true; fi
+
+      - name: Upload committed verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-he-v021-committed-verify
+          path: bench-evidence/qidu-he-v021-committed/
+          if-no-files-found: error
