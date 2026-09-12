@@ -36,12 +36,23 @@ jobs:
           if(d.character_book.entries.length!==31) throw new Error(String(d.character_book.entries.length));
           const n=d.character_book.entries.filter(e=>e.extensions?.prevent_recursion===true).length;
           if(n!==31) throw new Error(`prevent_recursion ${n}/31`);
-          if(!d.post_history_instructions.includes('【用户主权硬门槛】')) throw new Error('missing user sovereignty guard');
+          if(!d.post_history_instructions.includes('【用户主权硬门槛｜逐字约束】')) throw new Error('missing literal user sovereignty guard');
           if(!d.post_history_instructions.includes('【当前回合连续性与身份精确性】')) throw new Error('missing continuity guard');
           const mila=d.character_book.entries.find(e=>e.name==='米菈');
-          if(!mila?.content.includes('身份名锚点：自我介绍时姓名使用“米菈”')) throw new Error('missing 米菈 exact name anchor');
+          if(!mila?.content.includes('身份名锚点：自我介绍时只使用准确姓名“米菈”')) throw new Error('missing 米菈 exact name anchor');
           console.log('candidate ready', d.character_version, n);
           NODE
+
+      - name: Adapt native scanner to current rc5 guard wording
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('.lab/qidu-he-rc5-native-scan.mjs')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('【用户主权硬门槛】','【用户主权硬门槛｜逐字约束】')
+          s=s.replace('身份名锚点：自我介绍时姓名使用“米菈”','身份名锚点：自我介绍时只使用准确姓名“米菈”')
+          p.write_text(s,encoding='utf-8')
+          PY
 
       - name: Start exact SillyTavern
         run: |
