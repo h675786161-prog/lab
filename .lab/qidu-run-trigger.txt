@@ -1,0 +1,2 @@
+run=v0.4.12-exact-full
+reason=verified split fixture + exact-card real ST + OOC drift bench
