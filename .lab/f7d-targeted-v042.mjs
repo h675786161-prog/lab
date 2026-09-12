@@ -5,7 +5,8 @@ import zlib from 'node:zlib';
 
 const API = 'https://youzi.today/v1/chat/completions';
 const KEY = process.env.YOUZI_KEY || '';
-const MODEL = process.env.F7D_MODEL || '[B]glm-5.3-flash';
+const REQUESTED_MODEL = process.env.F7D_MODEL || '[B]glm-5.3-flash';
+let MODEL = REQUESTED_MODEL;
 const OUT = process.env.LAB_OUT || 'bench-evidence/f7d-v042-targeted';
 const EXPECTED_SHA = '3db2e5951017f308903784cef7d82a96a027b83b5bf9f1643a0590466b1550bb';
 if (!KEY) throw new Error('YOUZI_KEY is missing');
@@ -61,6 +62,62 @@ function systemFor(ids=[]) {
   ].join('\n\n');
 }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+async function probeOneModel(id) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 45_000);
+  try {
+    const res = await fetch(API,{
+      method:'POST',
+      headers:{Authorization:`Bearer ${KEY}`,'Content-Type':'application/json','User-Agent':'LingQi-F7D-v042-ModelProbe/1.0'},
+      body:JSON.stringify({model:id,messages:[{role:'user',content:'只回复OK'}],temperature:0,max_tokens:12,stream:false}),
+      signal:controller.signal
+    });
+    const txt=await res.text();
+    return {id,ok:res.ok,status:res.status,preview:txt.slice(0,180)};
+  } catch(e) {
+    return {id,ok:false,status:0,preview:String(e).slice(0,180)};
+  } finally { clearTimeout(timer); }
+}
+async function resolveModel() {
+  let ids=[];
+  try {
+    const res=await fetch('https://youzi.today/v1/models',{headers:{Authorization:`Bearer ${KEY}`,'User-Agent':'LingQi-F7D-v042-ModelCatalog/1.0'}});
+    if (res.ok) {
+      const j=await res.json();
+      ids=(j?.data||[]).map(x=>String(x?.id||'')).filter(Boolean);
+    }
+  } catch {}
+  const fallbacks=['DeepSeek-V4-Pro-0813','DeepSeek-V4-Flash-0731','[B]glm-5.3-flash'];
+  const all=[...new Set([REQUESTED_MODEL,...ids,...fallbacks])];
+  const bad=/embed|rerank|image|audio|tts|whisper|speech|moderation/i;
+  const score=id=>{
+    const x=id.toLowerCase();
+    if (id===REQUESTED_MODEL) return 0;
+    if (/deepseek/.test(x)&&/v4/.test(x)&&/pro/.test(x)) return 1;
+    if (/glm/.test(x)&&/5[.-]?3/.test(x)&&/flash/.test(x)) return 2;
+    if (/glm/.test(x)&&/5[.-]?3/.test(x)) return 3;
+    if (/gemini/.test(x)&&/3[.-]?1/.test(x)&&/pro/.test(x)) return 4;
+    if (/deepseek/.test(x)&&/v4/.test(x)) return 5;
+    if (/deepseek|glm|gemini/.test(x)) return 6;
+    return 20;
+  };
+  const candidates=all.filter(x=>!bad.test(x)).sort((a,b)=>score(a)-score(b)).slice(0,18);
+  const probes=[];
+  for (const id of candidates) {
+    const r=await probeOneModel(id);
+    probes.push(r);
+    console.log('model probe',id,r.status,r.ok);
+    if (r.ok) {
+      await fs.writeFile(path.join(OUT,'model-probe.json'),JSON.stringify({requested:REQUESTED_MODEL,selected:id,catalog_count:ids.length,probes},null,2));
+      return id;
+    }
+    await sleep(350);
+  }
+  await fs.writeFile(path.join(OUT,'model-probe.json'),JSON.stringify({requested:REQUESTED_MODEL,selected:null,catalog_count:ids.length,probes},null,2));
+  throw new Error('No live chat model found from current Youzi catalog/fallbacks');
+}
+MODEL = await resolveModel();
 
 async function completion(messages, {temperature=0.75,max_tokens=1500,thinking=true}={}) {
   const controller = new AbortController();
@@ -219,6 +276,8 @@ continuityChecks.pass=
   continuityChecks.romance!==true;
 
 const summary={
+  selected_model:MODEL,
+  requested_model:REQUESTED_MODEL,
   card_sha256:sha,
   card_version:card.data.character_version,
   total_cases:results.length,
