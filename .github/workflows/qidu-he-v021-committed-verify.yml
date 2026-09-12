@@ -80,15 +80,12 @@ jobs:
           import crypto from 'node:crypto';
           const { chromium } = await import('file:///tmp/qidu-v021-browser/node_modules/playwright-core/index.mjs');
           const raw = await fs.readFile(process.env.CARD,'utf8');
-          const cardObj = JSON.parse(raw);
-          const card = cardObj.data;
+          const card = JSON.parse(raw).data;
           const preset = JSON.parse(await fs.readFile(process.env.PRESET,'utf8'));
           const sha = crypto.createHash('sha256').update(raw).digest('hex');
           if (sha !== process.env.EXPECTED_SHA256) throw new Error(`runtime card hash drift ${sha}`);
           const wanted = new Set(['⚖️RP模式','🪐均衡调度','🎈烟火气息','🎈群像塑造','🌊自由变奏','👤平衡主导','🐚人格基底','🐚去中心化','🐚角色成长','🐚标签隐身','🤝健康恋爱','⬆️自然推进']);
           const presetText = preset.prompts.filter(p=>wanted.has(p.name)).map(p=>`[${p.name}]\n${p.content}`).join('\n\n');
-          const entries = card.character_book?.entries || [];
-          const constantWorld = entries.filter(e=>e.constant).map(e=>e.content).join('\n\n');
 
           const form = new FormData();
           form.set('file_type','json');
@@ -105,7 +102,7 @@ jobs:
 
           const result = await page.evaluate(async ({key,model,system,first}) => {
             const sec = await fetch('/api/secrets/write',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({key:'api_key_custom',value:key,label:'qidu-v021-committed-ci'})});
-            if (!sec.ok) return {stage:'secret',status:sec.status,ok:false,text:await sec.text()};
+            if (!sec.ok) return {stage:'secret',status:sec.status,ok:false,text:await sec.text(),reasoningChars:0};
             const body = {
               chat_completion_source:'custom',
               custom_url:'https://youzi.today/v1',
@@ -113,7 +110,7 @@ jobs:
               messages:[
                 {role:'system',content:system},
                 {role:'assistant',content:first},
-                {role:'user',content:'我看着彼安汀，只问：“我以前是不是只吃半熟蛋？”除此之外什么都没做。'}
+                {role:'user',content:'我问彼安汀：“我以前是不是只吃半熟蛋？不知道就说不知道。”我没有下床。'}
               ],
               max_tokens:30000,
               temperature:0.98,
@@ -127,19 +124,21 @@ jobs:
               n:1
             };
             let last=null;
-            for (let attempt=1; attempt<=5; attempt++) {
+            for (let attempt=1; attempt<=8; attempt++) {
               const r = await fetch('/api/backends/chat-completions/generate',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
               const text = await r.text();
               let json=null; try { json=JSON.parse(text); } catch {}
-              const visible = json?.choices?.[0]?.message?.content || json?.choices?.[0]?.text || '';
-              last={stage:'generate',status:r.status,ok:r.ok,json,visible,text:text.slice(0,4000),attempt};
+              const message=json?.choices?.[0]?.message || {};
+              const visible = message.content || json?.choices?.[0]?.text || '';
+              const reasoningChars = String(message.reasoning_content || '').length;
+              last={stage:'generate',status:r.status,ok:r.ok,visible,reasoningChars,text:text.slice(0,4000),attempt};
               if (r.ok && visible.trim()) return last;
-              await new Promise(resolve=>setTimeout(resolve,attempt*10000));
+              await new Promise(resolve=>setTimeout(resolve,Math.min(60000,attempt*8000)));
             }
             return last;
-          }, {key:process.env.YOUZI_KEY,model:process.env.MODEL,system:`${presetText}\n\n${card.system_prompt}\n\n${constantWorld}`,first:card.first_mes});
+          }, {key:process.env.YOUZI_KEY,model:process.env.MODEL,system:`${presetText}\n\n${card.system_prompt}`,first:card.first_mes});
 
-          const visible = result?.visible || result?.json?.choices?.[0]?.message?.content || result?.json?.choices?.[0]?.text || '';
+          const visible = result?.visible || '';
           const report = {
             committedSha256: sha,
             acceptedSha256: process.env.EXPECTED_SHA256,
@@ -151,6 +150,8 @@ jobs:
             model: process.env.MODEL,
             status: result?.status ?? null,
             ok: Boolean(result?.ok),
+            attempt: result?.attempt ?? null,
+            reasoningChars: result?.reasoningChars ?? 0,
             visibleChars: visible.length,
             visiblePreview: visible.slice(0,1800),
             pageErrors
@@ -159,7 +160,7 @@ jobs:
           await page.screenshot({path:`${process.env.EVIDENCE}/committed-real-st.png`,fullPage:true});
           await browser.close();
           if (!report.byteIdentical) throw new Error('committed card is not byte-identical to accepted candidate');
-          if (!report.ok || !visible.trim()) throw new Error(`real ST committed-card generation failed status=${report.status} chars=${visible.length}`);
+          if (!report.ok || !visible.trim()) throw new Error(`real ST committed-card generation failed status=${report.status} chars=${visible.length} reasoning=${report.reasoningChars}`);
           if (pageErrors.length) throw new Error(`browser page errors: ${pageErrors.join(' | ')}`);
           console.log(JSON.stringify(report,null,2));
           NODE
