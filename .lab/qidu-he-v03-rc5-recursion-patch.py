@@ -15,9 +15,6 @@ if len(entries) != 31:
 if data.get('extensions', {}).get('world') != book.get('name'):
     raise SystemExit('active world name and embedded character_book name diverged')
 
-# Native SillyTavern 1.18.0: activated entries still enter the prompt, but
-# prevent_recursion stops their prose from recursively lighting up unrelated
-# character entries.
 for entry in entries:
     entry.setdefault('extensions', {})['prevent_recursion'] = True
 
@@ -76,6 +73,18 @@ data['post_history_instructions'] += '''
 【米菈姓名禁写串】
 米菈当前只有单名“米菈”。输出中禁止出现“米菈·”或“米菈・”。'''
 
+# SillyTavern 1.18.0 inserts character depth prompts in-chat. Depth 0 means
+# the last message in context, and role=system keeps this rule immediately next
+# to generation instead of forcing it to compete with a large preset far above.
+depth_guard = '''【单边RP末端锁】
+只写NPC与环境，不续写{{user}}。禁止为{{user}}新增、补完或代写任何动作、台词、心理、感官、姿态、持有物、位置变化或决定；不要复述本轮用户内容。{{user}}只可作为NPC行为的对象或视线参照。下一步需要{{user}}反应时立即停在NPC动作、对白或环境变化处。'''
+ext = data.setdefault('extensions', {})
+ext['depth_prompt'] = {
+    'prompt': depth_guard,
+    'depth': 0,
+    'role': 'system',
+}
+
 notes = data.get('creator_notes', '')
 recursion_note = '''
 
@@ -84,7 +93,7 @@ recursion_note = '''
 behavior_note = '''
 
 【v0.3 rc5 用户主权与连续性强化】
-真实GLM行为回归发现，仅在post-history里罗列“不得靠墙、换手、起身”等动作无法稳定阻止user代理，而且会与部分预设中的“平衡主导/自由变奏”形成叙事冲突。rc5 改用单边RP协议，并同时放入system_prompt与post-history：模型只推进NPC和环境，user可以作为NPC行为的对象，但不能成为模型新增动作的执行者；需要user反应时立即停住。另保持物品连续性与角色精确姓名约束。'''
+真实GLM行为回归发现，仅靠system_prompt/post-history仍会被部分预设的“平衡主导/自由变奏”续写习惯冲淡。rc5 因此在保留双层规则的同时，新增SillyTavern原生character depth prompt：system角色、depth=0，把“只写NPC与环境、不续写user”的单边RP末端锁插到聊天上下文最后一条消息附近。当前物品状态不得倒带，详细条目提供的姓名必须精确输出。'''
 if '【v0.3 rc5 世界书递归隔离】' not in notes:
     notes += recursion_note
 for old_title in ['【v0.3 rc5 用户主权强化】', '【v0.3 rc5 用户主权与连续性强化】']:
@@ -105,5 +114,6 @@ print(
     'system_guard=', data.get('system_prompt', '').startswith('【单边RP协议｜最高优先级】'),
     'agency_guard=', '【用户主权硬门槛｜单边RP】' in data.get('post_history_instructions', ''),
     'continuity_guard=', '【当前回合连续性与身份精确性】' in data.get('post_history_instructions', ''),
+    'depth_prompt=', data.get('extensions', {}).get('depth_prompt', {}).get('depth') == 0,
     'mila_name_anchor=', '身份名锚点：自我介绍时只使用准确姓名“米菈”' in mila.get('content', ''),
 )
