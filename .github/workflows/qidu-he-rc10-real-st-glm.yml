@@ -75,6 +75,12 @@ jobs:
       - name: Send real browser messages through fresh SillyTavern and GLM
         run: |
           set +e
+          # rc10 inherits an rc5 browser harness that capped visible completion budget at 1200.
+          # GLM 5.3 Flash may spend that entire budget in reasoning_content even with thinking disabled,
+          # yielding finish_reason=length and content=null. Keep the rc5 baseline file unchanged in git;
+          # only widen the checkout-local rc10 generation budget for this acceptance run.
+          sed -i 's/openai_max_tokens: 1200,/openai_max_tokens: 30000,/' .lab/qidu-he-rc5-real-st-glm-v2.mjs
+          grep -q 'openai_max_tokens: 30000,' .lab/qidu-he-rc5-real-st-glm-v2.mjs || { echo 'rc10 token-budget patch failed'; exit 1; }
           rm -f "$LAB_OUT/rc10-status.json" "$LAB_OUT/rc10-run-result.json"
           for attempt in 1 2 3; do
             echo "rc10 real ST attempt $attempt/3 with fresh data root"
