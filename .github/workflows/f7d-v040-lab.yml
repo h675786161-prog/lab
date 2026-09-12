@@ -1,4 +1,4 @@
-name: F7D v0.4.8 Final Regression
+name: F7D v0.4.9 Final Regression
 
 on:
   pull_request:
@@ -8,7 +8,9 @@ on:
       - '.github/workflows/real-sillytavern.yml'
       - '.lab/install.sh'
       - '.lab/build-v048.py'
+      - '.lab/build-v049.py'
       - '.lab/patch-v048-harness.py'
+      - '.lab/patch-v049-harness.py'
       - '.lab/runtime-smoke.mjs'
       - '.lab/f7d-targeted-v042.mjs'
       - 'fixtures/f7d/**'
@@ -24,39 +26,42 @@ jobs:
       extension_name: f7d-card
       sillytavern_commit: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
       run_project_smoke: true
-      artifact_name: f7d-v048-real-sillytavern
+      artifact_name: f7d-v049-real-sillytavern
       extra_extensions_json: '[]'
 
   targeted-behavior:
     runs-on: ubuntu-latest
-    timeout-minutes: 80
+    timeout-minutes: 90
     env:
       YOUZI_KEY: ${{ secrets.YOUZI }}
       F7D_MODEL: 'glm-4.5-air'
-      LAB_OUT: bench-evidence/f7d-v048-targeted
+      LAB_OUT: bench-evidence/f7d-v049-targeted
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build exact v0.4.8 candidate
+      - name: Build exact v0.4.9 candidate
         env:
-          LAB_EVIDENCE_DIR: bench-evidence/f7d-v048-targeted
+          LAB_EVIDENCE_DIR: bench-evidence/f7d-v049-targeted
           TARGET_DIR: ${{ github.workspace }}
           ST_DIR: /tmp/f7d-behavior-no-st
         run: bash .lab/install.sh
 
-      - name: Patch v0.4.8 regression harness
+      - name: Patch baseline regression harness
         run: python3 .lab/patch-v048-harness.py
+
+      - name: Add v0.4.9 narrative regression checks
+        run: python3 .lab/patch-v049-harness.py
 
       - name: Syntax-check regression harness
         run: node --check .lab/f7d-targeted-v042.mjs
 
-      - name: Run final v0.4.8 regression
+      - name: Run final v0.4.9 regression
         run: node .lab/f7d-targeted-v042.mjs
 
       - name: Upload targeted evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: f7d-v048-targeted
-          path: bench-evidence/f7d-v048-targeted/
+          name: f7d-v049-targeted
+          path: bench-evidence/f7d-v049-targeted/
           if-no-files-found: warn
