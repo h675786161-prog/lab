@@ -6,6 +6,7 @@ on:
       - qidu-he-if-longrp
     paths:
       - '.lab/qidu-he-rc10-real-st-glm.mjs'
+      - '.lab/qidu-he-rc10-runner.mjs'
       - '.lab/qidu-he-v03-rc10-response-scene-patch.py'
       - '.lab/qidu-he-rc5-real-st-glm-v2.mjs'
       - '.github/workflows/qidu-he-rc10-real-st-glm.yml'
@@ -76,7 +77,7 @@ jobs:
           echo "CHROME_BIN=$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)" >> "$GITHUB_ENV"
 
       - name: Send real browser messages through SillyTavern and GLM
-        run: node .lab/qidu-he-rc10-real-st-glm.mjs
+        run: node .lab/qidu-he-rc10-runner.mjs
 
       - name: Stop ST
         if: always()
