@@ -13,12 +13,13 @@ await fs.mkdir(OUT, { recursive: true });
 const card = JSON.parse(await fs.readFile(CARD_PATH, 'utf8'));
 const data = card.data;
 if (data.character_version !== '0.3.0-rc5') throw new Error(`expected rc5 candidate, got ${data.character_version}`);
-if (!data.post_history_instructions?.includes('【用户主权硬门槛】')) throw new Error('missing user sovereignty guard');
+if (!data.system_prompt?.startsWith('【单边RP协议｜最高优先级】')) throw new Error('missing system-level unilateral RP guard');
+if (!data.post_history_instructions?.includes('【用户主权硬门槛｜单边RP】')) throw new Error('missing post-history unilateral RP guard');
 if (!data.post_history_instructions?.includes('【当前回合连续性与身份精确性】')) throw new Error('missing continuity/identity guard');
 if (data.character_book?.entries?.length !== 31) throw new Error(`expected 31 entries, got ${data.character_book?.entries?.length}`);
 if (data.character_book.entries.filter(e => e.extensions?.prevent_recursion === true).length !== 31) throw new Error('candidate does not contain 31/31 prevent_recursion flags');
 const milaEntry = data.character_book.entries.find(e => e.name === '米菈');
-if (!milaEntry?.content?.includes('身份名锚点：自我介绍时姓名使用“米菈”')) throw new Error('米菈 exact-name anchor missing before ST import');
+if (!milaEntry?.content?.includes('身份名锚点：自我介绍时只使用准确姓名“米菈”')) throw new Error('米菈 exact-name anchor missing before ST import');
 
 const cases = [
   {
@@ -181,9 +182,10 @@ const scanEvidence = {
   stState,
   pageErrors,
   guards: {
-    userSovereignty: data.post_history_instructions.includes('【用户主权硬门槛】'),
+    systemUnilateralRP: data.system_prompt.startsWith('【单边RP协议｜最高优先级】'),
+    userSovereignty: data.post_history_instructions.includes('【用户主权硬门槛｜单边RP】'),
     continuityIdentity: data.post_history_instructions.includes('【当前回合连续性与身份精确性】'),
-    milaExactName: milaEntry.content.includes('身份名锚点：自我介绍时姓名使用“米菈”'),
+    milaExactName: milaEntry.content.includes('身份名锚点：自我介绍时只使用准确姓名“米菈”'),
   },
   scans: scans.map(x => ({
     id: x.id,
@@ -211,6 +213,6 @@ for (const name of ['源千雪：', '米菈：', '亚修：']) {
   if (controlScan.injection.includes(name)) throw new Error(`control scan unexpectedly injected ${name}`);
 }
 const milaScan = scans.find(x => x.id === 'mila_fountain_bass');
-if (!milaScan.injection.includes('身份名锚点：自我介绍时姓名使用“米菈”')) throw new Error('native ST injection lost 米菈 exact-name anchor');
+if (!milaScan.injection.includes('身份名锚点：自我介绍时只使用准确姓名“米菈”')) throw new Error('native ST injection lost 米菈 exact-name anchor');
 
-console.log('RC5 NATIVE ST PASS', JSON.stringify({ stState, injectionChars: Object.fromEntries(scans.map(s => [s.id, s.injectionChars])) }));
+console.log('RC5 NATIVE ST PASS', JSON.stringify({ stState, guards: scanEvidence.guards, injectionChars: Object.fromEntries(scans.map(s => [s.id, s.injectionChars])) }));
