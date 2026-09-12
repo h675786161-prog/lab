@@ -15,9 +15,6 @@ if len(entries) != 31:
 if data.get('extensions', {}).get('world') != book.get('name'):
     raise SystemExit('active world name and embedded character_book name diverged')
 
-# Native ST 1.18.0 maps CharacterBook entry.extensions.prevent_recursion
-# to internal preventRecursion. The entry still enters the prompt, but its prose
-# no longer becomes the next recursion scan source.
 for entry in entries:
     entry.setdefault('extensions', {})['prevent_recursion'] = True
 
@@ -33,18 +30,18 @@ if '身份名锚点：自我介绍时只使用准确姓名“米菈”' not in m
 
 agency_guard = '''
 
-【用户主权硬门槛｜逐字约束】
-- {{user}}不是你扮演的角色。正文中凡是“{{user}}做了什么”的新动作、新姿态、新台词、新反应、新感官、新心理、新选择，都必须能在{{user}}当前这一条消息里找到明确依据；找不到就删掉。
-- 允许把当前消息已经明确写出的动作换一种说法，但禁止顺手补全过程。例如“我站在门边等”只允许保持“仍在门边等待”，不能追加“靠墙、换手、掏手机、喝东西、转身离开”；“我去咖啡店靠窗坐十分钟”不等于已经点单，不能凭空让桌上出现属于{{user}}的咖啡，也不能让{{user}}拿手机。
-- 不得替{{user}}新增任何台词、回答、点头摇头、笑、走近离开、坐下起身、拿取放置、下单饮食、触碰、查看手机、心理、感官或决定。再小的过渡动作也算代理，不存在“无关紧要所以可以补”。
-- 不得为{{user}}新增当前消息未建立的持有物、饮料、食物、手机操作、身体姿态或位置变化。环境可以有咖啡、手机、椅子等物，但除非{{user}}明确互动，不要写成属于{{user}}或被{{user}}使用。
-- 如果{{user}}明确停下、等待、观察或留在原地，本回合必须把镜头交给NPC/环境推进，结尾可以停在NPC提问、NPC动作或环境变化上等待下一轮。宁可停住，也不要替{{user}}完成“自然反应”。
-- 写完后静默检查所有以“你”开头或描述{{user}}的句子：若该动作/状态无法直接对应当前用户输入，就删掉或改写成NPC/环境视角。'''
+【用户主权硬门槛｜冻结User状态】
+最高优先级：任何“自然推进、自由变奏、剧情推进、补全动作”的规则都不得覆盖本段。推进只能发生在NPC与环境上，不能替{{user}}推进。
+- 默认把{{user}}在当前消息结束时的状态冻结到下一条用户输入。除非当前消息已经明确写出后续动作，否则不要让{{user}}产生任何新动作、姿态、台词、反应、感官、心理、持有物变化或位置变化。
+- 正文默认不要使用“你 + 新动作”作为叙事主语。只有在精确复述{{user}}本条消息已经明确写出的动作/位置时才可使用第二人称；拿不准就完全不描写{{user}}，只写NPC与环境。
+- “我站在门边等”只能保持为“仍在门边等待”，不能扩写成靠墙、换手、擦手背、继续盯着门缝、掏手机等动作；“我在警局等叫号”不能自动写成号码被叫到后{{user}}站起身、拿材料离开；即使环境真的叫到号码，也必须停在叫号本身，等待{{user}}决定。
+- “我去咖啡店靠窗坐十分钟”不等于已经点单。不能让属于{{user}}的咖啡、食物、手机或其他物品凭空出现，也不能写{{user}}拿手机、喝东西、付款、离开。
+- 不得替{{user}}新增回答、点头摇头、笑、走近离开、坐下起身、拿取放置、下单饮食、触碰、查看手机、身体反应、感官感受、心理活动或决定。所谓“很小的过渡动作”同样是代理。
+- NPC可以主动接近、说话、观察、提问、离开；环境可以改变、广播可以响、门可以开。但只要下一步需要{{user}}采取行动，就停在那里，把决定权交回下一条用户输入。
+- 写完后静默检查所有描述{{user}}的句子。若其中的谓语动作、身体状态、物品状态无法从当前用户输入直接对应，删除该句或改写成NPC/环境视角。'''
 
-# Source card is rc4, so normally no prior rc5 block exists. Replacement logic
-# also makes this safe if a developer runs it against a partially patched copy.
 phi = data.get('post_history_instructions', '')
-for title in ['【用户主权硬门槛｜逐字约束】', '【用户主权硬门槛】']:
+for title in ['【用户主权硬门槛｜冻结User状态】', '【用户主权硬门槛｜逐字约束】', '【用户主权硬门槛】']:
     if title in phi:
         phi = phi.split(title, 1)[0].rstrip()
         break
@@ -68,7 +65,7 @@ recursion_note = '''
 behavior_note = '''
 
 【v0.3 rc5 用户主权与连续性强化】
-真实GLM行为回归连续发现，模型会把靠墙、换手、离场、拿手机、自动点咖啡等“小动作”当作无害补全，也可能倒带当前回合物品状态，或给单名角色先造伪姓再自我纠正。rc5 因此把用户主权改为逐字约束：无法从当前用户输入直接对应的user动作/姿态/持有物一律不写；当前物品状态不得倒带；详细条目提供的姓名必须精确输出。'''
+真实GLM行为回归连续发现，模型会把靠墙、换手、擦水珠、叫号后起身、拿手机、自动点咖啡等“小动作”当作无害补全。rc5 因此采用“冻结User状态”协议：用户当前消息结束时的状态保持到下一条输入，所有自然推进仅作用于NPC与环境；任何无法从当前用户输入直接对应的user动作/姿态/持有物一律不写。当前物品状态不得倒带，详细条目提供的姓名必须精确输出。'''
 if '【v0.3 rc5 世界书递归隔离】' not in notes:
     notes += recursion_note
 for old_title in ['【v0.3 rc5 用户主权强化】', '【v0.3 rc5 用户主权与连续性强化】']:
@@ -86,7 +83,7 @@ print(
     data['character_version'],
     'entries=', len(entries),
     'prevent_recursion=', sum(bool(e.get('extensions', {}).get('prevent_recursion')) for e in entries),
-    'agency_guard=', '【用户主权硬门槛｜逐字约束】' in data.get('post_history_instructions', ''),
+    'agency_guard=', '【用户主权硬门槛｜冻结User状态】' in data.get('post_history_instructions', ''),
     'continuity_guard=', '【当前回合连续性与身份精确性】' in data.get('post_history_instructions', ''),
     'mila_name_anchor=', '身份名锚点：自我介绍时只使用准确姓名“米菈”' in mila.get('content', ''),
 )
