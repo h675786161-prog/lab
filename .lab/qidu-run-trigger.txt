@@ -1,4 +1,4 @@
-run=v0.4.14-r5-ann-boundary-hash-probe
-reason=harden Ann dismantling response; forbid invented internal mechanical anatomy; align card bridge metadata to standalone qidu-choice-bridge 1.0.0; print new compact hash before final acceptance
-previous_candidate_compact_sha256=1792818dd4915f27d21f2704e0fb9f5438a996825011c5654ba8eda95338894c
+run=v0.4.14-r5-final-acceptance
+reason=final acceptance after Ann boundary hardening and standalone qidu-choice-bridge packaging; require real ST + narrative bench + package artifact
+candidate_compact_sha256=1221d3392e08313abf55fd89d63bf0560102cedd2c8ed10d7387c2df79b38cd9
 bridge_version=1.0.0
