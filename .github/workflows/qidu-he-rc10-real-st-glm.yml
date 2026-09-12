@@ -31,6 +31,7 @@ jobs:
       ST_DIR: /tmp/qidu-he-rc10-real-st
       ST_URL: http://127.0.0.1:8000/
       PLAYWRIGHT_MODULE: file:///tmp/qidu-rc10-real-browser/node_modules/playwright-core/index.mjs
+      RC10_ATTEMPT_TIMEOUT_MS: '150000'
     steps:
       - uses: actions/checkout@v4
 
@@ -50,7 +51,7 @@ jobs:
           console.log('candidate ready',d.character_version,'depth',dp.depth,'role',dp.role,'model',process.env.GLM_MODEL,'rpm<=',process.env.RPM);
           NODE
 
-      - name: Start exact SillyTavern
+      - name: Prepare exact SillyTavern runtime
         run: |
           set -euo pipefail
           mkdir -p "$LAB_OUT"
@@ -60,11 +61,6 @@ jobs:
           git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
           test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
           cd "$ST_DIR" && npm ci
-          nohup node server.js --listen --port 8000 --disableCsrf > "$GITHUB_WORKSPACE/$LAB_OUT/st-runtime.log" 2>&1 &
-          echo $! > /tmp/qidu-he-rc10-real-st.pid
-          for i in $(seq 1 90); do curl -fsS http://127.0.0.1:8000/ >/dev/null && exit 0; sleep 1; done
-          cat "$GITHUB_WORKSPACE/$LAB_OUT/st-runtime.log"
-          exit 1
 
       - name: Install browser driver
         run: |
@@ -76,25 +72,48 @@ jobs:
           npm install --no-audit --no-fund playwright-core@1.55.0
           echo "CHROME_BIN=$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)" >> "$GITHUB_ENV"
 
-      - name: Send real browser messages through SillyTavern and GLM
+      - name: Send real browser messages through fresh SillyTavern and GLM
         run: |
           set +e
-          rm -f "$LAB_OUT/rc10-status.json"
+          rm -f "$LAB_OUT/rc10-status.json" "$LAB_OUT/rc10-run-result.json"
           for attempt in 1 2 3; do
-            echo "rc10 real ST attempt $attempt/3"
+            echo "rc10 real ST attempt $attempt/3 with fresh data root"
+            if [ -f /tmp/qidu-he-rc10-real-st.pid ]; then
+              kill "$(cat /tmp/qidu-he-rc10-real-st.pid)" 2>/dev/null || true
+              sleep 2
+            fi
+            data_root="/tmp/qidu-he-rc10-data-$attempt"
+            rm -rf "$data_root"
+            cd "$ST_DIR"
+            nohup node server.js --listen --port 8000 --disableCsrf --dataRoot "$data_root" > "$GITHUB_WORKSPACE/$LAB_OUT/st-runtime-attempt-$attempt.log" 2>&1 &
+            echo $! > /tmp/qidu-he-rc10-real-st.pid
+            ready=0
+            for i in $(seq 1 90); do
+              if curl -fsS http://127.0.0.1:8000/ >/dev/null; then ready=1; break; fi
+              sleep 1
+            done
+            if [ "$ready" -ne 1 ]; then
+              echo "SillyTavern failed to start for attempt $attempt"
+              cat "$GITHUB_WORKSPACE/$LAB_OUT/st-runtime-attempt-$attempt.log" || true
+              echo "{\"status\":\"runtime_fail\",\"attempt\":$attempt,\"reason\":\"st_start_failed\"}" > "$GITHUB_WORKSPACE/$LAB_OUT/rc10-run-result.json"
+              exit 1
+            fi
+            cd "$GITHUB_WORKSPACE"
+            rm -f "$LAB_OUT/rc10-status.json"
             node .lab/qidu-he-rc10-runner.mjs
             code=$?
             if [ "$code" -eq 0 ]; then
-              echo '{"status":"runtime_pass"}' > "$LAB_OUT/rc10-run-result.json"
+              echo "{\"status\":\"runtime_pass\",\"attempt\":$attempt}" > "$LAB_OUT/rc10-run-result.json"
               exit 0
             fi
             if [ "$code" -ne 75 ]; then
+              echo "{\"status\":\"runtime_fail\",\"attempt\":$attempt,\"exit_code\":$code}" > "$LAB_OUT/rc10-run-result.json"
               exit "$code"
             fi
             if [ "$attempt" -lt 3 ]; then sleep $((attempt * 15)); fi
           done
           echo '{"status":"blocked_upstream","attempts":3}' > "$LAB_OUT/rc10-run-result.json"
-          echo 'RC10 acceptance blocked by upstream after 3 attempts; card behavior not adjudicated.'
+          echo 'RC10 acceptance blocked by upstream after 3 fresh-ST attempts; card behavior not adjudicated.'
           exit 0
 
       - name: Classify acceptance state
@@ -105,8 +124,9 @@ jobs:
           const p=process.env.LAB_OUT+'/rc10-run-result.json';
           if(!fs.existsSync(p)) throw new Error('rc10 run result missing');
           const r=JSON.parse(fs.readFileSync(p,'utf8'));
-          console.log('RC10_ACCEPTANCE_STATE',r.status);
+          console.log('RC10_ACCEPTANCE_STATE',r.status,'attempt',r.attempt ?? r.attempts ?? 'n/a');
           if(r.status==='blocked_upstream') console.log('Requested [B]glm-5.3-flash did not provide usable completions; do not mark rc10 behavior PASS.');
+          if(r.status==='runtime_fail') throw new Error(`rc10 runtime/card acceptance failed: ${JSON.stringify(r)}`);
           NODE
 
       - name: Stop ST
