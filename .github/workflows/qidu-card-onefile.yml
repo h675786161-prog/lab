@@ -93,7 +93,19 @@ jobs:
           import { loadQiduOneFileCard } from './.lab/qidu-card-v0422-npc-knowledge.mjs';
           const { card, raw, compactSha256 } = await loadQiduOneFileCard(process.cwd(), { skipHashCheck:true });
           if (card.data.extensions?.qidu_choice_bridge) throw new Error('external bridge dependency still present');
-          if ((card.data.extensions?.regex_scripts || []).length < 4) throw new Error('embedded regex missing');
+          const scripts=card.data.extensions?.regex_scripts || [];
+          if (scripts.length < 4) throw new Error('embedded regex missing');
+          const rx=id=>scripts.find(x=>x?.id===id);
+          const terminal=rx('f7d-terminal-v040');
+          const stateHide=rx('f7d-state-hide-v040');
+          const choices=rx('f7d-choices-wrap-v0414');
+          const choice=rx('f7d-choice-button-v0414');
+          if(!terminal||!stateHide||!choices||!choice) throw new Error('required terminal/choice UI regex missing');
+          const tr=String(terminal.replaceString||''), sr=String(stateHide.replaceString??''), gr=String(choices.replaceString||''), cr=String(choice.replaceString||'');
+          if(!tr.includes('data-f7d-terminal="1"')||!tr.includes('linear-gradient')||!tr.includes('border-radius')) throw new Error('tactical terminal beautification missing');
+          if(sr!=='') throw new Error('hidden f7d_state is no longer hidden');
+          if(!gr.includes('data-f7d-choice-grid="1"')||!gr.includes('display:grid')||!gr.includes('linear-gradient')||!gr.includes('border-radius')) throw new Error('choice grid beautification missing');
+          if(!cr.includes('data-f7d-choice="1"')||!/<label\b/i.test(cr)||!cr.includes('for="send_textarea"')||!cr.includes('min-height:44px')||!cr.includes('linear-gradient')||!cr.includes('border-radius')) throw new Error('choice tile beautification/composer target missing');
           if (card.data.extensions?.depth_prompt?.depth !== 0) throw new Error('UI/info protocol is not depth 0');
           const p=(card.data.character_book?.entries||[]).find(e=>String(e.name||'').startsWith('04｜'));
           const s=(card.data.character_book?.entries||[]).find(e=>String(e.name||'').startsWith('30｜'));
@@ -123,7 +135,7 @@ jobs:
           const name='永远的7日之都-七日轮回文本互动-v0.4.22-onefile.json';
           await fs.writeFile(`dist-onefile/${name}`, raw);
           await fs.writeFile('dist-onefile/SHA256.txt', `${compactSha256}  ${name}\n`);
-          console.log(JSON.stringify({version:card.data.character_version,entries:card.data.character_book?.entries?.length,regex:(card.data.extensions?.regex_scripts||[]).map(x=>x.id),depth:card.data.extensions?.depth_prompt?.depth,sha256:compactSha256},null,2));
+          console.log(JSON.stringify({version:card.data.character_version,entries:card.data.character_book?.entries?.length,regex:scripts.map(x=>x.id),ui:{terminal:true,stateHidden:true,choiceGrid:true,choiceTiles:true},depth:card.data.extensions?.depth_prompt?.depth,sha256:compactSha256},null,2));
           NODE
       - name: Upload one-file card
         uses: actions/upload-artifact@v4
