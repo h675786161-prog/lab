@@ -25,16 +25,16 @@ jobs:
     env:
       YOUZI_KEY: ${{ secrets.YOUZI }}
       GLM_MODEL: '[B]glm-5.3-flash'
-      LAB_OUT: bench-evidence/qidu-card-onefile
-      LAB_OUT_CONFLICT: bench-evidence/qidu-card-onefile-preset-conflict
+      LAB_OUT: bench-evidence/qidu-card-v0418-core
+      LAB_OUT_CONFLICT: bench-evidence/qidu-card-v0418-preset-conflict
       LAB_OUT_INFO: bench-evidence/qidu-card-v0418-info-timeline
     steps:
       - uses: actions/checkout@v4
-      - name: Run unchanged narrative regression suite
-        run: node .lab/qidu-card-model-bench-v0414-r4.mjs
-      - name: Run preset branch conflict regression
-        run: node .lab/qidu-card-model-bench-v0416-preset-conflict.mjs
-      - name: Run information timeline regression
+      - name: Run v0418 core OOC regression
+        run: node .lab/qidu-card-model-bench-v0418-core.mjs
+      - name: Run v0418 preset branch conflict regression
+        run: node .lab/qidu-card-model-bench-v0418-preset-conflict.mjs
+      - name: Run v0418 information timeline regression
         run: node .lab/qidu-card-model-bench-v0418-info-timeline.mjs
       - name: Upload narrative evidence
         if: always()
