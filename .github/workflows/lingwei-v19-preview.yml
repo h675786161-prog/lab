@@ -18,7 +18,7 @@ jobs:
       - name: Build CSS
         run: |
           mkdir -p "$EVIDENCE"
-          cat fixtures/lingwei-v14/assets-frame.css fixtures/lingwei-v14/assets-bottle.css fixtures/lingwei-v14/assets-stars.css fixtures/lingwei-v14/assets-deco.css fixtures/lingwei-v14/theme.css fixtures/lingwei-v15/master-reference.css fixtures/lingwei-v16/refine.css fixtures/lingwei-v17/refine.css fixtures/lingwei-v18/refine.css fixtures/lingwei-v19/refine.css fixtures/lingwei-v20/refine.css fixtures/lingwei-v21/refine.css > /tmp/lingwei-v21.css
+          cat fixtures/lingwei-v14/assets-frame.css fixtures/lingwei-v14/assets-bottle.css fixtures/lingwei-v14/assets-stars.css fixtures/lingwei-v14/assets-deco.css fixtures/lingwei-v14/theme.css fixtures/lingwei-v15/master-reference.css fixtures/lingwei-v16/refine.css fixtures/lingwei-v17/refine.css fixtures/lingwei-v18/refine.css fixtures/lingwei-v19/refine.css fixtures/lingwei-v20/refine.css fixtures/lingwei-v21/refine.css fixtures/lingwei-v21/fix.css > /tmp/lingwei-v21.css
           test -s /tmp/lingwei-v21.css
       - name: Clone exact SillyTavern
         run: |
