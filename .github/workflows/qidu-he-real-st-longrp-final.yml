@@ -32,14 +32,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore latest verified real-ST turn checkpoint
-        uses: actions/download-artifact@v4
-        with:
-          name: qidu-he-real-st-longrp-final
-          path: bench-evidence/qidu-he-real-st-longrp
-          github-token: ${{ github.token }}
-          repository: h675786161-prog/lab
-          run-id: 34717383580
+      # New card version: start fresh; rc10 transcript is historical evidence only.
 
       - name: Prepare exact SillyTavern and browser
         run: |
