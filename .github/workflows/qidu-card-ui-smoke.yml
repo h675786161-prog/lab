@@ -1,0 +1,20 @@
+name: Qidu Card UI Smoke LAB
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['feature/qidu-card-v0411-lab']
+    paths:
+      - '.lab/qidu-ui-trigger.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  real-sillytavern-ui:
+    uses: h675786161-prog/lab/.github/workflows/real-sillytavern.yml@main
+    with:
+      extension_name: qidu-card-onefile-ui
+      run_project_smoke: true
+      artifact_name: qidu-card-v0422-ui-real-st
+    secrets: inherit
