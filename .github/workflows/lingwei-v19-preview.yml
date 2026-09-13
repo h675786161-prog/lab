@@ -1,24 +1,24 @@
-name: LingWei v2.3 Structural Reading Rail Preview
+name: LingWei v2.4 Twilight Stage Depth Preview
 on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['.github/workflows/lingwei-v19-preview.yml','fixtures/lingwei-v23/**']
+    paths: ['.github/workflows/lingwei-v19-preview.yml','fixtures/lingwei-v23/**','fixtures/lingwei-v24/**']
 permissions: {contents: read}
 jobs:
   preview:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      ST_DIR: /tmp/lingwei-v23-st
-      EVIDENCE: ${{ github.workspace }}/lab-evidence-v23
+      ST_DIR: /tmp/lingwei-v24-st
+      EVIDENCE: ${{ github.workspace }}/lab-evidence-v24
       ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
     steps:
       - uses: actions/checkout@v4
       - name: Build CSS
         run: |
           mkdir -p "$EVIDENCE"
-          cat fixtures/lingwei-v14/assets-frame.css fixtures/lingwei-v14/assets-bottle.css fixtures/lingwei-v14/assets-stars.css fixtures/lingwei-v14/assets-deco.css fixtures/lingwei-v14/theme.css fixtures/lingwei-v15/master-reference.css fixtures/lingwei-v16/refine.css fixtures/lingwei-v17/refine.css fixtures/lingwei-v18/refine.css fixtures/lingwei-v19/refine.css fixtures/lingwei-v20/refine.css fixtures/lingwei-v21/refine.css fixtures/lingwei-v21/fix.css fixtures/lingwei-v22/refine.css fixtures/lingwei-v22/fix.css fixtures/lingwei-v23/refine.css > /tmp/lingwei-v23.css
+          cat fixtures/lingwei-v14/assets-frame.css fixtures/lingwei-v14/assets-bottle.css fixtures/lingwei-v14/assets-stars.css fixtures/lingwei-v14/assets-deco.css fixtures/lingwei-v14/theme.css fixtures/lingwei-v15/master-reference.css fixtures/lingwei-v16/refine.css fixtures/lingwei-v17/refine.css fixtures/lingwei-v18/refine.css fixtures/lingwei-v19/refine.css fixtures/lingwei-v20/refine.css fixtures/lingwei-v21/refine.css fixtures/lingwei-v21/fix.css fixtures/lingwei-v22/refine.css fixtures/lingwei-v22/fix.css fixtures/lingwei-v23/refine.css fixtures/lingwei-v24/refine.css > /tmp/lingwei-v23.css
           test -s /tmp/lingwei-v23.css
       - name: Clone exact SillyTavern
         run: |
@@ -27,16 +27,16 @@ jobs:
           git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
           test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
       - name: Install
-        working-directory: /tmp/lingwei-v23-st
+        working-directory: /tmp/lingwei-v24-st
         run: npm ci
       - name: Start
         run: |
-          cd "$ST_DIR"; nohup node server.js --listen --port 8000 --disableCsrf > "$EVIDENCE/sillytavern.log" 2>&1 & echo $! >/tmp/lingwei-v23.pid
+          cd "$ST_DIR"; nohup node server.js --listen --port 8000 --disableCsrf > "$EVIDENCE/sillytavern.log" 2>&1 & echo $! >/tmp/lingwei-v24.pid
           for i in $(seq 1 90); do curl -fsS --max-time 2 http://127.0.0.1:8000/ >/dev/null 2>&1 && exit 0; sleep 1; done; cat "$EVIDENCE/sillytavern.log"; exit 1
       - name: Browser
         run: |
-          mkdir -p /tmp/lingwei-v23-browser; cd /tmp/lingwei-v23-browser; npm init -y >/dev/null 2>&1; npm install --no-audit --no-fund playwright-core@1.55.0
-          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"; test -n "$CHROME_BIN"; echo "CHROME_BIN=$CHROME_BIN" >> "$GITHUB_ENV"; echo "PW_ENTRY=file:///tmp/lingwei-v23-browser/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
+          mkdir -p /tmp/lingwei-v24-browser; cd /tmp/lingwei-v24-browser; npm init -y >/dev/null 2>&1; npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"; test -n "$CHROME_BIN"; echo "CHROME_BIN=$CHROME_BIN" >> "$GITHUB_ENV"; echo "PW_ENTRY=file:///tmp/lingwei-v24-browser/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
       - name: Screenshot real SillyTavern
         run: EVIDENCE="$EVIDENCE" node fixtures/lingwei-v23/shot.mjs
       - name: Print report
@@ -44,8 +44,8 @@ jobs:
         run: test ! -f "$EVIDENCE/report.json" || cat "$EVIDENCE/report.json"
       - name: Stop
         if: always()
-        run: test ! -f /tmp/lingwei-v23.pid || kill "$(cat /tmp/lingwei-v23.pid)" 2>/dev/null || true
+        run: test ! -f /tmp/lingwei-v24.pid || kill "$(cat /tmp/lingwei-v24.pid)" 2>/dev/null || true
       - name: Upload
         if: always()
         uses: actions/upload-artifact@v4
-        with: {name: lingwei-v23-preview, path: lab-evidence-v23, if-no-files-found: warn}
+        with: {name: lingwei-v24-preview, path: lab-evidence-v24, if-no-files-found: warn}
