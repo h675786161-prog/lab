@@ -1,0 +1,76 @@
+name: LingWei v3 Dream Dusk Asset Integration Preview
+on:
+  workflow_dispatch:
+  push:
+    branches: [lingwei-assets-v3]
+    paths:
+      - '.github/workflows/lingwei-v3-preview.yml'
+      - 'fixtures/lingwei-v3/**'
+      - 'scripts/lingwei-v3-*.sh'
+permissions: {contents: read}
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ST_DIR: /tmp/lingwei-v3-st
+      EVIDENCE: ${{ github.workspace }}/lab-evidence-v3
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build CSS and validate assets
+        run: |
+          mkdir -p "$EVIDENCE" /tmp/lingwei-v3-assets
+          cat fixtures/lingwei-v3/theme.css fixtures/lingwei-v3/layout-guard.css > /tmp/lingwei-v3.css
+          python3 - /tmp/lingwei-v3.css <<'PY'
+          from pathlib import Path
+          import sys
+          p=Path(sys.argv[1]);s=p.read_text(encoding='utf-8').replace('url("./assets/','url("/scripts/extensions/third-party/lingwei-v3-qa/assets/');p.write_text(s,encoding='utf-8')
+          PY
+          cp fixtures/lingwei-v3/assets/*.png /tmp/lingwei-v3-assets/
+          python3 - <<'PY'
+          from pathlib import Path
+          assets=sorted(Path('/tmp/lingwei-v3-assets').glob('*.png'))
+          assert len(assets)==10, f'expected 10 PNGs, got {len(assets)}'
+          for f in assets: assert f.read_bytes()[:8]==b'\x89PNG\r\n\x1a\n', f'invalid PNG: {f.name}'
+          print('10 PNG assets: PASS')
+          PY
+          cp /tmp/lingwei-v3.css "$EVIDENCE/combined-theme.css"
+      - name: Clone exact SillyTavern
+        run: |
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+      - name: Install v3 QA assets
+        run: |
+          DST="$ST_DIR/public/scripts/extensions/third-party/lingwei-v3-qa/assets"
+          mkdir -p "$DST"
+          cp /tmp/lingwei-v3-assets/*.png "$DST"/
+          test "$(find "$DST" -maxdepth 1 -name '*.png' | wc -l)" -eq 10
+      - name: Install
+        working-directory: /tmp/lingwei-v3-st
+        run: npm ci
+      - name: Start
+        run: |
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8000 --disableCsrf > "$EVIDENCE/sillytavern.log" 2>&1 & echo $! >/tmp/lingwei-v3.pid
+          for i in $(seq 1 90); do curl -fsS --max-time 2 http://127.0.0.1:8000/ >/dev/null 2>&1 && exit 0; sleep 1; done
+          cat "$EVIDENCE/sillytavern.log"; exit 1
+      - name: Browser
+        run: |
+          mkdir -p /tmp/lingwei-v3-browser; cd /tmp/lingwei-v3-browser; npm init -y >/dev/null 2>&1; npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"; test -n "$CHROME_BIN"; echo "CHROME_BIN=$CHROME_BIN" >> "$GITHUB_ENV"; echo "PW_ENTRY=file:///tmp/lingwei-v3-browser/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
+      - name: Screenshot and validate real SillyTavern
+        run: EVIDENCE="$EVIDENCE" node fixtures/lingwei-v3/shot.mjs
+      - name: Print report
+        if: always()
+        run: test ! -f "$EVIDENCE/report.json" || cat "$EVIDENCE/report.json"
+      - name: Stop
+        if: always()
+        run: test ! -f /tmp/lingwei-v3.pid || kill "$(cat /tmp/lingwei-v3.pid)" 2>/dev/null || true
+      - name: Upload
+        if: always()
+        uses: actions/upload-artifact@v4
+        with: {name: lingwei-v3-real-lab, path: lab-evidence-v3, if-no-files-found: warn, retention-days: 30}
