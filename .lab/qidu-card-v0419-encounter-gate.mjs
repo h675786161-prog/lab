@@ -29,6 +29,13 @@ export async function loadQiduOneFileCard(workspace=process.env.GITHUB_WORKSPACE
 
   const protocol=findEntry(card,'04｜');
   appendOnce(protocol,'角色首次识别门禁｜隐藏执行',IDENTITY_GATE);
+  appendOnce(protocol,'场景必出角色连续性检查',`
+【场景必出角色连续性检查｜隐藏执行】
+- 每次生成主线/角色剧情前，先从当前条目提取“剧情必出人物、当前同行者、上一节点仍在场且尚未明确离开的角色”，形成隐藏required_cast。
+- required_cast中的人必须在本轮得到实际存在感：行动、台词、被明确分配任务或被明确说明离开/留守都可以；不得因为模型更熟悉某个角色就把其他必出人物静默删除。
+- 若上一轮某角色仍与队伍同行，本轮想让其离场，必须先交代合理去向，再从现场连续性中移除。禁止上一轮还在、下一轮像从世界上蒸发。
+- “剧情限定角色”只在指定节点必出；“巡查可随机人物”不因名字出现在世界书就自动生成。required_cast用于防漏人，不用于塞满所有角色。
+`);
 
   const day7=findEntry(card,'10｜');
   appendOnce(day7,'高校初见与泰丝拉连续性',`
@@ -78,11 +85,11 @@ export async function loadQiduOneFileCard(workspace=process.env.GITHUB_WORKSPACE
   const ext=card.data.extensions||{};
   const dp=ext.depth_prompt||{prompt:'',depth:0,role:'system'};
   dp.depth=0;dp.role='system';
-  const lock=' ㉒首次识别：worldbook知道姓名不等于{{user}}认得眼前的人；不在f7d_state.known的角色先用外观/动作称呼，直到现场称呼、自我介绍或可靠资料完成姓名-人物对应。高校2/6按原作顺序：两名少女同时在场→泰丝拉先叫出“珈儿”→{{user}}联想到求救信姓名→珈儿确认并介绍泰丝拉→两人加入known。泰丝拉不得被省略，后续若分开必须交代去向。';
+  const lock=' ㉒首次识别：worldbook知道姓名不等于{{user}}认得眼前的人；不在f7d_state.known的角色先用外观/动作称呼，直到现场称呼、自我介绍或可靠资料完成姓名-人物对应。高校2/6按原作顺序：两名少女同时在场→泰丝拉先叫出“珈儿”→{{user}}联想到求救信姓名→珈儿确认并介绍泰丝拉→两人加入known。泰丝拉不得被省略，后续若分开必须交代去向。 ㉓每轮先检查required_cast：剧情必出人物、当前同行者、上一节点未离场人物不得静默消失；若离队必须先交代去向。';
   if(!String(dp.prompt||'').includes('㉒首次识别')) dp.prompt=String(dp.prompt||'')+lock;
   ext.depth_prompt=dp;
 
-  const phi='\n- 【首次识别与高校双人硬锁】听说过姓名不等于认得本人；不在当前轮known中的人物，旁白不得仅凭外貌直接报姓名。高校2/6必须同时出现珈儿与泰丝拉，先按陌生少女描写，再由泰丝拉叫出“珈儿”、珈儿确认并介绍泰丝拉后解锁姓名；泰丝拉后续若离队必须交代去向，不得无故消失。\n';
+  const phi='\n- 【首次识别与高校双人硬锁】听说过姓名不等于认得本人；不在当前轮known中的人物，旁白不得仅凭外貌直接报姓名。高校2/6必须同时出现珈儿与泰丝拉，先按陌生少女描写，再由泰丝拉叫出“珈儿”、珈儿确认并介绍泰丝拉后解锁姓名；泰丝拉后续若离队必须交代去向，不得无故消失。\n- 【必出角色连续性】主线条目标为必出、当前同行或上一节点尚未离场的人物，本轮必须出现/行动/被明确安排去向，不能静默删除；随机人物则不要为凑人数乱刷。\n';
   if(!String(card.data.post_history_instructions||'').includes('首次识别与高校双人硬锁')) card.data.post_history_instructions=String(card.data.post_history_instructions||'')+phi;
 
   const raw=Buffer.from(JSON.stringify(card),'utf8');
