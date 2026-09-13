@@ -27,20 +27,20 @@ jobs:
       GLM_MODEL: '[B]glm-5.3-flash'
       LAB_OUT: bench-evidence/qidu-card-onefile
       LAB_OUT_CONFLICT: bench-evidence/qidu-card-onefile-preset-conflict
-      LAB_OUT_INFO: bench-evidence/qidu-card-v0417-info-gate
+      LAB_OUT_INFO: bench-evidence/qidu-card-v0418-info-timeline
     steps:
       - uses: actions/checkout@v4
       - name: Run unchanged narrative regression suite
         run: node .lab/qidu-card-model-bench-v0414-r4.mjs
       - name: Run preset branch conflict regression
         run: node .lab/qidu-card-model-bench-v0416-preset-conflict.mjs
-      - name: Run early-lore information gate regression
-        run: node .lab/qidu-card-model-bench-v0417-info-gate.mjs
+      - name: Run information timeline regression
+        run: node .lab/qidu-card-model-bench-v0418-info-timeline.mjs
       - name: Upload narrative evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: qidu-card-v0417-model-evidence
+          name: qidu-card-v0418-model-evidence
           path: bench-evidence/
           if-no-files-found: warn
 
@@ -54,14 +54,17 @@ jobs:
           mkdir -p dist-onefile
           node --input-type=module <<'NODE'
           import fs from 'node:fs/promises';
-          import { loadQiduOneFileCard } from './.lab/qidu-card-v0417-knowledge-gate.mjs';
+          import { loadQiduOneFileCard } from './.lab/qidu-card-v0418-info-timeline.mjs';
           const { card, raw, compactSha256 } = await loadQiduOneFileCard(process.cwd(), { skipHashCheck:true });
           if (card.data.extensions?.qidu_choice_bridge) throw new Error('external bridge dependency still present');
           if ((card.data.extensions?.regex_scripts || []).length < 4) throw new Error('embedded regex missing');
           if (card.data.extensions?.depth_prompt?.depth !== 0) throw new Error('UI/info protocol is not depth 0');
           const p=(card.data.character_book?.entries||[]).find(e=>String(e.name||'').startsWith('04｜'));
+          const a=(card.data.character_book?.entries||[]).find(e=>String(e.name||'').startsWith('41｜'));
           if(!String(p?.content||'').includes('信息权限判定链｜隐藏执行')) throw new Error('information gate missing');
-          const name='永远的7日之都-七日轮回文本互动-v0.4.17-onefile.json';
+          if(!String(p?.content||'').includes('指挥使能力边界与信息措辞')) throw new Error('commander boundary missing');
+          if(!String(a?.content||'').includes('第一活骸事故精确披露')) throw new Error('first-chimera layer missing');
+          const name='永远的7日之都-七日轮回文本互动-v0.4.18-onefile.json';
           await fs.writeFile(`dist-onefile/${name}`, raw);
           await fs.writeFile('dist-onefile/SHA256.txt', `${compactSha256}  ${name}\n`);
           console.log(JSON.stringify({version:card.data.character_version,entries:card.data.character_book?.entries?.length,regex:(card.data.extensions?.regex_scripts||[]).map(x=>x.id),depth:card.data.extensions?.depth_prompt?.depth,sha256:compactSha256},null,2));
@@ -69,6 +72,6 @@ jobs:
       - name: Upload one-file card
         uses: actions/upload-artifact@v4
         with:
-          name: qidu-card-v0417-onefile
+          name: qidu-card-v0418-onefile
           path: dist-onefile/
           if-no-files-found: error
