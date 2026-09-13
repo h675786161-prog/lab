@@ -1,2 +1,2 @@
-run=v0.4.15-onefile-acceptance-1
-reason=embed all frontend regex in character card JSON; remove qidu-choice-bridge dependency; validate real SillyTavern desktop/mobile rendering
+run=v0.4.15-onefile-acceptance-2
+reason=rerun after switching choice focus verification to trusted browser click; embedded regex only, no external bridge
