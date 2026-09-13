@@ -1,2 +1,2 @@
-run=v0.4.22-npc-knowledge-3
-reason=verify final v0422 with explicit npc_intel ledger, Kaji/new artifact-user knowledge provenance, no invented off-screen briefings, limited disclosure atomic state updates, prior encounter/info regressions, and real SillyTavern browser smoke before packaging
+run=v0.4.22-ui-retention-1
+reason=verify final v0422 keeps embedded tactical terminal and choice tiles, hidden state remains hidden, mobile/desktop responsive styling survives real SillyTavern formatting, option tiles still target the composer without auto-sending, and all NPC knowledge/encounter/info regressions remain green before packaging
