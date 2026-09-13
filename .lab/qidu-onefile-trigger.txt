@@ -1,2 +1,2 @@
-run=v0.4.22-npc-knowledge-1
-reason=verify Kaji as a newly awakened artifact user does not inherit player/model knowledge of chimera lore, limited disclosure stays limited, no self-diagnosis is invented, prior encounter/info regressions remain green, and final v0422 passes real SillyTavern browser smoke before packaging
+run=v0.4.22-npc-knowledge-2
+reason=verify Kaji/new artifact-user knowledge provenance, forbid invented off-screen training/manuals/private briefings, keep limited disclosure limited, preserve prior encounter/info regressions, and validate final v0422 in real SillyTavern browser before packaging
