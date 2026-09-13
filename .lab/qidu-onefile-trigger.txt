@@ -1,2 +1,2 @@
-run=v0.4.20-encounter-order-1
-reason=verify first-sighting identity binding, Kaji-before-Tesla token order, atomic known state commit, Tesla continuity, GLM provider behavior, full narrative regression, and real SillyTavern browser smoke before release
+run=v0.4.20-encounter-order-2
+reason=collect all narrative suites even if one model sample fails; verify v0420 encounter order/state behavior independently, preserve real SillyTavern browser smoke, and keep release blocked unless every gate passes
