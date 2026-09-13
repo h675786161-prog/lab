@@ -35,16 +35,6 @@ on:
 
   workflow_dispatch:
     inputs:
-      phone_social:
-        description: Test private Phone and Backstage sources in the real lab.
-        type: boolean
-        default: false
-      phone_ref:
-        description: Exact Phone commit.
-        type: string
-      backstage_ref:
-        description: Exact Backstage test commit.
-        type: string
       extension_name:
         description: Extension folder name. The lab self-test overrides this with its probe fixture.
         required: false
@@ -82,7 +72,6 @@ permissions:
 
 jobs:
   real-sillytavern:
-    if: ${{ !inputs.phone_social }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -419,106 +408,3 @@ jobs:
           name: ${{ inputs.artifact_name || 'lingqi-real-sillytavern' }}
           path: lab-evidence/
           if-no-files-found: warn
-
-  phone-social:
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.phone_social && github.repository == 'h675786161-prog/lab' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-      - name: Read private phone source
-        uses: actions/checkout@v4
-        with:
-          repository: h675786161-prog/phone
-          ref: ${{ inputs.phone_ref }}
-          path: private-phone
-          ssh-key: ${{ secrets.PHONE_SOCIAL_QA_KEY }}
-          persist-credentials: false
-      - name: Read private Backstage test source
-        uses: actions/checkout@v4
-        with:
-          repository: h675786161-prog/wordbankstage-test
-          ref: ${{ inputs.backstage_ref }}
-          path: private-backstage
-          ssh-key: ${{ secrets.BACKSTAGE_SOCIAL_QA_KEY }}
-          persist-credentials: false
-      - name: Check both private projects
-        shell: bash
-        run: |
-          set -euo pipefail
-          for project in private-phone private-backstage; do
-            (cd "$project" && npm run check && npm test) > "/tmp/$project-checks.log" 2>&1
-            echo "$project: syntax and unit tests passed"
-          done
-      - name: Install real Tavern and both complete extensions
-        shell: bash
-        run: |
-          set -euo pipefail
-          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git /tmp/social-tavern
-          git -C /tmp/social-tavern fetch origin 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8 --depth=1
-          git -C /tmp/social-tavern checkout --detach 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
-          (cd /tmp/social-tavern && npm ci) > /tmp/tavern-install.log 2>&1
-          mkdir -p /tmp/social-tavern/public/scripts/extensions/third-party
-          ln -s "$GITHUB_WORKSPACE/private-phone" /tmp/social-tavern/public/scripts/extensions/third-party/phone
-          ln -s "$GITHUB_WORKSPACE/private-backstage" /tmp/social-tavern/public/scripts/extensions/third-party/world-backstage-test
-          ln -s "$GITHUB_WORKSPACE/private-backstage" /tmp/social-tavern/public/phone-backstage-code
-          mkdir -p /tmp/social-browser
-          npm install --prefix /tmp/social-browser playwright-core > /tmp/browser-install.log 2>&1
-          mkdir -p lab-evidence
-          node -e "require('fs').writeFileSync('lab-evidence/refs.json',JSON.stringify({phone:process.env.PHONE_REF,backstage:process.env.BACKSTAGE_REF,tavern:'8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8'},null,2))"
-        env:
-          PHONE_REF: ${{ inputs.phone_ref }}
-          BACKSTAGE_REF: ${{ inputs.backstage_ref }}
-      - name: Run real browser social and gameplay regressions
-        shell: bash
-        env:
-          WP_PLAYWRIGHT_CORE_ENTRY: file:///tmp/social-browser/node_modules/playwright-core/index.mjs
-          WP_BROWSER_EXECUTABLE: /usr/bin/google-chrome
-          WP_TAVERN_URL: http://127.0.0.1:8027/
-          WP_HOST_MODULE: /scripts/extensions/third-party/world-backstage-test/phone-bridge-host.js?v=2
-          WP_SCREENSHOT_DIR: ${{ github.workspace }}/lab-evidence
-        run: |
-          set -euo pipefail
-          (cd /tmp/social-tavern && node server.js --port 8027 --disableCsrf > /tmp/social-tavern.log 2>&1) &
-          echo $! > /tmp/social-tavern.pid
-          for attempt in $(seq 1 60); do
-            if curl -fsS http://127.0.0.1:8027/ > /dev/null; then break; fi
-            sleep 1
-          done
-          node .lab/phone-social-qa.mjs > /tmp/social-browser.log 2>&1
-          echo 'Social bridge browser checks passed'
-          node private-phone/tests/runtime-pocket-experience-smoke.mjs > /tmp/pocket-browser.log 2>&1
-          echo 'Phone gestures, sharing and pocket gameplay passed'
-          node private-phone/tests/runtime-game-tables-smoke.mjs > /tmp/tables-browser.log 2>&1
-          echo 'Werewolf and Casino desktop/mobile checks passed'
-      - name: Sanitized failure summary
-        if: failure()
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          import pathlib,re
-          for name in ['social-browser','pocket-browser','tables-browser']:
-            p=pathlib.Path('/tmp/'+name+'.log')
-            if not p.exists(): continue
-            lines=p.read_text().splitlines()
-            for line in lines:
-              if re.match(r'^(locator\.|page\.|AssertionError|Error:|PAGE_ERRORS)',line):
-                print(name+': '+line[:350])
-          PY
-      - name: Upload only synthetic UI evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: phone-social-qa
-          path: |
-            lab-evidence/*.png
-            lab-evidence/*report.json
-            lab-evidence/refs.json
-          retention-days: 7
-      - name: Stop Tavern
-        if: always()
-        run: |
-          if [ -f /tmp/social-tavern.pid ]; then kill "$(cat /tmp/social-tavern.pid)" || true; fi
