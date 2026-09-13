@@ -1,2 +1,2 @@
-run=v0.4.15-onefile-acceptance-3
-reason=dismiss clean-profile ST dialogs before trusted click; verify embedded regex only, no external bridge
+run=v0.4.15-onefile-acceptance-4
+reason=final one-file acceptance: frontend regex embedded in character JSON; no external bridge; desktop/mobile render + no autosend
