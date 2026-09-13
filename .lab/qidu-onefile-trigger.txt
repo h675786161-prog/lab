@@ -1,2 +1,2 @@
-run=v0.4.17-information-gate-1
-reason=real ST acceptance plus early-lore knowledge gating: user-only countdown, pre-split Hiro identity, staged chimera/Zero disclosure
+run=v0.4.18-information-timeline-1
+reason=real ST acceptance plus user-only countdown, pre-split Hiro identity, first-chimera/Zero staged disclosure, and commander role wording
