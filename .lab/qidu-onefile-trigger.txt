@@ -1,2 +1,2 @@
-run=v0.4.19-encounter-gate-5
-reason=run encounter regression before other lore checks; verify first-sighting identity gate, original Kaji/Tesla introduction order, Tesla continuity, required_cast continuity, UI regex, and existing lore gates
+run=v0.4.19-encounter-gate-6
+reason=rerun with CI annotations enabled; diagnose any remaining first-sighting identity, Kaji/Tesla pair, intro-order, known atomicity, or Tesla continuity failures before release
