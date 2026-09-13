@@ -1,0 +1,112 @@
+/* LingWei v2.0 — real drawer architecture pass.
+   This layer does not invent panels. It styles the actual SillyTavern drawer DOM when visible. */
+
+@media(min-width:901px){
+  /* Give the page three readable architectural zones: tool wing / conversation / tool wing. */
+  html body{
+    background:
+      radial-gradient(ellipse at 50% 8%,rgba(255,247,242,.16),transparent 31%),
+      linear-gradient(90deg,#443d51 0 13.7%,#665c74 13.7% 15.1%,#c9becb 15.1% 15.8%,#e1d8e2 15.8% 84.2%,#c9becb 84.2% 84.9%,#655b73 84.9% 86.3%,#443c51 86.3% 100%)!important;
+  }
+  #sheld{width:min(960px,calc(100vw - 430px))!important}
+  #chat{padding-left:48px!important;padding-right:48px!important}
+
+  /* Real opened drawers are treated as built-in side cabinets rather than modal slabs. */
+  .drawer-content.openDrawer,.drawer-content.open,
+  .drawer-content[data-lw-probe="open"]{
+    position:fixed!important;top:86px!important;bottom:18px!important;
+    width:270px!important;max-width:270px!important;height:auto!important;
+    padding:16px 14px 20px!important;
+    overflow-y:auto!important;overflow-x:hidden!important;
+    border:1px solid rgba(255,255,255,.14)!important;
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.055),transparent 62px),
+      linear-gradient(180deg,rgba(63,55,77,.985),rgba(78,68,93,.985))!important;
+    color:#fbf3f6!important;
+    box-shadow:0 24px 64px rgba(23,17,32,.34),inset 0 1px rgba(255,255,255,.09)!important;
+    backdrop-filter:blur(16px) saturate(.94)!important;
+    scrollbar-width:thin!important;
+    scrollbar-color:rgba(245,220,207,.26) transparent!important;
+    z-index:2990!important;
+  }
+  .drawer-content.fillLeft.openDrawer,.drawer-content.fillLeft.open,
+  .drawer-content[data-lw-probe="open"][data-lw-side="left"]{
+    left:16px!important;right:auto!important;border-radius:16px 3px 3px 16px!important;
+  }
+  .drawer-content.fillRight.openDrawer,.drawer-content.fillRight.open,
+  .drawer-content[data-lw-probe="open"][data-lw-side="right"]{
+    right:16px!important;left:auto!important;border-radius:3px 16px 16px 3px!important;
+  }
+
+  /* Header rhythm inside real drawers. */
+  .drawer-content .drawer-header,.drawer-content .inline-drawer-header,
+  .drawer-content h2,.drawer-content h3,.drawer-content h4,
+  .drawer-content .title_text,.drawer-content .title_restorable{
+    color:#fff8f5!important;
+    letter-spacing:.025em!important;
+    text-shadow:0 2px 10px rgba(16,11,23,.22)!important;
+  }
+  .drawer-content h2,.drawer-content h3{margin-top:8px!important;margin-bottom:12px!important}
+  .drawer-content .inline-drawer{
+    margin:8px 0 10px!important;padding-bottom:8px!important;
+    border-bottom:1px solid rgba(255,255,255,.075)!important;
+  }
+  .drawer-content .inline-drawer-header{
+    min-height:34px!important;padding:5px 7px!important;border-radius:8px!important;
+    background:linear-gradient(90deg,rgba(255,255,255,.055),rgba(255,255,255,.018))!important;
+  }
+
+  /* Controls become quiet jewelry-box hardware, not generic gray form widgets. */
+  .drawer-content input:not([type="range"]),.drawer-content textarea,.drawer-content select,
+  .drawer-content .text_pole{
+    border:1px solid rgba(255,255,255,.12)!important;border-radius:8px!important;
+    background:rgba(255,255,255,.07)!important;color:#fffaf7!important;
+    box-shadow:inset 0 1px rgba(255,255,255,.04)!important;
+  }
+  .drawer-content input::placeholder,.drawer-content textarea::placeholder{color:rgba(255,248,244,.45)!important}
+  .drawer-content .menu_button,.drawer-content button:not(.drawer-toggle){
+    border:1px solid rgba(255,255,255,.11)!important;border-radius:8px!important;
+    background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.045))!important;
+    color:#fff8f4!important;box-shadow:none!important;
+  }
+  .drawer-content .menu_button:hover,.drawer-content button:not(.drawer-toggle):hover{
+    background:linear-gradient(180deg,rgba(255,255,255,.145),rgba(255,255,255,.07))!important;
+  }
+  .drawer-content input[type="range"]{accent-color:#d8b9c5!important}
+  .drawer-content hr{border-color:rgba(255,255,255,.09)!important}
+
+  /* Central stage gains a restrained inner rail matching the concept board. */
+  #sheld::after{
+    left:-88px!important;bottom:70px!important;width:148px!important;height:148px!important;opacity:.33!important;
+  }
+  #sheld{
+    border-left-color:rgba(255,255,255,.7)!important;
+    border-right-color:rgba(151,118,132,.24)!important;
+  }
+  #sheld::before{
+    left:-18px!important;right:-18px!important;
+    box-shadow:inset 0 0 0 3px rgba(255,255,255,.075),0 0 0 1px rgba(255,255,255,.11),0 20px 52px rgba(48,35,61,.08)!important;
+  }
+
+  /* Message rhythm: visual hero first, then actual conversation. */
+  #chat .mes:first-child:not([is_user="true"]){margin-bottom:54px!important}
+  #chat .mes[is_user="true"]{width:55%!important;margin-bottom:48px!important}
+  #chat .mes:nth-child(n+3):not([is_user="true"]):not([is_system="true"]){width:67%!important;margin-bottom:48px!important}
+  #chat .mes:nth-child(n+3):not([is_user="true"]):not([is_system="true"]) .mesAvatarWrapper{
+    width:92px!important;min-width:92px!important;height:92px!important;top:-24px!important;
+  }
+  #form_sheld{height:72px!important;width:calc(100% - 54px)!important}
+}
+
+@media(max-width:700px){
+  /* On phone, drawers remain native overlays. Only visual language is inherited. */
+  .drawer-content.openDrawer,.drawer-content.open{
+    background:linear-gradient(180deg,rgba(68,59,82,.985),rgba(81,70,96,.985))!important;
+    color:#fff8f5!important;
+  }
+  #chat{padding-top:72px!important;padding-bottom:88px!important}
+  #chat .mes:first-child:not([is_user="true"]) .mesAvatarWrapper{width:130px!important;min-width:130px!important;height:130px!important}
+  #chat .mes[is_user="true"]{width:70%!important;margin-bottom:38px!important}
+  #chat .mes:nth-child(n+3):not([is_user="true"]):not([is_system="true"]){width:88%!important;margin-bottom:44px!important}
+  #form_sheld{height:62px!important}
+}
