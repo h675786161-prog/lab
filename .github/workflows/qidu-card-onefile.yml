@@ -30,6 +30,7 @@ jobs:
       LAB_OUT_INFO: bench-evidence/qidu-card-v0421-info-timeline
       LAB_OUT_ENCOUNTER: bench-evidence/qidu-card-v0421-encounter
       LAB_OUT_NPC_KNOWLEDGE: bench-evidence/qidu-card-v0422-npc-knowledge
+      LAB_OUT_NPC_SOURCE: bench-evidence/qidu-card-v0422-offscreen-source
     steps:
       - uses: actions/checkout@v4
       - id: core
@@ -52,6 +53,10 @@ jobs:
         name: Run v0422 NPC knowledge provenance regression
         continue-on-error: true
         run: node .lab/qidu-card-model-bench-v0422-npc-knowledge.mjs
+      - id: npcsource
+        name: Run v0422 off-screen NPC source regression
+        continue-on-error: true
+        run: node .lab/qidu-card-model-bench-v0422-offscreen-source.mjs
       - name: Upload narrative evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -67,11 +72,13 @@ jobs:
           echo "conflict=${{ steps.conflict.outcome }}"
           echo "info=${{ steps.info.outcome }}"
           echo "npc=${{ steps.npc.outcome }}"
+          echo "npcsource=${{ steps.npcsource.outcome }}"
           test "${{ steps.core.outcome }}" = "success"
           test "${{ steps.encounter.outcome }}" = "success"
           test "${{ steps.conflict.outcome }}" = "success"
           test "${{ steps.info.outcome }}" = "success"
           test "${{ steps.npc.outcome }}" = "success"
+          test "${{ steps.npcsource.outcome }}" = "success"
 
   package:
     needs: [real-sillytavern, narrative-regression]
@@ -99,9 +106,11 @@ jobs:
           if(!String(p?.content||'').includes('状态块强制提交｜隐藏执行')) throw new Error('mandatory state commit missing');
           if(!String(p?.content||'').includes('首次目击去标签焦点｜隐藏执行')) throw new Error('first-sighting focus lock missing');
           if(!String(p?.content||'').includes('NPC知识来源门禁｜隐藏执行')) throw new Error('NPC knowledge provenance gate missing');
+          if(!String(p?.content||'').includes('禁止擅自补“镜头外已经有人告诉她”')) throw new Error('off-screen source fabrication lock missing');
           if(!String(s?.content||'').includes('高校2/6姓名顺序不可交换')) throw new Error('school name order rule missing');
           if(!String(s?.content||'').includes('2/6目击阶段禁主动回想姓名')) throw new Error('first-sighting no-recall rule missing');
           if(!String(k?.content||'').includes('活骸知识边界')) throw new Error('Kaji chimera knowledge boundary missing');
+          if(!String(k?.content||'').includes('虚构入队培训')) throw new Error('Kaji off-screen source lock missing');
           if(!String(t?.content||'').includes('首次会合不得先被点名')) throw new Error('Tesla first-name suppression missing');
           if(!String(st?.content||'').includes('玩家知识不等于NPC知识')) throw new Error('player/NPC intel separation missing');
           if(!String(st?.content||'').includes('每轮状态块不可省略')) throw new Error('state block invariant missing');
