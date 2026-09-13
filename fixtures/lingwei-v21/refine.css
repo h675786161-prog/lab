@@ -1,0 +1,100 @@
+/* LingWei v2.1 — long-session readability pass.
+   Keep the ornate room; make the growing transcript quiet enough to survive hundreds of turns. */
+
+/* Desktop: only the first assistant turn is allowed to behave like a hero composition. */
+@media(min-width:901px){
+  #chat{padding-top:112px!important;padding-bottom:148px!important}
+
+  #chat .mes:first-child:not([is_user="true"]){
+    width:88%!important;min-height:210px!important;margin:0 auto 66px 1%!important;
+  }
+  #chat .mes:first-child:not([is_user="true"]) .mesAvatarWrapper{
+    width:236px!important;min-width:236px!important;height:236px!important;left:-10px!important;top:-82px!important;
+  }
+  #chat .mes:first-child:not([is_user="true"]) .mes_block::before{left:172px!important;top:26px!important}
+  #chat .mes:first-child:not([is_user="true"]) .ch_name{margin-left:196px!important;padding-top:36px!important}
+  #chat .mes:first-child:not([is_user="true"]) .mes_text{margin-left:196px!important;padding-right:34px!important;line-height:1.72!important}
+
+  /* All later assistant turns are transcript rows, not repeated title cards. */
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]){
+    width:74%!important;min-height:0!important;margin:0 auto 24px 4%!important;padding:0!important;
+  }
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .mesAvatarWrapper{
+    width:54px!important;min-width:54px!important;height:54px!important;left:-9px!important;top:7px!important;
+    filter:drop-shadow(0 6px 10px rgba(72,50,86,.11))!important;
+  }
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .mesAvatarWrapper::before{opacity:.72!important}
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .mes_block::before{
+    left:36px!important;right:0!important;top:0!important;bottom:0!important;
+    clip-path:none!important;border-radius:13px 5px 13px 5px!important;
+    background:linear-gradient(112deg,rgba(255,251,247,.88),rgba(247,239,245,.82))!important;
+    box-shadow:0 7px 18px rgba(57,43,70,.07),inset 0 1px rgba(255,255,255,.75)!important;
+    backdrop-filter:blur(7px)!important;
+  }
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .ch_name{
+    margin-left:54px!important;padding:12px 22px 0!important;font-size:13px!important;
+  }
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .mes_text{
+    margin-left:54px!important;padding:7px 22px 15px!important;font-size:14.5px!important;line-height:1.66!important;
+  }
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .mes_reasoning_details,
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"])::before,
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"])::after,
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .mes_block::after{display:none!important}
+
+  /* User turns are compact reply notes, with no repeated giant portrait. */
+  #chat .mes[is_user="true"]{
+    width:61%!important;min-height:0!important;margin:0 3% 22px auto!important;
+  }
+  #chat .mes[is_user="true"] .mesAvatarWrapper{
+    width:46px!important;min-width:46px!important;height:46px!important;right:-7px!important;top:7px!important;
+  }
+  #chat .mes[is_user="true"] .mes_block::before{
+    left:0!important;right:30px!important;top:0!important;bottom:0!important;clip-path:none!important;
+    border-radius:5px 13px 5px 13px!important;
+    background:linear-gradient(110deg,rgba(87,78,106,.91),rgba(108,95,128,.88))!important;
+  }
+  #chat .mes[is_user="true"] .ch_name{padding:10px 48px 0 18px!important;font-size:12.5px!important}
+  #chat .mes[is_user="true"] .mes_text{padding:6px 48px 13px 18px!important;font-size:14px!important;line-height:1.62!important}
+  #chat .mes[is_user="true"]::before,#chat .mes[is_user="true"]::after,#chat .mes[is_user="true"] .mes_block::after{display:none!important}
+
+  /* Content resilience: long prose, code, quotes and media stay inside their message rail. */
+  #chat .mes_text{overflow-wrap:anywhere!important;word-break:normal!important}
+  #chat .mes_text pre{max-width:100%!important;overflow:auto!important;border-radius:9px!important;background:rgba(57,49,68,.92)!important;color:#f7eef2!important;padding:12px 14px!important}
+  #chat .mes_text code{font-size:.92em!important}
+  #chat .mes_text blockquote{margin:10px 0!important;padding:7px 12px!important;border-left:2px solid rgba(185,139,96,.46)!important;background:rgba(255,255,255,.22)!important}
+  #chat .mes_text img,#chat .mes_text video{max-width:100%!important;height:auto!important;border-radius:10px!important}
+
+  /* Preserve a stable reading column during very long chats. */
+  #chat .mes_buttons{opacity:.48!important}
+  #chat .mes:hover .mes_buttons{opacity:1!important}
+}
+
+@media(max-width:700px){
+  #chat{padding-top:66px!important;padding-left:10px!important;padding-right:10px!important;padding-bottom:82px!important}
+  #chat .mes:first-child:not([is_user="true"]){width:100%!important;min-height:170px!important;margin-bottom:48px!important}
+  #chat .mes:first-child:not([is_user="true"]) .mesAvatarWrapper{width:118px!important;min-width:118px!important;height:118px!important;top:-50px!important;left:-5px!important}
+  #chat .mes:first-child:not([is_user="true"]) .mes_block::before{left:66px!important;top:18px!important}
+  #chat .mes:first-child:not([is_user="true"]) .ch_name{margin-left:80px!important;padding-top:26px!important}
+  #chat .mes:first-child:not([is_user="true"]) .mes_text{margin-left:80px!important;padding:8px 10px 17px 0!important;font-size:13.5px!important;line-height:1.6!important}
+
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]){width:96%!important;min-height:0!important;margin:0 auto 18px 0!important}
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .mesAvatarWrapper{width:40px!important;min-width:40px!important;height:40px!important;left:-3px!important;top:6px!important}
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .mes_block::before{left:27px!important;top:0!important;bottom:0!important;clip-path:none!important;border-radius:10px 4px 10px 4px!important}
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .ch_name{margin-left:39px!important;padding:9px 12px 0!important;font-size:11.5px!important}
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .mes_text{margin-left:39px!important;padding:5px 12px 11px!important;font-size:13px!important;line-height:1.56!important}
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .mes_reasoning_details,
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"])::before,
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"])::after,
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .mes_block::after{display:none!important}
+
+  #chat .mes[is_user="true"]{width:86%!important;min-height:0!important;margin:0 0 16px auto!important}
+  #chat .mes[is_user="true"] .mesAvatarWrapper{width:36px!important;min-width:36px!important;height:36px!important;right:-3px!important;top:6px!important}
+  #chat .mes[is_user="true"] .mes_block::before{right:24px!important;top:0!important;bottom:0!important;clip-path:none!important;border-radius:4px 10px 4px 10px!important}
+  #chat .mes[is_user="true"] .ch_name{padding:8px 38px 0 12px!important;font-size:11.5px!important}
+  #chat .mes[is_user="true"] .mes_text{padding:4px 38px 10px 12px!important;font-size:12.8px!important;line-height:1.55!important}
+  #chat .mes[is_user="true"]::before,#chat .mes[is_user="true"]::after,#chat .mes[is_user="true"] .mes_block::after{display:none!important}
+
+  #chat .mes_text pre{max-width:100%!important;overflow:auto!important;font-size:11.5px!important;padding:9px 10px!important}
+  #form_sheld{height:60px!important}
+}
