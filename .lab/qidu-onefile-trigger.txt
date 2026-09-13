@@ -1,2 +1,2 @@
-run=v0.4.15-onefile-acceptance-2
-reason=rerun after switching choice focus verification to trusted browser click; embedded regex only, no external bridge
+run=v0.4.15-onefile-acceptance-3
+reason=dismiss clean-profile ST dialogs before trusted click; verify embedded regex only, no external bridge
