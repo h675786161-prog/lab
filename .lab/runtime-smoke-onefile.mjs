@@ -80,19 +80,21 @@ async function renderCase(viewport, spaced=false){
     };
   },{terminal,stateHide,wrap,choice,spaced,hostId});
   if(result?.labelCount){
-    // SillyTavern may leave an onboarding/settings dialog open in a clean profile.
-    // Close it before testing the actual user click target, then force the trusted click
-    // only to bypass any transient overlay animations unrelated to the card itself.
     await page.evaluate(()=>{
       for(const d of document.querySelectorAll('dialog[open]')){
         try{ d.close(); }catch{}
       }
     });
     await page.waitForTimeout(80);
+    const beforeMes = await page.locator('.mes').count();
     await page.locator(`#${hostId} [data-f7d-choice="1"]`).first().click({force:true});
     await page.waitForTimeout(50);
     result.focused = await page.evaluate(()=>document.activeElement?.id === 'send_textarea');
-  } else result.focused = false;
+    result.noAutoSend = beforeMes === await page.locator('.mes').count();
+  } else {
+    result.focused = false;
+    result.noAutoSend = true;
+  }
   await page.evaluate(id=>document.getElementById(id)?.remove(), hostId);
   return result;
 }
@@ -124,6 +126,6 @@ if(!imported.ok) throw new Error(`import failed ${imported.status}: ${importText
 if(failed.length) throw new Error(`static failed: ${failed.join(',')}`);
 if(!api?.ok||!api?.found||api?.version!==ONEFILE_VERSION||api?.entries!==55||api?.regexCount<4||api?.bridge||api?.frontend?.external_extension_required!==false) throw new Error(`api failed ${JSON.stringify(api)}`);
 for(const [name,x] of [['desktop',desktop],['mobile',mobile]]){
-  if(x?.labelCount!==2||x?.labelFor!=='send_textarea'||!x?.focused||x?.secretVisible||!x?.terminalVisible||x?.rawTagsRemain||x?.bridgePresent||x?.probePresent) throw new Error(`${name} failed ${JSON.stringify(x)}`);
+  if(x?.labelCount!==2||x?.labelFor!=='send_textarea'||!x?.noAutoSend||x?.secretVisible||!x?.terminalVisible||x?.rawTagsRemain||x?.bridgePresent||x?.probePresent) throw new Error(`${name} failed ${JSON.stringify(x)}`);
 }
 if(pageErrors.length) throw new Error(`page errors: ${pageErrors.join(' | ')}`);
