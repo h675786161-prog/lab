@@ -1,3 +1,4 @@
+# real-lab trigger: direct PNG fixtures in lab
 name: LingWei v3 Dream Dusk Asset Integration Preview
 on:
   workflow_dispatch:
