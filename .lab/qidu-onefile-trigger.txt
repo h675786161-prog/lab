@@ -1,2 +1,2 @@
-run=v0.4.15-onefile-acceptance-4
-reason=final one-file acceptance: frontend regex embedded in character JSON; no external bridge; desktop/mobile render + no autosend
+run=v0.4.15-onefile-regex-diagnostic-1
+reason=reproduce real SillyTavern character-scoped regex permission gate; compare blocked vs allowed rendering on desktop/mobile
