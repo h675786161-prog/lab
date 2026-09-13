@@ -21,37 +21,37 @@ jobs:
 
   narrative-regression:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 45
     env:
       YOUZI_KEY: ${{ secrets.YOUZI }}
       GLM_MODEL: '[B]glm-5.3-flash'
-      LAB_OUT: bench-evidence/qidu-card-v0420-core
+      LAB_OUT: bench-evidence/qidu-card-v0421-core
       LAB_OUT_CONFLICT: bench-evidence/qidu-card-v0418-preset-conflict
-      LAB_OUT_INFO: bench-evidence/qidu-card-v0418-info-timeline
-      LAB_OUT_ENCOUNTER: bench-evidence/qidu-card-v0420-encounter
+      LAB_OUT_INFO: bench-evidence/qidu-card-v0421-info-timeline
+      LAB_OUT_ENCOUNTER: bench-evidence/qidu-card-v0421-encounter
     steps:
       - uses: actions/checkout@v4
       - id: core
-        name: Run v0420 core OOC regression
+        name: Run v0421 core OOC regression
         continue-on-error: true
-        run: node .lab/qidu-card-model-bench-v0420-core.mjs
+        run: node .lab/qidu-card-model-bench-v0421-core.mjs
       - id: encounter
-        name: Run v0420 encounter identity regression
+        name: Run v0421 encounter identity regression
         continue-on-error: true
-        run: node .lab/qidu-card-model-bench-v0420-encounter.mjs
+        run: node .lab/qidu-card-model-bench-v0421-encounter.mjs
       - id: conflict
         name: Run v0418 preset branch conflict regression
         continue-on-error: true
         run: node .lab/qidu-card-model-bench-v0418-preset-conflict.mjs
       - id: info
-        name: Run v0418 information timeline regression
+        name: Run v0421 information timeline regression
         continue-on-error: true
-        run: node .lab/qidu-card-model-bench-v0418-info-timeline.mjs
+        run: node .lab/qidu-card-model-bench-v0421-info-timeline.mjs
       - name: Upload narrative evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: qidu-card-v0420-model-evidence
+          name: qidu-card-v0421-model-evidence
           path: bench-evidence/
           if-no-files-found: warn
       - name: Enforce narrative regression gate
@@ -76,7 +76,7 @@ jobs:
           mkdir -p dist-onefile
           node --input-type=module <<'NODE'
           import fs from 'node:fs/promises';
-          import { loadQiduOneFileCard } from './.lab/qidu-card-v0420-encounter-order.mjs';
+          import { loadQiduOneFileCard } from './.lab/qidu-card-v0421-encounter-focus.mjs';
           const { card, raw, compactSha256 } = await loadQiduOneFileCard(process.cwd(), { skipHashCheck:true });
           if (card.data.extensions?.qidu_choice_bridge) throw new Error('external bridge dependency still present');
           if ((card.data.extensions?.regex_scripts || []).length < 4) throw new Error('embedded regex missing');
@@ -89,10 +89,12 @@ jobs:
           if(!String(p?.content||'').includes('场景必出角色连续性检查')) throw new Error('required cast guard missing');
           if(!String(p?.content||'').includes('高校初见姓名令牌顺序锁｜隐藏执行')) throw new Error('encounter token order lock missing');
           if(!String(p?.content||'').includes('状态块强制提交｜隐藏执行')) throw new Error('mandatory state commit missing');
+          if(!String(p?.content||'').includes('首次目击去标签焦点｜隐藏执行')) throw new Error('first-sighting focus lock missing');
           if(!String(s?.content||'').includes('高校2/6姓名顺序不可交换')) throw new Error('school name order rule missing');
+          if(!String(s?.content||'').includes('2/6目击阶段禁主动回想姓名')) throw new Error('first-sighting no-recall rule missing');
           if(!String(t?.content||'').includes('首次会合不得先被点名')) throw new Error('Tesla first-name suppression missing');
           if(!String(st?.content||'').includes('每轮状态块不可省略')) throw new Error('state block invariant missing');
-          const name='永远的7日之都-七日轮回文本互动-v0.4.20-onefile.json';
+          const name='永远的7日之都-七日轮回文本互动-v0.4.21-onefile.json';
           await fs.writeFile(`dist-onefile/${name}`, raw);
           await fs.writeFile('dist-onefile/SHA256.txt', `${compactSha256}  ${name}\n`);
           console.log(JSON.stringify({version:card.data.character_version,entries:card.data.character_book?.entries?.length,regex:(card.data.extensions?.regex_scripts||[]).map(x=>x.id),depth:card.data.extensions?.depth_prompt?.depth,sha256:compactSha256},null,2));
@@ -100,6 +102,6 @@ jobs:
       - name: Upload one-file card
         uses: actions/upload-artifact@v4
         with:
-          name: qidu-card-v0420-onefile
+          name: qidu-card-v0421-onefile
           path: dist-onefile/
           if-no-files-found: error
