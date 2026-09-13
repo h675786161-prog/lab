@@ -24,6 +24,7 @@ const staticChecks={
   mandatoryState:Boolean(by('04｜')?.content?.includes('状态块强制提交｜隐藏执行')),
   firstSightFocus:Boolean(by('04｜')?.content?.includes('首次目击去标签焦点｜隐藏执行')),
   npcKnowledgeGate:Boolean(by('04｜')?.content?.includes('NPC知识来源门禁｜隐藏执行')),
+  offscreenSourceLock:Boolean(by('04｜')?.content?.includes('镜头外已经有人告诉她')),
   schoolPair:Boolean(by('30｜')?.content?.includes('高校双人初见硬锁')),
   schoolOrder:Boolean(by('30｜')?.content?.includes('高校2/6姓名顺序不可交换')),
   schoolNoRecall:Boolean(by('30｜')?.content?.includes('2/6目击阶段禁主动回想姓名')),
@@ -32,13 +33,14 @@ const staticChecks={
   teslaRequired:Boolean(by('67｜')?.content?.includes('高校主线不可省略')),
   knownSemantics:Boolean(by('91｜')?.content?.includes('known字段身份语义')),
   playerIntelNotNpcIntel:Boolean(by('91｜')?.content?.includes('玩家知识不等于NPC知识')),
+  npcIntelLedger:Boolean(by('91｜')?.content?.includes('NPC知识账本npc_intel')),
   stateInvariant:Boolean(by('91｜')?.content?.includes('每轮状态块不可省略')),
   noBridge:!card.data.extensions?.qidu_choice_bridge
 };
 const sm=String(card.data.first_mes||'').match(/<f7d_state>([\s\S]*?)<\/f7d_state>/i);
 if(!sm)throw new Error('first state missing');
 const initial=JSON.parse(sm[1]);
-const initialChecks={kajiUnknown:!initial.known?.includes('珈儿'),teslaUnknown:!initial.known?.includes('泰丝拉'),countdownVisible:initial.intel_flags?.countdown_visible_to_user===true};
+const initialChecks={kajiUnknown:!initial.known?.includes('珈儿'),teslaUnknown:!initial.known?.includes('泰丝拉'),countdownVisible:initial.intel_flags?.countdown_visible_to_user===true,npcIntelObject:Boolean(initial.npc_intel&&typeof initial.npc_intel==='object'&&!Array.isArray(initial.npc_intel)),npcIntelInitiallyEmpty:Object.keys(initial.npc_intel||{}).length===0};
 
 const form=new FormData();
 form.set('file_type','json');
