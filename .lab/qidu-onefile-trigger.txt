@@ -1,2 +1,2 @@
-run=v0.4.20-encounter-order-2
-reason=collect all narrative suites even if one model sample fails; verify v0420 encounter order/state behavior independently, preserve real SillyTavern browser smoke, and keep release blocked unless every gate passes
+run=v0.4.21-encounter-focus-1
+reason=verify first-sighting no-label focus, Kaji/Tesla introduction order and continuity, semantic core/info regressions without negation false positives, provider-empty GLM handling, and real SillyTavern browser smoke before release
