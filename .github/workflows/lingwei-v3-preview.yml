@@ -7,7 +7,8 @@ on:
       - '.github/workflows/lingwei-v3-preview.yml'
       - 'fixtures/lingwei-v3/**'
       - 'scripts/lingwei-v3-*.sh'
-permissions: {contents: read}
+permissions:
+  contents: write
 
 jobs:
   preview:
@@ -19,6 +20,64 @@ jobs:
       ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
     steps:
       - uses: actions/checkout@v4
+
+      - name: Migrate v3 PNG assets from source branch if missing
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p fixtures/lingwei-v3/assets /tmp/lingwei-v3-b64
+          BASE='https://raw.githubusercontent.com/h675786161-prog/test/lingwei-assets-v3/themes/LingWei/assets-b64'
+          assets=(
+            avatar-frame-bot.png
+            avatar-frame-user.png
+            chat-shell-frame.png
+            date-divider.png
+            input-bar-base.png
+            left-drawer-base.png
+            message-ai-paper.png
+            message-user-paper.png
+            right-drawer-base.png
+            top-nav-base.png
+          )
+          for asset in "${assets[@]}"; do
+            out="fixtures/lingwei-v3/assets/$asset"
+            if [ -s "$out" ]; then
+              continue
+            fi
+            joined="/tmp/lingwei-v3-b64/$asset.b64"
+            if curl -fsSL "$BASE/$asset.b64" -o "$joined"; then
+              :
+            else
+              : > "$joined"
+              found=0
+              for n in $(seq -w 1 50); do
+                if curl -fsSL "$BASE/$asset.b64.part$n" -o /tmp/lingwei-v3-b64/part; then
+                  cat /tmp/lingwei-v3-b64/part >> "$joined"
+                  found=1
+                else
+                  if [ "$found" -eq 1 ]; then break; fi
+                fi
+              done
+              test "$found" -eq 1
+            fi
+            base64 -d "$joined" > "$out"
+          done
+          python3 - <<'PY'
+          from pathlib import Path
+          assets=sorted(Path('fixtures/lingwei-v3/assets').glob('*.png'))
+          assert len(assets)==10, f'expected 10 PNGs, got {len(assets)}'
+          for f in assets:
+              assert f.read_bytes()[:8]==b'\x89PNG\r\n\x1a\n', f'invalid PNG: {f.name}'
+          print('migrated 10 PNG assets: PASS')
+          PY
+          git add fixtures/lingwei-v3/assets
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'assets(lingwei): migrate v3 PNG sources'
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
+
       - name: Build CSS and validate assets
         run: |
           mkdir -p "$EVIDENCE" /tmp/lingwei-v3-assets
