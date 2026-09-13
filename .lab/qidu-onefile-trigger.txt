@@ -1,2 +1,2 @@
-run=v0.4.15-onefile-regex-diagnostic-1
-reason=reproduce real SillyTavern character-scoped regex permission gate; compare blocked vs allowed rendering on desktop/mobile
+run=v0.4.15-onefile-regex-diagnostic-2
+reason=refresh imported character list, then reproduce scoped regex permission gate and verify enabled rendering on desktop/mobile
