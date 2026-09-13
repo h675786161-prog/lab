@@ -1,0 +1,2 @@
+run=v0.4.22-ui-visible-1
+reason=isolated real SillyTavern browser verification for tactical terminal, hidden state, responsive choice tiles, composer focus behavior, and visible mobile/desktop screenshots; no model API calls
