@@ -1,2 +1,2 @@
-run=v0.4.16-onefile-preset-conflict-1
-reason=real ST parser acceptance plus model regression against 日月西-style <branches>/options output conflict
+run=v0.4.17-information-gate-1
+reason=real ST acceptance plus early-lore knowledge gating: user-only countdown, pre-split Hiro identity, staged chimera/Zero disclosure
