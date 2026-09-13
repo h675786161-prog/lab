@@ -28,13 +28,13 @@ jobs:
       LAB_OUT: bench-evidence/qidu-card-v0418-core
       LAB_OUT_CONFLICT: bench-evidence/qidu-card-v0418-preset-conflict
       LAB_OUT_INFO: bench-evidence/qidu-card-v0418-info-timeline
-      LAB_OUT_ENCOUNTER: bench-evidence/qidu-card-v0419-encounter
+      LAB_OUT_ENCOUNTER: bench-evidence/qidu-card-v0420-encounter
     steps:
       - uses: actions/checkout@v4
       - name: Run v0418 core OOC regression
         run: node .lab/qidu-card-model-bench-v0418-core.mjs
-      - name: Run v0419 encounter identity regression
-        run: node .lab/qidu-card-model-bench-v0419-encounter.mjs
+      - name: Run v0420 encounter identity regression
+        run: node .lab/qidu-card-model-bench-v0420-encounter.mjs
       - name: Run v0418 preset branch conflict regression
         run: node .lab/qidu-card-model-bench-v0418-preset-conflict.mjs
       - name: Run v0418 information timeline regression
@@ -43,7 +43,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: qidu-card-v0419-model-evidence
+          name: qidu-card-v0420-model-evidence
           path: bench-evidence/
           if-no-files-found: warn
 
@@ -57,7 +57,7 @@ jobs:
           mkdir -p dist-onefile
           node --input-type=module <<'NODE'
           import fs from 'node:fs/promises';
-          import { loadQiduOneFileCard } from './.lab/qidu-card-v0419-encounter-gate.mjs';
+          import { loadQiduOneFileCard } from './.lab/qidu-card-v0420-encounter-order.mjs';
           const { card, raw, compactSha256 } = await loadQiduOneFileCard(process.cwd(), { skipHashCheck:true });
           if (card.data.extensions?.qidu_choice_bridge) throw new Error('external bridge dependency still present');
           if ((card.data.extensions?.regex_scripts || []).length < 4) throw new Error('embedded regex missing');
@@ -65,11 +65,15 @@ jobs:
           const p=(card.data.character_book?.entries||[]).find(e=>String(e.name||'').startsWith('04｜'));
           const s=(card.data.character_book?.entries||[]).find(e=>String(e.name||'').startsWith('30｜'));
           const t=(card.data.character_book?.entries||[]).find(e=>String(e.name||'').startsWith('67｜'));
+          const st=(card.data.character_book?.entries||[]).find(e=>String(e.name||'').startsWith('91｜'));
           if(!String(p?.content||'').includes('角色首次识别门禁｜隐藏执行')) throw new Error('identity gate missing');
           if(!String(p?.content||'').includes('场景必出角色连续性检查')) throw new Error('required cast guard missing');
-          if(!String(s?.content||'').includes('高校双人初见硬锁')) throw new Error('school pair gate missing');
-          if(!String(t?.content||'').includes('高校主线不可省略')) throw new Error('Tesla required rule missing');
-          const name='永远的7日之都-七日轮回文本互动-v0.4.19-onefile.json';
+          if(!String(p?.content||'').includes('高校初见姓名令牌顺序锁｜隐藏执行')) throw new Error('encounter token order lock missing');
+          if(!String(p?.content||'').includes('状态块强制提交｜隐藏执行')) throw new Error('mandatory state commit missing');
+          if(!String(s?.content||'').includes('高校2/6姓名顺序不可交换')) throw new Error('school name order rule missing');
+          if(!String(t?.content||'').includes('首次会合不得先被点名')) throw new Error('Tesla first-name suppression missing');
+          if(!String(st?.content||'').includes('每轮状态块不可省略')) throw new Error('state block invariant missing');
+          const name='永远的7日之都-七日轮回文本互动-v0.4.20-onefile.json';
           await fs.writeFile(`dist-onefile/${name}`, raw);
           await fs.writeFile('dist-onefile/SHA256.txt', `${compactSha256}  ${name}\n`);
           console.log(JSON.stringify({version:card.data.character_version,entries:card.data.character_book?.entries?.length,regex:(card.data.extensions?.regex_scripts||[]).map(x=>x.id),depth:card.data.extensions?.depth_prompt?.depth,sha256:compactSha256},null,2));
@@ -77,6 +81,6 @@ jobs:
       - name: Upload one-file card
         uses: actions/upload-artifact@v4
         with:
-          name: qidu-card-v0419-onefile
+          name: qidu-card-v0420-onefile
           path: dist-onefile/
           if-no-files-found: error
