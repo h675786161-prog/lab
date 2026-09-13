@@ -1,0 +1,30 @@
+/* v2.2 screenshot follow-up.
+   The inherited avatar crop still drew a pale bubble outside the smaller hero wrapper. Keep the real frame; make empty LAB avatar slots genuinely empty. */
+#chat .mes:first-child:not([is_user="true"]) .avatar{
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#chat .mes:first-child:not([is_user="true"]) .avatar>.lw-avatar-matte{display:none!important}
+
+@media(min-width:901px){
+  #sheld{
+    background:
+      radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.30),transparent 30%),
+      linear-gradient(90deg,rgba(69,55,82,.055),transparent 8% 92%,rgba(69,55,82,.060)),
+      linear-gradient(180deg,rgba(226,219,230,.96),rgba(235,227,234,.95) 40%,rgba(219,211,223,.97))!important;
+  }
+  #chat .mes:first-child:not([is_user="true"]) .mesAvatarWrapper{
+    width:188px!important;min-width:188px!important;height:188px!important;left:12px!important;top:-52px!important;
+  }
+  #chat .mes:first-child:not([is_user="true"]) .mes_block::before{left:140px!important}
+  #chat .mes:first-child:not([is_user="true"]) .ch_name{margin-left:158px!important}
+  #chat .mes:first-child:not([is_user="true"]) .mes_text{margin-left:158px!important}
+}
+
+@media(max-width:700px){
+  #sheld{background:linear-gradient(180deg,rgba(230,223,233,.98),rgba(220,212,225,.98))!important}
+  #chat .mes:first-child:not([is_user="true"]) .mesAvatarWrapper{width:88px!important;min-width:88px!important;height:88px!important;left:6px!important;top:-26px!important}
+  #chat .mes:first-child:not([is_user="true"]) .mes_block::before{left:54px!important}
+  #chat .mes:first-child:not([is_user="true"]) .ch_name{margin-left:62px!important}
+  #chat .mes:first-child:not([is_user="true"]) .mes_text{margin-left:62px!important}
+}
