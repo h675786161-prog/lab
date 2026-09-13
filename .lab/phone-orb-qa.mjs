@@ -35,4 +35,4 @@ try {
   assert.deepEqual(errors,[]);
   fs.writeFileSync(path.join(output,'orb-report.json'),JSON.stringify({passed:true,checks:['palette follows real Backstage root in day and night','reduced motion','orb yields taps to open phone and returns on close'],pageErrors:errors},null,2));
   console.log('PASS: paired orbital launchers, real theme sync, reduced motion, window coexistence');
-} finally {await browser.close();}
+} catch(error) {await page.screenshot({path:path.join(output,'orb-failure.png')});throw error;} finally {await browser.close();}

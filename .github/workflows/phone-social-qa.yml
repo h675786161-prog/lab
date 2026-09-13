@@ -99,7 +99,7 @@ jobs:
             if not p.exists(): continue
             lines=p.read_text().splitlines()
             for line in lines:
-              if re.match(r'^(locator\.|page\.|AssertionError|Error:|PAGE_ERRORS|not ok|# fail)',line):
+              if re.match(r'^(locator\.|page\.|AssertionError|Error:|PAGE_ERRORS|not ok|# fail)',line) or 'intercepts pointer events' in line or 'waiting for locator(' in line:
                 print(name+': '+line[:350])
           PY
       - name: Upload only synthetic UI evidence
