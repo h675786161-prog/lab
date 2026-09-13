@@ -39,7 +39,7 @@ jobs:
           path: bench-evidence/qidu-he-real-st-longrp
           github-token: ${{ github.token }}
           repository: h675786161-prog/lab
-          run-id: 34716004149
+          run-id: 34717383580
 
       - name: Prepare exact SillyTavern and browser
         run: |
