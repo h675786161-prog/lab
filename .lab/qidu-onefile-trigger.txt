@@ -1,0 +1,2 @@
+run=v0.4.15-onefile-acceptance-1
+reason=embed all frontend regex in character card JSON; remove qidu-choice-bridge dependency; validate real SillyTavern desktop/mobile rendering
