@@ -1,0 +1,37 @@
+/* v2.1 follow-up after 100-turn screenshot review.
+   The inherited avatar internals still escaped their tiny wrappers, so daily transcript rows now stop rendering portrait furniture entirely. */
+
+@media(min-width:901px){
+  #sheld{
+    background:
+      linear-gradient(90deg,rgba(255,255,255,.10),transparent 5% 95%,rgba(89,69,104,.028)),
+      linear-gradient(180deg,rgba(250,245,247,.92),rgba(241,233,240,.91))!important;
+  }
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .mesAvatarWrapper,
+  #chat .mes[is_user="true"] .mesAvatarWrapper{display:none!important}
+
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .mes_block::before{left:0!important}
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .ch_name{margin-left:0!important;padding-left:18px!important}
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .mes_text{margin-left:0!important;padding-left:18px!important}
+
+  #chat .mes[is_user="true"] .mes_block::before{right:0!important}
+  #chat .mes[is_user="true"] .ch_name{padding-right:18px!important}
+  #chat .mes[is_user="true"] .mes_text{padding-right:18px!important}
+
+  /* No per-message jewelry duplication in transcript mode. */
+  #chat .mes:nth-child(n+2) .mes_block::after,
+  #chat .mes:nth-child(n+2)::before,
+  #chat .mes:nth-child(n+2)::after{display:none!important}
+}
+
+@media(max-width:700px){
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .mesAvatarWrapper,
+  #chat .mes[is_user="true"] .mesAvatarWrapper{display:none!important}
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .mes_block::before{left:0!important}
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .ch_name{margin-left:0!important;padding-left:12px!important}
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .mes_text{margin-left:0!important;padding-left:12px!important}
+  #chat .mes[is_user="true"] .mes_block::before{right:0!important}
+  #chat .mes[is_user="true"] .ch_name{padding-right:12px!important}
+  #chat .mes[is_user="true"] .mes_text{padding-right:12px!important}
+  #chat .mes:nth-child(n+2) .mes_block::after,#chat .mes:nth-child(n+2)::before,#chat .mes:nth-child(n+2)::after{display:none!important}
+}
