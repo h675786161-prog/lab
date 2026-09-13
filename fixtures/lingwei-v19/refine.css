@@ -1,0 +1,100 @@
+/* LingWei v1.9 — functional side-wing polish + quieter central stage */
+
+/* The central stage becomes calmer so the functional wings can carry density. */
+@media(min-width:901px){
+  html body{
+    background:
+      linear-gradient(90deg,#4b4359 0 13.2%,#6a6077 13.2% 14.7%,#c8bdcb 14.7% 15.6%,#ddd4df 15.6% 84.4%,#c8bdcb 84.4% 85.3%,#6a6077 85.3% 86.8%,#4a4258 86.8% 100%)!important;
+  }
+  #top-bar{
+    width:min(1200px,calc(100vw - 118px))!important;
+    border-bottom:1px solid rgba(255,244,230,.16)!important;
+  }
+  #top-bar::before,#top-bar::after{
+    content:""!important;position:absolute!important;top:74px!important;width:1px!important;height:calc(100dvh - 112px)!important;pointer-events:none!important;
+    background:linear-gradient(180deg,rgba(255,239,218,.45),rgba(255,255,255,.10) 38%,rgba(255,255,255,0))!important;
+    box-shadow:0 0 12px rgba(245,222,206,.10)!important;
+  }
+  #top-bar::before{left:-78px!important}
+  #top-bar::after{right:-78px!important}
+
+  #sheld{
+    width:min(980px,calc(100vw - 410px))!important;
+    background:linear-gradient(180deg,rgba(255,251,247,.955),rgba(247,239,245,.935))!important;
+    box-shadow:0 28px 80px rgba(29,22,40,.25)!important;
+  }
+  #sheld::before{
+    left:-22px!important;right:-22px!important;top:-1px!important;bottom:76px!important;
+    border-color:rgba(193,154,132,.28)!important;
+    box-shadow:inset 0 0 0 4px rgba(255,255,255,.08),0 0 0 1px rgba(255,255,255,.12)!important;
+  }
+
+  /* Real ST drawers dock into the architectural wings instead of floating over chat. */
+  .drawer-content.openDrawer.fillLeft,.drawer-content.open.fillLeft,
+  .drawer-content.openDrawer.fillRight,.drawer-content.open.fillRight{
+    top:88px!important;width:260px!important;max-width:260px!important;height:calc(100dvh - 106px)!important;
+    padding:14px 13px 18px!important;border-radius:2px 14px 14px 2px!important;
+    background:
+      radial-gradient(circle at 50% 0,rgba(255,255,255,.08),transparent 28%),
+      linear-gradient(180deg,rgba(69,61,83,.985),rgba(82,72,98,.98))!important;
+    border:1px solid rgba(255,255,255,.15)!important;
+    box-shadow:0 22px 60px rgba(25,18,36,.31),inset 0 1px rgba(255,255,255,.10)!important;
+    backdrop-filter:blur(15px) saturate(.96)!important;
+    overflow-y:auto!important;overflow-x:hidden!important;
+    scrollbar-width:thin!important;
+    scrollbar-color:rgba(246,220,208,.28) transparent!important;
+  }
+  .drawer-content.openDrawer.fillLeft,.drawer-content.open.fillLeft{left:18px!important;right:auto!important;border-radius:14px 2px 2px 14px!important}
+  .drawer-content.openDrawer.fillRight,.drawer-content.open.fillRight{right:18px!important;left:auto!important}
+
+  .drawer-content h2,.drawer-content h3,.drawer-content h4,.drawer-content .title_text,
+  .drawer-content .inline-drawer-header,.drawer-content label{
+    color:#fbf2f6!important;text-shadow:0 1px 8px rgba(21,15,29,.18)!important;
+  }
+  .drawer-content hr{border-color:rgba(255,255,255,.11)!important}
+  .drawer-content input,.drawer-content textarea,.drawer-content select,
+  .drawer-content .text_pole,.drawer-content .menu_button{
+    background:rgba(255,255,255,.075)!important;color:#fff9f5!important;
+    border:1px solid rgba(255,255,255,.13)!important;
+    box-shadow:inset 0 1px rgba(255,255,255,.045)!important;
+  }
+  .drawer-content .menu_button:hover,.drawer-content button:hover{
+    background:rgba(255,255,255,.12)!important;
+  }
+  .drawer-content .inline-drawer{
+    margin:7px 0!important;border-bottom:1px solid rgba(255,255,255,.08)!important;
+  }
+
+  /* Chat hierarchy: one hero message, then conversation, not a jewelry catalogue. */
+  #chat{padding-top:120px!important;padding-left:54px!important;padding-right:54px!important;padding-bottom:118px!important}
+  #chat .mes:first-child:not([is_user="true"]){width:95%!important;min-height:196px!important;margin-bottom:64px!important}
+  #chat .mes:first-child:not([is_user="true"]) .mesAvatarWrapper{left:-4px!important;top:-72px!important;width:226px!important;min-width:226px!important;height:226px!important}
+  #chat .mes:first-child:not([is_user="true"]) .mes_block::before{left:166px!important;right:8px!important;top:24px!important}
+  #chat .mes:first-child:not([is_user="true"]) .ch_name{margin-left:188px!important;padding-top:34px!important}
+  #chat .mes:first-child:not([is_user="true"]) .mes_text{margin-left:188px!important;padding:11px 38px 22px 0!important;line-height:1.62!important}
+  #chat .mes:first-child:not([is_user="true"]) .mes_reasoning_details{margin-left:188px!important;margin-right:38px!important}
+
+  #chat .mes[is_user="true"]{width:58%!important;margin-bottom:54px!important}
+  #chat .mes:nth-child(n+3):not([is_user="true"]):not([is_system="true"]){width:70%!important;min-height:116px!important;margin-bottom:54px!important}
+  #chat .mes:nth-child(n+3):not([is_user="true"]):not([is_system="true"]) .mesAvatarWrapper{width:104px!important;min-width:104px!important;height:104px!important;top:-29px!important}
+  #chat .mes:nth-child(n+3):not([is_user="true"]):not([is_system="true"]) .mes_block::before{left:68px!important}
+  #chat .mes:nth-child(n+3):not([is_user="true"]):not([is_system="true"]) .ch_name{margin-left:86px!important}
+  #chat .mes:nth-child(n+3):not([is_user="true"]):not([is_system="true"]) .mes_text{margin-left:86px!important;padding-right:24px!important}
+
+  #form_sheld{height:76px!important;width:calc(100% - 62px)!important;bottom:7px!important;padding:7px 13px!important}
+  #send_textarea{min-height:42px!important;max-height:46px!important}
+  #send_but{width:46px!important;height:46px!important;min-width:46px!important}
+}
+
+@media(max-width:700px){
+  #chat{padding-top:78px!important;padding-bottom:92px!important}
+  #chat .mes:first-child:not([is_user="true"]) .mesAvatarWrapper{width:138px!important;min-width:138px!important;height:138px!important;top:-49px!important}
+  #chat .mes:first-child:not([is_user="true"]) .mes_block::before{left:58px!important}
+  #chat .mes:first-child:not([is_user="true"]) .ch_name{margin-left:73px!important}
+  #chat .mes:first-child:not([is_user="true"]) .mes_text{margin-left:73px!important;padding-right:7px!important}
+  #chat .mes[is_user="true"]{width:72%!important;margin-bottom:42px!important}
+  #chat .mes:nth-child(n+3):not([is_user="true"]):not([is_system="true"]){width:90%!important;margin-bottom:50px!important}
+  #form_sheld{height:64px!important;width:calc(100% - 6px)!important;padding:4px 6px!important}
+  #send_textarea{min-height:36px!important;max-height:40px!important}
+  #send_but{width:40px!important;height:40px!important;min-width:40px!important}
+}
