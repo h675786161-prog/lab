@@ -13,9 +13,27 @@ export async function loadQiduOneFileCard(workspace = process.env.GITHUB_WORKSPA
   ext.qidu_frontend = {
     mode: 'embedded-regex-only',
     external_extension_required: false,
-    choice_behavior: 'tap option focuses #send_textarea; player still sends their own input',
+    choice_behavior: 'embedded visual choice tiles; no auto-fill or auto-send; player-sent text is authoritative',
     responsive: true,
   };
+
+  // The old bridge build described click-to-refill semantics. In the one-file build,
+  // all frontend behavior must live inside the card regex itself, so remove those
+  // external-JS assumptions from the model-facing rules as well.
+  for (const e of card.data.character_book?.entries || []) {
+    e.content = String(e.content || '')
+      .replaceAll('点击UI只回填输入框，不代表行动已经发生；只有玩家实际发送后才能结算状态。', '选项UI只提供可见行动建议，不代表行动已经发生；只有玩家实际发送输入后才能结算状态。')
+      .replaceAll('按钮被渲染、点击并回填输入框都不是剧情行动', '选项块被渲染、浏览或聚焦都不是剧情行动')
+      .replaceAll('按钮被渲染、点击并回填输入框都不是剧情行动，不得修改任何`f7d_state`字段。', '选项块被渲染、浏览或聚焦都不是剧情行动，不得修改任何`f7d_state`字段。');
+  }
+  if (typeof card.data.post_history_instructions === 'string') {
+    card.data.post_history_instructions = card.data.post_history_instructions
+      .replaceAll('点击选项仅代表把文字回填到输入框，玩家尚未发送前绝不视为已选择、不得预结算状态。', '选项块只负责显示可执行行动建议；玩家尚未实际发送输入前绝不视为已选择、不得预结算状态。');
+  }
+  if (typeof ext.depth_prompt?.prompt === 'string') {
+    ext.depth_prompt.prompt = ext.depth_prompt.prompt
+      .replaceAll('按钮点击仅回填输入框、未发送前不结算', '选项块仅显示行动建议、玩家未发送前不结算');
+  }
 
   const scripts = ext.regex_scripts || (ext.regex_scripts = []);
   const get = id => scripts.find(x => x?.id === id);
@@ -35,6 +53,9 @@ export async function loadQiduOneFileCard(workspace = process.env.GITHUB_WORKSPA
   choices.replaceString = '<div data-f7d-choice-grid="1" style="box-sizing:border-box;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:.55em;width:100%;max-width:100%;margin:.8em 0;padding:.7em;border:1px solid rgba(116,174,231,.28);border-radius:14px;background:linear-gradient(145deg,rgba(13,23,37,.78),rgba(24,39,56,.72));box-shadow:0 8px 24px rgba(0,0,0,.14);">$1</div>';
 
   choice.findRegex = '/<\\s*f7d_choice\\s*>([\\s\\S]*?)<\\s*\\/\\s*f7d_choice\\s*>/gi';
+  // DOMPurify strips inline JS from model messages. A label gives us a safe,
+  // self-contained tap target and focuses the composer on desktop where supported;
+  // the option text remains selectable on every client. No external bridge is needed.
   choice.replaceString = '<label for="send_textarea" data-f7d-choice="1" tabindex="0" style="box-sizing:border-box;display:block;width:100%;min-height:44px;padding:.68em .86em;border:1px solid rgba(133,194,255,.52);border-radius:10px;background:linear-gradient(135deg,rgba(32,60,88,.88),rgba(24,45,67,.94));box-shadow:0 4px 12px rgba(0,0,0,.16);color:#eef7ff;font:600 13px/1.45 system-ui,-apple-system,\'Microsoft YaHei\',sans-serif;text-align:left;cursor:text;user-select:text;overflow-wrap:anywhere;">$1</label>';
 
   const raw = Buffer.from(JSON.stringify(card), 'utf8');
