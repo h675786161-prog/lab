@@ -1,2 +1,2 @@
-run=v0.4.22-ui-visible-1
-reason=isolated real SillyTavern browser verification for tactical terminal, hidden state, responsive choice tiles, composer focus behavior, and visible mobile/desktop screenshots; no model API calls
+run=v0.4.22-ui-visible-2
+reason=repeat isolated real SillyTavern browser UI proof with the QA panel promoted to browser top layer so onboarding content cannot cover the mobile or desktop evidence screenshots; verify terminal, hidden state, responsive choice tiles and composer behavior
