@@ -1,2 +1,2 @@
-run=v0.4.21-encounter-focus-1
-reason=verify first-sighting no-label focus, Kaji/Tesla introduction order and continuity, semantic core/info regressions without negation false positives, provider-empty GLM handling, and real SillyTavern browser smoke before release
+run=v0.4.21-encounter-focus-2
+reason=rerun v0421 after bounding provider wait time; keep first-sighting no-label, Kaji/Tesla order and continuity, semantic core/info gates, and real SillyTavern browser verification intact
