@@ -13,7 +13,11 @@ try {
  await page.goto(process.env.WP_TAVERN_URL || 'http://127.0.0.1:8000/');
  await page.waitForSelector('#world-phone-launcher');
  await page.evaluate(()=>{for(const d of document.querySelectorAll('dialog')) {try{d.close();}catch{}}});
- await page.addStyleTag({content:'dialog.popup{display:none!important;pointer-events:none!important}'});
+ await page.evaluate(() => {
+  const dismissWelcome = () => document.querySelectorAll('dialog.popup[open]').forEach(dialog => dialog.close());
+  dismissWelcome();
+  new MutationObserver(dismissWelcome).observe(document.body, {subtree:true, childList:true, attributes:true, attributeFilter:['open']});
+});
  await page.locator('#preloader').waitFor({state:'hidden',timeout:60000});
  await page.evaluate(async(hostModule)=>{
   const ctx=SillyTavern.getContext();

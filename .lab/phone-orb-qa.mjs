@@ -11,7 +11,11 @@ try {
   await page.goto(process.env.WP_TAVERN_URL || 'http://127.0.0.1:8027/');
   await page.waitForSelector('#world-phone-launcher');
   await page.evaluate(()=>{for(const d of document.querySelectorAll('dialog'))try{d.close();}catch{}});
-  await page.addStyleTag({content:'dialog.popup{display:none!important}'});
+  await page.evaluate(() => {
+  const dismissWelcome = () => document.querySelectorAll('dialog.popup[open]').forEach(dialog => dialog.close());
+  dismissWelcome();
+  new MutationObserver(dismissWelcome).observe(document.body, {subtree:true, childList:true, attributes:true, attributeFilter:['open']});
+});
   await page.locator('#preloader').waitFor({state:'hidden',timeout:60000});
   await page.waitForSelector('#world-backstage-root .wb-world-orb');
   const palette=async()=>page.evaluate(()=>({phone:getComputedStyle(document.querySelector('#world-phone-launcher')).getPropertyValue('--phone-orb-accent').trim(),world:getComputedStyle(document.querySelector('#world-backstage-root')).getPropertyValue('--wb-accent').trim()}));
@@ -35,4 +39,4 @@ try {
   assert.deepEqual(errors,[]);
   fs.writeFileSync(path.join(output,'orb-report.json'),JSON.stringify({passed:true,checks:['palette follows real Backstage root in day and night','reduced motion','orb yields taps to open phone and returns on close'],pageErrors:errors},null,2));
   console.log('PASS: paired orbital launchers, real theme sync, reduced motion, window coexistence');
-} catch(error) {await page.screenshot({path:path.join(output,'orb-failure.png')});throw error;} finally {await browser.close();}
+} catch(error) {await page.screenshot({path:path.join(output,'orb-failure.png')}).catch(()=>{});throw error;} finally {await browser.close();}
