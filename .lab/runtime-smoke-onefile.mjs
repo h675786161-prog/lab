@@ -46,7 +46,8 @@ page.on('console',m=>{if(m.type()==='error') consoleErrors.push(m.text());});
 
 async function renderCase(viewport, spaced=false){
   await page.setViewportSize(viewport);
-  return page.evaluate(async ({terminal,stateHide,wrap,choice,spaced})=>{
+  const hostId = `qidu-onefile-${spaced ? 'spaced' : 'canonical'}`;
+  const result = await page.evaluate(async ({terminal,stateHide,wrap,choice,spaced,hostId})=>{
     const { runRegexScript } = await import('/scripts/extensions/regex/engine.js');
     const { messageFormatting } = await import('/script.js');
     const ta=document.querySelector('#send_textarea');
@@ -58,17 +59,16 @@ async function renderCase(viewport, spaced=false){
     let html=tags;
     for(const s of [terminal,stateHide,wrap,choice]) html=runRegexScript(s,html);
     const formatted=messageFormatting(html,'七都UI测试',false,false,999999,{},false);
-    const host=document.createElement('div'); host.innerHTML=formatted; host.style.width='100%'; document.body.appendChild(host);
+    document.getElementById(hostId)?.remove();
+    const host=document.createElement('div'); host.id=hostId; host.innerHTML=formatted; host.style.width='100%'; document.body.appendChild(host);
     const labels=[...host.querySelectorAll('[data-f7d-choice="1"]')];
     const grid=host.querySelector('[data-f7d-choice-grid="1"]');
     const term=host.querySelector('[data-f7d-terminal="1"]');
-    labels[0]?.click(); await new Promise(r=>setTimeout(r,50));
-    const result={
+    return {
       spaced,
       labels:labels.map(x=>x.textContent?.trim()),
       labelCount:labels.length,
       labelFor:labels[0]?.getAttribute('for')||null,
-      focused:document.activeElement===ta,
       secretVisible:host.textContent?.includes('SECRET')||false,
       terminalVisible:Boolean(term)&&term.textContent?.includes('任务：测试终端'),
       rawTagsRemain:/f7d_(?:terminal|state|choices?|choice)/i.test(host.textContent||''),
@@ -78,8 +78,14 @@ async function renderCase(viewport, spaced=false){
       bridgePresent:Boolean(window.__QIDU_CHOICE_BRIDGE__),
       probePresent:Boolean(window.__LINGQI_LAB_PROBE__),
     };
-    host.remove(); return result;
-  },{terminal,stateHide,wrap,choice,spaced});
+  },{terminal,stateHide,wrap,choice,spaced,hostId});
+  if(result?.labelCount){
+    await page.locator(`#${hostId} [data-f7d-choice="1"]`).first().click();
+    await page.waitForTimeout(50);
+    result.focused = await page.evaluate(()=>document.activeElement?.id === 'send_textarea');
+  } else result.focused = false;
+  await page.evaluate(id=>document.getElementById(id)?.remove(), hostId);
+  return result;
 }
 
 let api=null,desktop=null,mobile=null;
