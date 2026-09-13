@@ -25,16 +25,16 @@ jobs:
     env:
       YOUZI_KEY: ${{ secrets.YOUZI }}
       GLM_MODEL: '[B]glm-5.3-flash'
-      LAB_OUT: bench-evidence/qidu-card-v0418-core
+      LAB_OUT: bench-evidence/qidu-card-v0420-core
       LAB_OUT_CONFLICT: bench-evidence/qidu-card-v0418-preset-conflict
       LAB_OUT_INFO: bench-evidence/qidu-card-v0418-info-timeline
       LAB_OUT_ENCOUNTER: bench-evidence/qidu-card-v0420-encounter
     steps:
       - uses: actions/checkout@v4
       - id: core
-        name: Run v0418 core OOC regression
+        name: Run v0420 core OOC regression
         continue-on-error: true
-        run: node .lab/qidu-card-model-bench-v0418-core.mjs
+        run: node .lab/qidu-card-model-bench-v0420-core.mjs
       - id: encounter
         name: Run v0420 encounter identity regression
         continue-on-error: true
