@@ -1,0 +1,72 @@
+/* LingWei v2.2 — twilight reading-stage pass.
+   Remove the QA-orb look, lower central glare, keep one restrained hero frame and a calm long-session rail. */
+
+/* The real avatar image still owns this slot in production. LAB without an image gets a quiet vellum matte, never a fake glowing sphere. */
+#chat .mes:first-child:not([is_user="true"]) .avatar{
+  background:linear-gradient(145deg,rgba(255,250,245,.92),rgba(238,225,235,.88) 52%,rgba(213,207,225,.86))!important;
+  box-shadow:inset 0 0 0 1px rgba(185,139,96,.18),inset 0 0 22px rgba(255,255,255,.42)!important;
+}
+#chat .mes:first-child:not([is_user="true"]) .avatar>.lw-avatar-matte{
+  width:100%!important;height:100%!important;position:relative!important;overflow:hidden!important;
+  background:
+    radial-gradient(ellipse at 34% 27%,rgba(255,255,255,.72),transparent 24%),
+    linear-gradient(145deg,rgba(250,242,239,.88),rgba(230,216,230,.72) 54%,rgba(198,193,215,.62))!important;
+}
+#chat .mes:first-child:not([is_user="true"]) .avatar>.lw-avatar-matte::before{
+  content:"";position:absolute;inset:11%;border:1px solid rgba(185,139,96,.20);border-radius:50%;opacity:.55;
+}
+#chat .mes:first-child:not([is_user="true"]) .avatar>.lw-avatar-matte::after{
+  content:"";position:absolute;left:19%;right:19%;bottom:16%;height:28%;
+  background:radial-gradient(ellipse,rgba(116,92,121,.09),transparent 70%);filter:blur(10px);
+}
+
+@media(min-width:901px){
+  /* Make the center feel like dusk-lit glass/paper instead of an overexposed white sheet. */
+  #sheld{
+    background:
+      radial-gradient(ellipse at 50% 2%,rgba(255,255,255,.43),transparent 33%),
+      linear-gradient(90deg,rgba(95,77,108,.045),transparent 7% 93%,rgba(79,63,95,.055)),
+      linear-gradient(180deg,rgba(236,229,237,.94) 0%,rgba(244,237,241,.93) 38%,rgba(230,222,232,.95) 100%)!important;
+    border-left:1px solid rgba(255,255,255,.20)!important;
+    border-right:1px solid rgba(72,55,88,.07)!important;
+  }
+  #chat{
+    background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.02) 38%,rgba(89,69,104,.025))!important;
+  }
+
+  /* Hero remains special, but no longer dominates half the viewport. */
+  #chat .mes:first-child:not([is_user="true"]){width:82%!important;min-height:188px!important;margin-bottom:52px!important}
+  #chat .mes:first-child:not([is_user="true"]) .mesAvatarWrapper{
+    width:204px!important;min-width:204px!important;height:204px!important;left:4px!important;top:-64px!important;
+    filter:drop-shadow(0 12px 18px rgba(72,50,86,.13))!important;
+  }
+  #chat .mes:first-child:not([is_user="true"]) .mes_block::before{left:150px!important;top:24px!important}
+  #chat .mes:first-child:not([is_user="true"]) .ch_name{margin-left:172px!important;padding-top:32px!important}
+  #chat .mes:first-child:not([is_user="true"]) .mes_text{margin-left:172px!important;padding-right:28px!important}
+
+  /* Daily messages inherit the twilight stage instead of glowing white cards. */
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .mes_block::before{
+    background:linear-gradient(112deg,rgba(252,247,244,.76),rgba(238,229,236,.74))!important;
+    border:1px solid rgba(255,255,255,.42)!important;
+    box-shadow:0 6px 16px rgba(57,43,70,.055),inset 0 1px rgba(255,255,255,.46)!important;
+  }
+  #chat .mes[is_user="true"] .mes_block::before{
+    background:linear-gradient(112deg,rgba(82,74,98,.90),rgba(101,89,118,.88))!important;
+    box-shadow:0 6px 16px rgba(45,34,56,.09)!important;
+  }
+}
+
+@media(max-width:700px){
+  #sheld{
+    background:linear-gradient(180deg,rgba(239,232,239,.97),rgba(231,223,233,.97))!important;
+  }
+  #chat .mes:first-child:not([is_user="true"]){min-height:150px!important;margin-bottom:36px!important}
+  #chat .mes:first-child:not([is_user="true"]) .mesAvatarWrapper{width:96px!important;min-width:96px!important;height:96px!important;top:-34px!important;left:2px!important}
+  #chat .mes:first-child:not([is_user="true"]) .mes_block::before{left:58px!important;top:16px!important}
+  #chat .mes:first-child:not([is_user="true"]) .ch_name{margin-left:68px!important;padding-top:23px!important}
+  #chat .mes:first-child:not([is_user="true"]) .mes_text{margin-left:68px!important;padding-right:8px!important}
+  #chat .mes:nth-child(n+2):not([is_user="true"]):not([is_system="true"]) .mes_block::before{
+    background:linear-gradient(112deg,rgba(252,247,244,.80),rgba(237,228,235,.78))!important;
+  }
+  #chat .mes[is_user="true"] .mes_block::before{background:linear-gradient(112deg,rgba(82,74,98,.92),rgba(101,89,118,.90))!important}
+}
