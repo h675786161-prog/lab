@@ -14,7 +14,7 @@ const constants=(card.data.character_book?.entries||[]).filter(e=>e.constant).ma
 const BASE=[card.data.personality,card.data.scenario,constants,card.data.post_history_instructions,card.data.extensions?.depth_prompt?.prompt].filter(Boolean).join('\n\n');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
-async function call(model,mode,messages,max_tokens=1300,timeoutMs=115000){
+async function call(model,mode,messages,max_tokens=1300,timeoutMs=60000){
   const p={model,temperature:.18,top_p:.9,max_tokens,messages};
   if(mode==='thinking-disabled') p.thinking={type:'disabled'};
   const c=new AbortController();
@@ -108,14 +108,15 @@ async function runCase(target,c,sys){
   for(const mode of modes){
     let status=0,out='',error=null,finish=null;
     try{
-      const r=await call(target.model,mode,[{role:'system',content:sys},{role:'user',content:c.prompt}],1300,115000);
+      const r=await call(target.model,mode,[{role:'system',content:sys},{role:'user',content:c.prompt}],1300,60000);
       status=r.status;
       const t=await r.text();let d={};try{d=JSON.parse(t)}catch{}
       out=contentOf(d);finish=d?.choices?.[0]?.finish_reason||null;
       if(!r.ok)error=`http-${r.status}:${t.slice(0,500)}`;
-    }catch(e){error=e?.name==='AbortError'?'provider-timeout-115s':String(e?.message||e)}
+    }catch(e){error=e?.name==='AbortError'?'provider-timeout-60s':String(e?.message||e)}
     attempts.push({mode,status,out,error,finish});
     if(status===200&&out.length>80) return {...attempts.at(-1),attempts,providerIssue:null};
+    if(error?.startsWith('provider-timeout')) return {...attempts.at(-1),attempts,providerIssue:error};
     await sleep(250);
   }
   const best=attempts.find(a=>a.out.length)||attempts.at(-1)||{mode:target.mode,status:0,out:'',error:'no-attempt',finish:null};
