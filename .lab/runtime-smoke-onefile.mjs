@@ -80,7 +80,16 @@ async function renderCase(viewport, spaced=false){
     };
   },{terminal,stateHide,wrap,choice,spaced,hostId});
   if(result?.labelCount){
-    await page.locator(`#${hostId} [data-f7d-choice="1"]`).first().click();
+    // SillyTavern may leave an onboarding/settings dialog open in a clean profile.
+    // Close it before testing the actual user click target, then force the trusted click
+    // only to bypass any transient overlay animations unrelated to the card itself.
+    await page.evaluate(()=>{
+      for(const d of document.querySelectorAll('dialog[open]')){
+        try{ d.close(); }catch{}
+      }
+    });
+    await page.waitForTimeout(80);
+    await page.locator(`#${hostId} [data-f7d-choice="1"]`).first().click({force:true});
     await page.waitForTimeout(50);
     result.focused = await page.evaluate(()=>document.activeElement?.id === 'send_textarea');
   } else result.focused = false;
