@@ -38,6 +38,9 @@ jobs:
           CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"; test -n "$CHROME_BIN"; echo "CHROME_BIN=$CHROME_BIN" >> "$GITHUB_ENV"; echo "PW_ENTRY=file:///tmp/lingwei-v18-browser/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
       - name: Screenshot real SillyTavern
         run: EVIDENCE="$EVIDENCE" node fixtures/lingwei-v18/shot.mjs
+      - name: Print report
+        if: always()
+        run: test ! -f "$EVIDENCE/report.json" || cat "$EVIDENCE/report.json"
       - name: Stop
         if: always()
         run: test ! -f /tmp/lingwei-v18.pid || kill "$(cat /tmp/lingwei-v18.pid)" 2>/dev/null || true
