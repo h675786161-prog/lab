@@ -113,7 +113,13 @@ jobs:
           if(!String(k?.content||'').includes('虚构入队培训')) throw new Error('Kaji off-screen source lock missing');
           if(!String(t?.content||'').includes('首次会合不得先被点名')) throw new Error('Tesla first-name suppression missing');
           if(!String(st?.content||'').includes('玩家知识不等于NPC知识')) throw new Error('player/NPC intel separation missing');
+          if(!String(st?.content||'').includes('NPC知识账本npc_intel')) throw new Error('npc_intel ledger schema missing');
           if(!String(st?.content||'').includes('每轮状态块不可省略')) throw new Error('state block invariant missing');
+          const m=String(card.data.first_mes||'').match(/<f7d_state>([\s\S]*?)<\/f7d_state>/i);
+          if(!m) throw new Error('initial state missing');
+          const initial=JSON.parse(m[1]);
+          if(!initial.npc_intel||typeof initial.npc_intel!=='object'||Array.isArray(initial.npc_intel)) throw new Error('initial npc_intel missing');
+          if(Object.keys(initial.npc_intel).length) throw new Error('initial npc_intel must start empty');
           const name='永远的7日之都-七日轮回文本互动-v0.4.22-onefile.json';
           await fs.writeFile(`dist-onefile/${name}`, raw);
           await fs.writeFile('dist-onefile/SHA256.txt', `${compactSha256}  ${name}\n`);
