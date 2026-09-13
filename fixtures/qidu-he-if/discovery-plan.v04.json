@@ -253,9 +253,9 @@
         "儿童福利",
         "公益开放日"
       ],
-      "meet": "只按既有福利关系与公开接待见面，不临时给两人编监护权或收养史。",
+      "meet": "只按既有福利关系与公开接待见面，不临时给相关人物编监护权或收养史。乌鹭为孤儿院院长，乌鹫是不同人物。",
       "names": [
-        "乌鹫",
+        "乌鹭",
         "莉莉娜"
       ],
       "source": "机构公开公益/物资需求信息；儿童隐私不出现在公共名单。",
@@ -437,18 +437,18 @@
       "status": "existing-anchor-or-explicit-au"
     },
     {
-      "choice": "核实署名、询问公开联络渠道、约见、暂存或不跟进。",
-      "continuation": "见面后只累计本场确实发生的事实；第二次见面可记得本次交谈，不能发明原作过去。",
-      "encounter": "乌鹭：身份资料待核。可在玩家选择的公开场所进行不涉及职业/家世的简短交谈；不能随机分配职业来填空。",
+      "choice": "预约合法探访、捐助、问询、不参与。",
+      "continuation": "记录预约、物资归属、是否完成交接；不自动把玩家变成监护人。",
+      "encounter": "孤儿院院长乌鹭：温和体贴而有原则；公开公益或园艺接触，不搬超自然形态。",
       "keywords": [
         "乌鹭",
         "寻找乌鹭",
         "乌鹭的消息"
       ],
       "name": "乌鹭",
-      "route": "reserved",
-      "source": "仅在已建立的公开信息中出现“乌鹭”署名，或玩家明确寻找时给公开接触入口；不能声称陌生联系人此前认识玩家。",
-      "status": "profile-research-required"
+      "route": "welfare",
+      "source": "机构公开公益/物资需求信息；儿童隐私不出现在公共名单。",
+      "status": "existing-anchor-or-explicit-au"
     },
     {
       "choice": "看棋、逛店、询价、交换、拒绝或路过。",
@@ -2080,18 +2080,18 @@
       "status": "existing-anchor-or-explicit-au"
     },
     {
-      "choice": "预约合法探访、捐助、问询、不参与。",
-      "continuation": "记录预约、物资归属、是否完成交接；不自动把玩家变成监护人。",
-      "encounter": "只按既有福利关系与公开接待见面，不临时给两人编监护权或收养史。",
+      "choice": "核实、询问、约见或暂存",
+      "continuation": "只记实际交流。",
+      "encounter": "独立NPC待核，不与乌鹭混写，不编职业背景。",
       "keywords": [
         "乌鹫",
         "寻找乌鹫",
         "乌鹫的消息"
       ],
       "name": "乌鹫",
-      "route": "welfare",
-      "source": "机构公开公益/物资需求信息；儿童隐私不出现在公共名单。",
-      "status": "existing-anchor-or-explicit-au"
+      "route": "reserved",
+      "source": "明确寻找或已建立公开署名",
+      "status": "profile-research-required"
     },
     {
       "choice": "预约合法探访、捐助、问询、不参与。",
@@ -2313,6 +2313,10 @@
     {
       "path": "fixtures/qidu-he-if/coverage-manifest.v03.rc2.json",
       "basis": "继承名单，未重新宣称全部原作资料核验"
+    },
+    {
+      "url": "https://zh.moegirl.org.cn/乌鹭",
+      "basis": "孤儿院院长、园艺、温和且必要时严厉；AU去超自然"
     }
   ]
 }
