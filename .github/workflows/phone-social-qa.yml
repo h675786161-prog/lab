@@ -45,6 +45,11 @@ jobs:
             (cd "$project" && npm run check && npm test) > "/tmp/$project-checks.log" 2>&1
             echo "$project: syntax and unit tests passed"
           done
+      - name: Install Chinese UI fonts
+        run: |
+          sudo apt-get update > /tmp/fonts-install.log 2>&1
+          sudo apt-get install -y fonts-noto-cjk >> /tmp/fonts-install.log 2>&1
+          fc-cache -f
       - name: Install real Tavern and both complete extensions
         shell: bash
         run: |
@@ -53,6 +58,23 @@ jobs:
           git -C /tmp/social-tavern fetch origin 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8 --depth=1
           git -C /tmp/social-tavern checkout --detach 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
           (cd /tmp/social-tavern && npm ci) > /tmp/tavern-install.log 2>&1
+          # Fixed local remotes let version checks run without private credentials.
+          for project in private-phone private-backstage; do
+            git -C "$project" branch -f main HEAD
+            git -C "$project" checkout main
+            git clone --bare "$GITHUB_WORKSPACE/$project" "/tmp/$project-source.git"
+            git -C "$project" remote set-url origin "/tmp/$project-source.git"
+            git -C "$project" fetch origin
+            git -C "$project" branch --set-upstream-to=origin/main main
+          done
+          node <<'NODE'
+          const fs = require('node:fs');
+          const YAML = require('/tmp/social-tavern/node_modules/yaml');
+          const config = YAML.parse(fs.readFileSync('/tmp/social-tavern/default/config.yaml','utf8'));
+          config.extensions.autoUpdate = false;
+          config.browserLaunch.enabled = false;
+          fs.writeFileSync('/tmp/social-tavern/config.yaml', YAML.stringify(config));
+          NODE
           mkdir -p /tmp/social-tavern/public/scripts/extensions/third-party
           ln -s "$GITHUB_WORKSPACE/private-phone" /tmp/social-tavern/public/scripts/extensions/third-party/phone
           ln -s "$GITHUB_WORKSPACE/private-backstage" /tmp/social-tavern/public/scripts/extensions/third-party/world-backstage-test
