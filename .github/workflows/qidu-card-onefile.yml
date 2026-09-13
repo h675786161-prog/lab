@@ -31,13 +31,21 @@ jobs:
       LAB_OUT_ENCOUNTER: bench-evidence/qidu-card-v0420-encounter
     steps:
       - uses: actions/checkout@v4
-      - name: Run v0418 core OOC regression
+      - id: core
+        name: Run v0418 core OOC regression
+        continue-on-error: true
         run: node .lab/qidu-card-model-bench-v0418-core.mjs
-      - name: Run v0420 encounter identity regression
+      - id: encounter
+        name: Run v0420 encounter identity regression
+        continue-on-error: true
         run: node .lab/qidu-card-model-bench-v0420-encounter.mjs
-      - name: Run v0418 preset branch conflict regression
+      - id: conflict
+        name: Run v0418 preset branch conflict regression
+        continue-on-error: true
         run: node .lab/qidu-card-model-bench-v0418-preset-conflict.mjs
-      - name: Run v0418 information timeline regression
+      - id: info
+        name: Run v0418 information timeline regression
+        continue-on-error: true
         run: node .lab/qidu-card-model-bench-v0418-info-timeline.mjs
       - name: Upload narrative evidence
         if: always()
@@ -46,6 +54,17 @@ jobs:
           name: qidu-card-v0420-model-evidence
           path: bench-evidence/
           if-no-files-found: warn
+      - name: Enforce narrative regression gate
+        if: always()
+        run: |
+          echo "core=${{ steps.core.outcome }}"
+          echo "encounter=${{ steps.encounter.outcome }}"
+          echo "conflict=${{ steps.conflict.outcome }}"
+          echo "info=${{ steps.info.outcome }}"
+          test "${{ steps.core.outcome }}" = "success"
+          test "${{ steps.encounter.outcome }}" = "success"
+          test "${{ steps.conflict.outcome }}" = "success"
+          test "${{ steps.info.outcome }}" = "success"
 
   package:
     needs: [real-sillytavern, narrative-regression]
