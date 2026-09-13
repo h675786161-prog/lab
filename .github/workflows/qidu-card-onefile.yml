@@ -33,12 +33,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run v0418 core OOC regression
         run: node .lab/qidu-card-model-bench-v0418-core.mjs
+      - name: Run v0419 encounter identity regression
+        run: node .lab/qidu-card-model-bench-v0419-encounter.mjs
       - name: Run v0418 preset branch conflict regression
         run: node .lab/qidu-card-model-bench-v0418-preset-conflict.mjs
       - name: Run v0418 information timeline regression
         run: node .lab/qidu-card-model-bench-v0418-info-timeline.mjs
-      - name: Run v0419 encounter identity regression
-        run: node .lab/qidu-card-model-bench-v0419-encounter.mjs
       - name: Upload narrative evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -66,6 +66,7 @@ jobs:
           const s=(card.data.character_book?.entries||[]).find(e=>String(e.name||'').startsWith('30｜'));
           const t=(card.data.character_book?.entries||[]).find(e=>String(e.name||'').startsWith('67｜'));
           if(!String(p?.content||'').includes('角色首次识别门禁｜隐藏执行')) throw new Error('identity gate missing');
+          if(!String(p?.content||'').includes('场景必出角色连续性检查')) throw new Error('required cast guard missing');
           if(!String(s?.content||'').includes('高校双人初见硬锁')) throw new Error('school pair gate missing');
           if(!String(t?.content||'').includes('高校主线不可省略')) throw new Error('Tesla required rule missing');
           const name='永远的7日之都-七日轮回文本互动-v0.4.19-onefile.json';
