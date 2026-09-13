@@ -1,0 +1,36 @@
+/* LingWei v1.8 — side-wing architecture + cleaner hierarchy */
+@media(min-width:901px){
+html body{background:linear-gradient(90deg,#4e465d 0 13.5%,#746a80 13.5% 15.4%,#d8ced9 15.4% 84.6%,#746a80 84.6% 86.5%,#4d455c 86.5% 100%)!important}
+#top-bar{width:min(1180px,calc(100vw - 150px))!important;background:linear-gradient(180deg,rgba(67,59,82,.96),rgba(78,69,93,.86) 74%,rgba(78,69,93,0))!important}
+#sheld{width:min(1010px,calc(100vw - 390px))!important;box-shadow:0 24px 72px rgba(31,24,42,.24)!important}
+#sheld::before{left:-28px!important;right:-28px!important;border-color:rgba(201,165,141,.34)!important;box-shadow:inset 0 0 0 6px rgba(255,255,255,.07),0 0 0 1px rgba(255,255,255,.13)!important}
+.drawer-content.openDrawer.fillLeft,.drawer-content.open.fillLeft{left:16px!important;right:auto!important;top:92px!important;width:248px!important;max-width:248px!important;height:calc(100dvh - 112px)!important;background:linear-gradient(180deg,rgba(72,64,86,.98),rgba(83,73,98,.97))!important;border:1px solid rgba(255,255,255,.15)!important;box-shadow:0 18px 50px rgba(25,19,34,.28)!important}
+.drawer-content.openDrawer.fillRight,.drawer-content.open.fillRight{right:16px!important;left:auto!important;top:92px!important;width:248px!important;max-width:248px!important;height:calc(100dvh - 112px)!important;background:linear-gradient(180deg,rgba(72,64,86,.98),rgba(83,73,98,.97))!important;border:1px solid rgba(255,255,255,.15)!important;box-shadow:0 18px 50px rgba(25,19,34,.28)!important}
+}
+#top-settings-holder{gap:18px!important}
+#top-settings-holder>.drawer{width:52px!important;min-width:52px!important;flex-basis:52px!important}
+#chat .mes:first-child:not([is_user="true"]){width:94%!important;min-height:208px!important;margin-bottom:74px!important}
+#chat .mes:first-child:not([is_user="true"]) .mesAvatarWrapper{left:-10px!important;top:-82px!important;width:246px!important;min-width:246px!important;height:246px!important}
+#chat .mes:first-child:not([is_user="true"]) .mes_block::before{left:178px!important;right:10px!important;top:26px!important}
+#chat .mes:first-child:not([is_user="true"]) .ch_name{margin-left:202px!important;padding-top:37px!important}
+#chat .mes:first-child:not([is_user="true"]) .mes_text{margin-left:202px!important;padding:14px 42px 24px 0!important;line-height:1.66!important}
+#chat .mes[is_user="true"]{width:60%!important;margin-top:-8px!important;margin-bottom:62px!important}
+#chat .mes[is_user="true"] .mesAvatarWrapper{width:84px!important;min-width:84px!important;height:84px!important;right:-8px!important;top:-20px!important}
+#chat .mes:nth-child(n+3):not([is_user="true"]):not([is_system="true"]){width:72%!important;min-height:124px!important;margin:0 auto 60px 8%!important}
+#chat .mes:nth-child(n+3):not([is_user="true"]):not([is_system="true"]) .mesAvatarWrapper{width:116px!important;min-width:116px!important;height:116px!important;top:-34px!important}
+#form_sheld{height:82px!important;bottom:8px!important;width:calc(100% - 70px)!important;padding:9px 15px!important}
+#send_textarea{min-height:46px!important;max-height:50px!important}
+#send_but{width:50px!important;height:50px!important;min-width:50px!important}
+#chat{padding-bottom:132px!important}
+@media(max-width:700px){
+#chat{padding-top:84px!important;padding-bottom:100px!important}
+#chat .mes:first-child:not([is_user="true"]) .mesAvatarWrapper{left:-2px!important;top:-54px!important;width:148px!important;min-width:148px!important;height:148px!important}
+#chat .mes:first-child:not([is_user="true"]) .mes_block::before{left:64px!important;top:20px!important}
+#chat .mes:first-child:not([is_user="true"]) .ch_name{margin-left:80px!important;padding-top:28px!important}
+#chat .mes:first-child:not([is_user="true"]) .mes_text{margin-left:80px!important;padding:8px 8px 16px 0!important;font-size:13px!important;line-height:1.52!important}
+#chat .mes[is_user="true"]{width:74%!important;margin-bottom:48px!important}
+#chat .mes[is_user="true"] .mesAvatarWrapper{width:58px!important;min-width:58px!important;height:58px!important;right:-4px!important;top:-13px!important}
+#form_sheld{height:68px!important;width:calc(100% - 8px)!important;bottom:3px!important;padding:5px 7px!important}
+#send_textarea{min-height:38px!important;max-height:42px!important}
+#send_but{width:42px!important;height:42px!important;min-width:42px!important}
+}
