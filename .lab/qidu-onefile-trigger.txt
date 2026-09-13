@@ -1,2 +1,2 @@
-run=v0.4.18-information-timeline-1
-reason=real ST acceptance plus user-only countdown, pre-split Hiro identity, first-chimera/Zero staged disclosure, and commander role wording
+run=v0.4.18-information-timeline-2
+reason=rerun with all narrative regressions loading current v0418 card; verify user-only countdown, pre-split Hiro identity, first-chimera/Zero disclosure, commander role, and preset conflict
