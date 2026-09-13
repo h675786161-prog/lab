@@ -1,0 +1,59 @@
+name: Qidu Card One-File LAB
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['feature/qidu-card-v0411-lab']
+    paths:
+      - '.lab/qidu-onefile-trigger.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  real-sillytavern:
+    uses: h675786161-prog/lab/.github/workflows/real-sillytavern.yml@main
+    with:
+      extension_name: qidu-card-onefile
+      run_project_smoke: true
+      artifact_name: qidu-card-onefile-real-st
+    secrets: inherit
+
+  narrative-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      YOUZI_KEY: ${{ secrets.YOUZI }}
+      GLM_MODEL: '[B]glm-5.3-flash'
+      LAB_OUT: bench-evidence/qidu-card-onefile
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run unchanged narrative regression suite
+        run: node .lab/qidu-card-model-bench-v0414-r4.mjs
+
+  package:
+    needs: [real-sillytavern, narrative-regression]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build one-file card
+        run: |
+          mkdir -p dist-onefile
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs/promises';
+          import crypto from 'node:crypto';
+          import { loadQiduOneFileCard } from './.lab/qidu-card-v0415-onefile.mjs';
+          const { card, raw, compactSha256 } = await loadQiduOneFileCard(process.cwd(), { skipHashCheck:true });
+          if (card.data.extensions?.qidu_choice_bridge) throw new Error('external bridge dependency still present');
+          if ((card.data.extensions?.regex_scripts || []).length < 4) throw new Error('embedded regex missing');
+          const name='永远的7日之都-七日轮回文本互动-v0.4.15-onefile.json';
+          await fs.writeFile(`dist-onefile/${name}`, raw);
+          await fs.writeFile('dist-onefile/SHA256.txt', `${compactSha256}  ${name}\n`);
+          console.log(JSON.stringify({version:card.data.character_version,entries:card.data.character_book?.entries?.length,regex:(card.data.extensions?.regex_scripts||[]).map(x=>x.id),sha256:compactSha256},null,2));
+          NODE
+      - name: Upload one-file card
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-card-v0415-onefile
+          path: dist-onefile/
+          if-no-files-found: error
