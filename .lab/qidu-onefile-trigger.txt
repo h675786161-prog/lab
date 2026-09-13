@@ -1,2 +1,2 @@
-run=v0.4.19-encounter-gate-1
-reason=verify current-loop identity recognition, original Kaji/Tesla introduction order, Tesla continuity, embedded UI regex, and existing information gates in real SillyTavern
+run=v0.4.19-encounter-gate-2
+reason=verify final v0419 identity recognition, original Kaji/Tesla introduction order, Tesla continuity, required_cast continuity, embedded UI regex, and existing information gates in real SillyTavern
