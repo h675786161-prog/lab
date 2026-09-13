@@ -58,7 +58,7 @@ jobs:
           const { chromium } = await import('file:///tmp/qidu-prompt-v3-browser/node_modules/playwright-core/index.mjs');
           const card=JSON.parse(await fs.readFile(process.env.CARD_PATH,'utf8'));
           const data=card.data;
-          if(data.character_version!=='0.4.0-rc1') throw new Error(`expected rc10, got ${data.character_version}`);
+          if(data.character_version!=='0.4.0-rc2') throw new Error(`expected rc10, got ${data.character_version}`);
           const preset=JSON.parse(await fs.readFile(process.env.PRESET_PATH,'utf8'));
           const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_BIN,args:['--no-sandbox','--disable-dev-shm-usage']});
           const page=await browser.newPage({viewport:{width:1440,height:1000}});
@@ -99,7 +99,7 @@ jobs:
 
           const chid=await page.evaluate(async()=>{
             const st=await import('/script.js'); await st.getCharacters();
-            return (st.characters||[]).findIndex(c=>c?.data?.character_version==='0.4.0-rc1');
+            return (st.characters||[]).findIndex(c=>c?.data?.character_version==='0.4.0-rc2');
           });
           if(chid<0) throw new Error('rc10 character missing');
           await page.evaluate(async id=>{const ctx=(await import('/scripts/st-context.js')).getContext(); await ctx.selectCharacterById(id);},chid);
@@ -166,6 +166,12 @@ jobs:
           if(Object.values(checks).some(v=>!v)) throw new Error(`incomplete prompt pipeline ${JSON.stringify(checks)}`);
 
           const routeCases = [
+            {label:'au-doll',user:'我在联合大学看娃娃修补的公告。',present:['【艾莉兹接触路径】','精致的布偶娃娃'],absent:[]},
+            {label:'au-library',user:'我在联合大学图书馆问图书管理员借书。',present:['【零接触路径】','略年长于'],absent:[]},
+            {label:'au-ghost',user:'我夜晚到东方古街闲逛，听到古街闹鬼的传闻。',present:['【屠怯怯接触路径】','不能最终确认真鬼'],absent:[]},
+            {label:'au-mentor',user:'萝月说她师父来探望萝月了。',present:['【司篁接触路径】','【萝月接触路径】'],absent:[]},
+            {label:'au-brother',user:'我到万葬亭问钟函谷的弟弟去哪了。',present:['【钟遥接触路径】','相遇≠收留'],absent:[]},
+            {label:'au-jobpost',user:'我刷到一则工作求助帖，只看看没回复。',present:['【柯路诺接触路径】','玩家选择回复后'],absent:[]},
             {label:'circus-official',user:'我查看马戏团巡演的官方售票消息，先不买票。',present:['【悠久乐园巡演入口】'],absent:['【圣星教会入口】']},
             {label:'circus-rumor',user:'我听说悠久乐园可能取消巡演，想先核实消息。',present:['【悠久乐园巡演入口】'],absent:['【圣星教会入口】']},
             {label:'church-visit',user:'我到教堂参观，只看公共区域。',present:['【圣星教会入口】'],absent:['【悠久乐园巡演入口】']},

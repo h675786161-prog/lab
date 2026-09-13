@@ -157,7 +157,7 @@ await acceptLore();
 const chid = await page.evaluate(async () => {
   const st = await import('/script.js');
   await st.getCharacters();
-  return (st.characters || []).findIndex(c => c?.data?.character_version === '0.4.0-rc1');
+  return (st.characters || []).findIndex(c => c?.data?.character_version === '0.4.0-rc2');
 });
 if (chid < 0) throw new Error('rc10 character missing');
 await page.evaluate(async id => {
