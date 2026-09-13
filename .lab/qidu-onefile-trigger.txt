@@ -1,2 +1,2 @@
-run=v0.4.21-encounter-focus-3
-reason=rerun v0421 after semantic information-timeline fixes; verify first-sighting no-label, Kaji/Tesla order and continuity, core/preset/info gates, bounded GLM provider handling, real SillyTavern browser smoke, and package only if every release gate passes
+run=v0.4.22-npc-knowledge-1
+reason=verify Kaji as a newly awakened artifact user does not inherit player/model knowledge of chimera lore, limited disclosure stays limited, no self-diagnosis is invented, prior encounter/info regressions remain green, and final v0422 passes real SillyTavern browser smoke before packaging
