@@ -47,8 +47,9 @@ async function exerciseScopedRegex(viewport, spaced=false){
   return page.evaluate(async ({name,version,firstMes,spaced})=>{
     const st = await import('/script.js');
     const eng = await import('/scripts/extensions/regex/engine.js');
+    await st.getCharacters();
     const idx = st.characters.findIndex(x => (x?.data?.name||x?.name)===name && x?.data?.character_version===version);
-    if(idx < 0) return {error:'imported character not found in client'};
+    if(idx < 0) return {error:'imported character not found in client',clientCharacters:st.characters.map(x=>({name:x?.data?.name||x?.name,version:x?.data?.character_version,avatar:x?.avatar}))};
     st.setCharacterId(idx);
     const character = st.characters[idx];
 
