@@ -12,6 +12,15 @@ function findEntry(card, prefix) {
 function appendOnce(e, marker, text) {
   if(!String(e.content||'').includes(marker)) e.content=String(e.content||'')+text;
 }
+function patchInitialNpcIntel(card) {
+  const src=String(card.data.first_mes||'');
+  const re=/<f7d_state>([\s\S]*?)<\/f7d_state>/i;
+  const m=src.match(re);
+  if(!m) throw new Error('v0422 first_mes has no f7d_state');
+  let s;try{s=JSON.parse(m[1])}catch(e){throw new Error(`v0422 cannot parse first state: ${e}`)}
+  if(!s.npc_intel||typeof s.npc_intel!=='object'||Array.isArray(s.npc_intel))s.npc_intel={};
+  card.data.first_mes=src.replace(re,`<f7d_state>${JSON.stringify(s)}</f7d_state>`);
+}
 
 const NPC_KNOWLEDGE = `
 【NPC知识来源门禁｜隐藏执行】
@@ -19,6 +28,7 @@ const NPC_KNOWLEDGE = `
 - NPC准备说出活骸、黑核、轮回、人物身世等非公开事实时，必须有明确来源：角色条目直接写明其知情；或当前/既往剧情中本人亲眼经历；或有明确台词/通讯把该信息告诉过她。没有来源时默认“不知道/不确定”，不能自行补一段合理化背景。
 - 禁止擅自补“镜头外已经有人告诉她”“入队时统一培训过”“中央庭肯定发过资料”“大家私下都听说了”等未记录的信息来源。镜头外知识转移只有世界书/剧情明确写出发生过，才能视为成立。
 - \`known\`只表示{{user}}已经完成人物身份识别，不表示该NPC知道任何秘密；\`intel_flags\`只记录{{user}}获得的知识，不能被NPC自动继承。
+- 非公开知识若在剧情中实际传递给某NPC，必须在同一轮\`f7d_state.npc_intel[角色名]\`记录对应已知层级；没有该记录且角色条目未直接声明知情，就不能在后续回合反推“她应该早就知道”。
 - “被告知基础层”只解锁被告知的那一层。例如只听说“存在活骸化/会失控”，不等于知道发生机制、是否必然、具体征兆、第一活骸事故、零、希罗研究细节或中央庭内部处置历史。
 - 若玩家追问超出NPC知识范围的问题，角色应按人设自然承认不清楚、只说自己亲历/被告知的部分，或建议去问真正知情者。禁止为了让回答显得完整而擅自补齐设定。
 `;
@@ -26,6 +36,7 @@ const NPC_KNOWLEDGE = `
 export async function loadQiduOneFileCard(workspace=process.env.GITHUB_WORKSPACE||process.cwd(), options={}) {
   const {card}=await loadV0421Card(workspace,{skipHashCheck:true});
   card.data.character_version=ONEFILE_VERSION;
+  patchInitialNpcIntel(card);
 
   const protocol=findEntry(card,'04｜');
   appendOnce(protocol,'NPC知识来源门禁｜隐藏执行',NPC_KNOWLEDGE);
@@ -37,7 +48,7 @@ export async function loadQiduOneFileCard(workspace=process.env.GITHUB_WORKSPACE
 
   const day6=findEntry(card,'11｜');
   appendOnce(day6,'活骸情报不自动广播给全队',`
-【活骸情报不自动广播给全队】赛哈姆事件与希罗说明只让现场亲历/实际被告知的人获得对应情报。{{user}}的intel_flags更新后，珈儿、泰丝拉等不在场或未被告知的角色不能同步获得知识。之后若{{user}}明确告诉某人，只按实际说出的内容更新该角色认知，不顺带解锁更深秘密；也不得补写“中央庭之后私下统一通知过所有人”来绕过来源门禁。
+【活骸情报不自动广播给全队】赛哈姆事件与希罗说明只让现场亲历/实际被告知的人获得对应情报。{{user}}的intel_flags更新后，珈儿、泰丝拉等不在场或未被告知的角色不能同步获得知识。之后若{{user}}明确告诉某人，只按实际说出的内容更新该角色认知，并在同轮npc_intel记录，不顺带解锁更深秘密；也不得补写“中央庭之后私下统一通知过所有人”来绕过来源门禁。
 `);
 
   const kaji=findEntry(card,'44｜');
@@ -55,16 +66,24 @@ export async function loadQiduOneFileCard(workspace=process.env.GITHUB_WORKSPACE
   appendOnce(state,'玩家知识不等于NPC知识',`
 【玩家知识不等于NPC知识】\`intel_flags\`仅代表{{user}}已获得的信息权限，任何字段变true都不能作为NPC自动知情的依据。NPC知识必须回到角色条目与剧情来源判定；没有明确来源就保持未知。\`known\`同样只表示{{user}}认得该角色，不携带知识共享语义。未记录的镜头外告知/培训/传闻不得作为隐含来源。
 `);
+  appendOnce(state,'NPC知识账本npc_intel',`
+【NPC知识账本npc_intel】
+- 在\`f7d_state\`中保留对象\`npc_intel\`，用于记录“剧情明确让某NPC获得的非公开知识”。初始为空对象，不代表角色没有常识；角色条目中本来就明确知道的内容无需重复登记。
+- 结构示例：\`"npc_intel":{"珈儿":{"chimera_exists":true,"chimera_danger":true}}\`。只写已经明确获得的true项，不要为未知项批量写false，也不要猜测补齐。
+- 推荐标签：\`chimera_exists\`=知道活骸化现象存在；\`chimera_danger\`=知道失控危险；\`chimera_rescue_attempt_failed\`=知道中央庭过去尝试挽救失败；\`hiro_chimera_research\`=知道希罗研究活骸；\`first_chimera_incident\`=知道第一活骸事故层；\`zero_identity\`=知道零身份层；\`ann_origin\`、\`loop_truth\`同理。
+- 当NPC亲历或被明确告知某一层时，在同一回复状态块增量写入对应true；没有发生明确知识转移时保持原样。严禁因为{{user}}的intel_flags变化、同行、入队、时间过去或“中央庭应该通知”就自动新增。
+- 后续生成该NPC台词前，先读取其npc_intel与角色条目，只能使用已解锁层。轮回重置时按世界重构规则清空本轮临时npc_intel，除非后续多周目规则明确允许保留。
+`);
 
   const ext=card.data.extensions||{};
   const dp=ext.depth_prompt||{prompt:'',depth:0,role:'system'};
   dp.depth=0;dp.role='system';
-  const lock=' ㉗NPC知识来源：玩家intel_flags和模型后台真相绝不自动复制给NPC；角色只有条目明示、本人亲历或剧情明确被告知才可知情，禁止虚构镜头外培训/资料/私下通知作为来源。珈儿是刚成为神器使不久的新人，前期不默认懂活骸机制/必然性/第一活骸/零/希罗研究；只知道被明确告诉的层级，超出则承认不清楚。';
+  const lock=' ㉗NPC知识来源：玩家intel_flags和模型后台真相绝不自动复制给NPC；角色只有条目明示、本人亲历或剧情明确被告知才可知情，禁止虚构镜头外培训/资料/私下通知作为来源。非公开知识实际传递时同轮写入npc_intel；珈儿是刚成为神器使不久的新人，前期不默认懂活骸机制/必然性/第一活骸/零/希罗研究，只知道被明确告诉的层级，超出则承认不清楚。';
   if(!String(dp.prompt||'').includes('㉗NPC知识来源')) dp.prompt=String(dp.prompt||'')+lock;
   ext.depth_prompt=dp;
   card.data.extensions=ext;
 
-  const phi='\n- 【NPC知识来源门禁】玩家知道≠NPC知道；intel_flags不得自动广播，也不得虚构镜头外培训/资料/私下通知来补来源。珈儿作为刚成为神器使不久的新人，不默认掌握活骸化机制、必然性、第一活骸/零或希罗研究。只允许角色使用条目明示、本人亲历或剧情明确告知的信息，超出部分保持未知。\n';
+  const phi='\n- 【NPC知识来源门禁】玩家知道≠NPC知道；intel_flags不得自动广播，也不得虚构镜头外培训/资料/私下通知来补来源。非公开知识实际传递给NPC时，同轮在f7d_state.npc_intel中登记对应层级。珈儿作为刚成为神器使不久的新人，不默认掌握活骸化机制、必然性、第一活骸/零或希罗研究。只允许角色使用条目明示、本人亲历或剧情明确告知的信息，超出部分保持未知。\n';
   if(!String(card.data.post_history_instructions||'').includes('NPC知识来源门禁】玩家知道')) card.data.post_history_instructions=String(card.data.post_history_instructions||'')+phi;
 
   const raw=Buffer.from(JSON.stringify(card),'utf8');
