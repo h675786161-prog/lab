@@ -1,0 +1,141 @@
+/* LingWei · Dream Dusk v3 — layout guard
+   Loaded AFTER theme.css.
+   Purpose: protect ornate edges from real content and keep native control zones usable. */
+
+@media (min-width: 1001px) {
+  #right-nav-panel:is(.openDrawer, [data-lw-qa-open="1"]) .scrollableInner {
+    padding: 66px 18px 76px 18px !important;
+  }
+
+  #left-nav-panel:is(.openDrawer, [data-lw-qa-open="1"]) .scrollableInner {
+    padding: 74px 26px 82px 18px !important;
+  }
+
+  #send_form #nonQRFormItems {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+  }
+
+  #send_form #leftSendForm {
+    flex: 0 0 88px !important;
+    min-width: 88px !important;
+    justify-content: flex-start !important;
+  }
+
+  #send_form #rightSendForm {
+    flex: 0 0 150px !important;
+    min-width: 150px !important;
+    justify-content: flex-end !important;
+  }
+
+  #send_textarea {
+    min-width: 180px !important;
+  }
+}
+
+#right-nav-panel .scrollableInner,
+#left-nav-panel .scrollableInner {
+  scrollbar-gutter: stable !important;
+}
+
+#right-nav-panel :is(input, textarea, select, button, .menu_button, .select2-selection),
+#left-nav-panel :is(input, textarea, select, button, .menu_button, .select2-selection) {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+#chat .mes:not(.smallSysMes) .ch_name,
+#chat .mes:not(.smallSysMes) .mes_text {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+#chat .mes:not(.smallSysMes) .mes_text pre,
+#chat .mes:not(.smallSysMes) .mes_text code,
+#chat .mes:not(.smallSysMes) .mes_text table {
+  max-width: 100% !important;
+}
+
+#chat .mes:not(.smallSysMes) .mes_text pre {
+  overflow-x: auto !important;
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere !important;
+}
+
+#chat .mes:not(.smallSysMes) .mes_text img,
+#chat .mes:not(.smallSysMes) .mes_text video {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+@media (max-width: 1000px) {
+  #top-bar,
+  #top-settings-holder {
+    position: fixed !important;
+    top: 3px !important;
+    left: 5px !important;
+    right: 5px !important;
+    width: auto !important;
+    height: 52px !important;
+    margin: 0 !important;
+  }
+
+  #top-settings-holder {
+    z-index: 3000 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 3px !important;
+    padding: 5px 44px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    pointer-events: none !important;
+  }
+
+  #top-settings-holder > .drawer {
+    flex: 0 0 38px !important;
+    width: 38px !important;
+    height: 38px !important;
+    pointer-events: auto !important;
+  }
+
+  #top-settings-holder > .drawer > .drawer-toggle {
+    width: 38px !important;
+    height: 38px !important;
+    padding: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+  }
+
+  #send_form #nonQRFormItems {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+  }
+
+  #send_form #leftSendForm {
+    flex: 0 0 44px !important;
+    min-width: 44px !important;
+  }
+
+  #send_form #rightSendForm {
+    flex: 0 0 auto !important;
+    min-width: 92px !important;
+    justify-content: flex-end !important;
+  }
+
+  #send_form .menu_button,
+  #send_but,
+  #mes_stop,
+  #mes_continue,
+  #mes_impersonate {
+    min-width: 36px !important;
+    min-height: 36px !important;
+  }
+}
