@@ -34,16 +34,92 @@ async function prepare(page,desktop){
 }
 
 async function report(page){return await page.evaluate(()=>{
-  const rect=s=>{const e=document.querySelector(s);if(!e)return null;const r=e.getBoundingClientRect();return{x:Math.round(r.x),y:Math.round(r.y),width:Math.round(r.width),height:Math.round(r.height),right:Math.round(r.right),bottom:Math.round(r.bottom)}};
+  const rectEl=e=>{if(!e)return null;const r=e.getBoundingClientRect();return{x:Math.round(r.x),y:Math.round(r.y),width:Math.round(r.width),height:Math.round(r.height),right:Math.round(r.right),bottom:Math.round(r.bottom)}};
+  const rect=s=>rectEl(document.querySelector(s));
   const metric=s=>{const e=document.querySelector(s);if(!e)return null;const r=e.getBoundingClientRect();return{width:Math.round(r.width),height:Math.round(r.height),scrollWidth:Math.round(e.scrollWidth),clientWidth:Math.round(e.clientWidth),scrollHeight:Math.round(e.scrollHeight),clientHeight:Math.round(e.clientHeight)}};
   const has=(s,p,f,pseudo=null)=>{const e=document.querySelector(s);return !!e&&(getComputedStyle(e,pseudo).getPropertyValue(p)||'').includes(f)};
+  const cleanContent=s=>(s||'').replace(/^['"]|['"]$/g,'').trim();
   const root=document.documentElement,chat=document.querySelector('#chat');
-  return{viewport:{width:innerWidth,height:innerHeight},overflowX:Math.max(0,Math.round(root.scrollWidth-innerWidth)),chatOverflowX:chat?Math.max(0,chat.scrollWidth-chat.clientWidth):null,messageCount:document.querySelectorAll('#chat .mes').length,sheld:rect('#sheld'),top:rect('#top-bar'),chat:rect('#chat'),characterRail:rect('#right-nav-panel'),settingsRail:rect('#left-nav-panel'),input:rect('#send_form'),textarea:rect('#send_textarea'),shortAI:rect('.lw-test-short-ai .mes_block'),normalUser:rect('.lw-test-normal-user .mes_block'),longAI:rect('.lw-test-long-ai .mes_block'),continuousUser:metric('.lw-test-continuous-user .mes_text'),aiAvatar:rect('.lw-test-short-ai .mesAvatarWrapper'),userAvatar:rect('.lw-test-normal-user .mesAvatarWrapper'),dateDivider:rect('.lw-date-divider'),nodes:{chat:!!document.querySelector('#chat'),sendForm:!!document.querySelector('#send_form'),textarea:!!document.querySelector('#send_textarea'),send:!!document.querySelector('#send_but'),stop:!!document.querySelector('#mes_stop'),continue:!!document.querySelector('#mes_continue'),characterPanel:!!document.querySelector('#right-nav-panel'),settingsPanel:!!document.querySelector('#left-nav-panel')},assets:{chatShell:has('#sheld','border-image-source','chat-shell-frame.png'),topNav:has('#top-bar','border-image-source','top-nav-base.png'),leftDrawer:has('#right-nav-panel','border-image-source','left-drawer-base.png'),rightDrawer:has('#left-nav-panel','border-image-source','right-drawer-base.png'),input:has('#send_form','border-image-source','input-bar-base.png'),aiPaper:has('.lw-test-short-ai .mes_block','border-image-source','message-ai-paper.png'),userPaper:has('.lw-test-normal-user .mes_block','border-image-source','message-user-paper.png'),botFrame:has('.lw-test-short-ai .mesAvatarWrapper','background-image','avatar-frame-bot.png','::before'),userFrame:has('.lw-test-normal-user .mesAvatarWrapper','background-image','avatar-frame-user.png','::before'),divider:has('.lw-date-divider','border-image-source','date-divider.png')}};
+  const topHolder=document.querySelector('#top-settings-holder');
+  const topControls=[...(topHolder?.querySelectorAll(':scope > .drawer > .drawer-toggle')||[])].map(toggle=>{
+    const r=toggle.getBoundingClientRect();
+    const icon=toggle.querySelector('.drawer-icon');
+    return {id:toggle.parentElement?.id||'',...rectEl(toggle),label:icon?cleanContent(getComputedStyle(icon,'::after').content):''};
+  }).filter(x=>x.width>0&&x.height>0);
+  return{
+    viewport:{width:innerWidth,height:innerHeight},
+    overflowX:Math.max(0,Math.round(root.scrollWidth-innerWidth)),
+    chatOverflowX:chat?Math.max(0,chat.scrollWidth-chat.clientWidth):null,
+    messageCount:document.querySelectorAll('#chat .mes').length,
+    sheld:rect('#sheld'),top:rect('#top-bar'),topHolder:rect('#top-settings-holder'),topControls,
+    chat:rect('#chat'),characterRail:rect('#right-nav-panel'),settingsRail:rect('#left-nav-panel'),
+    input:rect('#send_form'),textarea:rect('#send_textarea'),inputLeft:rect('#leftSendForm'),inputRight:rect('#rightSendForm'),
+    shortAI:rect('.lw-test-short-ai .mes_block'),normalUser:rect('.lw-test-normal-user .mes_block'),longAI:rect('.lw-test-long-ai .mes_block'),continuousUser:metric('.lw-test-continuous-user .mes_text'),aiAvatar:rect('.lw-test-short-ai .mesAvatarWrapper'),userAvatar:rect('.lw-test-normal-user .mesAvatarWrapper'),dateDivider:rect('.lw-date-divider'),
+    topUsesBorderImage:has('#top-bar','border-image-source','top-nav-base.png'),
+    inputUsesBorderImage:has('#send_form','border-image-source','input-bar-base.png'),
+    cjkFontReady:document.fonts.check('16px "Noto Sans CJK SC"'),
+    nodes:{chat:!!document.querySelector('#chat'),sendForm:!!document.querySelector('#send_form'),textarea:!!document.querySelector('#send_textarea'),send:!!document.querySelector('#send_but'),stop:!!document.querySelector('#mes_stop'),continue:!!document.querySelector('#mes_continue'),characterPanel:!!document.querySelector('#right-nav-panel'),settingsPanel:!!document.querySelector('#left-nav-panel')},
+    assets:{chatShell:has('#sheld','border-image-source','chat-shell-frame.png'),topNav:has('#top-bar','background-image','top-nav-base.png','::before')&&has('#top-bar','background-image','top-nav-base.png','::after'),leftDrawer:has('#right-nav-panel','border-image-source','left-drawer-base.png'),rightDrawer:has('#left-nav-panel','border-image-source','right-drawer-base.png'),input:has('#send_form','background-image','input-bar-base.png','::before')&&has('#send_form','background-image','input-bar-base.png','::after'),aiPaper:has('.lw-test-short-ai .mes_block','border-image-source','message-ai-paper.png'),userPaper:has('.lw-test-normal-user .mes_block','border-image-source','message-user-paper.png'),botFrame:has('.lw-test-short-ai .mesAvatarWrapper','background-image','avatar-frame-bot.png','::before'),userFrame:has('.lw-test-normal-user .mesAvatarWrapper','background-image','avatar-frame-user.png','::before'),divider:has('.lw-date-divider','border-image-source','date-divider.png')}
+  };
 })}
 
-function checkDesktop(r){const fail=m=>{throw new Error(m)};if(r.overflowX)fail(`desktop page overflowX=${r.overflowX}`);if(r.chatOverflowX)fail(`desktop chat overflowX=${r.chatOverflowX}`);if(!Object.values(r.nodes).every(Boolean))fail(`missing native nodes ${JSON.stringify(r.nodes)}`);if(!Object.values(r.assets).every(Boolean))fail(`missing assets ${JSON.stringify(r.assets)}`);if(!r.sheld||r.sheld.width<760)fail(`shell ${JSON.stringify(r.sheld)}`);if(!r.characterRail||r.characterRail.width<240||r.characterRail.height<600)fail(`left drawer ${JSON.stringify(r.characterRail)}`);if(!r.settingsRail||r.settingsRail.width<260||r.settingsRail.height<600)fail(`right drawer ${JSON.stringify(r.settingsRail)}`);if(!r.input||r.input.width<500||r.input.height<54)fail(`input ${JSON.stringify(r.input)}`);if(r.shortAI.height<86)fail('short AI');if(r.normalUser.height<54)fail('normal user');if(r.longAI.height<=r.shortAI.height+180)fail('long AI did not expand');if(r.continuousUser.scrollWidth>r.continuousUser.clientWidth)fail('continuous overflow');for(const k of['aiAvatar','userAvatar']){const a=r[k];if(!a||a.width<80||a.width>84||a.height<88||a.height>92)fail(`${k} ${JSON.stringify(a)}`)}}
-function checkMobile(r){const fail=m=>{throw new Error(m)};if(r.overflowX)fail(`mobile page overflowX=${r.overflowX}`);if(r.chatOverflowX)fail(`mobile chat overflowX=${r.chatOverflowX}`);if(!r.sheld||r.sheld.width<390||r.sheld.right>r.viewport.width+2)fail(`mobile shell ${JSON.stringify(r.sheld)}`);if(!r.input||r.input.width<330||r.input.right>r.viewport.width+2)fail(`mobile input ${JSON.stringify(r.input)}`)}
+function checkDesktop(r){
+  const fail=m=>{throw new Error(m)};
+  if(r.overflowX)fail(`desktop page overflowX=${r.overflowX}`);
+  if(r.chatOverflowX)fail(`desktop chat overflowX=${r.chatOverflowX}`);
+  if(!Object.values(r.nodes).every(Boolean))fail(`missing native nodes ${JSON.stringify(r.nodes)}`);
+  if(!Object.values(r.assets).every(Boolean))fail(`missing assets ${JSON.stringify(r.assets)}`);
+  if(!r.sheld||r.sheld.width<760)fail(`shell ${JSON.stringify(r.sheld)}`);
+  if(!r.characterRail||r.characterRail.width<240||r.characterRail.height<600)fail(`left drawer ${JSON.stringify(r.characterRail)}`);
+  if(!r.settingsRail||r.settingsRail.width<260||r.settingsRail.height<600)fail(`right drawer ${JSON.stringify(r.settingsRail)}`);
+  if(!r.top||!r.topHolder||r.top.width<500||r.topHolder.width<500)fail(`top bar ${JSON.stringify({top:r.top,holder:r.topHolder})}`);
+  if(r.topUsesBorderImage)fail('top-nav-base must be decorative end caps, not border-image structure');
+  if(r.topControls.length<7)fail(`too few visible real top controls ${r.topControls.length}`);
+  const labeled=r.topControls.filter(x=>x.label&&x.label!=='none').length;
+  if(labeled<Math.min(7,r.topControls.length))fail(`top labels missing ${JSON.stringify(r.topControls)}`);
+  for(const c of r.topControls){if(c.width<55||c.height<42)fail(`top control too small ${JSON.stringify(c)}`)}
+  const topSpan=r.topControls.at(-1).right-r.topControls[0].x;
+  if(topSpan<r.topHolder.width*.62)fail(`top controls not distributed across nav: span=${topSpan} holder=${r.topHolder.width}`);
+  if(!r.input||r.input.width<500||r.input.height<58||r.input.height>66)fail(`input shell ${JSON.stringify(r.input)}`);
+  if(r.inputUsesBorderImage)fail('input-bar-base must be decorative end caps, not border-image structure');
+  if(!r.textarea||r.textarea.width<r.input.width*.45||r.textarea.height<40)fail(`textarea not primary input area ${JSON.stringify({input:r.input,textarea:r.textarea})}`);
+  if(!r.inputLeft||r.inputLeft.width<34||!r.inputRight||r.inputRight.width<70)fail(`input tool zones ${JSON.stringify({left:r.inputLeft,right:r.inputRight})}`);
+  if(r.inputLeft.right>r.textarea.x+2||r.textarea.right>r.inputRight.x+2)fail(`input zones overlap ${JSON.stringify({left:r.inputLeft,textarea:r.textarea,right:r.inputRight})}`);
+  if(!r.cjkFontReady)fail('CJK font not ready');
+  if(r.shortAI.height<86)fail('short AI');if(r.normalUser.height<54)fail('normal user');if(r.longAI.height<=r.shortAI.height+180)fail('long AI did not expand');if(r.continuousUser.scrollWidth>r.continuousUser.clientWidth)fail('continuous overflow');
+  for(const k of['aiAvatar','userAvatar']){const a=r[k];if(!a||a.width<80||a.width>84||a.height<88||a.height>92)fail(`${k} ${JSON.stringify(a)}`)}
+}
 
-const d=await browser.newPage({viewport:{width:1480,height:1027}});const dm=await prepare(d,true);const dr=await report(d);checkDesktop(dr);await d.screenshot({path:path.join(evidence,'desktop-full.png')});await d.locator('#right-nav-panel').screenshot({path:path.join(evidence,'detail-left-character-list.png')});await d.locator('#chat').screenshot({path:path.join(evidence,'detail-center-chat-short.png')});await d.locator('#left-nav-panel').screenshot({path:path.join(evidence,'detail-right-settings.png')});await d.locator('#send_textarea').fill('输入栏实机检查：原生输入节点仍可编辑。');await d.locator('#send_form').screenshot({path:path.join(evidence,'detail-input-bar.png')});await d.locator('.lw-test-long-ai').scrollIntoViewIfNeeded();await d.waitForTimeout(250);await d.screenshot({path:path.join(evidence,'desktop-long.png')});await d.locator('#chat').screenshot({path:path.join(evidence,'detail-center-chat-long.png')});
-const m=await browser.newPage({viewport:{width:430,height:844}});const mm=await prepare(m,false);const mr=await report(m);checkMobile(mr);await m.screenshot({path:path.join(evidence,'mobile-full.png')});
-await fs.writeFile(path.join(evidence,'report.json'),JSON.stringify({desktop:dm,mobile:mm,desktopReport:dr,mobileReport:mr,errors},null,2));await browser.close();
+function checkMobile(r){
+  const fail=m=>{throw new Error(m)};
+  if(r.overflowX)fail(`mobile page overflowX=${r.overflowX}`);
+  if(r.chatOverflowX)fail(`mobile chat overflowX=${r.chatOverflowX}`);
+  if(!r.sheld||r.sheld.width<390||r.sheld.right>r.viewport.width+2)fail(`mobile shell ${JSON.stringify(r.sheld)}`);
+  if(!r.input||r.input.width<330||r.input.right>r.viewport.width+2||r.input.height<56||r.input.height>64)fail(`mobile input ${JSON.stringify(r.input)}`);
+  if(r.inputUsesBorderImage)fail('mobile input still uses full PNG border-image');
+  if(!r.textarea||r.textarea.width<150)fail(`mobile textarea ${JSON.stringify(r.textarea)}`);
+  if(r.topUsesBorderImage)fail('mobile top still uses full PNG border-image');
+  if(r.topControls.length<6)fail(`mobile top controls missing ${r.topControls.length}`);
+}
+
+const d=await browser.newPage({viewport:{width:1480,height:1027}});
+const dm=await prepare(d,true);const dr=await report(d);checkDesktop(dr);
+await d.screenshot({path:path.join(evidence,'desktop-full.png')});
+await d.locator('#top-settings-holder').screenshot({path:path.join(evidence,'detail-top-nav.png')});
+await d.locator('#right-nav-panel').screenshot({path:path.join(evidence,'detail-left-character-list.png')});
+await d.locator('#chat').screenshot({path:path.join(evidence,'detail-center-chat-short.png')});
+await d.locator('#left-nav-panel').screenshot({path:path.join(evidence,'detail-right-settings.png')});
+await d.locator('#send_textarea').fill('输入栏实机检查：真实 textarea 保持主要宽度，左右功能区独立。');
+await d.locator('#send_form').screenshot({path:path.join(evidence,'detail-input-bar.png')});
+await d.locator('.lw-test-long-ai').scrollIntoViewIfNeeded();await d.waitForTimeout(250);
+await d.screenshot({path:path.join(evidence,'desktop-long.png')});
+await d.locator('#chat').screenshot({path:path.join(evidence,'detail-center-chat-long.png')});
+
+const m=await browser.newPage({viewport:{width:430,height:844}});
+const mm=await prepare(m,false);const mr=await report(m);checkMobile(mr);
+await m.screenshot({path:path.join(evidence,'mobile-full.png')});
+await m.locator('#top-settings-holder').screenshot({path:path.join(evidence,'mobile-top-nav.png')});
+await m.locator('#send_form').screenshot({path:path.join(evidence,'mobile-input-bar.png')});
+
+await fs.writeFile(path.join(evidence,'report.json'),JSON.stringify({desktop:dm,mobile:mm,desktopReport:dr,mobileReport:mr,errors},null,2));
+await browser.close();
