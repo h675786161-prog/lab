@@ -543,17 +543,17 @@ body.no-blur #send_form {
 
   #send_form::before,
   #send_form::after {
-    width: 48px !important;
-    height: 66px !important;
-    background-size: auto 66px !important;
+    width: 42px !important;
+    height: 64px !important;
+    background-size: auto 64px !important;
   }
 
   #send_form::before { left: -4px !important; }
   #send_form::after { right: -4px !important; }
 
   #send_form #nonQRFormItems {
-    padding: 7px 38px !important;
-    grid-template-columns: minmax(38px, auto) minmax(0, 1fr) minmax(76px, auto) !important;
+    padding: 7px 26px !important;
+    grid-template-columns: auto minmax(150px, 1fr) auto !important;
     gap: 5px !important;
   }
 
@@ -572,9 +572,11 @@ body.no-blur #send_form {
   }
 
   #send_form :is(.menu_button, #send_but, #mes_stop, #mes_continue, #mes_impersonate) {
-    min-width: 34px !important;
-    width: 34px !important;
+    min-width: 28px !important;
+    width: 28px !important;
     min-height: 34px !important;
     height: 34px !important;
+    border-radius: 9px !important;
+    font-size: 15px !important;
   }
 }
