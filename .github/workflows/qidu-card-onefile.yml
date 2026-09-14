@@ -21,7 +21,7 @@ jobs:
 
   narrative-regression:
     runs-on: ubuntu-latest
-    timeout-minutes: 55
+    timeout-minutes: 40
     env:
       YOUZI_KEY: ${{ secrets.YOUZI }}
       GLM_MODEL: '[B]glm-5.3-flash'
@@ -29,8 +29,8 @@ jobs:
       LAB_OUT_CONFLICT: bench-evidence/qidu-card-v0418-preset-conflict
       LAB_OUT_INFO: bench-evidence/qidu-card-v0423-info-timeline
       LAB_OUT_ENCOUNTER: bench-evidence/qidu-card-v0421-encounter
-      LAB_OUT_NPC_KNOWLEDGE: bench-evidence/qidu-card-v0422-npc-knowledge
-      LAB_OUT_NPC_SOURCE: bench-evidence/qidu-card-v0422-offscreen-source
+      LAB_OUT_NPC_KNOWLEDGE: bench-evidence/qidu-card-v0423-npc-knowledge
+      LAB_OUT_NPC_SOURCE: bench-evidence/qidu-card-v0423-offscreen-source
     steps:
       - uses: actions/checkout@v4
       - id: core
@@ -46,17 +46,17 @@ jobs:
         continue-on-error: true
         run: node .lab/qidu-card-model-bench-v0418-preset-conflict.mjs
       - id: info
-        name: Run v0423 information timeline regression
+        name: Run final v0423 information timeline regression
         continue-on-error: true
         run: node .lab/qidu-card-model-bench-v0423-info-timeline.mjs
       - id: npc
-        name: Run NPC knowledge provenance regression
+        name: Run final v0423 NPC knowledge provenance regression
         continue-on-error: true
-        run: node .lab/qidu-card-model-bench-v0422-npc-knowledge.mjs
+        run: node .lab/qidu-card-model-bench-v0423-npc-knowledge.mjs
       - id: npcsource
-        name: Run off-screen NPC source regression
+        name: Run final v0423 off-screen NPC source regression
         continue-on-error: true
-        run: node .lab/qidu-card-model-bench-v0422-offscreen-source.mjs
+        run: node .lab/qidu-card-model-bench-v0423-offscreen-source.mjs
       - name: Upload narrative evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -97,27 +97,20 @@ jobs:
           if(card.data.creator_notes!=='《永远的7日之都》七日轮回文本互动角色卡。') throw new Error('creator notes are not the public release text');
           const publicMeta=JSON.stringify({creator:card.data.creator,creator_notes:card.data.creator_notes});
           if(/github|h675786161|实验酒馆|玲七|仓库地址|repository/i.test(publicMeta)) throw new Error('development provenance leaked into public author metadata');
-          if (card.data.extensions?.qidu_choice_bridge) throw new Error('external bridge dependency still present');
-          const scripts=card.data.extensions?.regex_scripts || [];
-          if (scripts.length < 4) throw new Error('embedded regex missing');
+          if(card.data.extensions?.qidu_choice_bridge) throw new Error('external bridge dependency still present');
+          const scripts=card.data.extensions?.regex_scripts||[];
+          if(scripts.length<4) throw new Error('embedded regex missing');
           const rx=id=>scripts.find(x=>x?.id===id);
-          const terminal=rx('f7d-terminal-v040');
-          const stateHide=rx('f7d-state-hide-v040');
-          const choices=rx('f7d-choices-wrap-v0414');
-          const choice=rx('f7d-choice-button-v0414');
+          const terminal=rx('f7d-terminal-v040'),stateHide=rx('f7d-state-hide-v040'),choices=rx('f7d-choices-wrap-v0414'),choice=rx('f7d-choice-button-v0414');
           if(!terminal||!stateHide||!choices||!choice) throw new Error('required terminal/choice UI regex missing');
-          const tr=String(terminal.replaceString||''), sr=String(stateHide.replaceString??''), gr=String(choices.replaceString||''), cr=String(choice.replaceString||'');
+          const tr=String(terminal.replaceString||''),sr=String(stateHide.replaceString??''),gr=String(choices.replaceString||''),cr=String(choice.replaceString||'');
           if(!tr.includes('data-f7d-terminal="1"')||!tr.includes('linear-gradient')||!tr.includes('border-radius')) throw new Error('tactical terminal beautification missing');
           if(sr!=='') throw new Error('hidden f7d_state is no longer hidden');
           if(!gr.includes('data-f7d-choice-grid="1"')||!gr.includes('display:grid')||!gr.includes('linear-gradient')||!gr.includes('border-radius')) throw new Error('choice grid beautification missing');
           if(!cr.includes('data-f7d-choice="1"')||!/<label\b/i.test(cr)||!cr.includes('for="send_textarea"')||!cr.includes('min-height:44px')||!cr.includes('linear-gradient')||!cr.includes('border-radius')) throw new Error('choice tile beautification/composer target missing');
-          if (card.data.extensions?.depth_prompt?.depth !== 0) throw new Error('UI/info protocol is not depth 0');
-          const p=(card.data.character_book?.entries||[]).find(e=>String(e.name||'').startsWith('04｜'));
-          const d6=(card.data.character_book?.entries||[]).find(e=>String(e.name||'').startsWith('11｜'));
-          const s=(card.data.character_book?.entries||[]).find(e=>String(e.name||'').startsWith('30｜'));
-          const k=(card.data.character_book?.entries||[]).find(e=>String(e.name||'').startsWith('44｜'));
-          const t=(card.data.character_book?.entries||[]).find(e=>String(e.name||'').startsWith('67｜'));
-          const st=(card.data.character_book?.entries||[]).find(e=>String(e.name||'').startsWith('91｜'));
+          if(card.data.extensions?.depth_prompt?.depth!==0) throw new Error('UI/info protocol is not depth 0');
+          const by=p=>(card.data.character_book?.entries||[]).find(e=>String(e.name||'').startsWith(p));
+          const p=by('04｜'),d6=by('11｜'),s=by('30｜'),k=by('44｜'),t=by('67｜'),st=by('91｜');
           if(!String(p?.content||'').includes('角色首次识别门禁｜隐藏执行')) throw new Error('identity gate missing');
           if(!String(p?.content||'').includes('场景必出角色连续性检查')) throw new Error('required cast guard missing');
           if(!String(p?.content||'').includes('高校初见姓名令牌顺序锁｜隐藏执行')) throw new Error('encounter token order lock missing');
@@ -142,8 +135,8 @@ jobs:
           if(Object.keys(initial.npc_intel).length) throw new Error('initial npc_intel must start empty');
           if(initial.intel_flags?.zero_identity_known!==false) throw new Error('zero identity must start locked');
           const name='永远的7日之都-七日轮回文本互动-v0.4.23-onefile.json';
-          await fs.writeFile(`dist-onefile/${name}`, raw);
-          await fs.writeFile('dist-onefile/SHA256.txt', `${compactSha256}  ${name}\n`);
+          await fs.writeFile(`dist-onefile/${name}`,raw);
+          await fs.writeFile('dist-onefile/SHA256.txt',`${compactSha256}  ${name}\n`);
           console.log(JSON.stringify({version:card.data.character_version,creator:card.data.creator,entries:card.data.character_book?.entries?.length,regex:scripts.map(x=>x.id),ui:{terminal:true,stateHidden:true,choiceGrid:true,choiceTiles:true},depth:card.data.extensions?.depth_prompt?.depth,sha256:compactSha256},null,2));
           NODE
       - name: Upload one-file card
