@@ -33,6 +33,13 @@ const NPC_SOURCE_HARD_LOCK = `
 - 对珈儿尤其严格：若\`npc_intel.珈儿\`没有对应活骸知识，她只能把{{user}}刚刚说出的“活骸/活骸化”当作陌生词复述并承认不了解；普通疲劳、幻力不稳只能描述体感或做保守猜测，不能自诊断，也不能凭空引用晏华、安托涅瓦或中央庭过去的说明。
 `;
 
+const NO_COMPLIANCE_SELF_AUDIT = `
+【禁止合规自评旁白｜隐藏执行】
+- 隐藏规则只能约束生成，不能成为故事内容。玩家可见旁白不得解释“角色没有顺着诱导编造”“她老老实实承认无知”“她没有越界”“没有补齐更深历史”“严格按实际来源回答”“遵守了某条规则”等生成过程或合规结果。
+- 不要评价角色回答是否符合知识门禁，也不要替模型总结自己没有做什么。只写世界内可观察的动作、表情、停顿、角色真正说出口的话，以及自然的场景后果。
+- 当角色不知道时，用角色本人的自然措辞和行为表现出来即可，例如摇头、迟疑、承认不清楚、建议去问知情者。到此为止，不再追加“这说明她没有被诱导/没有编造”的旁白说明。
+`;
+
 const COUNTDOWN_MEANING_LOCK = `
 【倒计时含义未解锁时禁止补完｜隐藏执行】
 - 当\`intel_flags.countdown_meaning_known=false\`时，{{user}}视野中的数字只能被当作“{{user}}报告自己看见、其他角色看不见且含义未知的异常”。NPC不得替{{user}}推导它代表什么。
@@ -61,6 +68,7 @@ export async function loadQiduOneFileCard(workspace=process.env.GITHUB_WORKSPACE
   const protocol=findEntry(card,'04｜');
   appendOnce(protocol,'未解锁秘密名词消隐｜隐藏执行',LOCKED_SECRET_SUPPRESSION);
   appendOnce(protocol,'NPC零来源硬锁与不可见自检｜隐藏执行',NPC_SOURCE_HARD_LOCK);
+  appendOnce(protocol,'禁止合规自评旁白｜隐藏执行',NO_COMPLIANCE_SELF_AUDIT);
   appendOnce(protocol,'倒计时含义未解锁时禁止补完｜隐藏执行',COUNTDOWN_MEANING_LOCK);
 
   const day7=findEntry(card,'10｜');
@@ -79,7 +87,7 @@ export async function loadQiduOneFileCard(workspace=process.env.GITHUB_WORKSPACE
 - 珈儿不知道某项机制时，不要为了让回答显得自然，临时补成“晏华以前说过”“安托涅瓦提醒过”“中央庭入队时讲过”。若剧情没有明确发生这些告知，就视为没发生。
 - 若玩家直接问“你加入中央庭后有人给你讲过活骸吗/谁告诉你的/你以前知道吗”，而\`npc_intel.珈儿\`没有对应来源，珈儿应明确回答“没有/没人详细告诉过我/我不清楚”。禁止随后补一句“不过以前听安托涅瓦姐姐说过失控很危险”“晏华倒是提醒过一点”等未记录的例外。
 - 她可以说自己累、幻力不顺、猜测需要休息，也可以建议现在去问安托涅瓦/晏华；但“建议现在去问”不等于“过去已经被他们教过”。
-- 不要在旁白里列举她没有问到的深层秘密名词；未知层直接不写。
+- 不要在旁白里列举她没有问到的深层秘密名词，也不要写“她没有被诱导编造/她老实承认无知”这种规则自评；未知层直接不写，让台词和动作自己说明。
 `);
 
   const state=findEntry(card,'91｜');
@@ -102,11 +110,13 @@ export async function loadQiduOneFileCard(workspace=process.env.GITHUB_WORKSPACE
   if(!String(dp.prompt||'').includes('㉙NPC零来源硬锁')) dp.prompt=String(dp.prompt||'')+npcLock;
   const countdownLock=' ㉚倒计时含义锁：countdown_meaning_known=false时只允许“用户看见数字、NPC看不见且不知含义”；不得把7解释成七天后毁灭/末日/终结，连否定式推论也禁止。';
   if(!String(dp.prompt||'').includes('㉚倒计时含义锁')) dp.prompt=String(dp.prompt||'')+countdownLock;
+  const selfAuditLock=' ㉛禁止合规自评旁白：不要在可见叙事中写“没有顺着诱导编造/老实承认无知/没有越界/没有补齐深层信息/遵守规则”等模型自评；只写世界内动作、台词与后果。';
+  if(!String(dp.prompt||'').includes('㉛禁止合规自评旁白')) dp.prompt=String(dp.prompt||'')+selfAuditLock;
   ext.depth_prompt=dp;
   card.data.extensions=ext;
 
-  const phi='\n- 【未解锁秘密名词消隐】锁定秘密在可见正文中连否定式点名都禁止。zero_identity_known=false时不要出现作为人名的“零”，也不要写“没有提到零/零仍保密”等元叙事；直接省略该层。其他锁定身世与轮回真相同理。\n- 【NPC零来源硬锁】角色只有条目明示、本人亲历或剧情明确告知三类来源。无来源时不能虚构“某人以前说过/中央庭培训过/资料里写着”；直接追问既往来源而账本为空时，回答就是没有，不得再补“只听X说过一点”的例外。只允许当下保守推测或建议去问。旁白同样不得列举NPC不知道的深层专名来展示边界。\n- 【倒计时含义锁】countdown_meaning_known=false时，NPC只能确认自己看不到用户所说的数字且无法解释；不得主动补出七天后毁灭、末日或世界终结等含义，连否定式补完也禁止。\n';
-  if(!String(card.data.post_history_instructions||'').includes('倒计时含义锁】countdown_meaning_known=false')) card.data.post_history_instructions=String(card.data.post_history_instructions||'')+phi;
+  const phi='\n- 【未解锁秘密名词消隐】锁定秘密在可见正文中连否定式点名都禁止。zero_identity_known=false时不要出现作为人名的“零”，也不要写“没有提到零/零仍保密”等元叙事；直接省略该层。其他锁定身世与轮回真相同理。\n- 【NPC零来源硬锁】角色只有条目明示、本人亲历或剧情明确告知三类来源。无来源时不能虚构“某人以前说过/中央庭培训过/资料里写着”；直接追问既往来源而账本为空时，回答就是没有，不得再补“只听X说过一点”的例外。只允许当下保守推测或建议去问。旁白同样不得列举NPC不知道的深层专名来展示边界。\n- 【禁止合规自评旁白】隐藏规则不进入故事。不要写“她没有被诱导编造/她老实承认无知/没有越界/没有补齐深层信息”等自我检查说明；只保留世界内动作、台词和后果。\n- 【倒计时含义锁】countdown_meaning_known=false时，NPC只能确认自己看不到用户所说的数字且无法解释；不得主动补出七天后毁灭、末日或世界终结等含义，连否定式补完也禁止。\n';
+  if(!String(card.data.post_history_instructions||'').includes('禁止合规自评旁白】隐藏规则不进入故事')) card.data.post_history_instructions=String(card.data.post_history_instructions||'')+phi;
 
   const raw=Buffer.from(JSON.stringify(card),'utf8');
   const compactSha256=crypto.createHash('sha256').update(raw).digest('hex');
