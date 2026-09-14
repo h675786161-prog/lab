@@ -1,2 +1,2 @@
-run=v0.4.23-release-candidate-2
-reason=validate the exact privacy-sanitized release candidate with dedicated real SillyTavern browser acceptance, semantic narrative gates, first-chimera fidelity checks, and final package-byte privacy scanning
+run=v0.4.23-release-candidate-3
+reason=rerun the exact privacy-sanitized release candidate after forbidding invented first-chimera ranks and special relationships; require real SillyTavern browser acceptance, narrative gates, fidelity gate, and final package-byte privacy scan
