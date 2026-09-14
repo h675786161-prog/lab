@@ -84,7 +84,7 @@
   }
 
   #top-settings-holder {
-    z-index: 3000 !important;
+    z-index: 3010 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: flex-start !important;
@@ -188,7 +188,7 @@
   border-image-slice: 27.5% 14.18% 27.5% 14.18% fill !important;
 }
 
-/* Real top function bar: the native holder stays interactive, but its old black plate is removed. */
+/* Real top function bar: keep the real SillyTavern drawers/toggles above the skinned base. */
 #top-bar,
 body.no-blur #top-bar {
   background: #787e9a !important;
@@ -197,6 +197,10 @@ body.no-blur #top-bar {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   isolation: isolate !important;
+}
+
+#top-settings-holder {
+  z-index: 3010 !important;
 }
 
 #top-settings-holder,
@@ -213,10 +217,28 @@ body.no-blur #top-bar {
   border-color: transparent !important;
 }
 
+#top-settings-holder > .drawer {
+  position: relative !important;
+  z-index: 2 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
 #top-settings-holder > .drawer > .drawer-toggle {
+  position: relative !important;
+  z-index: 3 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
   background: rgba(91, 89, 119, .34) !important;
   border-color: rgba(239, 222, 192, .42) !important;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08), 0 2px 7px rgba(31, 29, 44, .12) !important;
+}
+
+#top-settings-holder > .drawer > .drawer-toggle > .drawer-icon {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: .92 !important;
+  color: #f8f0e8 !important;
 }
 
 /* Real input component: native controls sit inside the 9-slice shell, never on the old black plate. */
@@ -270,6 +292,13 @@ body.no-blur #send_form {
   color: #fffaf4 !important;
   font-weight: 650 !important;
   text-shadow: 0 1px 2px rgba(38, 36, 55, .28) !important;
+}
+
+#left-nav-panel :is(.standoutHeader, .title_restorable) {
+  background: rgba(70, 72, 100, .38) !important;
+  border: 1px solid rgba(229, 208, 177, .28) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
 }
 
 #left-nav-panel :is(label, .description, .toggle-description, .range-block-counter, small) {
