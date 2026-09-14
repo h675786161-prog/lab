@@ -48,14 +48,19 @@ jobs:
           if [ -n "${INPUT_CARD_PATH:-}" ]; then
             CARD_PATH="$INPUT_CARD_PATH"
           elif [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
-            CARD_PATH="$(git diff --name-only HEAD^1 HEAD | grep -E '^cards/.+\.json$' | head -n 1 || true)"
+            CARD_PATH="$(git diff --name-only HEAD^1 HEAD | awk '/^cards\/.*[.]json$/ {print; exit}')"
+            if [ -z "$CARD_PATH" ]; then
+              CARD_PATH="$(find cards -type f -name '*.json' -print 2>/dev/null | sort | head -n 1 || true)"
+            fi
           else
             CARD_PATH=''
           fi
           if [ -z "$CARD_PATH" ] || [ ! -f "$CARD_PATH" ]; then
             echo "Could not resolve a character-card JSON to test."
+            find cards -maxdepth 3 -type f -print 2>/dev/null || true
             exit 1
           fi
+          echo "Resolved card: $CARD_PATH"
           echo "CARD_PATH=$CARD_PATH" >> "$GITHUB_ENV"
           echo "ST_COMMIT=$ST_COMMIT" >> "$GITHUB_ENV"
           {
