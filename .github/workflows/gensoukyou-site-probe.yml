@@ -1,0 +1,180 @@
+name: Gensoukyou Site Probe
+
+on:
+  pull_request:
+    paths:
+      - '.lab/gensoukyou-probe/**'
+      - '.github/workflows/gensoukyou-site-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SITE_URL: https://gensoukyou.xyz/
+      SITE_PASSWORD: ${{ secrets.GENSOUKYOU_PASSWORD }}
+      EVIDENCE_DIR: ${{ github.workspace }}/gensoukyou-evidence
+      BROWSER_DIR: /tmp/gensoukyou-browser
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare browser
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$EVIDENCE_DIR"
+          rm -rf "$BROWSER_DIR"
+          mkdir -p "$BROWSER_DIR"
+          cd "$BROWSER_DIR"
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          echo "CHROME_BIN=$CHROME_BIN" >> "$GITHUB_ENV"
+          echo "PW_ENTRY=file://$BROWSER_DIR/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
+
+      - name: Probe public gate and authenticated page safely
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs/promises';
+          import path from 'node:path';
+          const { chromium } = await import(process.env.PW_ENTRY);
+          const browser = await chromium.launch({
+            headless: true,
+            executablePath: process.env.CHROME_BIN,
+            args: ['--no-sandbox', '--disable-dev-shm-usage'],
+          });
+          const context = await browser.newContext({ viewport: { width: 1365, height: 900 } });
+          const page = await context.newPage();
+          const requests = [];
+          const responses = [];
+          const pageErrors = [];
+          const sanitizeUrl = raw => {
+            try {
+              const u = new URL(raw);
+              return `${u.origin}${u.pathname}`;
+            } catch { return String(raw).slice(0, 200); }
+          };
+          page.on('request', req => {
+            const u = sanitizeUrl(req.url());
+            if (!requests.some(x => x.url === u && x.method === req.method())) requests.push({ method: req.method(), url: u, resource_type: req.resourceType() });
+          });
+          page.on('response', res => {
+            const u = sanitizeUrl(res.url());
+            if (!responses.some(x => x.url === u && x.status === res.status())) responses.push({ status: res.status(), url: u, content_type: res.headers()['content-type'] || '' });
+          });
+          page.on('pageerror', err => pageErrors.push(String(err?.message || err).slice(0, 500)));
+
+          const safeUiSnapshot = async () => {
+            return await page.evaluate(() => {
+              const txt = el => (el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 120);
+              const uniq = arr => [...new Set(arr.filter(Boolean))].slice(0, 80);
+              return {
+                headings: uniq([...document.querySelectorAll('h1,h2,h3,[role="heading"]')].map(txt)),
+                buttons: uniq([...document.querySelectorAll('button,[role="button"],input[type="submit"]')].map(el => el.tagName === 'INPUT' ? (el.getAttribute('value') || '') : txt(el))),
+                inputs: [...document.querySelectorAll('input,textarea')].slice(0, 80).map(el => ({
+                  tag: el.tagName.toLowerCase(),
+                  type: el.getAttribute('type') || null,
+                  name: el.getAttribute('name') || null,
+                  id: el.id || null,
+                  placeholder: el.getAttribute('placeholder') || null,
+                  autocomplete: el.getAttribute('autocomplete') || null,
+                })),
+                selects: [...document.querySelectorAll('select')].slice(0, 30).map(el => ({
+                  name: el.getAttribute('name') || null,
+                  id: el.id || null,
+                  options: [...el.options].slice(0, 50).map(o => (o.textContent || '').trim()).filter(Boolean),
+                })),
+                links: uniq([...document.querySelectorAll('a[href]')].map(a => {
+                  try { const u = new URL(a.href); return `${u.origin}${u.pathname}`; } catch { return ''; }
+                })),
+              };
+            });
+          };
+
+          const report = {
+            site: process.env.SITE_URL,
+            secret_present: Boolean(process.env.SITE_PASSWORD),
+            initial: null,
+            auth: null,
+            authenticated: null,
+            requests: [],
+            responses: [],
+            page_errors: pageErrors,
+          };
+          try {
+            const first = await page.goto(process.env.SITE_URL, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+            await page.waitForTimeout(2500);
+            report.initial = {
+              status: first?.status() ?? null,
+              url: sanitizeUrl(page.url()),
+              title: await page.title(),
+              ui: await safeUiSnapshot(),
+            };
+            await page.screenshot({ path: path.join(process.env.EVIDENCE_DIR, 'public-gate.png'), fullPage: true });
+
+            const pw = page.locator('input[type="password"]').first();
+            if (await pw.count()) {
+              if (!process.env.SITE_PASSWORD) {
+                report.auth = { result: 'not_run_missing_GENSOUKYOU_PASSWORD_secret', mechanism: 'html_password_form' };
+              } else {
+                await pw.fill(process.env.SITE_PASSWORD);
+                const form = pw.locator('xpath=ancestor::form[1]');
+                let submitted = false;
+                if (await form.count()) {
+                  const button = form.locator('button[type="submit"],input[type="submit"],button').first();
+                  if (await button.count()) { await button.click(); submitted = true; }
+                }
+                if (!submitted) await pw.press('Enter');
+                await page.waitForLoadState('domcontentloaded', { timeout: 30_000 }).catch(() => {});
+                await page.waitForTimeout(3500);
+                const stillPw = await page.locator('input[type="password"]').count();
+                report.auth = { result: stillPw ? 'password_form_still_present' : 'password_form_cleared', mechanism: 'html_password_form' };
+                report.authenticated = {
+                  url: sanitizeUrl(page.url()),
+                  title: await page.title(),
+                  ui: await safeUiSnapshot(),
+                };
+              }
+            } else if ((first?.status() ?? 0) === 401) {
+              report.auth = { result: 'http_401_auth_challenge', mechanism: 'http_auth' };
+            } else {
+              report.auth = { result: 'no_password_gate_detected', mechanism: 'none_or_other' };
+              report.authenticated = { url: sanitizeUrl(page.url()), title: await page.title(), ui: await safeUiSnapshot() };
+            }
+          } catch (error) {
+            report.error = `${error?.name || 'Error'}: ${String(error?.message || error).slice(0, 700)}`;
+          } finally {
+            report.requests = requests.slice(-120);
+            report.responses = responses.slice(-120);
+            await fs.writeFile(path.join(process.env.EVIDENCE_DIR, 'site-probe.json'), JSON.stringify(report, null, 2));
+            await browser.close();
+          }
+          console.log(JSON.stringify({
+            site: report.site,
+            secret_present: report.secret_present,
+            initial_status: report.initial?.status ?? null,
+            auth: report.auth,
+            authenticated_url: report.authenticated?.url ?? null,
+            request_count: report.requests.length,
+            response_count: report.responses.length,
+            page_error_count: report.page_errors.length,
+            error: report.error ?? null,
+          }, null, 2));
+          NODE
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gensoukyou-site-probe
+          path: gensoukyou-evidence/
+          if-no-files-found: error
