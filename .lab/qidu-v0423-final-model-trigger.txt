@@ -1,2 +1,2 @@
-run=v0.4.23-final-card-model-3
-reason=rerun final v0.4.23 after adding explicit countdown-meaning lock so NPCs cannot turn the user's visible 7 into a seven-day destruction/ending claim before countdown_meaning_known is actually unlocked
+run=v0.4.23-final-card-model-4
+reason=verify the exact latest v0.4.23 card after public author/worldbook provenance sanitization, NPC zero-source hard lock, hidden-secret self-audit suppression and countdown-meaning lock; no older generator substitution
