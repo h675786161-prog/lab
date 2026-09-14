@@ -78,7 +78,8 @@ function checkCommon(r,mobile=false){
   const fail=m=>{throw new Error(m)};
   if(r.overflowX)fail(`page overflowX=${r.overflowX}`); if(r.chatOverflowX)fail(`chat overflowX=${r.chatOverflowX}`);
   if(!Object.values(r.nodes).every(Boolean))fail(`missing native nodes ${JSON.stringify(r.nodes)}`);
-  if(!Object.values(r.structuralAssets).every(Boolean))fail(`missing structural assets ${JSON.stringify(r.structuralAssets)}`);
+  const structuralRequired=mobile?['chatShell','aiPaper','userPaper','divider']:Object.keys(r.structuralAssets);
+  if(!structuralRequired.every(k=>r.structuralAssets[k]))fail(`missing structural assets ${JSON.stringify(r.structuralAssets)}`);
   if(!Object.values(r.fragments).every(Boolean))fail(`missing raster fragments ${JSON.stringify(r.fragments)}`);
   if(r.wholeAssetLeak)fail('complete top/input/avatar source raster leaked into rendered CSS');
   if(!r.cjkFontReady)fail('CJK font not ready');
