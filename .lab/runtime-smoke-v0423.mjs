@@ -16,12 +16,16 @@ const by=p=>book.find(e=>String(e.name||'').startsWith(p));
 const scripts=card.data.extensions?.regex_scripts||[];
 const rx=id=>scripts.find(x=>x?.id===id);
 const repl=id=>String(rx(id)?.replaceString??'');
-const metaText=JSON.stringify({creator:card.data.creator,creator_notes:card.data.creator_notes});
+const rawText=Buffer.from(raw).toString('utf8');
+const forbiddenPublicProvenance=/(github|h675786161|实验酒馆|玲七|仓库地址|玲\s*[×xX]\s*七|LAB候选版)/i;
 const staticChecks={
   version:card.data.character_version===ONEFILE_VERSION,
   author:card.data.creator==='叶罹',
   authorNotesClean:card.data.creator_notes==='《永远的7日之都》七日轮回文本互动角色卡。',
-  noDevProvenanceInPublicMeta:!/(github|h675786161|实验酒馆|玲七|仓库地址|repository)/i.test(metaText),
+  creatorCommentClean:card.creatorcomment==='《永远的7日之都》七日轮回文本互动角色卡。作者：叶罹。',
+  worldbookAuthor:card.data.character_book?.extensions?.creator==='叶罹',
+  worldbookDescriptionClean:card.data.character_book?.description==='《永远的7日之都》七日轮回文本互动世界书。',
+  noDevProvenanceInWholeCard:!forbiddenPublicProvenance.test(rawText),
   worldbook55:book.length===55,
   regex4:scripts.length>=4,
   terminalRegex:Boolean(rx('f7d-terminal-v040')),
@@ -37,16 +41,28 @@ const staticChecks={
   requiredCast:Boolean(by('04｜')?.content?.includes('场景必出角色连续性检查')),
   firstSightFocus:Boolean(by('04｜')?.content?.includes('首次目击去标签焦点｜隐藏执行')),
   npcKnowledgeGate:Boolean(by('04｜')?.content?.includes('NPC知识来源门禁｜隐藏执行')),
+  npcZeroSourceHardLock:Boolean(by('04｜')?.content?.includes('NPC零来源硬锁与不可见自检｜隐藏执行')),
   lockedSecretSuppression:Boolean(by('04｜')?.content?.includes('未解锁秘密名词消隐｜隐藏执行')),
+  countdownMeaningLock:Boolean(by('04｜')?.content?.includes('倒计时含义未解锁时禁止补完｜隐藏执行')),
+  day7CountdownLock:Boolean(by('10｜')?.content?.includes('第7天倒计时含义仍锁定')),
   day6ZeroNegationLock:Boolean(by('11｜')?.content?.includes('第6天零身份仍锁定时禁止否定式点名')),
+  kajiNoSourceLock:Boolean(by('44｜')?.content?.includes('珈儿无来源知识不得借名补齐')),
   npcIntelLedger:Boolean(by('91｜')?.content?.includes('NPC知识账本npc_intel')),
   secretFlagNameLock:Boolean(by('91｜')?.content?.includes('秘密旗标控制可见专名')),
+  countdownStateSeparation:Boolean(by('91｜')?.content?.includes('倒计时可见与倒计时含义分离')),
   noBridge:!card.data.extensions?.qidu_choice_bridge
 };
 const sm=String(card.data.first_mes||'').match(/<f7d_state>([\s\S]*?)<\/f7d_state>/i);
 if(!sm) throw new Error('first state missing');
 const initial=JSON.parse(sm[1]);
-const initialChecks={kajiUnknown:!initial.known?.includes('珈儿'),teslaUnknown:!initial.known?.includes('泰丝拉'),npcIntelObject:Boolean(initial.npc_intel&&typeof initial.npc_intel==='object'&&!Array.isArray(initial.npc_intel)),npcIntelInitiallyEmpty:Object.keys(initial.npc_intel||{}).length===0,zeroLocked:initial.intel_flags?.zero_identity_known===false};
+const initialChecks={
+  kajiUnknown:!initial.known?.includes('珈儿'),
+  teslaUnknown:!initial.known?.includes('泰丝拉'),
+  npcIntelObject:Boolean(initial.npc_intel&&typeof initial.npc_intel==='object'&&!Array.isArray(initial.npc_intel)),
+  npcIntelInitiallyEmpty:Object.keys(initial.npc_intel||{}).length===0,
+  zeroLocked:initial.intel_flags?.zero_identity_known===false,
+  countdownMeaningLocked:initial.intel_flags?.countdown_meaning_known===false
+};
 
 const form=new FormData();
 form.set('file_type','json');
@@ -74,13 +90,10 @@ try{
     const html=st.messageFormatting(sample,'七都UI测试',false,false,999999,{},false);
     const textarea=document.getElementById('send_textarea');
 
-    // Functional behavior must be tested outside a modal top layer. A modal dialog intentionally traps focus,
-    // so checking label -> textarea focus from inside the modal would be a browser-test artifact rather than card behavior.
     const behavior=document.createElement('div');
     behavior.id='qidu-v0423-behavior-probe';
     behavior.style.cssText='position:absolute;left:-10000px;top:0;width:780px;';
-    behavior.innerHTML=html;
-    document.body.appendChild(behavior);
+    behavior.innerHTML=html;document.body.appendChild(behavior);
     const behaviorLabels=[...behavior.querySelectorAll('[data-f7d-choice="1"]')];
     const before=textarea?.value??null;
     if(behaviorLabels[0])behaviorLabels[0].click();
@@ -91,7 +104,6 @@ try{
     const behaviorChoiceFor=behaviorLabels.map(x=>x.getAttribute('for'));
     behavior.remove();
 
-    // Separate visible top-layer mount for layout/style QA and screenshots.
     const h=document.createElement('dialog');
     h.id='qidu-v0423-smoke';
     h.style.cssText='position:fixed;z-index:2147483647;left:12px;top:72px;right:auto;bottom:auto;margin:0;width:min(780px,calc(100vw - 24px));max-width:none;padding:10px;border:0;border-radius:16px;background:rgba(5,10,18,.96);';
@@ -108,7 +120,7 @@ try{
   await page.screenshot({path:path.join(evidenceDir,'qidu-v0423-ui-desktop.png'),fullPage:false});
 }finally{await browser.close()}
 
-const report={version:ONEFILE_VERSION,hash:compactSha256,creator:card.data.creator,creator_notes:card.data.creator_notes,import:{ok:imported.ok,status:imported.status,text:importText.slice(0,200)},staticChecks,initialChecks,client,pageErrors};
+const report={version:ONEFILE_VERSION,hash:compactSha256,creator:card.data.creator,creator_notes:card.data.creator_notes,creatorcomment:card.creatorcomment,worldbook_creator:card.data.character_book?.extensions?.creator,worldbook_description:card.data.character_book?.description,import:{ok:imported.ok,status:imported.status,text:importText.slice(0,200)},staticChecks,initialChecks,client,pageErrors};
 await fs.writeFile(path.join(evidenceDir,'qidu-v0423-runtime-report.json'),JSON.stringify(report,null,2));
 await fs.writeFile(path.join(evidenceDir,'永远的7日之都-七日轮回文本互动-v0.4.23.json'),raw);
 console.log(JSON.stringify(report,null,2));
