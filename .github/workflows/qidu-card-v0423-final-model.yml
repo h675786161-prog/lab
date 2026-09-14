@@ -1,0 +1,51 @@
+name: Qidu v0.4.23 Final Card Model LAB
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['feature/qidu-card-v0411-lab']
+    paths:
+      - '.lab/qidu-v0423-final-model-trigger.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  final-card-model-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      YOUZI_KEY: ${{ secrets.YOUZI }}
+      LAB_OUT_INFO: bench-evidence/qidu-card-v0423-info-timeline
+      LAB_OUT_NPC_KNOWLEDGE: bench-evidence/qidu-card-v0423-npc-knowledge
+      LAB_OUT_NPC_SOURCE: bench-evidence/qidu-card-v0423-offscreen-source
+    steps:
+      - uses: actions/checkout@v4
+      - id: info
+        name: Test final v0423 information timeline
+        continue-on-error: true
+        run: node .lab/qidu-card-model-bench-v0423-info-timeline.mjs
+      - id: npc
+        name: Test final v0423 NPC knowledge provenance
+        continue-on-error: true
+        run: node .lab/qidu-card-model-bench-v0423-npc-knowledge.mjs
+      - id: source
+        name: Test final v0423 off-screen source guard
+        continue-on-error: true
+        run: node .lab/qidu-card-model-bench-v0423-offscreen-source.mjs
+      - name: Upload final-card evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-card-v0423-final-model-evidence
+          path: bench-evidence/
+          if-no-files-found: error
+      - name: Enforce final-card model gate
+        if: always()
+        run: |
+          echo "info=${{ steps.info.outcome }}"
+          echo "npc=${{ steps.npc.outcome }}"
+          echo "source=${{ steps.source.outcome }}"
+          test "${{ steps.info.outcome }}" = "success"
+          test "${{ steps.npc.outcome }}" = "success"
+          test "${{ steps.source.outcome }}" = "success"
