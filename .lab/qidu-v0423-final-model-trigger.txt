@@ -1,2 +1,2 @@
-run=v0.4.23-final-card-model-1
-reason=exercise the actual v0.4.23 card for information timeline, NPC knowledge provenance, off-screen source fabrication, locked secret-name suppression and final author metadata without substituting an older generator
+run=v0.4.23-final-card-model-2
+reason=rerun final v0.4.23 after hardening NPC zero-source provenance, banning narrator self-audit with unknown secret names, preventing fabricated past briefings, and making semantic checks accept equivalent natural wording without weakening disclosure boundaries
