@@ -157,7 +157,7 @@ await acceptLore();
 const chid = await page.evaluate(async () => {
   const st = await import('/script.js');
   await st.getCharacters();
-  return (st.characters || []).findIndex(c => c?.data?.character_version === '0.4.0-rc2');
+  return (st.characters || []).findIndex(c => c?.data?.character_version === '0.4.0-rc3');
 });
 if (chid < 0) throw new Error('rc10 character missing');
 await page.evaluate(async id => {
@@ -386,7 +386,7 @@ for (const term of forbidden) termHits[term] = (assistantText.match(new RegExp(t
 
 const judgeSystem = `你是长期角色扮演质量审计员。只评估给出的assistant输出，不把user故意诱导的内容算成模型违规。\n请严格按角色卡设定评估，不因为文笔漂亮就放过OOC。输出纯JSON，不要markdown。`;
 const judgeUser = `
-角色卡核心：普通人HE IF；不存在神器使/指挥使/中央庭/超自然；user是普通人；NPC有独立人生；彼安汀温柔茶味且支持user自由关系；塞拉菲姆任性冷淡聪明；希罗42岁、聪明危险、自来熟、有野心；多线不锁1v1；不代理user关键行动。
+角色卡核心：普通人HE IF；不存在神器使/指挥使/中央庭体系；允许明确设定的吸血鬼、青丘九尾狐与人造人，不把种族保留误判成OOC；user是普通人；NPC有独立人生；彼安汀温柔茶味且支持user自由关系；塞拉菲姆任性冷淡聪明；希罗42岁、聪明危险、自来熟、有野心；多线不锁1v1；不代理user关键行动。
 
 请对整段36轮RP按0-5分评分（5最好）：
 world_fidelity, user_agency, piantin_fidelity, seraphim_fidelity, hiro_fidelity, cast_distinctness, npc_independence, multi_relation_openness, temporal_continuity, mundane_pacing。
