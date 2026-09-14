@@ -1,0 +1,2 @@
+run=v0.4.23-first-chimera-wording-1
+reason=capture the exact natural-language wording behind the remaining missing-two-deaths semantic check before changing either the card or the validator
