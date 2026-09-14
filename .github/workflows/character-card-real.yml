@@ -1,0 +1,236 @@
+name: LingQi Real Character Card Lab
+
+on:
+  pull_request:
+    paths:
+      - 'cards/**/*.json'
+      - '.github/workflows/character-card-real.yml'
+  workflow_dispatch:
+    inputs:
+      card_path:
+        description: Repository-relative Character Card V2 JSON path
+        required: true
+        type: string
+      sillytavern_commit:
+        description: Exact SillyTavern commit
+        required: false
+        type: string
+        default: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+
+permissions:
+  contents: read
+
+jobs:
+  real-character-card:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ST_DIR: /tmp/lingqi-card-sillytavern
+      BROWSER_DIR: /tmp/lingqi-card-browser
+      LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence
+      DEFAULT_ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+
+    steps:
+      - name: Checkout tested ref
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve card and runtime
+        shell: bash
+        env:
+          INPUT_CARD_PATH: ${{ inputs.card_path }}
+          INPUT_ST_COMMIT: ${{ inputs.sillytavern_commit }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          ST_COMMIT="${INPUT_ST_COMMIT:-$DEFAULT_ST_COMMIT}"
+          if [ -n "${INPUT_CARD_PATH:-}" ]; then
+            CARD_PATH="$INPUT_CARD_PATH"
+          elif [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            git fetch origin "${GITHUB_BASE_REF}" --depth=1
+            CARD_PATH="$(git diff --name-only "origin/${GITHUB_BASE_REF}...HEAD" | grep -E '^cards/.+\.json$' | head -n 1 || true)"
+          else
+            CARD_PATH=''
+          fi
+          if [ -z "$CARD_PATH" ] || [ ! -f "$CARD_PATH" ]; then
+            echo "Could not resolve a character-card JSON to test."
+            exit 1
+          fi
+          echo "CARD_PATH=$CARD_PATH" >> "$GITHUB_ENV"
+          echo "ST_COMMIT=$ST_COMMIT" >> "$GITHUB_ENV"
+          {
+            echo "repository=$GITHUB_REPOSITORY"
+            echo "sha=$GITHUB_SHA"
+            echo "card=$CARD_PATH"
+            echo "requested_sillytavern_commit=$ST_COMMIT"
+          } > "$LAB_EVIDENCE_DIR/run-context.txt"
+
+      - name: Clone exact SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$ST_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          ACTUAL="$(git -C "$ST_DIR" rev-parse HEAD)"
+          test "$ACTUAL" = "$ST_COMMIT"
+          echo "$ACTUAL" > "$LAB_EVIDENCE_DIR/sillytavern-commit.txt"
+
+      - name: Install SillyTavern dependencies
+        working-directory: /tmp/lingqi-card-sillytavern
+        run: npm ci
+
+      - name: Validate with exact SillyTavern validator
+        shell: bash
+        run: |
+          set -euo pipefail
+          export CARD_ABS="$GITHUB_WORKSPACE/$CARD_PATH"
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs/promises';
+          import path from 'node:path';
+          import { pathToFileURL } from 'node:url';
+          const card = JSON.parse(await fs.readFile(process.env.CARD_ABS, 'utf8'));
+          const { TavernCardValidator } = await import(pathToFileURL(path.join(process.env.ST_DIR, 'src/validator/TavernCardValidator.js')).href);
+          const validator = new TavernCardValidator(card);
+          const version = validator.validate();
+          if (version !== 2) throw new Error(`Expected V2 card; got ${version}; field=${validator.lastValidationError}`);
+          const report = {
+            validator_version: version,
+            name: card.data.name,
+            creator: card.data.creator,
+            character_version: card.data.character_version,
+            tags: card.data.tags,
+            alternate_greetings: card.data.alternate_greetings.length,
+            lore_entries: card.data.character_book?.entries?.length ?? 0,
+          };
+          await fs.writeFile(path.join(process.env.LAB_EVIDENCE_DIR, 'card-validator-report.json'), JSON.stringify(report, null, 2));
+          console.log(JSON.stringify(report));
+          NODE
+
+      - name: Start isolated SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8000 --disableCsrf > "$LAB_EVIDENCE_DIR/sillytavern-runtime.log" 2>&1 &
+          echo $! > /tmp/lingqi-card-st.pid
+          for i in $(seq 1 90); do
+            if curl -fsS --max-time 2 http://127.0.0.1:8000/ >/dev/null 2>&1; then
+              exit 0
+            fi
+            if ! kill -0 "$(cat /tmp/lingqi-card-st.pid)" 2>/dev/null; then
+              cat "$LAB_EVIDENCE_DIR/sillytavern-runtime.log"
+              exit 1
+            fi
+            sleep 1
+          done
+          echo 'Timed out waiting for SillyTavern HTTP.'
+          exit 1
+
+      - name: Prepare real browser
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$BROWSER_DIR"
+          mkdir -p "$BROWSER_DIR"
+          cd "$BROWSER_DIR"
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          echo "LAB_CHROME=$CHROME_BIN" >> "$GITHUB_ENV"
+          echo "LAB_PLAYWRIGHT_CORE_ENTRY=file://$BROWSER_DIR/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
+
+      - name: Import through real ST and read back
+        shell: bash
+        run: |
+          set -euo pipefail
+          export CARD_ABS="$GITHUB_WORKSPACE/$CARD_PATH"
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs/promises';
+          import path from 'node:path';
+          const { chromium } = await import(process.env.LAB_PLAYWRIGHT_CORE_ENTRY);
+          const source = JSON.parse(await fs.readFile(process.env.CARD_ABS, 'utf8'));
+          const sourceText = JSON.stringify(source);
+          const browser = await chromium.launch({ headless: true, executablePath: process.env.LAB_CHROME, args: ['--no-sandbox', '--disable-dev-shm-usage'] });
+          const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+          const pageErrors = [];
+          page.on('pageerror', e => pageErrors.push(String(e?.stack || e)));
+          let report = {};
+          try {
+            const home = await page.goto('http://127.0.0.1:8000/', { waitUntil: 'domcontentloaded', timeout: 60_000 });
+            await page.waitForTimeout(2500);
+            if (!home || home.status() >= 400) throw new Error(`ST home HTTP ${home?.status()}`);
+            const imported = await page.evaluate(async text => {
+              const fd = new FormData();
+              fd.set('file_type', 'json');
+              fd.set('avatar', new File([text], 'character.json', { type: 'application/json' }));
+              const r = await fetch('/api/characters/import', { method: 'POST', body: fd });
+              let body; try { body = await r.json(); } catch { body = await r.text(); }
+              return { ok: r.ok, status: r.status, body };
+            }, sourceText);
+            if (!imported.ok || !imported.body?.file_name) throw new Error(`Import failed: ${JSON.stringify(imported)}`);
+            const avatar = `${imported.body.file_name}.png`;
+            const readback = await page.evaluate(async avatar_url => {
+              const r = await fetch('/api/characters/get', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ avatar_url }) });
+              let body; try { body = await r.json(); } catch { body = await r.text(); }
+              return { ok: r.ok, status: r.status, body };
+            }, avatar);
+            if (!readback.ok) throw new Error(`Readback failed: ${JSON.stringify(readback)}`);
+            const raw = typeof readback.body?.json_data === 'string' ? JSON.parse(readback.body.json_data) : null;
+            const rb = raw?.data ?? readback.body?.data ?? raw ?? readback.body;
+            const sd = source.data;
+            const assert = (ok, msg) => { if (!ok) throw new Error(msg); };
+            assert(rb?.name === sd.name, `name lost: ${rb?.name}`);
+            assert(rb?.creator === sd.creator, 'creator lost');
+            assert(rb?.character_version === sd.character_version, 'version lost');
+            assert(JSON.stringify(rb?.tags) === JSON.stringify(sd.tags), 'tags changed');
+            assert(rb?.system_prompt === sd.system_prompt, 'system_prompt changed');
+            assert(rb?.post_history_instructions === sd.post_history_instructions, 'post_history_instructions changed');
+            assert(rb?.first_mes === sd.first_mes, 'first_mes changed');
+            assert(rb?.alternate_greetings?.length === sd.alternate_greetings.length, 'alternate greetings changed');
+            assert(rb?.character_book?.entries?.length === sd.character_book?.entries?.length, 'embedded lorebook changed');
+            report = {
+              result: 'pass',
+              st_http_status: home.status(),
+              imported_status: imported.status,
+              readback_status: readback.status,
+              imported_file_name: imported.body.file_name,
+              preserved: {
+                name: rb.name,
+                creator: rb.creator,
+                version: rb.character_version,
+                tags: rb.tags,
+                alternate_greetings: rb.alternate_greetings.length,
+                lore_entries: rb.character_book.entries.length,
+                system_prompt: true,
+                post_history_instructions: true,
+                first_mes: true,
+              },
+              page_errors: pageErrors,
+            };
+            await page.screenshot({ path: path.join(process.env.LAB_EVIDENCE_DIR, 'real-sillytavern-card.png'), fullPage: true });
+          } finally {
+            await fs.writeFile(path.join(process.env.LAB_EVIDENCE_DIR, 'real-card-roundtrip.json'), JSON.stringify(report, null, 2));
+            await browser.close();
+          }
+          console.log(JSON.stringify(report, null, 2));
+          NODE
+
+      - name: Stop isolated runtime
+        if: always()
+        shell: bash
+        run: |
+          if [ -f /tmp/lingqi-card-st.pid ]; then
+            kill "$(cat /tmp/lingqi-card-st.pid)" 2>/dev/null || true
+          fi
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lingqi-real-character-card
+          path: lab-evidence/
+          if-no-files-found: error
