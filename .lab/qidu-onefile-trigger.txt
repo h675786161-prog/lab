@@ -1,2 +1,2 @@
-run=v0.4.23-author-secret-guard-1
-reason=verify public author metadata is 叶罹 with no development provenance, locked secret names cannot leak through negated/meta wording, NPC knowledge/encounter/timeline regressions stay valid, tactical terminal and responsive choice styling remain intact in real SillyTavern, and package only after all gates pass
+run=v0.4.23-release-candidate-2
+reason=final release-candidate run after fixing modal focus-test artifact; verify public author is 叶罹 with no development provenance, final v0423 information/NPC/off-screen knowledge guards, inherited encounter/core regressions, tactical terminal and responsive choice styling in real SillyTavern, then package only if every gate passes
