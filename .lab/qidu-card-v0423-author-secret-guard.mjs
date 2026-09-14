@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { loadQiduOneFileCard as loadV0422Card, entryMap } from './qidu-card-v0422-npc-knowledge.mjs';
 
-export const ONEFILE_VERSION = '0.4.23-lab-author-secret-guard';
+export const ONEFILE_VERSION = '0.4.23';
 export const EXPECTED_ONEFILE_SHA256 = '';
 
 function findEntry(card, prefix) {
@@ -26,7 +26,7 @@ export async function loadQiduOneFileCard(workspace=process.env.GITHUB_WORKSPACE
   const {card}=await loadV0422Card(workspace,{skipHashCheck:true});
   card.data.character_version=ONEFILE_VERSION;
 
-  // Public card metadata. Development/runtime provenance must never leak into author-facing metadata.
+  // Public card metadata only. Development/runtime provenance is intentionally excluded.
   card.data.creator='叶罹';
   card.data.creator_notes='《永远的7日之都》七日轮回文本互动角色卡。';
 
