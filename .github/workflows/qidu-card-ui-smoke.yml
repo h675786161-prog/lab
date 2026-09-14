@@ -16,5 +16,5 @@ jobs:
     with:
       extension_name: qidu-card-onefile-ui
       run_project_smoke: true
-      artifact_name: qidu-card-v0422-ui-real-st
+      artifact_name: qidu-card-v0423-ui-real-st
     secrets: inherit
