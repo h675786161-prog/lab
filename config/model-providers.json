@@ -17,6 +17,12 @@
       "display_name": "Piaomiao",
       "site_url": "https://claudeapi.cc.cd/",
       "secret_name": "PIAOMIAO"
+    },
+    {
+      "id": "GENSOUKYOU",
+      "display_name": "Gensoukyou",
+      "site_url": "https://gensoukyou.xyz/",
+      "secret_name": "GENSOUKYOU_PASSWORD"
     }
   ],
   "notes": [
