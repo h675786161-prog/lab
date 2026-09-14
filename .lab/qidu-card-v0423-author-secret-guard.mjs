@@ -22,6 +22,16 @@ const LOCKED_SECRET_SUPPRESSION = `
 - 一旦对应情报按剧情正式解锁，才恢复正常专名与细节叙述。解锁前宁可少说一句，也不要用否定式泄密来证明自己遵守了保密规则。
 `;
 
+const NPC_SOURCE_HARD_LOCK = `
+【NPC零来源硬锁与不可见自检｜隐藏执行】
+- 生成NPC知识性台词前只认三种来源：角色条目明示；本人在可见剧情中亲历；有明确可追溯的台词/通讯把信息告诉过她。三者都没有，就必须按“未知/不确定”处理。
+- 禁止用未记录的过去时补来源。没有证据时不得写“晏华说过”“安托涅瓦告诉过”“中央庭培训过”“入队时学过”“手册/资料里写着”“队里大家都听说过”等句子。哪怕内容本身只是常识，也不能借一个具体人物或机构伪造既往告知。
+- 无来源但角色可以合理猜测时，只能写成当下主观推测，例如“我猜只是太累了”“可能要休息一下”“这得问真正懂的人”；不得把推测包装成别人以前教过的确定知识。
+- 旁白也受同一门禁。禁止用“她没有问第一个活骸”“她不知道某个名字”“她并未触及某项研究”等元叙事清单来证明角色没有越权；超出该NPC知识层的专名与历史细节直接不进入可见叙述。
+- 玩家只告诉A/B/C时，NPC只能围绕A/B/C做情绪反应、复述或追问；不得为了显示‘她没越界’而主动点名D/E/F。即使{{user}}本人已经知道D/E/F，只要该NPC没有来源，NPC台词和贴近该NPC认知的旁白都不应主动展开那些层。
+- 对珈儿尤其严格：若\`npc_intel.珈儿\`没有对应活骸知识，她只能把{{user}}刚刚说出的“活骸/活骸化”当作陌生词复述并承认不了解；普通疲劳、幻力不稳只能描述体感或做保守猜测，不能自诊断，也不能凭空引用晏华、安托涅瓦或中央庭过去的说明。
+`;
+
 export async function loadQiduOneFileCard(workspace=process.env.GITHUB_WORKSPACE||process.cwd(), options={}) {
   const {card}=await loadV0422Card(workspace,{skipHashCheck:true});
   card.data.character_version=ONEFILE_VERSION;
@@ -32,15 +42,24 @@ export async function loadQiduOneFileCard(workspace=process.env.GITHUB_WORKSPACE
 
   const protocol=findEntry(card,'04｜');
   appendOnce(protocol,'未解锁秘密名词消隐｜隐藏执行',LOCKED_SECRET_SUPPRESSION);
+  appendOnce(protocol,'NPC零来源硬锁与不可见自检｜隐藏执行',NPC_SOURCE_HARD_LOCK);
 
   const day6=findEntry(card,'11｜');
   appendOnce(day6,'第6天零身份仍锁定时禁止否定式点名',`
 【第6天零身份仍锁定时禁止否定式点名】只解锁“活骸存在/过去尝试处置失败/希罗要研究赛哈姆”等当前层时，如果\`zero_identity_known=false\`，正文不要顺手补“没有提到零”“零仍保密”之类说明。那一层的人名与身份直接不出现；等剧情真正解锁后再正常叙述。
 `);
 
+  const kaji=findEntry(card,'44｜');
+  appendOnce(kaji,'珈儿无来源知识不得借名补齐',`
+【珈儿无来源知识不得借名补齐】珈儿不知道某项机制时，不要为了让回答显得自然，临时补成“晏华以前说过”“安托涅瓦提醒过”“中央庭入队时讲过”。若剧情没有明确发生这些告知，就视为没发生。她可以说自己累、幻力不顺、猜测需要休息，也可以建议去问安托涅瓦/晏华，但“建议现在去问”不等于“过去已经被他们教过”。同时不要在旁白里列举她没有问到的深层秘密名词；未知层直接不写。
+`);
+
   const state=findEntry(card,'91｜');
   appendOnce(state,'秘密旗标控制可见专名',`
 【秘密旗标控制可见专名】\`intel_flags\`中的锁定项不仅控制“事实是否可解释”，也控制“秘密专名是否可出现在玩家可见文本”。例如\`zero_identity_known=false\`时，隐藏状态可以保留该字段，但正文不得把“零”作为人物名出现，连否定式、保密声明和元叙事自检也不行；对应flag转true后才解除。
+`);
+  appendOnce(state,'NPC来源不可由合理化旁白创建',`
+【NPC来源不可由合理化旁白创建】\`npc_intel\`没有记录且角色条目/可见剧情没有明确来源时，不得通过旁白一句“某人之前告诉过她”来反向创建知识来源。知识来源必须先在剧情中真实发生，再由状态账本记录；不能先让NPC知道，再补一个镜头外理由。
 `);
 
   const ext=card.data.extensions||{};
@@ -48,11 +67,13 @@ export async function loadQiduOneFileCard(workspace=process.env.GITHUB_WORKSPACE
   dp.depth=0;dp.role='system';
   const lock=' ㉘秘密名词消隐：未解锁秘密不得在玩家可见文本中以专名出现，连“没有提到X/仍不知道X/不是X”这种否定式自检也算泄露；zero_identity_known=false时禁止把“零”作为人名写出，普通“零星”等词不受影响。';
   if(!String(dp.prompt||'').includes('㉘秘密名词消隐')) dp.prompt=String(dp.prompt||'')+lock;
+  const npcLock=' ㉙NPC零来源硬锁：角色条目未明示、本人未亲历、剧情未明确告知，就不得借“某人以前说过/中央庭培训过/资料写着”等过去时补来源；可以当下猜测或建议去问，但不可伪造既往告知。旁白也不得列举角色不知道的深层专名来做自检。';
+  if(!String(dp.prompt||'').includes('㉙NPC零来源硬锁')) dp.prompt=String(dp.prompt||'')+npcLock;
   ext.depth_prompt=dp;
   card.data.extensions=ext;
 
-  const phi='\n- 【未解锁秘密名词消隐】锁定秘密在可见正文中连否定式点名都禁止。zero_identity_known=false时不要出现作为人名的“零”，也不要写“没有提到零/零仍保密”等元叙事；直接省略该层。其他锁定身世与轮回真相同理。\n';
-  if(!String(card.data.post_history_instructions||'').includes('未解锁秘密名词消隐】锁定秘密')) card.data.post_history_instructions=String(card.data.post_history_instructions||'')+phi;
+  const phi='\n- 【未解锁秘密名词消隐】锁定秘密在可见正文中连否定式点名都禁止。zero_identity_known=false时不要出现作为人名的“零”，也不要写“没有提到零/零仍保密”等元叙事；直接省略该层。其他锁定身世与轮回真相同理。\n- 【NPC零来源硬锁】角色只有条目明示、本人亲历或剧情明确告知三类来源。无来源时不能虚构“某人以前说过/中央庭培训过/资料里写着”；只允许当下保守推测或建议去问。旁白同样不得列举NPC不知道的深层专名来展示边界。\n';
+  if(!String(card.data.post_history_instructions||'').includes('NPC零来源硬锁】角色只有')) card.data.post_history_instructions=String(card.data.post_history_instructions||'')+phi;
 
   const raw=Buffer.from(JSON.stringify(card),'utf8');
   const compactSha256=crypto.createHash('sha256').update(raw).digest('hex');
