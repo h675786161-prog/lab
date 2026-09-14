@@ -1,0 +1,21 @@
+name: Qidu v0.4.23 Info Debug
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['feature/qidu-card-v0411-lab']
+    paths:
+      - '.lab/qidu-info-debug-trigger.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      YOUZI_KEY: ${{ secrets.YOUZI }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: node .lab/qidu-info-debug-v0423.mjs
