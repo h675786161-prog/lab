@@ -14,8 +14,8 @@ const constants=(card.data.character_book?.entries||[]).filter(e=>e.constant).ma
 const BASE=[card.data.personality,card.data.scenario,constants,card.data.post_history_instructions,card.data.extensions?.depth_prompt?.prompt].filter(Boolean).join('\n\n');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
-async function call(model,mode,messages,max_tokens=1500,timeoutMs=75000){
-  const p={model,temperature:.22,top_p:.9,max_tokens,messages};
+async function call(model,mode,messages,max_tokens=1400,timeoutMs=75000){
+  const p={model,temperature:.2,top_p:.9,max_tokens,messages};
   if(mode==='thinking-disabled')p.thinking={type:'disabled'};
   const c=new AbortController();const t=setTimeout(()=>c.abort(),timeoutMs);
   try{return await fetch(API,{method:'POST',signal:c.signal,headers:{Authorization:`Bearer ${KEY}`,'Content-Type':'application/json'},body:JSON.stringify(p)});}finally{clearTimeout(t)}
@@ -41,13 +41,16 @@ const visible=x=>String(x).replace(/<f7d_state>[\s\S]*?<\/f7d_state>/gi,'');
 function standaloneZero(v){return [/(?:^|[“「『\s，。！？：；、])零(?=$|[”」』\s，。！？：；、]|的|是|被|曾|也|还|在|与|和|作为|身份|名字|主动)/m,/(?:提到|说到|谈到|叫做|名叫|名字.{0,4}是).{0,6}零/,/零.{0,8}(?:名字|身份|第一|最初|活骸|样本|研究)/,/(?:第一|最初).{0,16}活骸.{0,16}零/,/最完美.{0,10}样本/].some(re=>re.test(v))}
 function publicSecret(v){return standaloneZero(v)||/(?:第一个|第一名|最初的?).{0,8}活骸|七天后|末日倒计时/.test(v)}
 function day6Basic(v){return [/活骸/,/神器使.{0,28}(?:变成|变为|化为|失控)/,/(?:变成|变为|化为).{0,12}(?:那样|怪物|失控)/,/(?:那样|这种).{0,12}(?:失控|变化)/].some(re=>re.test(v))&&/(?:尝试|试过|处理|规则|恢复|挽救|救治|无法挽回)/.test(v)}
-function firstLayer(v){return{
-  first:/(?:第一个|第一名|最初的?).{0,8}活骸/.test(v),
-  team:/(?:三人小队|三个人|三名|三位)/.test(v),
-  two:/(?:另外|其余|剩下|另)?\s*(?:两个人|两人|两名|两位).{0,24}(?:没能回来|死亡|死去|死在|牺牲|丧生|遇难|没回来|没了)|(?:死亡|死去|死在|牺牲|丧生|遇难).{0,18}(?:两个人|两人|两名|两位)/.test(v),
-  legs:/(?:失去|失去了|失掉).{0,10}(?:双腿|两条腿)|双腿/.test(v),
-  self:/(?:自我毁灭|自毁|自己毁灭)/.test(v)
-}}
+function firstLayer(v){
+  const first=/(?:第一个|第一名|最初(?:的)?).{0,12}活骸|活骸.{0,18}(?:第一次出现|首次出现|最早出现)/.test(v)||(/(?:是|作为).{0,4}[“「『]?第一个[”」』]?/.test(v)&&/活骸/.test(v));
+  return{
+    first,
+    team:/(?:三人小队|三个人|三名|三位)/.test(v),
+    two:/(?:另外|其余|剩下|另)?\s*(?:两个人|两人|两名|两位).{0,24}(?:没能回来|死亡|死去|死在|牺牲|丧生|遇难|没回来|没了)|(?:死亡|死去|死在|牺牲|丧生|遇难).{0,18}(?:两个人|两人|两名|两位)/.test(v),
+    legs:/(?:失去|失去了|失掉).{0,10}(?:双腿|两条腿)|双腿|失去.{0,10}行走能力/.test(v),
+    self:/(?:自我毁灭|自毁|自己毁灭|选择了自我毁灭)/.test(v)
+  };
+}
 
 const cases=[
 {id:'countdown_user_only',entries:['10｜第7天：苏醒与高校主线','41｜安托涅瓦'],prompt:`${state()}\n我指着视野里悬浮的“7”问安托涅瓦：“你看得到吗？是不是只剩七天？”`,check:v=>{const f=[];if(!/看不见|看不到|没有看到/.test(v))f.push('missing-countdown-denial');if(/七天后.{0,15}(末日|毁灭)|末日倒计时/.test(v))f.push('countdown-secret-leak');return f}},
