@@ -39,13 +39,23 @@ const COUNTDOWN_MEANING_LOCK = `
 - 只有剧情真正解锁倒计时含义并把\`countdown_meaning_known\`更新为true后，玩家可见文本才可明确解释其含义。此前不要用NPC的猜测、医学解释、中央庭档案或合理化旁白替秘密提前命名。
 `;
 
+function sanitizePublicMetadata(card){
+  card.data.creator='叶罹';
+  card.data.creator_notes='《永远的7日之都》七日轮回文本互动角色卡。';
+  card.creatorcomment='《永远的7日之都》七日轮回文本互动角色卡。作者：叶罹。';
+  if(Object.prototype.hasOwnProperty.call(card,'creator')) card.creator='叶罹';
+  const book=card.data.character_book;
+  if(book){
+    book.description='《永远的7日之都》七日轮回文本互动世界书。';
+    book.extensions=book.extensions||{};
+    book.extensions.creator='叶罹';
+  }
+}
+
 export async function loadQiduOneFileCard(workspace=process.env.GITHUB_WORKSPACE||process.cwd(), options={}) {
   const {card}=await loadV0422Card(workspace,{skipHashCheck:true});
   card.data.character_version=ONEFILE_VERSION;
-
-  // Public card metadata only. Development/runtime provenance is intentionally excluded.
-  card.data.creator='叶罹';
-  card.data.creator_notes='《永远的7日之都》七日轮回文本互动角色卡。';
+  sanitizePublicMetadata(card);
 
   const protocol=findEntry(card,'04｜');
   appendOnce(protocol,'未解锁秘密名词消隐｜隐藏执行',LOCKED_SECRET_SUPPRESSION);
