@@ -142,8 +142,8 @@
 
 /* v3 targeted correction pass: only nine-slice, top bar, input, right drawer and font presentation. */
 
-/* Resolution-independent nine-slice geometry. Percent slices preserve source corner regions
-   even when the same PNG is stored at a reduced raster size. */
+/* Resolution-independent nine-slice geometry. Slice ratios are derived from the actual
+   committed raster boundaries so the full corner ornaments remain inside the corner cells. */
 #sheld,
 #top-bar,
 #right-nav-panel:is(.openDrawer, [data-lw-qa-open="1"]),
@@ -157,7 +157,7 @@
 }
 
 #sheld {
-  border-image-slice: 8.53% 6.84% 8.96% 6.84% fill !important;
+  border-image-slice: 14.55% 11.67% 15.30% 11.67% fill !important;
 }
 
 #top-bar {
@@ -165,19 +165,19 @@
 }
 
 #right-nav-panel:is(.openDrawer, [data-lw-qa-open="1"]) {
-  border-image-slice: 4.39% 6.16% 5.12% 6.16% fill !important;
+  border-image-slice: 8.78% 12.33% 10.24% 12.33% fill !important;
 }
 
 #left-nav-panel:is(.openDrawer, [data-lw-qa-open="1"]) {
-  border-image-slice: 4.39% 5.63% 5.12% 5.63% fill !important;
+  border-image-slice: 8.78% 11.25% 10.24% 11.25% fill !important;
 }
 
 #chat .mes:not(.smallSysMes) .mes_block {
-  border-image-slice: 21.11% 6.55% 21.11% 6.55% fill !important;
+  border-image-slice: 21.84% 6.79% 21.84% 6.79% fill !important;
 }
 
 #chat .mes:not(.smallSysMes)[is_user="true"] .mes_block {
-  border-image-slice: 17.78% 4.99% 17.78% 4.99% fill !important;
+  border-image-slice: 21.62% 6.07% 21.62% 6.07% fill !important;
 }
 
 #chat .lw-date-divider {
@@ -189,9 +189,13 @@
 }
 
 /* Real top function bar: the native holder stays interactive, but its old black plate is removed. */
-#top-bar {
+#top-bar,
+body.no-blur #top-bar {
   background: #787e9a !important;
+  background-color: #787e9a !important;
   background-clip: padding-box !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   isolation: isolate !important;
 }
 
@@ -227,9 +231,13 @@
   border-color: transparent !important;
 }
 
-#send_form {
+#send_form,
+body.no-blur #send_form {
   background: rgba(249, 245, 239, .96) !important;
+  background-color: rgba(249, 245, 239, .96) !important;
   background-clip: padding-box !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   isolation: isolate !important;
 }
 
