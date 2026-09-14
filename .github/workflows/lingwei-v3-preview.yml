@@ -30,20 +30,32 @@ jobs:
 
       - name: Build CSS and validate assets
         run: |
-          mkdir -p "$EVIDENCE" /tmp/lingwei-v3-assets
-          cat fixtures/lingwei-v3/theme.css fixtures/lingwei-v3/layout-guard.css > /tmp/lingwei-v3.css
+          mkdir -p "$EVIDENCE" /tmp/lingwei-v3-assets /tmp/lingwei-v3-parts
+          cat fixtures/lingwei-v3/theme.css fixtures/lingwei-v3/layout-guard.css fixtures/lingwei-v3/structure-pass.css > /tmp/lingwei-v3.css
           python3 - /tmp/lingwei-v3.css <<'PY'
           from pathlib import Path
           import sys
-          p=Path(sys.argv[1]);s=p.read_text(encoding='utf-8').replace('url("./assets/','url("/scripts/extensions/third-party/lingwei-v3-qa/assets/');p.write_text(s,encoding='utf-8')
+          p=Path(sys.argv[1])
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('url("./assets/','url("/scripts/extensions/third-party/lingwei-v3-qa/assets/')
+          s=s.replace('url("./parts/','url("/scripts/extensions/third-party/lingwei-v3-qa/parts/')
+          forbidden=('top-nav-base.png','input-bar-base.png','avatar-frame-bot.png','avatar-frame-user.png')
+          s='\n'.join(line for line in s.splitlines() if not any(name in line for name in forbidden))+'\n'
+          leaked=[x for x in forbidden if x in s]
+          assert not leaked, f'complete raster source still rendered: {leaked}'
+          p.write_text(s,encoding='utf-8')
           PY
           cp fixtures/lingwei-v3/assets/*.png /tmp/lingwei-v3-assets/
+          python3 -m pip install --disable-pip-version-check --quiet pillow==11.3.0
+          python3 fixtures/lingwei-v3/build_parts.py fixtures/lingwei-v3/assets /tmp/lingwei-v3-parts
           python3 - <<'PY'
           from pathlib import Path
-          assets=sorted(Path('/tmp/lingwei-v3-assets').glob('*.png'))
-          assert len(assets)==10, f'expected 10 PNGs, got {len(assets)}'
-          for f in assets: assert f.read_bytes()[:8]==b'\x89PNG\r\n\x1a\n', f'invalid PNG: {f.name}'
-          print('10 PNG assets: PASS')
+          groups=[('/tmp/lingwei-v3-assets',10),('/tmp/lingwei-v3-parts',8)]
+          for root,expected in groups:
+              files=sorted(Path(root).glob('*.png'))
+              assert len(files)==expected, f'{root}: expected {expected} PNGs, got {len(files)}'
+              for f in files: assert f.read_bytes()[:8]==b'\x89PNG\r\n\x1a\n', f'invalid PNG: {f.name}'
+          print('10 source PNGs + 8 generated structural fragments: PASS')
           PY
           cp /tmp/lingwei-v3.css "$EVIDENCE/combined-theme.css"
 
@@ -56,10 +68,12 @@ jobs:
 
       - name: Install v3 QA assets
         run: |
-          DST="$ST_DIR/public/scripts/extensions/third-party/lingwei-v3-qa/assets"
-          mkdir -p "$DST"
-          cp /tmp/lingwei-v3-assets/*.png "$DST"/
-          test "$(find "$DST" -maxdepth 1 -name '*.png' | wc -l)" -eq 10
+          DST="$ST_DIR/public/scripts/extensions/third-party/lingwei-v3-qa"
+          mkdir -p "$DST/assets" "$DST/parts"
+          cp /tmp/lingwei-v3-assets/*.png "$DST/assets"/
+          cp /tmp/lingwei-v3-parts/*.png "$DST/parts"/
+          test "$(find "$DST/assets" -maxdepth 1 -name '*.png' | wc -l)" -eq 10
+          test "$(find "$DST/parts" -maxdepth 1 -name '*.png' | wc -l)" -eq 8
 
       - name: Install
         working-directory: /tmp/lingwei-v3-st
@@ -78,7 +92,7 @@ jobs:
           CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"; test -n "$CHROME_BIN"; echo "CHROME_BIN=$CHROME_BIN" >> "$GITHUB_ENV"; echo "PW_ENTRY=file:///tmp/lingwei-v3-browser/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
 
       - name: Screenshot and validate real SillyTavern
-        run: EVIDENCE="$EVIDENCE" node fixtures/lingwei-v3/shot.mjs
+        run: EVIDENCE="$EVIDENCE" node fixtures/lingwei-v3/shot-structure.mjs
 
       - name: Print report
         if: always()
