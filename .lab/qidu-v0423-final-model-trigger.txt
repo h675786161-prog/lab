@@ -1,2 +1,2 @@
-run=v0.4.23-final-card-model-4
-reason=verify the exact latest v0.4.23 card after public author/worldbook provenance sanitization, NPC zero-source hard lock, hidden-secret self-audit suppression and countdown-meaning lock; no older generator substitution
+run=v0.4.23-final-card-model-5
+reason=verify exact latest v0.4.23 after forbidding fabricated partial past briefings when NPC source ledger is empty, plus adversarial off-screen-source regression, author/worldbook sanitization, secret-name suppression and countdown lock
