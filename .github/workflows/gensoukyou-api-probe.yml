@@ -1,0 +1,90 @@
+name: Gensoukyou API Probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/gensoukyou-api-probe.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GENSOUKYOU_A: ${{ secrets.GENSOUKYOU }}
+      GENSOUKYOU_B: ${{ secrets.GENSOUKYOU_KEY }}
+      GENSOUKYOU_C: ${{ secrets.GENSOUKYOU_PASSWORD }}
+      GENSOUKYOU_D: ${{ secrets.HUANXIANG }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Probe Gensoukyou OpenAI-compatible API safely
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p provider-evidence/gensoukyou
+          python - <<'PY'
+          import json, os, urllib.request, urllib.error
+
+          candidates = [
+              ('GENSOUKYOU', os.environ.get('GENSOUKYOU_A','')),
+              ('GENSOUKYOU_KEY', os.environ.get('GENSOUKYOU_B','')),
+              ('GENSOUKYOU_PASSWORD', os.environ.get('GENSOUKYOU_C','')),
+              ('HUANXIANG', os.environ.get('GENSOUKYOU_D','')),
+          ]
+          present = [name for name, value in candidates if value]
+          key = next((value for _, value in candidates if value), '')
+          report = {'secret_names_present': present, 'attempts': []}
+          print('secret_names_present=' + (','.join(present) if present else 'NONE'))
+
+          endpoints = [
+              'https://gensoukyou.xyz/v1/models',
+              'https://gensoukyou.xyz/api/v1/models',
+          ]
+          if not key:
+              report['status'] = 'missing_secret'
+          else:
+              for endpoint in endpoints:
+                  row = {'endpoint': endpoint}
+                  req = urllib.request.Request(endpoint, headers={
+                      'Authorization': 'Bearer ' + key,
+                      'Accept': 'application/json',
+                      'User-Agent': 'LingQi-SillyTavern-Lab/1.0',
+                  })
+                  try:
+                      with urllib.request.urlopen(req, timeout=25) as resp:
+                          raw = resp.read(2_000_000)
+                          status = resp.status
+                      data = json.loads(raw.decode('utf-8','replace'))
+                      seq = data.get('data') if isinstance(data, dict) else None
+                      ids = []
+                      if isinstance(seq, list):
+                          for item in seq:
+                              if isinstance(item, dict) and item.get('id'):
+                                  ids.append(str(item['id']))
+                      row.update({'ok': 200 <= status < 300, 'status': status, 'model_count': len(ids), 'models': ids[:300]})
+                  except urllib.error.HTTPError as e:
+                      body = e.read(4096).decode('utf-8','replace')
+                      row.update({'ok': False, 'status': e.code, 'error_excerpt': body[:500]})
+                  except Exception as e:
+                      row.update({'ok': False, 'status': 'error', 'error': type(e).__name__ + ': ' + str(e)[:300]})
+                  report['attempts'].append(row)
+                  print(f"{endpoint}: status={row.get('status')} models={row.get('model_count',0)}")
+                  if row.get('ok'):
+                      break
+
+          with open('provider-evidence/gensoukyou/api-probe.json','w',encoding='utf-8') as f:
+              json.dump(report, f, ensure_ascii=False, indent=2)
+          PY
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gensoukyou-api-probe
+          path: provider-evidence/gensoukyou/
+          if-no-files-found: error
