@@ -1,2 +1,2 @@
-run=v0.4.23-final-card-model-2
-reason=rerun final v0.4.23 after hardening NPC zero-source provenance, banning narrator self-audit with unknown secret names, preventing fabricated past briefings, and making semantic checks accept equivalent natural wording without weakening disclosure boundaries
+run=v0.4.23-final-card-model-3
+reason=rerun final v0.4.23 after adding explicit countdown-meaning lock so NPCs cannot turn the user's visible 7 into a seven-day destruction/ending claim before countdown_meaning_known is actually unlocked
