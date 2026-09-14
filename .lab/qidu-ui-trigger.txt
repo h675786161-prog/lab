@@ -1,2 +1,2 @@
-run=v0.4.23-ui-visible-1
-reason=verify v0423 public author metadata and the final tactical terminal, hidden state, responsive choice tiles, composer targeting, mobile stacking and desktop multi-column layout in real SillyTavern browser screenshots
+run=v0.4.23-ui-visible-2
+reason=repeat v0423 real SillyTavern UI proof after separating actual label-to-composer focus behavior from modal top-layer screenshot layout; verify author metadata, hidden state, responsive choice styling and real composer focus without modal focus-trap false failure
