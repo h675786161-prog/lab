@@ -253,15 +253,15 @@ body.no-blur #top-bar {
 }
 
 /* Concise labels are presentation only; the native clickable drawers remain unchanged. */
-#ai-config-button .drawer-icon::after { content: "生成" !important; }
-#sys-settings-button .drawer-icon::after { content: "连接" !important; }
-#advanced-formatting-button .drawer-icon::after { content: "格式" !important; }
-#WI-SP-button .drawer-icon::after { content: "世界书" !important; }
-#user-settings-button .drawer-icon::after { content: "设置" !important; }
-#backgrounds-button .drawer-icon::after { content: "背景" !important; }
-#extensions-settings-button .drawer-icon::after { content: "扩展" !important; }
-#persona-management-button .drawer-icon::after { content: "人设" !important; }
-#rightNavHolder .drawer-icon::after { content: "角色" !important; }
+#top-settings-holder > #ai-config-button > .drawer-toggle > .drawer-icon::after { content: "生成" !important; }
+#top-settings-holder > #sys-settings-button > .drawer-toggle > .drawer-icon::after { content: "连接" !important; }
+#top-settings-holder > #advanced-formatting-button > .drawer-toggle > .drawer-icon::after { content: "格式" !important; }
+#top-settings-holder > #WI-SP-button > .drawer-toggle > .drawer-icon::after { content: "世界书" !important; }
+#top-settings-holder > #user-settings-button > .drawer-toggle > .drawer-icon::after { content: "设置" !important; }
+#top-settings-holder > #backgrounds-button > .drawer-toggle > .drawer-icon::after { content: "背景" !important; }
+#top-settings-holder > #extensions-settings-button > .drawer-toggle > .drawer-icon::after { content: "扩展" !important; }
+#top-settings-holder > #persona-management-button > .drawer-toggle > .drawer-icon::after { content: "人设" !important; }
+#top-settings-holder > #rightNavHolder > .drawer-toggle > .drawer-icon::after { content: "角色" !important; }
 
 /* --------------------------------------------------------------------------
    REAL INPUT COMPONENT
