@@ -1,2 +1,2 @@
-run=v0.4.22-ui-visible-2
-reason=repeat isolated real SillyTavern browser UI proof with the QA panel promoted to browser top layer so onboarding content cannot cover the mobile or desktop evidence screenshots; verify terminal, hidden state, responsive choice tiles and composer behavior
+run=v0.4.23-ui-visible-1
+reason=verify v0423 public author metadata and the final tactical terminal, hidden state, responsive choice tiles, composer targeting, mobile stacking and desktop multi-column layout in real SillyTavern browser screenshots
