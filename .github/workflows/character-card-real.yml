@@ -48,8 +48,7 @@ jobs:
           if [ -n "${INPUT_CARD_PATH:-}" ]; then
             CARD_PATH="$INPUT_CARD_PATH"
           elif [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
-            git fetch origin "${GITHUB_BASE_REF}" --depth=1
-            CARD_PATH="$(git diff --name-only "origin/${GITHUB_BASE_REF}...HEAD" | grep -E '^cards/.+\.json$' | head -n 1 || true)"
+            CARD_PATH="$(git diff --name-only HEAD^1 HEAD | grep -E '^cards/.+\.json$' | head -n 1 || true)"
           else
             CARD_PATH=''
           fi
