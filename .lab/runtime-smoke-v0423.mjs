@@ -72,13 +72,35 @@ try{
     st.setCharacterId(idx);const ch=st.characters[idx];eng.allowScopedScripts(ch);
     const sample='<f7d_terminal>任务：作者与UI最终验收</f7d_terminal><f7d_state>{"secret":1}</f7d_state><f7d_choices><f7d_choice>继续观察</f7d_choice><f7d_choice>询问珈儿</f7d_choice></f7d_choices>';
     const html=st.messageFormatting(sample,'七都UI测试',false,false,999999,{},false);
-    const h=document.createElement('dialog');h.id='qidu-v0423-smoke';h.style.cssText='position:fixed;z-index:2147483647;left:12px;top:72px;right:auto;bottom:auto;margin:0;width:min(780px,calc(100vw - 24px));max-width:none;padding:10px;border:0;border-radius:16px;background:rgba(5,10,18,.96);';h.innerHTML=html;document.body.appendChild(h);h.showModal();
+    const textarea=document.getElementById('send_textarea');
+
+    // Functional behavior must be tested outside a modal top layer. A modal dialog intentionally traps focus,
+    // so checking label -> textarea focus from inside the modal would be a browser-test artifact rather than card behavior.
+    const behavior=document.createElement('div');
+    behavior.id='qidu-v0423-behavior-probe';
+    behavior.style.cssText='position:absolute;left:-10000px;top:0;width:780px;';
+    behavior.innerHTML=html;
+    document.body.appendChild(behavior);
+    const behaviorLabels=[...behavior.querySelectorAll('[data-f7d-choice="1"]')];
+    const before=textarea?.value??null;
+    if(behaviorLabels[0])behaviorLabels[0].click();
+    await new Promise(resolve=>requestAnimationFrame(resolve));
+    const after=textarea?.value??null;
+    const focusAfterChoice=document.activeElement===textarea;
+    const composerValueUnchanged=before===after;
+    const behaviorChoiceFor=behaviorLabels.map(x=>x.getAttribute('for'));
+    behavior.remove();
+
+    // Separate visible top-layer mount for layout/style QA and screenshots.
+    const h=document.createElement('dialog');
+    h.id='qidu-v0423-smoke';
+    h.style.cssText='position:fixed;z-index:2147483647;left:12px;top:72px;right:auto;bottom:auto;margin:0;width:min(780px,calc(100vw - 24px));max-width:none;padding:10px;border:0;border-radius:16px;background:rgba(5,10,18,.96);';
+    h.innerHTML=html;document.body.appendChild(h);h.showModal();
     const term=h.querySelector('[data-f7d-terminal="1"]'),grid=h.querySelector('[data-f7d-choice-grid="1"]'),labels=[...h.querySelectorAll('[data-f7d-choice="1"]')];
     const rect=e=>e?(()=>{const r=e.getBoundingClientRect();return{left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height}})():null;
     const ts=term?getComputedStyle(term):null,gs=grid?getComputedStyle(grid):null,ls=labels.map(x=>getComputedStyle(x));
-    const textarea=document.getElementById('send_textarea');const before=textarea?.value??null;if(labels[0])labels[0].click();await new Promise(r=>requestAnimationFrame(r));const after=textarea?.value??null;
     const hr=rect(h),gr=rect(grid),rs=labels.map(rect);
-    return{allowed:eng.isScopedScriptsAllowed(ch),count:labels.length,labels:labels.map(x=>x.textContent?.trim()),terminal:Boolean(term),grid:Boolean(grid),hiddenStateVisible:h.textContent?.includes('secret')||false,choiceFor:labels.map(x=>x.getAttribute('for')),focusAfterChoice:document.activeElement===textarea,composerValueUnchanged:before===after,bridge:Boolean(window.__QIDU_CHOICE_BRIDGE__),probe:Boolean(window.__LINGQI_LAB_PROBE__),ui:{terminalGradient:Boolean(ts?.backgroundImage&&ts.backgroundImage!=='none'),gridGradient:Boolean(gs?.backgroundImage&&gs.backgroundImage!=='none'),gridDisplay:gs?.display||'',choiceGradients:ls.map(s=>Boolean(s?.backgroundImage&&s.backgroundImage!=='none')),choiceMinHeights:ls.map(s=>parseFloat(s?.minHeight||'0')),mount:hr,gridRect:gr,labelRects:rs,stacked:Boolean(rs.length===2&&rs[1].top>rs[0].top+4),gridFits:Boolean(gr&&hr&&gr.left>=hr.left-2&&gr.right<=hr.right+2)}};
+    return{allowed:eng.isScopedScriptsAllowed(ch),count:labels.length,labels:labels.map(x=>x.textContent?.trim()),terminal:Boolean(term),grid:Boolean(grid),hiddenStateVisible:h.textContent?.includes('secret')||false,choiceFor:labels.map(x=>x.getAttribute('for')),behaviorChoiceFor,focusAfterChoice,composerValueUnchanged,bridge:Boolean(window.__QIDU_CHOICE_BRIDGE__),probe:Boolean(window.__LINGQI_LAB_PROBE__),ui:{terminalGradient:Boolean(ts?.backgroundImage&&ts.backgroundImage!=='none'),gridGradient:Boolean(gs?.backgroundImage&&gs.backgroundImage!=='none'),gridDisplay:gs?.display||'',choiceGradients:ls.map(s=>Boolean(s?.backgroundImage&&s.backgroundImage!=='none')),choiceMinHeights:ls.map(s=>parseFloat(s?.minHeight||'0')),mount:hr,gridRect:gr,labelRects:rs,stacked:Boolean(rs.length===2&&rs[1].top>rs[0].top+4),gridFits:Boolean(gr&&hr&&gr.left>=hr.left-2&&gr.right<=hr.right+2)}};
   },{name:card.data.name,version:ONEFILE_VERSION});
   await page.screenshot({path:path.join(evidenceDir,'qidu-v0423-ui-mobile.png'),fullPage:false});
   await page.setViewportSize({width:1366,height:768});await page.waitForTimeout(150);
@@ -92,7 +114,7 @@ await fs.writeFile(path.join(evidenceDir,'永远的7日之都-七日轮回文本
 console.log(JSON.stringify(report,null,2));
 const fail=[...Object.entries(staticChecks).filter(([,v])=>!v).map(([k])=>`static:${k}`),...Object.entries(initialChecks).filter(([,v])=>!v).map(([k])=>`initial:${k}`)];
 if(!imported.ok)fail.push(`import:${imported.status}`);
-const uiOk=Boolean(client&&!client.error&&client.allowed&&client.count===2&&client.terminal&&client.grid&&!client.hiddenStateVisible&&!client.bridge&&!client.probe&&client.choiceFor?.every(x=>x==='send_textarea')&&client.focusAfterChoice&&client.composerValueUnchanged&&client.ui?.terminalGradient&&client.ui?.gridGradient&&client.ui?.gridDisplay==='grid'&&client.ui?.choiceGradients?.every(Boolean)&&client.ui?.choiceMinHeights?.every(x=>x>=44)&&client.ui?.stacked&&client.ui?.gridFits&&client.desktop?.multiColumn&&client.desktop?.gridFits);
+const uiOk=Boolean(client&&!client.error&&client.allowed&&client.count===2&&client.terminal&&client.grid&&!client.hiddenStateVisible&&!client.bridge&&!client.probe&&client.choiceFor?.every(x=>x==='send_textarea')&&client.behaviorChoiceFor?.every(x=>x==='send_textarea')&&client.focusAfterChoice&&client.composerValueUnchanged&&client.ui?.terminalGradient&&client.ui?.gridGradient&&client.ui?.gridDisplay==='grid'&&client.ui?.choiceGradients?.every(Boolean)&&client.ui?.choiceMinHeights?.every(x=>x>=44)&&client.ui?.stacked&&client.ui?.gridFits&&client.desktop?.multiColumn&&client.desktop?.gridFits);
 if(!uiOk)fail.push(`ui:${JSON.stringify(client)}`);
 if(pageErrors.length)fail.push(`page:${pageErrors.join('|')}`);
 if(fail.length)throw new Error(`v0423 smoke failed ${fail.join(',')}`);
