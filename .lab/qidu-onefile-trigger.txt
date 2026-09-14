@@ -1,2 +1,2 @@
-run=v0.4.22-ui-retention-1
-reason=verify final v0422 keeps embedded tactical terminal and choice tiles, hidden state remains hidden, mobile/desktop responsive styling survives real SillyTavern formatting, option tiles still target the composer without auto-sending, and all NPC knowledge/encounter/info regressions remain green before packaging
+run=v0.4.23-author-secret-guard-1
+reason=verify public author metadata is 叶罹 with no development provenance, locked secret names cannot leak through negated/meta wording, NPC knowledge/encounter/timeline regressions stay valid, tactical terminal and responsive choice styling remain intact in real SillyTavern, and package only after all gates pass
