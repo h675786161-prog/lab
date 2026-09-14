@@ -39,7 +39,7 @@ jobs:
           echo "CHROME_BIN=$CHROME_BIN" >> "$GITHUB_ENV"
           echo "PW_ENTRY=file://$BROWSER_DIR/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
 
-      - name: Probe public gate and authenticated page safely
+      - name: Probe public page, sign-in page, and authenticated page safely
         shell: bash
         run: |
           set -euo pipefail
@@ -73,37 +73,44 @@ jobs:
           });
           page.on('pageerror', err => pageErrors.push(String(err?.message || err).slice(0, 500)));
 
-          const safeUiSnapshot = async () => {
-            return await page.evaluate(() => {
-              const txt = el => (el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 120);
-              const uniq = arr => [...new Set(arr.filter(Boolean))].slice(0, 80);
-              return {
-                headings: uniq([...document.querySelectorAll('h1,h2,h3,[role="heading"]')].map(txt)),
-                buttons: uniq([...document.querySelectorAll('button,[role="button"],input[type="submit"]')].map(el => el.tagName === 'INPUT' ? (el.getAttribute('value') || '') : txt(el))),
-                inputs: [...document.querySelectorAll('input,textarea')].slice(0, 80).map(el => ({
-                  tag: el.tagName.toLowerCase(),
-                  type: el.getAttribute('type') || null,
-                  name: el.getAttribute('name') || null,
-                  id: el.id || null,
-                  placeholder: el.getAttribute('placeholder') || null,
-                  autocomplete: el.getAttribute('autocomplete') || null,
-                })),
-                selects: [...document.querySelectorAll('select')].slice(0, 30).map(el => ({
-                  name: el.getAttribute('name') || null,
-                  id: el.id || null,
-                  options: [...el.options].slice(0, 50).map(o => (o.textContent || '').trim()).filter(Boolean),
-                })),
-                links: uniq([...document.querySelectorAll('a[href]')].map(a => {
-                  try { const u = new URL(a.href); return `${u.origin}${u.pathname}`; } catch { return ''; }
-                })),
-              };
-            });
-          };
+          const safeUiSnapshot = async () => await page.evaluate(() => {
+            const txt = el => (el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 120);
+            const uniq = arr => [...new Set(arr.filter(Boolean))].slice(0, 80);
+            return {
+              headings: uniq([...document.querySelectorAll('h1,h2,h3,[role="heading"]')].map(txt)),
+              labels: uniq([...document.querySelectorAll('label')].map(txt)),
+              buttons: uniq([...document.querySelectorAll('button,[role="button"],input[type="submit"]')].map(el => el.tagName === 'INPUT' ? (el.getAttribute('value') || '') : txt(el))),
+              inputs: [...document.querySelectorAll('input,textarea')].slice(0, 80).map(el => ({
+                tag: el.tagName.toLowerCase(),
+                type: el.getAttribute('type') || null,
+                name: el.getAttribute('name') || null,
+                id: el.id || null,
+                placeholder: el.getAttribute('placeholder') || null,
+                autocomplete: el.getAttribute('autocomplete') || null,
+              })),
+              selects: [...document.querySelectorAll('select')].slice(0, 30).map(el => ({
+                name: el.getAttribute('name') || null,
+                id: el.id || null,
+                options: [...el.options].slice(0, 50).map(o => (o.textContent || '').trim()).filter(Boolean),
+              })),
+              links: uniq([...document.querySelectorAll('a[href]')].map(a => {
+                try { const u = new URL(a.href); return `${u.origin}${u.pathname}`; } catch { return ''; }
+              })),
+            };
+          });
+
+          const snap = async response => ({
+            status: response?.status() ?? null,
+            url: sanitizeUrl(page.url()),
+            title: await page.title(),
+            ui: await safeUiSnapshot(),
+          });
 
           const report = {
             site: process.env.SITE_URL,
             secret_present: Boolean(process.env.SITE_PASSWORD),
             initial: null,
+            signin: null,
             auth: null,
             authenticated: null,
             requests: [],
@@ -112,14 +119,20 @@ jobs:
           };
           try {
             const first = await page.goto(process.env.SITE_URL, { waitUntil: 'domcontentloaded', timeout: 60_000 });
-            await page.waitForTimeout(2500);
-            report.initial = {
-              status: first?.status() ?? null,
-              url: sanitizeUrl(page.url()),
-              title: await page.title(),
-              ui: await safeUiSnapshot(),
-            };
+            await page.waitForTimeout(1800);
+            report.initial = await snap(first);
             await page.screenshot({ path: path.join(process.env.EVIDENCE_DIR, 'public-gate.png'), fullPage: true });
+
+            let signInUrl = null;
+            const signInLink = page.locator('a[href*="sign-in"],a[href*="signin"],a[href*="login"]').first();
+            if (await signInLink.count()) signInUrl = await signInLink.getAttribute('href');
+            if (!signInUrl) signInUrl = new URL('/sign-in', process.env.SITE_URL).href;
+            else signInUrl = new URL(signInUrl, process.env.SITE_URL).href;
+
+            const signResp = await page.goto(signInUrl, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+            await page.waitForTimeout(2200);
+            report.signin = await snap(signResp);
+            await page.screenshot({ path: path.join(process.env.EVIDENCE_DIR, 'sign-in-page.png'), fullPage: true });
 
             const pw = page.locator('input[type="password"]').first();
             if (await pw.count()) {
@@ -144,17 +157,16 @@ jobs:
                   ui: await safeUiSnapshot(),
                 };
               }
-            } else if ((first?.status() ?? 0) === 401) {
+            } else if ((signResp?.status() ?? 0) === 401) {
               report.auth = { result: 'http_401_auth_challenge', mechanism: 'http_auth' };
             } else {
-              report.auth = { result: 'no_password_gate_detected', mechanism: 'none_or_other' };
-              report.authenticated = { url: sanitizeUrl(page.url()), title: await page.title(), ui: await safeUiSnapshot() };
+              report.auth = { result: 'no_password_input_on_signin_page', mechanism: 'unknown_or_other' };
             }
           } catch (error) {
             report.error = `${error?.name || 'Error'}: ${String(error?.message || error).slice(0, 700)}`;
           } finally {
-            report.requests = requests.slice(-120);
-            report.responses = responses.slice(-120);
+            report.requests = requests.slice(-160);
+            report.responses = responses.slice(-160);
             await fs.writeFile(path.join(process.env.EVIDENCE_DIR, 'site-probe.json'), JSON.stringify(report, null, 2));
             await browser.close();
           }
@@ -162,6 +174,9 @@ jobs:
             site: report.site,
             secret_present: report.secret_present,
             initial_status: report.initial?.status ?? null,
+            signin_status: report.signin?.status ?? null,
+            signin_url: report.signin?.url ?? null,
+            signin_inputs: report.signin?.ui?.inputs ?? [],
             auth: report.auth,
             authenticated_url: report.authenticated?.url ?? null,
             request_count: report.requests.length,
