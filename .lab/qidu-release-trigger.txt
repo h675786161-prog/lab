@@ -1,0 +1,2 @@
+run=v0.4.23-release-privacy-1
+reason=final release gate using the privacy-sanitized card, dedicated real SillyTavern browser acceptance without experiment-probe artifacts, full narrative regression, and a release package that contains no old author, repository, development-lab, email, branch, or experiment-tavern provenance
