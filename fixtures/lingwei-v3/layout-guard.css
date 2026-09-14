@@ -243,14 +243,25 @@ body.no-blur #top-bar {
   overflow: hidden !important;
   color: rgba(255, 250, 244, .94) !important;
   font-family: "Noto Sans CJK SC", "Noto Sans SC", "Microsoft YaHei", "PingFang SC", sans-serif !important;
-  font-size: 8.5px !important;
-  font-weight: 500 !important;
+  font-size: 9px !important;
+  font-weight: 550 !important;
   line-height: 10px !important;
-  letter-spacing: 0 !important;
+  letter-spacing: .02em !important;
   text-align: center !important;
   white-space: normal !important;
   text-shadow: none !important;
 }
+
+/* Concise labels are presentation only; the native clickable drawers remain unchanged. */
+#ai-config-button .drawer-icon::after { content: "生成" !important; }
+#sys-settings-button .drawer-icon::after { content: "连接" !important; }
+#advanced-formatting-button .drawer-icon::after { content: "格式" !important; }
+#WI-SP-button .drawer-icon::after { content: "世界书" !important; }
+#user-settings-button .drawer-icon::after { content: "设置" !important; }
+#backgrounds-button .drawer-icon::after { content: "背景" !important; }
+#extensions-settings-button .drawer-icon::after { content: "扩展" !important; }
+#persona-management-button .drawer-icon::after { content: "人设" !important; }
+#rightNavHolder .drawer-icon::after { content: "角色" !important; }
 
 /* --------------------------------------------------------------------------
    REAL INPUT COMPONENT
@@ -523,7 +534,7 @@ body.no-blur #send_form {
   }
 
   #top-settings-holder > .drawer > .drawer-toggle > .drawer-icon::after {
-    font-size: 7.5px !important;
+    font-size: 8px !important;
     line-height: 9px !important;
     max-height: 18px !important;
   }
