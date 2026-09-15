@@ -48,6 +48,9 @@ jobs:
           console.log('PRESET13_OK', check.prompts.length, 'stream=', check.settings.stream_openai);
           NODE
 
+      - name: Harden benchmark diagnostics
+        run: node .lab/prepare-huonv-bench.mjs .lab/bench-huonv-drift-v2.mjs
+
       - name: Run six-turn Huo Nü drift benchmark
         run: node .lab/bench-huonv-drift-v2.mjs
 
