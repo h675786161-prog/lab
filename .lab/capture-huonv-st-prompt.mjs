@@ -5,6 +5,9 @@ const CARD = process.env.CARD_ABS;
 const PRESET = process.env.PRESET_ABS;
 const OUT = process.env.LAB_EVIDENCE_DIR;
 const source = JSON.parse(await fs.readFile(CARD, 'utf8'));
+const canonClosureProbe = '分支点前若原作未交代，保持未定义。';
+if (source.data.character_version !== '1.0.3') throw new Error(`Expected Huo Nü v1.0.3; got ${source.data.character_version}`);
+if (!String(source.data.system_prompt || '').includes(canonClosureProbe)) throw new Error('v1.0.3 canon-closure rule missing from source card');
 const { chromium } = await import(process.env.LAB_PLAYWRIGHT_CORE_ENTRY);
 
 const browser = await chromium.launch({ headless: true, executablePath: process.env.LAB_CHROME, args: ['--no-sandbox', '--disable-dev-shm-usage'] });
@@ -151,9 +154,12 @@ try {
   const systemProbe = systemRaw.split('\n').map(x => x.trim()).find(x => x.length >= 18 && !x.includes('{{')) || '';
   const postRaw = String(source.data.post_history_instructions || '');
   const postProbe = postRaw.split('\n').map(x => x.trim()).find(x => x.length >= 18 && !x.includes('{{')) || '';
+  if (!serialized.includes(needle)) throw new Error('Captured payload lost the real user probe');
+  if (!serialized.includes(canonClosureProbe)) throw new Error('Captured payload lost the v1.0.3 canon-closure rule');
   report.result = 'pass';
   report.home_status = home.status();
   report.imported_file_name = imported.body.file_name;
+  report.source_character_version = source.data.character_version;
   report.runtime_settings = runtimeSettings;
   report.captured = {
     message_count: messages.length,
@@ -166,7 +172,9 @@ try {
     max_tokens: captured?.max_tokens ?? null,
     has_user_probe: serialized.includes(needle),
     has_card_system_probe: systemProbe ? serialized.includes(systemProbe) : null,
+    has_v103_canon_closure_probe: serialized.includes(canonClosureProbe),
     has_card_post_history_probe: postProbe ? serialized.includes(postProbe) : null,
+    canon_closure_probe: canonClosureProbe,
     system_probe: systemProbe,
     post_history_probe: postProbe,
   };
