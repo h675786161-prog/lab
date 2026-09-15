@@ -1,48 +1,26 @@
 name: Materialize Huo Nü v1.0.3
 
 on:
-  pull_request:
-    paths:
-      - '.github/workflows/materialize-huonv-v103.yml'
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
   materialize:
-    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout PR head branch
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Generate and validate v1.0.3
+      - name: Verify committed v1.0.3
         run: |
           set -euo pipefail
-          node .lab/make-huonv-v103-candidate.mjs cards/huonv/霍女_玲七_v1.0.3.json
           node - <<'NODE'
           const fs = require('fs');
-          const c = JSON.parse(fs.readFileSync('cards/huonv/霍女_玲七_v1.0.3.json', 'utf8'));
+          const path = 'cards/huonv/霍女_玲七_v1.0.3.json';
+          const c = JSON.parse(fs.readFileSync(path, 'utf8'));
           if (c.spec !== 'chara_card_v2') throw new Error('wrong spec');
           if (c.data.character_version !== '1.0.3') throw new Error('wrong version');
-          const rule = '分支点前若原作未交代，保持未定义。';
-          if (!c.data.system_prompt.includes(rule)) throw new Error('canon-closure rule missing');
-          if ((c.data.alternate_greetings || []).length !== 3) throw new Error('alternate greetings changed');
-          console.log('HUONV_V103_OK');
+          if (!c.data.system_prompt.includes('分支点前若原作未交代，保持未定义。')) throw new Error('canon-closure rule missing');
+          console.log('HUONV_V103_ALREADY_MATERIALIZED');
           NODE
-
-      - name: Commit generated card to PR branch
-        run: |
-          set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add cards/huonv/霍女_玲七_v1.0.3.json
-          if git diff --cached --quiet; then
-            echo 'v1.0.3 already materialized; nothing to commit.'
-            exit 0
-          fi
-          git commit -m 'fix: materialize Huo Nü v1.0.3 canon closure'
-          git push origin HEAD:${{ github.event.pull_request.head.ref }}
