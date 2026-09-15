@@ -1,0 +1,1 @@
+retry transient upstream 500 after 45s conservative backoff
