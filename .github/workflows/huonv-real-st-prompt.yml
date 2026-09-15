@@ -22,7 +22,7 @@ jobs:
       BROWSER_DIR: /tmp/lingqi-huonv-browser
       LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence/huonv-st-prompt
       ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
-      CARD_PATH: cards/huonv/霍女_玲七_v1.0.2.json
+      CARD_PATH: cards/huonv/霍女_玲七_v1.0.3.json
       PRESET_PATH: /tmp/三人逆行13_核心启用项_ST.json
 
     steps:
