@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'cards/huonv/**'
-      - '.lab/bench-huonv-drift.mjs'
+      - '.lab/bench-huonv-drift-v2.mjs'
       - '.github/workflows/bench-huonv-drift.yml'
 
 permissions:
@@ -17,7 +17,7 @@ concurrency:
 jobs:
   drift:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     env:
       HUANXIANG_KEY: ${{ secrets.HUANXIANG }}
       LAB_OUT: bench-evidence/huonv-drift
@@ -27,22 +27,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Prepare conservative retry harness
+      - name: Prepare evidence directory
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p "$LAB_OUT"
-          printf '{"status":"started","rate_limit":"serial_17s","max_theoretical_rpm":3.53}\n' > "$LAB_OUT/run-start.json"
-          python - <<'PY'
-          from pathlib import Path
-          p = Path('.lab/bench-huonv-drift.mjs')
-          s = p.read_text(encoding='utf-8')
-          s = s.replace('if ([502, 503].includes(response.status) && attempt === 1)', 'if ([500, 502, 503].includes(response.status) && attempt === 1)')
-          p.write_text(s, encoding='utf-8')
-          PY
+          printf '{"status":"started","rate_limit":"serial_17s","max_theoretical_rpm":3.53,"benchmark":"v2"}\n' > "$LAB_OUT/run-start.json"
 
-      - name: Run Huo Nü persona drift benchmark
-        run: node .lab/bench-huonv-drift.mjs
+      - name: Run Huo Nü persona drift benchmark v2
+        run: node .lab/bench-huonv-drift-v2.mjs
 
       - name: Upload benchmark evidence
         if: always()
