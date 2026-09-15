@@ -1,0 +1,1 @@
+trigger-only: forces pull_request synchronize after workflow update; runner reads parts 1-4 only.
