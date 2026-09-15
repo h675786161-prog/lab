@@ -31,11 +31,22 @@ await page.route('**/api/backends/chat-completions/generate', async route => {
   await route.fulfill({ status: 200, contentType: 'text/event-stream', body });
 });
 
+async function dismissFirstRunWelcome() {
+  const welcome = page.getByText('Welcome to SillyTavern!', { exact: true });
+  if (!(await welcome.isVisible().catch(() => false))) return false;
+  const visibleSave = page.locator('button:visible').filter({ hasText: /^Save$/ }).first();
+  if (!(await visibleSave.count())) throw new Error('First-run welcome is visible but Save button was not found');
+  await visibleSave.click({ force: true });
+  await page.waitForTimeout(1500);
+  return true;
+}
+
 const report = { result: 'started', page_errors: pageErrors };
 try {
   const home = await page.goto('http://127.0.0.1:8000/', { waitUntil: 'domcontentloaded', timeout: 60_000 });
   await page.waitForTimeout(2500);
   if (!home || home.status() >= 400) throw new Error(`ST home HTTP ${home?.status()}`);
+  report.first_run_welcome_dismissed = await dismissFirstRunWelcome();
 
   const sourceText = JSON.stringify(source);
   const imported = await page.evaluate(async text => {
@@ -50,6 +61,7 @@ try {
 
   await page.reload({ waitUntil: 'domcontentloaded', timeout: 60_000 });
   await page.waitForTimeout(2500);
+  await dismissFirstRunWelcome();
 
   const presetInput = page.locator('#openai_preset_import_file');
   await presetInput.waitFor({ state: 'attached', timeout: 30_000 });
