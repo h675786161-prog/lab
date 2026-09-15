@@ -15,22 +15,6 @@ let captured = null;
 let resolveCaptured;
 const capturedPromise = new Promise(r => { resolveCaptured = r; });
 
-await page.route('**/api/backends/chat-completions/generate', async route => {
-  try {
-    captured = route.request().postDataJSON();
-  } catch {
-    captured = { raw: route.request().postData() };
-  }
-  resolveCaptured(captured);
-  const body = [
-    'data: ' + JSON.stringify({ choices: [{ delta: { content: '<content>CAPTURE_ONLY</content>' } }] }),
-    '',
-    'data: [DONE]',
-    '',
-  ].join('\n');
-  await route.fulfill({ status: 200, contentType: 'text/event-stream', body });
-});
-
 async function dismissFirstRunWelcome() {
   const welcome = page.getByText('Welcome to SillyTavern!', { exact: true });
   if (!(await welcome.isVisible().catch(() => false))) return false;
@@ -45,6 +29,44 @@ async function dismissFirstRunWelcome() {
     }
   }
   throw new Error(`First-run welcome is visible but no clickable visible Save text closed it; candidates=${count}`);
+}
+
+async function acceptEmbeddedLorebook() {
+  const notice = page.getByText('This character has an embedded World/Lorebook.', { exact: true });
+  if (!(await notice.isVisible().catch(() => false))) return false;
+  const yeses = page.getByText('Yes', { exact: true });
+  const count = await yeses.count();
+  for (let i = 0; i < count; i++) {
+    const candidate = yeses.nth(i);
+    if (await candidate.isVisible().catch(() => false)) {
+      await candidate.click({ force: true });
+      await page.waitForTimeout(1500);
+      if (!(await notice.isVisible().catch(() => false))) return true;
+    }
+  }
+  throw new Error(`Embedded lorebook confirmation is visible but no clickable Yes closed it; candidates=${count}`);
+}
+
+async function installCaptureRoute(requiredNeedle) {
+  await page.route('**/api/backends/chat-completions/generate', async route => {
+    let body;
+    try { body = route.request().postDataJSON(); }
+    catch { body = { raw: route.request().postData() }; }
+    const serialized = JSON.stringify(body);
+    const matches = serialized.includes(requiredNeedle);
+    const responseContent = matches ? '<content>CAPTURE_ONLY</content>' : '<content>PRECAPTURE_IGNORED</content>';
+    const responseBody = [
+      'data: ' + JSON.stringify({ choices: [{ delta: { content: responseContent } }] }),
+      '',
+      'data: [DONE]',
+      '',
+    ].join('\n');
+    await route.fulfill({ status: 200, contentType: 'text/event-stream', body: responseBody });
+    if (matches && !captured) {
+      captured = body;
+      resolveCaptured(captured);
+    }
+  });
 }
 
 const report = { result: 'started', page_errors: pageErrors };
@@ -79,7 +101,9 @@ try {
   const target = chars.filter({ hasText: '霍女' }).first();
   if (await target.count()) await target.evaluate(el => el.click());
   else await chars.first().evaluate(el => el.click());
-  await page.waitForTimeout(2500);
+  await page.waitForTimeout(750);
+  report.embedded_lorebook_imported = await acceptEmbeddedLorebook();
+  await page.waitForTimeout(1500);
 
   const runtimeSettings = await page.evaluate(async () => {
     const $ = window.jQuery || window.$;
@@ -105,14 +129,20 @@ try {
   });
 
   const prompt = '【导演指令】沈砚看着刚从反锁空屋里出来的霍女：“你是狐妖吧？都这样了还要骗我？”继续。';
+  const needle = '你是狐妖吧';
   const textarea = page.locator('#send_textarea');
   await textarea.waitFor({ state: 'attached', timeout: 30_000 });
   await textarea.fill(prompt);
+  const entered = await textarea.inputValue();
+  if (!entered.includes(needle)) throw new Error(`User probe did not enter send textarea: ${entered}`);
+  report.user_probe_entered = true;
+
+  await installCaptureRoute(needle);
   await page.locator('#send_but').evaluate(el => el.click());
 
   await Promise.race([
     capturedPromise,
-    new Promise((_, reject) => setTimeout(() => reject(new Error('No chat-completion request captured within 30s')), 30_000)),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('No chat-completion request containing the user probe captured within 30s')), 30_000)),
   ]);
 
   const serialized = JSON.stringify(captured);
@@ -134,7 +164,7 @@ try {
     top_p: captured?.top_p ?? null,
     top_k: captured?.top_k ?? null,
     max_tokens: captured?.max_tokens ?? null,
-    has_user_probe: serialized.includes('你是狐妖吧'),
+    has_user_probe: serialized.includes(needle),
     has_card_system_probe: systemProbe ? serialized.includes(systemProbe) : null,
     has_card_post_history_probe: postProbe ? serialized.includes(postProbe) : null,
     system_probe: systemProbe,
