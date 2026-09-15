@@ -1,0 +1,83 @@
+name: Probe Huo Nü v1.0.3 Candidate
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/probe-huonv-v103.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: huonv-drift-gensoukyou-rpm-safe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      HUANXIANG_KEY: ${{ secrets.HUANXIANG }}
+      LAB_OUT: bench-evidence/huonv-v103-candidate
+      PRIMARY_MODEL: glm-5.3
+      MIN_INTERVAL_MS: '17000'
+      CARD_PATH: cards/huonv/霍女_玲七_v1.0.3.json
+      CASE_FILTER: P3_identity_uncertainty,P6_love_identity_and_departure
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate v1.0.3 candidate from verified v1.0.2
+        run: |
+          node .lab/make-huonv-v103-candidate.mjs "$CARD_PATH"
+          node -e "const fs=require('fs');const c=JSON.parse(fs.readFileSync(process.env.CARD_PATH,'utf8'));if(c.data.character_version!=='1.0.3')process.exit(1);console.log('CANDIDATE_CARD_OK')"
+
+      - name: Rebuild Preset 13 with uploaded streaming behavior
+        shell: bash
+        run: |
+          cat .lab/preset-three-person-13.active.part1a.b64 .lab/preset-three-person-13.active.part1b.b64 .lab/preset-three-person-13.active.part1c.b64 .lab/preset-three-person-13.active.part1d.b64 > .lab/preset-three-person-13.active.part1.b64
+          node - <<'NODE'
+          const fs = require('fs');
+          const zlib = require('zlib');
+          const files = [1,2,3,4].map(n => `.lab/preset-three-person-13.active.part${n}.b64`);
+          const packed = files.map(f => fs.readFileSync(f, 'utf8')).join('').replace(/\s+/g, '');
+          const p = JSON.parse(zlib.gunzipSync(Buffer.from(packed, 'base64')).toString('utf8'));
+          if (p.source !== '三人逆行13·复调长卷.json') throw new Error(`wrong preset source: ${p.source}`);
+          if (!Array.isArray(p.prompts) || p.prompts.length !== 100) throw new Error(`expected 100 enabled prompts, got ${p.prompts?.length}`);
+          p.settings = p.settings || {};
+          p.settings.stream_openai = true;
+          const rebuilt = zlib.gzipSync(Buffer.from(JSON.stringify(p), 'utf8')).toString('base64');
+          fs.writeFileSync(files[0], rebuilt);
+          for (const f of files.slice(1)) fs.writeFileSync(f, '');
+          console.log('PRESET13_OK', p.prompts.length, 'stream=', p.settings.stream_openai);
+          NODE
+
+      - name: Prepare targeted benchmark harness
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          src = Path('.lab/bench-huonv-drift-v2.mjs').read_text(encoding='utf-8')
+          old_card = "const CARD_PATH = 'cards/huonv/霍女_玲七_v1.0.2.json';"
+          new_card = "const CARD_PATH = process.env.CARD_PATH || 'cards/huonv/霍女_玲七_v1.0.2.json';"
+          if old_card not in src:
+              raise SystemExit('CARD_PATH anchor missing')
+          src = src.replace(old_card, new_card, 1)
+          old_loop = 'for (const turn of turns) {'
+          new_loop = "for (const turn of turns.filter(t => !process.env.CASE_FILTER || process.env.CASE_FILTER.split(',').includes(t.id))) {"
+          if old_loop not in src:
+              raise SystemExit('turn loop anchor missing')
+          src = src.replace(old_loop, new_loop, 1)
+          Path('/tmp/bench-huonv-targeted.mjs').write_text(src, encoding='utf-8')
+          PY
+
+      - name: Run P3 and P6 only
+        run: node /tmp/bench-huonv-targeted.mjs
+
+      - name: Upload probe evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: probe-huonv-v103-candidate
+          path: bench-evidence/huonv-v103-candidate/
+          if-no-files-found: error
