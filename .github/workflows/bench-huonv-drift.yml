@@ -1,0 +1,35 @@
+name: Bench Huo Nü Persona Drift
+
+on:
+  pull_request:
+    paths:
+      - 'cards/huonv/**'
+      - '.lab/bench-huonv-drift.mjs'
+      - '.github/workflows/bench-huonv-drift.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      HUANXIANG_KEY: ${{ secrets.HUANXIANG }}
+      LAB_OUT: bench-evidence/huonv-drift
+      PRIMARY_MODEL: glm-5.3
+      CROSS_MODEL: deepseek-v4-flash-0731
+      MIN_INTERVAL_MS: '17000'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Huo Nü persona drift benchmark
+        run: node .lab/bench-huonv-drift.mjs
+
+      - name: Upload benchmark evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-huonv-drift
+          path: bench-evidence/huonv-drift/
+          if-no-files-found: error
