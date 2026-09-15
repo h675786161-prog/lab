@@ -81,14 +81,23 @@ jobs:
               ("const API = 'https://gensoukyou.xyz/v1/chat/completions';", "const API = process.env.API_URL || 'https://gcli.ggchan.dev/v1/chat/completions';"),
               ("const KEY = process.env.HUANXIANG_KEY || '';", "const KEY = process.env.GG_KEY || '';"),
               ("if (!KEY) throw new Error('HUANXIANG_KEY is missing');", "if (!KEY) throw new Error('GG_KEY is missing');"),
+              ("const MIN_INTERVAL_MS = Math.max(12_000, Number(process.env.MIN_INTERVAL_MS || 17_000));", "const MIN_INTERVAL_MS = Math.max(6_500, Number(process.env.MIN_INTERVAL_MS || 7_000));"),
               ("for (let attempt = 1; attempt <= 2; attempt++) {", "for (let attempt = 1; attempt <= 4; attempt++) {"),
               ("if ([429, 500, 502, 503, 524].includes(res.status) && attempt === 1) {", "if ([429, 500, 502, 503, 524].includes(res.status) && attempt < 4) {"),
               ("const backoff = res.status === 524 ? 125_000 : RETRY_MS;", "const backoff = res.status === 524 ? 7000 : RETRY_MS;"),
+              ("    user_rpm_ceiling: 5,", "    user_rpm_ceiling: 10,"),
+              ("hard ceiling 5 RPM", "hard ceiling 10 RPM"),
           ]
           for old, new in pairs:
               if old not in s:
                   raise SystemExit(f'GG harness anchor missing: {old}')
               s = s.replace(old, new, 1)
+
+          retry_anchor = "    console.log(`[${requestNo}] ${id}/${MODEL}: HTTP ${res.status}; full=${full.length}; story=${story.length}; provider=${providerError || 'ok'}; ${ms}ms`);"
+          retry_block = retry_anchor + "\n    if (providerError && attempt < 4) {\n      console.log(`[${requestNo}] ${id}/${MODEL}: provider ${providerError}; backoff 7000ms and retry`);\n      await sleep(7000);\n      continue;\n    }"
+          if retry_anchor not in s:
+              raise SystemExit('GG provider-empty retry anchor missing')
+          s = s.replace(retry_anchor, retry_block, 1)
           p.write_text(s, encoding='utf-8')
           PY
           node --check /tmp/bench-huonv-gg.mjs
