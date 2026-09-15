@@ -5,42 +5,33 @@ on:
     paths:
       - 'cards/huonv/**'
       - '.lab/bench-huonv-drift-v2.mjs'
+      - '.lab/preset-three-person-13.active.part*.b64'
       - '.github/workflows/bench-huonv-drift.yml'
 
 permissions:
   contents: read
 
 concurrency:
-  group: gensoukyou-huonv-drift
+  group: huonv-drift-gensoukyou-rpm-safe
   cancel-in-progress: false
 
 jobs:
   drift:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       HUANXIANG_KEY: ${{ secrets.HUANXIANG }}
       LAB_OUT: bench-evidence/huonv-drift
       PRIMARY_MODEL: glm-5.3
-      CROSS_MODEL: deepseek-v4-flash-0731
       MIN_INTERVAL_MS: '17000'
     steps:
       - uses: actions/checkout@v4
-
-      - name: Prepare evidence directory
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p "$LAB_OUT"
-          printf '{"status":"started","rate_limit":"serial_17s","max_theoretical_rpm":3.53,"benchmark":"v2"}\n' > "$LAB_OUT/run-start.json"
-
-      - name: Run Huo Nü persona drift benchmark v2
+      - name: Run Huo Nü with uploaded Preset 13 active snapshot
         run: node .lab/bench-huonv-drift-v2.mjs
-
       - name: Upload benchmark evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: bench-huonv-drift
+          name: bench-huonv-preset13
           path: bench-evidence/huonv-drift/
           if-no-files-found: error
