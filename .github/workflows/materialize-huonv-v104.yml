@@ -1,6 +1,7 @@
 name: Materialize Huo Nü v1.0.4
 
 on:
+  workflow_dispatch:
   push:
     branches: [bench/huonv-preset13-clean]
     paths:
@@ -27,8 +28,10 @@ jobs:
           const fs = require('fs');
           const c = JSON.parse(fs.readFileSync('cards/huonv/霍女_玲七_v1.0.4.json', 'utf8'));
           if (c.data.character_version !== '1.0.4') throw new Error('wrong version');
-          if (c.data.description.includes('她显然并非常人')) throw new Error('old identity wording remains');
+          if (c.data.description.includes('她显然并非常人')) throw new Error('old description identity wording remains');
+          if (c.data.system_prompt.includes('霍女并非常人这一点可以成立')) throw new Error('old system nonhuman premise remains');
           if (!c.data.description.includes('究竟是人、异人、仙、神、精怪还是别的什么')) throw new Error('new identity wording missing');
+          if (!c.data.system_prompt.includes('不把“人/非人”本身先定为答案')) throw new Error('system human/nonhuman closure missing');
           if (!c.data.system_prompt.includes('身份与自知程度的未定义同样约束正文之外的思考、角色动机推演、幕后分析与注释')) throw new Error('layer closure missing');
           console.log('HUONV_V104_OK');
           NODE
