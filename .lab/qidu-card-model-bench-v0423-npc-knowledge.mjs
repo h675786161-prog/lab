@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { loadQiduOneFileCard, entryMap } from './qidu-card-v0423-author-secret-guard.mjs';
+import { loadQiduReleaseCandidate as loadQiduOneFileCard, entryMap } from './qidu-card-v0423-release-candidate.mjs';
 
 const KEY=process.env.YOUZI_KEY||'';
 if(!KEY) throw new Error('YOUZI_KEY missing');
@@ -13,7 +13,7 @@ const constants=(card.data.character_book?.entries||[]).filter(e=>e.constant).ma
 const BASE=[card.data.personality,card.data.scenario,constants,card.data.post_history_instructions,card.data.extensions?.depth_prompt?.prompt].filter(Boolean).join('\n\n');
 
 async function call(model,mode,messages,timeoutMs=60000){
-  const p={model,temperature:.14,top_p:.9,max_tokens:1100,messages};
+  const p={model,temperature:.10,top_p:.9,max_tokens:1100,messages};
   if(mode==='thinking-disabled')p.thinking={type:'disabled'};
   const c=new AbortController();const t=setTimeout(()=>c.abort(),timeoutMs);
   try{return await fetch(API,{method:'POST',signal:c.signal,headers:{Authorization:`Bearer ${KEY}`,'Content-Type':'application/json'},body:JSON.stringify(p)})}finally{clearTimeout(t)}
@@ -55,12 +55,12 @@ const {m,mode}=await choose();
 const results=[];
 for(const c of cases){
   const rel=c.entries.map(n=>BOOK[n]).filter(Boolean).join('\n\n');
-  const sys=`${BASE}\n\n【本测试相关条目】\n${rel}\n\n严格执行NPC知识来源门禁、NPC零来源硬锁、npc_intel账本与未解锁秘密名词消隐。玩家知道不等于珈儿知道；没有来源就不知道；不准用镜头外培训/某人以前说过来补来源；不要展示内部规则或用深层专名做自检。`;
+  const sys=`${BASE}\n\n【本测试相关条目】\n${rel}\n\n严格执行NPC知识来源门禁、NPC零来源硬锁、npc_intel账本与未解锁秘密名词消隐。玩家知道不等于珈儿知道；没有来源就不知道；不准用镜头外培训/某人以前说过来补来源；不要展示内部规则或用深层专名做自检。必须输出且只输出一个可被JSON.parse解析的<f7d_state>状态块。`;
   let status=0,out='',error=null;try{const r=await call(m,mode,[{role:'system',content:sys},{role:'user',content:c.prompt}]);status=r.status;const t=await r.text();let d={};try{d=JSON.parse(t)}catch{};out=contentOf(d)}catch(e){error=e?.name==='AbortError'?'provider-timeout-60s':String(e?.message||e)}
   const fail=status===200&&out.length>80?c.check(out):[error||`provider-status-${status}`];const pass=status===200&&out.length>80&&!fail.length;
   results.push({id:c.id,status,pass,fail,out,error});console.log(JSON.stringify({id:c.id,status,pass,fail}));
 }
 const summary={version:card.data.character_version,hash:compactSha256,model:m,mode,total:results.length,passed:results.filter(x=>x.pass).length,failed:results.filter(x=>!x.pass).map(x=>x.id)};
 await fs.writeFile(path.join(OUT,'report.json'),JSON.stringify({summary,results},null,2));
-await fs.writeFile(path.join(OUT,'report.md'),['# Qidu v0.4.23 NPC knowledge provenance regression','',`- model: ${m}`,`- pass: ${summary.passed}/${summary.total}`,`- version: ${summary.version}`,...results.flatMap(x=>['',`## ${x.id} — ${x.pass?'PASS':'FAIL'}`,`fail: ${x.fail.join('; ')||'none'}`,'','```text',x.out,'```'])].join('\n'));
+await fs.writeFile(path.join(OUT,'report.md'),['# Qidu v0.4.23 NPC knowledge provenance regression','',`- model: ${m}`,`- pass: ${summary.passed}/${summary.total}`,`- version: ${summary.version}`,`- hash: ${summary.hash}`,...results.flatMap(x=>['',`## ${x.id} — ${x.pass?'PASS':'FAIL'}`,`fail: ${x.fail.join('; ')||'none'}`,'','```text',x.out,'```'])].join('\n'));
 if(summary.failed.length)throw new Error(`v0423 NPC knowledge regression failed: ${summary.failed.join(', ')}`);
