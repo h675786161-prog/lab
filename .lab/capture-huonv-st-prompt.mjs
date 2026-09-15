@@ -77,9 +77,9 @@ try {
   const chars = page.locator('#rm_print_characters_block .character_select');
   await chars.first().waitFor({ state: 'attached', timeout: 30_000 });
   const target = chars.filter({ hasText: '霍女' }).first();
-  if (await target.count()) await target.click({ force: true });
-  else await chars.first().click({ force: true });
-  await page.waitForTimeout(2000);
+  if (await target.count()) await target.evaluate(el => el.click());
+  else await chars.first().evaluate(el => el.click());
+  await page.waitForTimeout(2500);
 
   const runtimeSettings = await page.evaluate(async () => {
     const $ = window.jQuery || window.$;
@@ -108,7 +108,7 @@ try {
   const textarea = page.locator('#send_textarea');
   await textarea.waitFor({ state: 'attached', timeout: 30_000 });
   await textarea.fill(prompt);
-  await page.locator('#send_but').click({ force: true });
+  await page.locator('#send_but').evaluate(el => el.click());
 
   await Promise.race([
     capturedPromise,
