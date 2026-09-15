@@ -1,4 +1,4 @@
-name: Probe Real ST Huo Nü v1.0.4 on GG 3 Flash
+name: Probe Real ST Huo Nü v1.0.4 on GG Pro
 
 on:
   workflow_dispatch:
@@ -18,14 +18,14 @@ concurrency:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     env:
       GG_KEY: ${{ secrets.GG }}
       API_URL: https://gcli.ggchan.dev/v1/chat/completions
-      PRIMARY_MODEL: gemini-3-flash-preview
+      PRIMARY_MODEL: gemini-3.1-pro-preview-nothinking
       CAPTURE_ARTIFACT_ID: '10384485253'
-      OUT_DIR: bench-evidence/huonv-v104-real-st-gg-3flash
-      MIN_INTERVAL_MS: '7000'
+      OUT_DIR: bench-evidence/huonv-v104-real-st-gg-pro
+      MIN_INTERVAL_MS: '31000'
       GITHUB_TOKEN: ${{ github.token }}
 
     steps:
@@ -55,18 +55,17 @@ jobs:
           const fs = require('fs');
           const req = JSON.parse(fs.readFileSync('/tmp/huonv-st-capture/st-captured-request.json', 'utf8'));
           const s = JSON.stringify(req);
-          const probes = [
+          for (const p of [
             '不把“人/非人”本身先定为答案',
             '身份与自知程度的未定义同样约束正文之外的思考、角色动机推演、幕后分析与注释',
             '分支点前若原作未交代，保持未定义。',
             '你是狐妖吧',
-          ];
-          for (const p of probes) if (!s.includes(p)) throw new Error(`captured ST request missing: ${p}`);
+          ]) if (!s.includes(p)) throw new Error(`captured ST request missing: ${p}`);
           if (!Array.isArray(req.messages) || req.messages.length < 40) throw new Error(`unexpected ST message count: ${req.messages?.length}`);
           console.log('REAL_ST_V104_CAPTURE_OK', { messages: req.messages.length, source_model: req.model, stream: req.stream });
           NODE
 
-      - name: Send real-ST assembled messages to GG 3 Flash
+      - name: Send same real-ST messages to GG Pro no-thinking
         shell: bash
         run: |
           set -euo pipefail
@@ -79,7 +78,6 @@ jobs:
           fs.mkdirSync(outDir, { recursive: true });
           const sleep = ms => new Promise(r => setTimeout(r, ms));
           const textOf = v => typeof v === 'string' ? v : Array.isArray(v) ? v.map(x => typeof x === 'string' ? x : (x?.text || '')).join('') : (v == null ? '' : String(v));
-
           const payload = {
             messages: src.messages,
             model: process.env.PRIMARY_MODEL,
@@ -94,8 +92,8 @@ jobs:
 
           let lastStart = 0;
           let final = null;
-          for (let attempt = 1; attempt <= 4; attempt++) {
-            const wait = Math.max(0, Number(process.env.MIN_INTERVAL_MS || 7000) - (Date.now() - lastStart));
+          for (let attempt = 1; attempt <= 2; attempt++) {
+            const wait = Math.max(0, Number(process.env.MIN_INTERVAL_MS || 31000) - (Date.now() - lastStart));
             if (wait) await sleep(wait);
             lastStart = Date.now();
             const started = Date.now();
@@ -109,25 +107,23 @@ jobs:
                   Authorization: `Bearer ${process.env.GG_KEY}`,
                   'Content-Type': 'application/json',
                   Accept: 'text/event-stream',
-                  'User-Agent': 'LingQi-HuoNv-RealST-GG/1.0',
+                  'User-Agent': 'LingQi-HuoNv-RealST-GG-Pro/1.0',
                 },
                 body: JSON.stringify(payload),
                 signal: controller.signal,
               });
               raw = await res.text();
-            } finally {
-              clearTimeout(timer);
-            }
+            } finally { clearTimeout(timer); }
             const ms = Date.now() - started;
             fs.writeFileSync(path.join(outDir, `raw-attempt${attempt}.txt`), raw);
             fs.writeFileSync(path.join(outDir, `raw-attempt${attempt}.meta.json`), JSON.stringify({ status: res.status, ms, headers: Object.fromEntries(res.headers.entries()), chars: raw.length }, null, 2));
 
             if ([429,500,502,503,524].includes(res.status)) {
               console.log(`attempt ${attempt}: HTTP ${res.status} after ${ms}ms`);
-              if (attempt < 4) { await sleep(7000); continue; }
-              throw new Error(`GG exhausted retries with HTTP ${res.status}`);
+              if (attempt < 2) continue;
+              throw new Error(`GG Pro exhausted retries with HTTP ${res.status}`);
             }
-            if (!res.ok) throw new Error(`GG HTTP ${res.status}: ${raw.slice(0,1000)}`);
+            if (!res.ok) throw new Error(`GG Pro HTTP ${res.status}: ${raw.slice(0,1000)}`);
 
             let content = '', reasoning = '', usage = null, responseModel = null;
             if (!raw.trim().startsWith('{')) {
@@ -150,34 +146,32 @@ jobs:
               usage = data?.usage || null;
               responseModel = data?.model || null;
             }
-
             const providerEmpty = /\"(?:code|type)\"\s*:\s*\"empty_response\"/.test(raw) || raw.includes('上游返回空响应') || (Number(usage?.completion_tokens ?? -1) === 0 && !content.trim());
             console.log(`attempt ${attempt}: HTTP 200 after ${ms}ms; chars=${content.length}; provider=${providerEmpty ? 'empty_response' : 'ok'}`);
             if (providerEmpty || !content.trim()) {
-              if (attempt < 4) { await sleep(7000); continue; }
-              throw new Error('GG exhausted retries with empty response');
+              if (attempt < 2) continue;
+              throw new Error('GG Pro exhausted retries with empty response');
             }
 
             const storyMatch = content.match(/<content>([\s\S]*?)<\/content>/i);
             const thinkingMatch = content.match(/<thinking>([\s\S]*?)<\/thinking>/i);
             const story = (storyMatch?.[1] || content).trim();
             const thinking = (thinkingMatch?.[1] || reasoning || '').trim();
-            const markers = ['我不是人','霍女不是人','她不是人','非人感','非人特质','法气','妖气','活了几百年','活了千年','人的一辈子','对她这种东西','甚至是非人的'];
+            const markers = ['我不是人','霍女不是人','她不是人','非人感','非人特质','法气','妖气','活了几百年','活了千年','人的一辈子','对她这种东西','甚至是非人的','穿墙','尾巴','狐妖'];
             const hits = Object.fromEntries(markers.map(x => [x, (content.match(new RegExp(x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length]).filter(([,n]) => n));
             final = { attempt, status: res.status, ms, model: responseModel || process.env.PRIMARY_MODEL, usage, content, thinking, story, identity_leak_markers: hits, source: 'real SillyTavern 8172dcd assembled messages' };
             break;
           }
-
-          if (!final) throw new Error('No conclusive GG output');
-          fs.writeFileSync(path.join(outDir, 'real-st-gg-3flash-result.json'), JSON.stringify(final, null, 2));
-          fs.writeFileSync(path.join(outDir, 'real-st-gg-3flash-full.txt'), final.content);
+          if (!final) throw new Error('No conclusive GG Pro output');
+          fs.writeFileSync(path.join(outDir, 'real-st-gg-pro-result.json'), JSON.stringify(final, null, 2));
+          fs.writeFileSync(path.join(outDir, 'real-st-gg-pro-full.txt'), final.content);
           console.log(JSON.stringify({ attempt: final.attempt, ms: final.ms, story_chars: final.story.length, thinking_chars: final.thinking.length, model: final.model, identity_leak_markers: final.identity_leak_markers }, null, 2));
           NODE
 
-      - name: Upload real-ST GG evidence
+      - name: Upload real-ST GG Pro evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: probe-huonv-v104-real-st-gg-3flash
-          path: bench-evidence/huonv-v104-real-st-gg-3flash/
+          name: probe-huonv-v104-real-st-gg-pro
+          path: bench-evidence/huonv-v104-real-st-gg-pro/
           if-no-files-found: error
