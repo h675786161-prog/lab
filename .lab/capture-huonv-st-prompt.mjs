@@ -34,11 +34,17 @@ await page.route('**/api/backends/chat-completions/generate', async route => {
 async function dismissFirstRunWelcome() {
   const welcome = page.getByText('Welcome to SillyTavern!', { exact: true });
   if (!(await welcome.isVisible().catch(() => false))) return false;
-  const visibleSave = page.locator('button:visible').filter({ hasText: /^Save$/ }).first();
-  if (!(await visibleSave.count())) throw new Error('First-run welcome is visible but Save button was not found');
-  await visibleSave.click({ force: true });
-  await page.waitForTimeout(1500);
-  return true;
+  const saves = page.getByText('Save', { exact: true });
+  const count = await saves.count();
+  for (let i = 0; i < count; i++) {
+    const candidate = saves.nth(i);
+    if (await candidate.isVisible().catch(() => false)) {
+      await candidate.click({ force: true });
+      await page.waitForTimeout(1500);
+      if (!(await welcome.isVisible().catch(() => false))) return true;
+    }
+  }
+  throw new Error(`First-run welcome is visible but no clickable visible Save text closed it; candidates=${count}`);
 }
 
 const report = { result: 'started', page_errors: pageErrors };
