@@ -122,7 +122,7 @@ async function call(history, id) {
     frequency_penalty: settings.frequency_penalty ?? 0,
     presence_penalty: settings.presence_penalty ?? 0,
     max_tokens: settings.openai_max_tokens ?? 30000,
-    stream: false,
+    stream: Boolean(settings.stream_openai ?? true),
   };
 
   for (let attempt = 1; attempt <= 2; attempt++) {
@@ -139,7 +139,7 @@ async function call(history, id) {
         headers: {
           Authorization: `Bearer ${KEY}`,
           'Content-Type': 'application/json',
-          Accept: 'application/json',
+          Accept: payload.stream ? 'text/event-stream' : 'application/json',
           'User-Agent': 'LingQi-HuoNv-Preset13-Lab/1.0',
         },
         body: JSON.stringify(payload),
@@ -151,16 +151,39 @@ async function call(history, id) {
     }
 
     const ms = Date.now() - started;
-    if ([429, 500, 502, 503].includes(res.status) && attempt === 1) {
-      console.log(`[${requestNo}] ${id}/${MODEL}: HTTP ${res.status}; backoff ${RETRY_MS}ms once`);
-      await sleep(RETRY_MS);
+    if ([429, 500, 502, 503, 524].includes(res.status) && attempt === 1) {
+      const backoff = res.status === 524 ? 125_000 : RETRY_MS;
+      console.log(`[${requestNo}] ${id}/${MODEL}: HTTP ${res.status}; backoff ${backoff}ms once`);
+      await sleep(backoff);
       continue;
     }
     if (!res.ok) throw new Error(`${id}/${MODEL} HTTP ${res.status}: ${raw.slice(0, 1200)}`);
 
     let data;
-    try { data = JSON.parse(raw); }
-    catch { throw new Error(`${id}/${MODEL} returned non-JSON: ${raw.slice(0, 1200)}`); }
+    if (payload.stream && !raw.trim().startsWith('{')) {
+      let content = '';
+      let reasoning = '';
+      let usage = null;
+      let responseModel = null;
+      for (const line of raw.split(/\r?\n/)) {
+        const t = line.trim();
+        if (!t.startsWith('data:')) continue;
+        const body = t.slice(5).trim();
+        if (!body || body === '[DONE]') continue;
+        let chunk;
+        try { chunk = JSON.parse(body); }
+        catch { continue; }
+        const delta = chunk?.choices?.[0]?.delta || {};
+        content += textOf(delta.content);
+        reasoning += textOf(delta.reasoning_content ?? delta.reasoning ?? '');
+        usage = chunk?.usage || usage;
+        responseModel = chunk?.model || responseModel;
+      }
+      data = { choices: [{ message: { content, reasoning_content: reasoning } }], usage, model: responseModel };
+    } else {
+      try { data = JSON.parse(raw); }
+      catch { throw new Error(`${id}/${MODEL} returned non-JSON: ${raw.slice(0, 1200)}`); }
+    }
 
     const msg = data?.choices?.[0]?.message || {};
     const full = textOf(msg.content).trim();
