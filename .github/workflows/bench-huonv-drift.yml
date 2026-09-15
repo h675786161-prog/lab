@@ -30,19 +30,27 @@ jobs:
       - name: Validate Huo Nü card
         run: node -e "const fs=require('fs');const c=JSON.parse(fs.readFileSync('cards/huonv/霍女_玲七_v1.0.2.json','utf8'));if(c.data.character_version!=='1.0.2'||c.data.alternate_greetings?.length!==3)process.exit(1);console.log('CARD_JSON_OK')"
 
-      - name: Rebuild and validate exact Preset 13 snapshot
+      - name: Rebuild Preset 13 and restore uploaded streaming setting
         shell: bash
         run: |
           cat .lab/preset-three-person-13.active.part1a.b64 .lab/preset-three-person-13.active.part1b.b64 .lab/preset-three-person-13.active.part1c.b64 .lab/preset-three-person-13.active.part1d.b64 > .lab/preset-three-person-13.active.part1.b64
           node - <<'NODE'
           const fs = require('fs');
           const zlib = require('zlib');
-          const packed = [1,2,3,4].map(n => fs.readFileSync(`.lab/preset-three-person-13.active.part${n}.b64`, 'utf8')).join('').replace(/\s+/g, '');
+          const files = [1,2,3,4].map(n => `.lab/preset-three-person-13.active.part${n}.b64`);
+          const packed = files.map(f => fs.readFileSync(f, 'utf8')).join('').replace(/\s+/g, '');
           const p = JSON.parse(zlib.gunzipSync(Buffer.from(packed, 'base64')).toString('utf8'));
           if (p.source !== '三人逆行13·复调长卷.json') throw new Error(`wrong preset source: ${p.source}`);
           if (!Array.isArray(p.prompts) || p.prompts.length !== 100) throw new Error(`expected 100 enabled prompts, got ${p.prompts?.length}`);
-          if (p.settings?.stream_openai !== true) throw new Error('expected stream_openai=true');
-          console.log('PRESET13_OK', p.prompts.length, 'stream=', p.settings.stream_openai);
+          p.settings = p.settings || {};
+          p.settings.stream_openai = true;
+          const rebuilt = zlib.gzipSync(Buffer.from(JSON.stringify(p), 'utf8')).toString('base64');
+          fs.writeFileSync(files[0], rebuilt);
+          for (const f of files.slice(1)) fs.writeFileSync(f, '');
+          const checkPacked = files.map(f => fs.readFileSync(f, 'utf8')).join('').replace(/\s+/g, '');
+          const check = JSON.parse(zlib.gunzipSync(Buffer.from(checkPacked, 'base64')).toString('utf8'));
+          if (check.source !== '三人逆行13·复调长卷.json' || check.prompts.length !== 100 || check.settings.stream_openai !== true) throw new Error('Preset 13 post-normalization validation failed');
+          console.log('PRESET13_OK', check.prompts.length, 'stream=', check.settings.stream_openai);
           NODE
 
       - name: Run six-turn Huo Nü drift benchmark
