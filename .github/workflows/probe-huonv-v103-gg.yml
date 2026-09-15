@@ -44,8 +44,8 @@ jobs:
           set -euo pipefail
           test -n "$GG_KEY"
           mkdir -p "$LAB_OUT"
-          node - <<'NODE'
-          const fs = require('fs');
+          node --input-type=module - <<'NODE'
+          import fs from 'node:fs';
           const endpoint = 'https://gcli.ggchan.dev/v1/models';
           const preferred = [
             'gemini-3.5-flash',
