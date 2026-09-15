@@ -48,11 +48,11 @@ jobs:
           import fs from 'node:fs';
           const endpoint = 'https://gcli.ggchan.dev/v1/models';
           const preferred = [
-            'gemini-3.5-flash',
+            'gemini-3.1-pro-preview-nothinking',
+            'gemini-2.5-pro-nothinking',
             'gemini-3-flash-preview',
             'gemini-3.1-pro-preview',
             'gemini-2.5-pro',
-            'gemini-2.5-flash',
           ];
           let status = null, ids = [], error = null;
           try {
@@ -70,14 +70,64 @@ jobs:
             error = `${e?.name || 'Error'}: ${e?.message || e}`;
           }
           let model = preferred.find(x => ids.includes(x));
-          if (!model) model = ids.find(x => /gemini/i.test(x) && /flash/i.test(x));
-          if (!model) model = 'gemini-3-flash-preview';
+          if (!model) model = ids.find(x => /gemini/i.test(x) && /nothinking/i.test(x));
+          if (!model) model = ids.find(x => /gemini/i.test(x));
+          if (!model) model = 'gemini-3.1-pro-preview-nothinking';
           fs.writeFileSync(`${process.env.LAB_OUT}/gg-model-discovery.json`, JSON.stringify({ endpoint, status, model_count_seen: ids.length, models: ids.slice(0, 120), selected_model: model, error }, null, 2));
           fs.appendFileSync(process.env.GITHUB_ENV, `PRIMARY_MODEL=${model}\n`);
           console.log(`GG_MODEL=${model}; status=${status}; models=${ids.length}`);
           NODE
 
       - name: Respect GG RPM 2 after model discovery
+        run: sleep 31
+
+      - name: Health probe selected GG model
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module - <<'NODE'
+          import fs from 'node:fs';
+          const started = Date.now();
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 60_000);
+          let report = { model: process.env.PRIMARY_MODEL, endpoint: process.env.API_URL };
+          try {
+            const r = await fetch(process.env.API_URL, {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${process.env.GG_KEY}`,
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'User-Agent': 'LingQi-HuoNv-GG-Probe/1.0',
+              },
+              body: JSON.stringify({
+                model: process.env.PRIMARY_MODEL,
+                messages: [{ role: 'user', content: '只回复 OK' }],
+                temperature: 0,
+                max_tokens: 16,
+                stream: false,
+              }),
+              signal: controller.signal,
+            });
+            const raw = await r.text();
+            let data = null;
+            try { data = JSON.parse(raw); } catch {}
+            const text = String(data?.choices?.[0]?.message?.content ?? data?.choices?.[0]?.text ?? '').trim();
+            report = { ...report, status: r.status, ok: r.ok, ms: Date.now() - started, response_chars: text.length, response_excerpt: text.slice(0, 120), error_excerpt: r.ok ? null : raw.slice(0, 500) };
+            fs.writeFileSync(`${process.env.LAB_OUT}/gg-health.json`, JSON.stringify(report, null, 2));
+            if (!r.ok) throw new Error(`GG health HTTP ${r.status}: ${raw.slice(0, 300)}`);
+            if (!text) throw new Error(`GG health returned no visible text: ${raw.slice(0, 300)}`);
+            console.log(`GG_HEALTH_OK model=${process.env.PRIMARY_MODEL} ms=${report.ms} text=${JSON.stringify(text.slice(0, 40))}`);
+          } catch (e) {
+            report = { ...report, ok: false, ms: Date.now() - started, error: `${e?.name || 'Error'}: ${e?.message || e}` };
+            fs.writeFileSync(`${process.env.LAB_OUT}/gg-health.json`, JSON.stringify(report, null, 2));
+            throw e;
+          } finally {
+            clearTimeout(timer);
+          }
+          NODE
+
+      - name: Respect GG RPM 2 after health probe
         run: sleep 31
 
       - name: Rebuild uploaded Preset 13 snapshot
