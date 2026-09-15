@@ -1,46 +1,63 @@
 name: Bench Huo Nü Persona Drift
 
 on:
-  pull_request:
-    paths:
-      - 'cards/huonv/**'
-      - '.lab/bench-huonv-drift-v2.mjs'
-      - '.github/workflows/bench-huonv-drift.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: gensoukyou-huonv-drift
+  group: huonv-drift-gensoukyou-rpm-safe
   cancel-in-progress: false
 
 jobs:
   drift:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       HUANXIANG_KEY: ${{ secrets.HUANXIANG }}
       LAB_OUT: bench-evidence/huonv-drift
       PRIMARY_MODEL: glm-5.3
-      CROSS_MODEL: deepseek-v4-flash-0731
       MIN_INTERVAL_MS: '17000'
     steps:
       - uses: actions/checkout@v4
 
-      - name: Prepare evidence directory
+      - name: Validate Huo Nü card
+        run: node -e "const fs=require('fs');const c=JSON.parse(fs.readFileSync('cards/huonv/霍女_玲七_v1.0.2.json','utf8'));if(c.data.character_version!=='1.0.2'||c.data.alternate_greetings?.length!==3)process.exit(1);console.log('CARD_JSON_OK')"
+
+      - name: Rebuild Preset 13 and restore uploaded streaming setting
         shell: bash
         run: |
-          set -euo pipefail
-          mkdir -p "$LAB_OUT"
-          printf '{"status":"started","rate_limit":"serial_17s","max_theoretical_rpm":3.53,"benchmark":"v2"}\n' > "$LAB_OUT/run-start.json"
+          cat .lab/preset-three-person-13.active.part1a.b64 .lab/preset-three-person-13.active.part1b.b64 .lab/preset-three-person-13.active.part1c.b64 .lab/preset-three-person-13.active.part1d.b64 > .lab/preset-three-person-13.active.part1.b64
+          node - <<'NODE'
+          const fs = require('fs');
+          const zlib = require('zlib');
+          const files = [1,2,3,4].map(n => `.lab/preset-three-person-13.active.part${n}.b64`);
+          const packed = files.map(f => fs.readFileSync(f, 'utf8')).join('').replace(/\s+/g, '');
+          const p = JSON.parse(zlib.gunzipSync(Buffer.from(packed, 'base64')).toString('utf8'));
+          if (p.source !== '三人逆行13·复调长卷.json') throw new Error(`wrong preset source: ${p.source}`);
+          if (!Array.isArray(p.prompts) || p.prompts.length !== 100) throw new Error(`expected 100 enabled prompts, got ${p.prompts?.length}`);
+          p.settings = p.settings || {};
+          p.settings.stream_openai = true;
+          const rebuilt = zlib.gzipSync(Buffer.from(JSON.stringify(p), 'utf8')).toString('base64');
+          fs.writeFileSync(files[0], rebuilt);
+          for (const f of files.slice(1)) fs.writeFileSync(f, '');
+          const checkPacked = files.map(f => fs.readFileSync(f, 'utf8')).join('').replace(/\s+/g, '');
+          const check = JSON.parse(zlib.gunzipSync(Buffer.from(checkPacked, 'base64')).toString('utf8'));
+          if (check.source !== '三人逆行13·复调长卷.json' || check.prompts.length !== 100 || check.settings.stream_openai !== true) throw new Error('Preset 13 post-normalization validation failed');
+          console.log('PRESET13_OK', check.prompts.length, 'stream=', check.settings.stream_openai);
+          NODE
 
-      - name: Run Huo Nü persona drift benchmark v2
+      - name: Harden benchmark diagnostics
+        run: node .lab/prepare-huonv-bench.mjs .lab/bench-huonv-drift-v2.mjs
+
+      - name: Run six-turn Huo Nü drift benchmark
         run: node .lab/bench-huonv-drift-v2.mjs
 
       - name: Upload benchmark evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: bench-huonv-drift
+          name: bench-huonv-preset13
           path: bench-evidence/huonv-drift/
           if-no-files-found: error

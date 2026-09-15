@@ -1,0 +1,131 @@
+name: Huo Nü Real ST Prompt Capture
+
+on:
+  pull_request:
+    paths:
+      - 'cards/huonv/**'
+      - '.lab/rebuild-preset13-for-st.mjs'
+      - '.lab/capture-huonv-st-prompt.mjs'
+      - '.lab/preset-three-person-13.active.part*.b64'
+      - '.github/workflows/huonv-real-st-prompt.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ST_DIR: /tmp/lingqi-huonv-st
+      BROWSER_DIR: /tmp/lingqi-huonv-browser
+      LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence/huonv-st-prompt
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      CARD_PATH: cards/huonv/霍女_玲七_v1.0.5.json
+      PRESET_PATH: /tmp/三人逆行13_核心启用项_ST.json
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rebuild base-ST generation-equivalent active preset
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          node .lab/rebuild-preset13-for-st.mjs "$PRESET_PATH" | tee "$LAB_EVIDENCE_DIR/preset-rebuild.txt"
+          node -e "const p=require(process.env.PRESET_PATH); if(p.prompts.length!==100||p.stream_openai!==true)process.exit(1); console.log('ACTIVE_PRESET_OK')"
+
+      - name: Clone exact SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$ST_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+          echo "$ST_COMMIT" > "$LAB_EVIDENCE_DIR/sillytavern-commit.txt"
+
+      - name: Install SillyTavern dependencies
+        working-directory: /tmp/lingqi-huonv-st
+        run: npm ci
+
+      - name: Start isolated SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8000 --disableCsrf > "$LAB_EVIDENCE_DIR/sillytavern-runtime.log" 2>&1 &
+          echo $! > /tmp/lingqi-huonv-st.pid
+          for i in $(seq 1 90); do
+            if curl -fsS --max-time 2 http://127.0.0.1:8000/ >/dev/null 2>&1; then exit 0; fi
+            if ! kill -0 "$(cat /tmp/lingqi-huonv-st.pid)" 2>/dev/null; then cat "$LAB_EVIDENCE_DIR/sillytavern-runtime.log"; exit 1; fi
+            sleep 1
+          done
+          exit 1
+
+      - name: Prepare browser
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$BROWSER_DIR"
+          mkdir -p "$BROWSER_DIR"
+          cd "$BROWSER_DIR"
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          echo "LAB_CHROME=$CHROME_BIN" >> "$GITHUB_ENV"
+          echo "LAB_PLAYWRIGHT_CORE_ENTRY=file://$BROWSER_DIR/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
+
+      - name: Capture v1.0.5 request assembled by real SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          export CARD_ABS="$GITHUB_WORKSPACE/$CARD_PATH"
+          export PRESET_ABS="$PRESET_PATH"
+          cp .lab/capture-huonv-st-prompt.mjs /tmp/capture-huonv-v105-st-prompt.mjs
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('/tmp/capture-huonv-v105-st-prompt.mjs')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace('1.0.3', '1.0.5')
+          p.write_text(s, encoding='utf-8')
+          PY
+          node /tmp/capture-huonv-v105-st-prompt.mjs
+
+      - name: Verify v1.0.5 identity and observable-result rules reached final ST payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('fs');
+          const req = JSON.parse(fs.readFileSync(`${process.env.LAB_EVIDENCE_DIR}/st-captured-request.json`, 'utf8'));
+          const s = JSON.stringify(req);
+          const probes = [
+            '不把“人/非人”本身先定为答案',
+            '身份与自知程度的未定义同样约束正文之外的思考、角色动机推演、幕后分析与注释',
+            '异常只写角色能够观察到的结果与由此产生的猜测，不从结果反推机制',
+            '写到可观察结果即可，不解释她如何做到',
+            '猜测还是猜测，别拿来替我认账。',
+            '分支点前若原作未交代，保持未定义。',
+            '你是狐妖吧',
+          ];
+          for (const probe of probes) if (!s.includes(probe)) throw new Error(`final ST payload missing probe: ${probe}`);
+          console.log('HUONV_V105_REAL_ST_PAYLOAD_OK', { messages: req.messages?.length, model: req.model, stream: req.stream });
+          NODE
+
+      - name: Stop isolated runtime
+        if: always()
+        shell: bash
+        run: |
+          if [ -f /tmp/lingqi-huonv-st.pid ]; then kill "$(cat /tmp/lingqi-huonv-st.pid)" 2>/dev/null || true; fi
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: huonv-real-st-prompt
+          path: lab-evidence/huonv-st-prompt/
+          if-no-files-found: error
