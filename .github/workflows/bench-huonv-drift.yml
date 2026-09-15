@@ -1,12 +1,7 @@
 name: Bench Huo Nü Persona Drift
 
 on:
-  pull_request:
-    paths:
-      - 'cards/huonv/**'
-      - '.lab/bench-huonv-drift-v2.mjs'
-      - '.lab/preset-three-person-13.active.part*.b64'
-      - '.github/workflows/bench-huonv-drift.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
