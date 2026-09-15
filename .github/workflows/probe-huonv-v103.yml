@@ -20,7 +20,7 @@ jobs:
     env:
       HUANXIANG_KEY: ${{ secrets.HUANXIANG }}
       LAB_OUT: bench-evidence/huonv-v103-candidate
-      PRIMARY_MODEL: glm-5.3
+      PRIMARY_MODEL: deepseek-v4-flash-0731
       MIN_INTERVAL_MS: '17000'
       CARD_PATH: cards/huonv/霍女_玲七_v1.0.3.json
       CASE_FILTER: P6_love_identity_and_departure
@@ -76,7 +76,7 @@ jobs:
           Path('/tmp/bench-huonv-targeted.mjs').write_text(src, encoding='utf-8')
           PY
 
-      - name: Probe P6 love identity and departure
+      - name: Cross-check P6 canon closure on DeepSeek
         run: node /tmp/bench-huonv-targeted.mjs
 
       - name: Upload probe evidence
