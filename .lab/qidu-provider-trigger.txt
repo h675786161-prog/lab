@@ -1,0 +1,2 @@
+run=1
+reason=diagnose narrative-gate provider outage after repeated no-usable-model failures while real SillyTavern browser acceptance passes
