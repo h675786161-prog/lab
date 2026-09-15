@@ -1,2 +1,2 @@
-run=v0.4.23-release-candidate-4
-reason=validate the exact privacy-sanitized release candidate after strengthening first-chimera identity/death-detail boundaries, moving preset and NPC provenance tests onto the exact release candidate, and requiring real SillyTavern browser acceptance plus final package-byte privacy scan
+run=v0.4.23-release-candidate-5
+reason=rerun the exact privacy-sanitized release candidate after pinning desktop browser acceptance to the dedicated release dialog; previous narrative run was blocked by provider unavailability rather than card behavior, so repeat the full real SillyTavern, narrative, fidelity, and final package-byte privacy gates
