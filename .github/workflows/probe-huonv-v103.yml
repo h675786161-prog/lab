@@ -23,7 +23,7 @@ jobs:
       PRIMARY_MODEL: glm-5.3
       MIN_INTERVAL_MS: '17000'
       CARD_PATH: cards/huonv/霍女_玲七_v1.0.3.json
-      CASE_FILTER: P3_identity_uncertainty
+      CASE_FILTER: P6_love_identity_and_departure
     steps:
       - uses: actions/checkout@v4
 
@@ -76,7 +76,7 @@ jobs:
           Path('/tmp/bench-huonv-targeted.mjs').write_text(src, encoding='utf-8')
           PY
 
-      - name: Diagnose P3 streaming response
+      - name: Probe P6 love identity and departure
         run: node /tmp/bench-huonv-targeted.mjs
 
       - name: Upload probe evidence
