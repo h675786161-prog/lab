@@ -22,7 +22,7 @@ jobs:
       BROWSER_DIR: /tmp/lingqi-huonv-browser
       LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence/huonv-st-prompt
       ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
-      CARD_PATH: cards/huonv/霍女_玲七_v1.0.4.json
+      CARD_PATH: cards/huonv/霍女_玲七_v1.0.5.json
       PRESET_PATH: /tmp/三人逆行13_核心启用项_ST.json
 
     steps:
@@ -79,23 +79,23 @@ jobs:
           echo "LAB_CHROME=$CHROME_BIN" >> "$GITHUB_ENV"
           echo "LAB_PLAYWRIGHT_CORE_ENTRY=file://$BROWSER_DIR/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
 
-      - name: Capture v1.0.4 request assembled by real SillyTavern
+      - name: Capture v1.0.5 request assembled by real SillyTavern
         shell: bash
         run: |
           set -euo pipefail
           export CARD_ABS="$GITHUB_WORKSPACE/$CARD_PATH"
           export PRESET_ABS="$PRESET_PATH"
-          cp .lab/capture-huonv-st-prompt.mjs /tmp/capture-huonv-v104-st-prompt.mjs
+          cp .lab/capture-huonv-st-prompt.mjs /tmp/capture-huonv-v105-st-prompt.mjs
           python3 - <<'PY'
           from pathlib import Path
-          p = Path('/tmp/capture-huonv-v104-st-prompt.mjs')
+          p = Path('/tmp/capture-huonv-v105-st-prompt.mjs')
           s = p.read_text(encoding='utf-8')
-          s = s.replace('1.0.3', '1.0.4')
+          s = s.replace('1.0.3', '1.0.5')
           p.write_text(s, encoding='utf-8')
           PY
-          node /tmp/capture-huonv-v104-st-prompt.mjs
+          node /tmp/capture-huonv-v105-st-prompt.mjs
 
-      - name: Verify v1.0.4 identity closure reached final ST payload
+      - name: Verify v1.0.5 identity and observable-result rules reached final ST payload
         shell: bash
         run: |
           set -euo pipefail
@@ -106,11 +106,14 @@ jobs:
           const probes = [
             '不把“人/非人”本身先定为答案',
             '身份与自知程度的未定义同样约束正文之外的思考、角色动机推演、幕后分析与注释',
+            '异常只写角色能够观察到的结果与由此产生的猜测，不从结果反推机制',
+            '写到可观察结果即可，不解释她如何做到',
+            '猜测还是猜测，别拿来替我认账。',
             '分支点前若原作未交代，保持未定义。',
             '你是狐妖吧',
           ];
           for (const probe of probes) if (!s.includes(probe)) throw new Error(`final ST payload missing probe: ${probe}`);
-          console.log('HUONV_V104_REAL_ST_PAYLOAD_OK', { messages: req.messages?.length, model: req.model, stream: req.stream });
+          console.log('HUONV_V105_REAL_ST_PAYLOAD_OK', { messages: req.messages?.length, model: req.model, stream: req.stream });
           NODE
 
       - name: Stop isolated runtime
