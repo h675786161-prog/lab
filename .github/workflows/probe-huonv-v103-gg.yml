@@ -1,4 +1,4 @@
-name: Probe Huo Nü v1.0.4 P6 on GG 3 Flash
+name: Probe Real ST Huo Nü v1.0.4 on GG 3 Flash
 
 on:
   workflow_dispatch:
@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: huonv-gg-rpm-safe
@@ -22,93 +23,161 @@ jobs:
       GG_KEY: ${{ secrets.GG }}
       API_URL: https://gcli.ggchan.dev/v1/chat/completions
       PRIMARY_MODEL: gemini-3-flash-preview
-      LAB_OUT: bench-evidence/huonv-v104-gg-3flash-p6
-      CARD_PATH: cards/huonv/霍女_玲七_v1.0.4.json
-      CASE_FILTER: P6_love_identity_and_departure
+      CAPTURE_ARTIFACT_ID: '10384485253'
+      OUT_DIR: bench-evidence/huonv-v104-real-st-gg-3flash
       MIN_INTERVAL_MS: '7000'
+      GITHUB_TOKEN: ${{ github.token }}
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Validate v1.0.4 card
+      - name: Download validated real-ST v1.0.4 capture
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/huonv-st-capture "$OUT_DIR"
+          curl -fsSL \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$CAPTURE_ARTIFACT_ID/zip" \
+            -o /tmp/huonv-st-capture.zip
+          unzip -q /tmp/huonv-st-capture.zip -d /tmp/huonv-st-capture
+          test -f /tmp/huonv-st-capture/st-captured-request.json
+          cp /tmp/huonv-st-capture/st-captured-request.json "$OUT_DIR/st-captured-request.json"
+          cp /tmp/huonv-st-capture/st-prompt-capture-report.json "$OUT_DIR/st-prompt-capture-report.json"
+
+      - name: Verify captured request is Huo Nü v1.0.4 identity probe
         run: |
           set -euo pipefail
           test -n "$GG_KEY"
           node - <<'NODE'
           const fs = require('fs');
-          const c = JSON.parse(fs.readFileSync(process.env.CARD_PATH, 'utf8'));
-          if (c.data.character_version !== '1.0.4') throw new Error(`expected v1.0.4, got ${c.data.character_version}`);
-          if (c.data.description.includes('她显然并非常人')) throw new Error('old description nonhuman premise remains');
-          if (c.data.system_prompt.includes('霍女并非常人这一点可以成立')) throw new Error('old system nonhuman premise remains');
-          if (!c.data.system_prompt.includes('不把“人/非人”本身先定为答案')) throw new Error('human/nonhuman closure missing');
-          if (!c.data.system_prompt.includes('身份与自知程度的未定义同样约束正文之外的思考、角色动机推演、幕后分析与注释')) throw new Error('thinking-layer closure missing');
-          if (!c.data.system_prompt.includes('分支点前若原作未交代，保持未定义。')) throw new Error('canon closure missing');
-          console.log('HUONV_V104_OK');
+          const req = JSON.parse(fs.readFileSync('/tmp/huonv-st-capture/st-captured-request.json', 'utf8'));
+          const s = JSON.stringify(req);
+          const probes = [
+            '不把“人/非人”本身先定为答案',
+            '身份与自知程度的未定义同样约束正文之外的思考、角色动机推演、幕后分析与注释',
+            '分支点前若原作未交代，保持未定义。',
+            '你是狐妖吧',
+          ];
+          for (const p of probes) if (!s.includes(p)) throw new Error(`captured ST request missing: ${p}`);
+          if (!Array.isArray(req.messages) || req.messages.length < 40) throw new Error(`unexpected ST message count: ${req.messages?.length}`);
+          console.log('REAL_ST_V104_CAPTURE_OK', { messages: req.messages.length, source_model: req.model, stream: req.stream });
           NODE
 
-      - name: Rebuild uploaded Preset 13 snapshot
+      - name: Send real-ST assembled messages to GG 3 Flash
         shell: bash
         run: |
           set -euo pipefail
-          cat .lab/preset-three-person-13.active.part1a.b64 .lab/preset-three-person-13.active.part1b.b64 .lab/preset-three-person-13.active.part1c.b64 .lab/preset-three-person-13.active.part1d.b64 > .lab/preset-three-person-13.active.part1.b64
-          node - <<'NODE'
-          const fs = require('fs');
-          const zlib = require('zlib');
-          const files = [1,2,3,4].map(n => `.lab/preset-three-person-13.active.part${n}.b64`);
-          const packed = files.map(f => fs.readFileSync(f, 'utf8')).join('').replace(/\s+/g, '');
-          const p = JSON.parse(zlib.gunzipSync(Buffer.from(packed, 'base64')).toString('utf8'));
-          if (p.source !== '三人逆行13·复调长卷.json') throw new Error(`wrong preset source: ${p.source}`);
-          if (!Array.isArray(p.prompts) || p.prompts.length !== 100) throw new Error(`expected 100 enabled prompts, got ${p.prompts?.length}`);
-          p.settings = p.settings || {};
-          p.settings.stream_openai = true;
-          const rebuilt = zlib.gzipSync(Buffer.from(JSON.stringify(p), 'utf8')).toString('base64');
-          fs.writeFileSync(files[0], rebuilt);
-          for (const f of files.slice(1)) fs.writeFileSync(f, '');
-          console.log('PRESET13_OK', p.prompts.length, 'stream=', p.settings.stream_openai);
+          node --input-type=module - <<'NODE'
+          import fs from 'node:fs';
+          import path from 'node:path';
+
+          const src = JSON.parse(fs.readFileSync('/tmp/huonv-st-capture/st-captured-request.json', 'utf8'));
+          const outDir = process.env.OUT_DIR;
+          fs.mkdirSync(outDir, { recursive: true });
+          const sleep = ms => new Promise(r => setTimeout(r, ms));
+          const textOf = v => typeof v === 'string' ? v : Array.isArray(v) ? v.map(x => typeof x === 'string' ? x : (x?.text || '')).join('') : (v == null ? '' : String(v));
+
+          const payload = {
+            messages: src.messages,
+            model: process.env.PRIMARY_MODEL,
+            temperature: src.temperature ?? 1,
+            frequency_penalty: src.frequency_penalty ?? 0,
+            presence_penalty: src.presence_penalty ?? 0,
+            top_p: src.top_p ?? 0.98,
+            max_tokens: src.max_tokens ?? 30000,
+            stream: true,
+          };
+          fs.writeFileSync(path.join(outDir, 'gg-provider-request.json'), JSON.stringify(payload, null, 2));
+
+          let lastStart = 0;
+          let final = null;
+          for (let attempt = 1; attempt <= 4; attempt++) {
+            const wait = Math.max(0, Number(process.env.MIN_INTERVAL_MS || 7000) - (Date.now() - lastStart));
+            if (wait) await sleep(wait);
+            lastStart = Date.now();
+            const started = Date.now();
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 300000);
+            let res, raw = '';
+            try {
+              res = await fetch(process.env.API_URL, {
+                method: 'POST',
+                headers: {
+                  Authorization: `Bearer ${process.env.GG_KEY}`,
+                  'Content-Type': 'application/json',
+                  Accept: 'text/event-stream',
+                  'User-Agent': 'LingQi-HuoNv-RealST-GG/1.0',
+                },
+                body: JSON.stringify(payload),
+                signal: controller.signal,
+              });
+              raw = await res.text();
+            } finally {
+              clearTimeout(timer);
+            }
+            const ms = Date.now() - started;
+            fs.writeFileSync(path.join(outDir, `raw-attempt${attempt}.txt`), raw);
+            fs.writeFileSync(path.join(outDir, `raw-attempt${attempt}.meta.json`), JSON.stringify({ status: res.status, ms, headers: Object.fromEntries(res.headers.entries()), chars: raw.length }, null, 2));
+
+            if ([429,500,502,503,524].includes(res.status)) {
+              console.log(`attempt ${attempt}: HTTP ${res.status} after ${ms}ms`);
+              if (attempt < 4) { await sleep(7000); continue; }
+              throw new Error(`GG exhausted retries with HTTP ${res.status}`);
+            }
+            if (!res.ok) throw new Error(`GG HTTP ${res.status}: ${raw.slice(0,1000)}`);
+
+            let content = '', reasoning = '', usage = null, responseModel = null;
+            if (!raw.trim().startsWith('{')) {
+              for (const line of raw.split(/\r?\n/)) {
+                const t = line.trim();
+                if (!t.startsWith('data:')) continue;
+                const body = t.slice(5).trim();
+                if (!body || body === '[DONE]') continue;
+                let chunk; try { chunk = JSON.parse(body); } catch { continue; }
+                const delta = chunk?.choices?.[0]?.delta || {};
+                content += textOf(delta.content);
+                reasoning += textOf(delta.reasoning_content ?? delta.reasoning ?? '');
+                usage = chunk?.usage || usage;
+                responseModel = chunk?.model || responseModel;
+              }
+            } else {
+              const data = JSON.parse(raw);
+              content = textOf(data?.choices?.[0]?.message?.content ?? data?.choices?.[0]?.text ?? '');
+              reasoning = textOf(data?.choices?.[0]?.message?.reasoning_content ?? data?.choices?.[0]?.message?.reasoning ?? '');
+              usage = data?.usage || null;
+              responseModel = data?.model || null;
+            }
+
+            const providerEmpty = /\"(?:code|type)\"\s*:\s*\"empty_response\"/.test(raw) || raw.includes('上游返回空响应') || (Number(usage?.completion_tokens ?? -1) === 0 && !content.trim());
+            console.log(`attempt ${attempt}: HTTP 200 after ${ms}ms; chars=${content.length}; provider=${providerEmpty ? 'empty_response' : 'ok'}`);
+            if (providerEmpty || !content.trim()) {
+              if (attempt < 4) { await sleep(7000); continue; }
+              throw new Error('GG exhausted retries with empty response');
+            }
+
+            const storyMatch = content.match(/<content>([\s\S]*?)<\/content>/i);
+            const thinkingMatch = content.match(/<thinking>([\s\S]*?)<\/thinking>/i);
+            const story = (storyMatch?.[1] || content).trim();
+            const thinking = (thinkingMatch?.[1] || reasoning || '').trim();
+            const markers = ['我不是人','霍女不是人','她不是人','非人感','非人特质','法气','妖气','活了几百年','活了千年','人的一辈子','对她这种东西','甚至是非人的'];
+            const hits = Object.fromEntries(markers.map(x => [x, (content.match(new RegExp(x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length]).filter(([,n]) => n));
+            final = { attempt, status: res.status, ms, model: responseModel || process.env.PRIMARY_MODEL, usage, content, thinking, story, identity_leak_markers: hits, source: 'real SillyTavern 8172dcd assembled messages' };
+            break;
+          }
+
+          if (!final) throw new Error('No conclusive GG output');
+          fs.writeFileSync(path.join(outDir, 'real-st-gg-3flash-result.json'), JSON.stringify(final, null, 2));
+          fs.writeFileSync(path.join(outDir, 'real-st-gg-3flash-full.txt'), final.content);
+          console.log(JSON.stringify({ attempt: final.attempt, ms: final.ms, story_chars: final.story.length, thinking_chars: final.thinking.length, model: final.model, identity_leak_markers: final.identity_leak_markers }, null, 2));
           NODE
 
-      - name: Prepare GG 3 Flash P6 harness
-        shell: bash
-        run: |
-          set -euo pipefail
-          cp .lab/bench-huonv-drift-v2.mjs /tmp/bench-huonv-gg.mjs
-          node .lab/prepare-huonv-bench.mjs /tmp/bench-huonv-gg.mjs
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path('/tmp/bench-huonv-gg.mjs')
-          s = p.read_text(encoding='utf-8')
-          pairs = [
-              ("const API = 'https://gensoukyou.xyz/v1/chat/completions';", "const API = process.env.API_URL || 'https://gcli.ggchan.dev/v1/chat/completions';"),
-              ("const KEY = process.env.HUANXIANG_KEY || '';", "const KEY = process.env.GG_KEY || '';"),
-              ("if (!KEY) throw new Error('HUANXIANG_KEY is missing');", "if (!KEY) throw new Error('GG_KEY is missing');"),
-              ("const MIN_INTERVAL_MS = Math.max(12_000, Number(process.env.MIN_INTERVAL_MS || 17_000));", "const MIN_INTERVAL_MS = Math.max(6_500, Number(process.env.MIN_INTERVAL_MS || 7_000));"),
-              ("for (let attempt = 1; attempt <= 2; attempt++) {", "for (let attempt = 1; attempt <= 4; attempt++) {"),
-              ("if ([429, 500, 502, 503, 524].includes(res.status) && attempt === 1) {", "if ([429, 500, 502, 503, 524].includes(res.status) && attempt < 4) {"),
-              ("const backoff = res.status === 524 ? 125_000 : RETRY_MS;", "const backoff = res.status === 524 ? 7000 : RETRY_MS;"),
-              ("    user_rpm_ceiling: 5,", "    user_rpm_ceiling: 10,"),
-              ("hard ceiling 5 RPM", "hard ceiling 10 RPM"),
-          ]
-          for old, new in pairs:
-              if old not in s:
-                  raise SystemExit(f'GG harness anchor missing: {old}')
-              s = s.replace(old, new, 1)
-
-          retry_anchor = "    console.log(`[${requestNo}] ${id}/${MODEL}: HTTP ${res.status}; full=${full.length}; story=${story.length}; provider=${providerError || 'ok'}; ${ms}ms`);"
-          retry_block = retry_anchor + "\n    if (providerError && attempt < 4) {\n      console.log(`[${requestNo}] ${id}/${MODEL}: provider ${providerError}; backoff 7000ms and retry`);\n      await sleep(7000);\n      continue;\n    }"
-          if retry_anchor not in s:
-              raise SystemExit('GG provider-empty retry anchor missing')
-          s = s.replace(retry_anchor, retry_block, 1)
-          p.write_text(s, encoding='utf-8')
-          PY
-          node --check /tmp/bench-huonv-gg.mjs
-
-      - name: Run GG 3 Flash P6 probe
-        run: node /tmp/bench-huonv-gg.mjs
-
-      - name: Upload GG 3 Flash evidence
+      - name: Upload real-ST GG evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: probe-huonv-v104-gg-3flash-p6
-          path: bench-evidence/huonv-v104-gg-3flash-p6/
+          name: probe-huonv-v104-real-st-gg-3flash
+          path: bench-evidence/huonv-v104-real-st-gg-3flash/
           if-no-files-found: error
