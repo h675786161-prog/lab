@@ -23,7 +23,7 @@ jobs:
       PRIMARY_MODEL: glm-5.3
       MIN_INTERVAL_MS: '17000'
       CARD_PATH: cards/huonv/霍女_玲七_v1.0.3.json
-      CASE_FILTER: P3_identity_uncertainty,P6_love_identity_and_departure
+      CASE_FILTER: P3_identity_uncertainty
     steps:
       - uses: actions/checkout@v4
 
@@ -52,7 +52,7 @@ jobs:
           console.log('PRESET13_OK', p.prompts.length, 'stream=', p.settings.stream_openai);
           NODE
 
-      - name: Prepare targeted benchmark harness
+      - name: Prepare targeted benchmark harness with raw capture
         shell: bash
         run: |
           python3 - <<'PY'
@@ -68,10 +68,15 @@ jobs:
           if old_loop not in src:
               raise SystemExit('turn loop anchor missing')
           src = src.replace(old_loop, new_loop, 1)
+          raw_anchor = "raw = await res.text();"
+          raw_capture = "raw = await res.text();\n      await fs.writeFile(path.join(OUT, `raw-${id}-attempt${attempt}.txt`), raw, 'utf8');\n      await fs.writeFile(path.join(OUT, `raw-${id}-attempt${attempt}.meta.json`), JSON.stringify({ status: res.status, headers: Object.fromEntries(res.headers.entries()), chars: raw.length, starts_with: raw.slice(0, 300) }, null, 2), 'utf8');"
+          if raw_anchor not in src:
+              raise SystemExit('raw response anchor missing')
+          src = src.replace(raw_anchor, raw_capture, 1)
           Path('/tmp/bench-huonv-targeted.mjs').write_text(src, encoding='utf-8')
           PY
 
-      - name: Run P3 and P6 only
+      - name: Diagnose P3 streaming response
         run: node /tmp/bench-huonv-targeted.mjs
 
       - name: Upload probe evidence
