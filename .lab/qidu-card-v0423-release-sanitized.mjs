@@ -3,7 +3,7 @@ import { loadQiduOneFileCard as loadV0423Card, entryMap } from './qidu-card-v042
 
 export const ONEFILE_VERSION = '0.4.23';
 export const RELEASE_CREATOR = '叶罹';
-export const RELEASE_CREATOR_NOTES = '《永远的7日之都》七日轮回文本互动角色卡。';
+export const RELEASE_CREATOR_NOTES = '作者：叶罹。相关卡：《永远的7日之都》七日轮回文本互动。原作向文本互动角色卡，以七日轮回为核心，包含区域巡查、角色剧情、战术终端、状态记录与多结局分支。';
 export const RELEASE_BOOK_DESCRIPTION = '《永远的7日之都》七日轮回文本互动世界书。';
 
 const FORBIDDEN_RELEASE_PROVENANCE = [
@@ -31,7 +31,7 @@ function sanitizeReleaseMetadata(card){
   card.data.character_version = ONEFILE_VERSION;
   card.data.creator = RELEASE_CREATOR;
   card.data.creator_notes = RELEASE_CREATOR_NOTES;
-  card.creatorcomment = `${RELEASE_CREATOR_NOTES}作者：${RELEASE_CREATOR}。`;
+  card.creatorcomment = RELEASE_CREATOR_NOTES;
   if(Object.prototype.hasOwnProperty.call(card,'creator')) card.creator = RELEASE_CREATOR;
 
   // Creation timestamps and development provenance are not needed by the distributable card.
