@@ -1,2 +1,2 @@
-run=1
-reason=exact candidate with minimal author note, passive-terminal hardening, resilient transient provider retry, real SillyTavern browser acceptance, and final byte-level privacy scan before packaging
+run=2
+reason=exact candidate after semantic-equivalent detector fixes and stricter first-chimera provenance guard; rerun full narrative gate, real SillyTavern browser acceptance, package, SHA256, and final byte-level privacy scan
