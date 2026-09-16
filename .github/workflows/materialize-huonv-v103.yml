@@ -1,0 +1,26 @@
+name: Materialize Huo Nü v1.0.3
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify committed v1.0.3
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = 'cards/huonv/霍女_玲七_v1.0.3.json';
+          const c = JSON.parse(fs.readFileSync(path, 'utf8'));
+          if (c.spec !== 'chara_card_v2') throw new Error('wrong spec');
+          if (c.data.character_version !== '1.0.3') throw new Error('wrong version');
+          if (!c.data.system_prompt.includes('分支点前若原作未交代，保持未定义。')) throw new Error('canon-closure rule missing');
+          console.log('HUONV_V103_ALREADY_MATERIALIZED');
+          NODE
