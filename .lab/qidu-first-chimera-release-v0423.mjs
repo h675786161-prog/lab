@@ -1,15 +1,16 @@
 import { loadQiduReleaseCandidate, entryMap } from './qidu-card-v0423-release-candidate.mjs';
 
-const KEY=process.env.YOUZI_KEY||'';
-if(!KEY) throw new Error('YOUZI_KEY missing');
-const API='https://youzi.today/v1/chat/completions';
+const KEY=process.env.MODEL_API_KEY||process.env.YOUZI_KEY||'';
+if(!KEY) throw new Error('model API key missing');
+const API_BASE=process.env.MODEL_API_BASE||'https://youzi.today/v1';
+const API=`${API_BASE}/chat/completions`;
 const {card,compactSha256}=await loadQiduReleaseCandidate(process.env.GITHUB_WORKSPACE||process.cwd(),{skipHashCheck:true});
 const BOOK=entryMap(card);
 const constants=(card.data.character_book?.entries||[]).filter(e=>e.constant).map(e=>String(e.content||'')).join('\n\n');
 const BASE=[card.data.personality,card.data.scenario,constants,card.data.post_history_instructions,card.data.extensions?.depth_prompt?.prompt].filter(Boolean).join('\n\n');
-async function call(model,mode,messages){const p={model,temperature:.12,top_p:.9,max_tokens:1250,messages};if(mode==='thinking-disabled')p.thinking={type:'disabled'};const c=new AbortController();const t=setTimeout(()=>c.abort(),75000);try{return await fetch(API,{method:'POST',signal:c.signal,headers:{Authorization:`Bearer ${KEY}`,'Content-Type':'application/json'},body:JSON.stringify(p)})}finally{clearTimeout(t)}}
-const contentOf=d=>String(d?.choices?.[0]?.message?.content||'');
-async function choose(){for(const m of ['[B]qwen3.8-flash','qwen3.8-flash','step-3.5-flash'])for(const mode of ['thinking-disabled','plain'])try{const r=await call(m,mode,[{role:'system',content:'只输出中文。'},{role:'user',content:'写一句话。'}]);const t=await r.text();let d={};try{d=JSON.parse(t)}catch{};if(r.ok&&contentOf(d).length>2)return{m,mode}}catch{};throw new Error('no usable fallback model')}
+async function call(model,mode,messages){const p={model,temperature:.12,top_p:.9,max_tokens:1250,messages};if(mode==='thinking-disabled')p.thinking={type:'disabled'};const c=new AbortController();const t=setTimeout(()=>c.abort(),60000);try{return await fetch(API,{method:'POST',signal:c.signal,headers:{Authorization:`Bearer ${KEY}`,'Content-Type':'application/json'},body:JSON.stringify(p)})}finally{clearTimeout(t)}}
+const contentOf=d=>{const c=d?.choices?.[0]?.message?.content;if(Array.isArray(c))return c.map(x=>typeof x==='string'?x:(x?.text||x?.content||'')).join('');return String(c||'')};
+async function choose(){const requested=process.env.GLM_MODEL||'';const candidates=[requested,'[B]qwen3.8-flash','qwen3.8-flash','step-3.5-flash'].filter(Boolean);for(const m of [...new Set(candidates)])for(const mode of ['thinking-disabled','plain'])try{const r=await call(m,mode,[{role:'system',content:'只输出中文。'},{role:'user',content:'写一句话。'}]);const t=await r.text();let d={};try{d=JSON.parse(t)}catch{};if(r.ok&&contentOf(d).length>2){if(requested&&m!==requested)throw new Error(`requested model unavailable: ${requested}`);return{m,mode}}}catch(e){if(requested&&m===requested&&String(e?.message||e).startsWith('requested model unavailable'))throw e}throw new Error(requested?`requested model unavailable: ${requested}`:'no usable fallback model')}
 const state=`<f7d_state>${JSON.stringify({schema:'f7d_textloop_0.4',loop:1,day:6,node_used:1,route:'central',location:'中央庭',regions:{},cores:{},known:['安','安托涅瓦','希罗','赛哈姆'],relationships:{},route_flags:{},battle_flags:{},intel_flags:{city_blackgate_history_known:true,central_court_basics_known:true,hiro_founder_known:true,hiro_prior_commander_known:true,chimera_exists_known:true,hiro_chimera_research_known:true,antoneva_chimera_policy_known:true,first_chimera_incident_known:true,zero_identity_known:false,ann_origin_known:false,loop_truth_known:false},npc_intel:{},meta:{cg:[],endings:[]}})}</f7d_state>`;
 const rel=['04｜输出协议：隐藏状态、正文、终端','11｜第6天','41｜安托涅瓦','91｜f7d_state字段与更新规则'].map(n=>BOOK[n]).filter(Boolean).join('\n\n');
 const sys=`${BASE}\n\n【本测试相关条目】\n${rel}\n\n严格按当前已解锁层叙述第一活骸事故，只使用世界书锚定事实，不扩写未记录的伤亡数量、街区毁坏规模、具体死法、三人职位分工、彼此特殊关系、第一活骸性别/心理/临终细节或机制定律。不要把安托涅瓦写成队长/带队者，也不要把另外两名成员写成挚友、最好的伙伴、亲人等；第一活骸只称“它/第一个活骸/那个活骸”，不得用“他/她”或“那个同伴”补身份。锁定身份专名不得出现。`;
