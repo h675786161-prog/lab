@@ -1,2 +1,2 @@
-run=1
-reason=diagnose narrative-gate provider outage after repeated no-usable-model failures while real SillyTavern browser acceptance passes
+run=2
+reason=probe actual tiny text completions across configured providers after model-list availability proved insufficient and the release gate saw 503/timeouts
