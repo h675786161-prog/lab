@@ -1,2 +1,2 @@
-run=2
-reason=probe actual tiny text completions across configured providers after model-list availability proved insufficient and the release gate saw 503/timeouts
+run=3
+reason=find a currently completion-capable text model after exact GLM hit its free cap and alternate routes returned 503 or empty content
