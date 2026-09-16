@@ -1,0 +1,20 @@
+{
+  "desktop": {
+    "status": 200,
+    "metrics": {
+      "width": 1440,
+      "scrollWidth": 1440,
+      "overflow": 0
+    }
+  },
+  "mobile": {
+    "status": 200,
+    "metrics": {
+      "width": 430,
+      "scrollWidth": 430,
+      "overflow": 0
+    }
+  },
+  "pageErrors": [],
+  "consoleErrors": []
+}
