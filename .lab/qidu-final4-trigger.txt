@@ -1,0 +1,2 @@
+run=1
+reason=exact candidate with minimal author note, passive-terminal hardening, resilient transient provider retry, real SillyTavern browser acceptance, and final byte-level privacy scan before packaging
