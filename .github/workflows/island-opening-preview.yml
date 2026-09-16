@@ -1,0 +1,93 @@
+name: Island Opening Real Preview
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/island-opening-preview.yml'
+      - 'fixtures/island-opening-preview/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ST_DIR: /tmp/island-opening-st
+      EVIDENCE: ${{ github.workspace }}/lab-evidence/island-opening-preview
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare evidence
+        run: mkdir -p "$EVIDENCE"
+
+      - name: Clone exact SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$ST_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+
+      - name: Install SillyTavern
+        working-directory: /tmp/island-opening-st
+        run: npm ci
+
+      - name: Start SillyTavern
+        shell: bash
+        run: |
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8000 --disableCsrf > "$EVIDENCE/sillytavern.log" 2>&1 &
+          echo $! >/tmp/island-opening.pid
+          for i in $(seq 1 90); do
+            if curl -fsS --max-time 2 http://127.0.0.1:8000/ >/dev/null 2>&1; then exit 0; fi
+            sleep 1
+          done
+          cat "$EVIDENCE/sillytavern.log"
+          exit 1
+
+      - name: Prepare browser
+        shell: bash
+        run: |
+          mkdir -p /tmp/island-opening-browser
+          cd /tmp/island-opening-browser
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          echo "CHROME_BIN=$CHROME_BIN" >> "$GITHUB_ENV"
+          echo "PW_ENTRY=file:///tmp/island-opening-browser/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
+
+      - name: Capture real ST screenshots
+        run: node fixtures/island-opening-preview/shot.mjs
+
+      - name: Stop runtime
+        if: always()
+        run: test ! -f /tmp/island-opening.pid || kill "$(cat /tmp/island-opening.pid)" 2>/dev/null || true
+
+      - name: Upload evidence artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: island-opening-preview
+          path: lab-evidence/island-opening-preview
+          if-no-files-found: error
+
+      - name: Commit screenshots back to lab
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'lingqi-lab-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add lab-evidence/island-opening-preview/*.png lab-evidence/island-opening-preview/report.json
+          git commit -m 'lab: capture island opening preview' || exit 0
+          git push origin HEAD:main
