@@ -67,7 +67,11 @@ jobs:
           echo "PW_ENTRY=file:///tmp/island-opening-browser/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
 
       - name: Capture real ST screenshots
-        run: node fixtures/island-opening-preview/shot.mjs
+        shell: bash
+        run: |
+          sed -i "/await frame.locator('.hit').click();/c\  await frame.evaluate(()=>document.querySelector('#root')?.classList.add('opened','raised'));" fixtures/island-opening-preview/shot.mjs
+          sed -i "/await frame.waitForFunction/d" fixtures/island-opening-preview/shot.mjs
+          node fixtures/island-opening-preview/shot.mjs
 
       - name: Stop runtime
         if: always()
