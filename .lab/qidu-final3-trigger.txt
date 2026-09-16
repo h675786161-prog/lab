@@ -1,0 +1,2 @@
+run=1
+reason=exact candidate after author-note minimization and passive-terminal fix; use transient provider retry preload plus exact-candidate behavior probes; package only after real SillyTavern browser acceptance and all narrative gates pass
