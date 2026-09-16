@@ -29,6 +29,13 @@ const SCHOOL_IDENTITY_SCOPE=`
 - 一旦本轮身份确认完成，known必须同时加入珈儿和泰丝拉；之后两人仍在同一现场时，应直接使用已确认姓名维持连续性，不要重新退回“粉发少女/另一名少女”而造成像失忆一样的匿名化。第3次巡查若两人都在撤离现场，珈儿受伤时泰丝拉必须被明确写名，并有实际行动或明确去向。
 `;
 
+const TERMINAL_OUTPUT_SCOPE=`
+【战术终端标签强制｜隐藏执行】
+- 当玩家明确执行“查看战术终端/打开终端/看消息、任务、日志、通讯录、相册、区域状态”等仅查看终端信息的操作时，即使本轮不消耗行动节点、没有主要行动、没有新的剧情选择，也必须输出真实的<f7d_terminal>...</f7d_terminal>块；不能只用普通Markdown标题、粗体列表或自然语言去模拟终端界面。
+- 仅查看终端时，不要为了凑格式强行制造<f7d_choices>。只有确实到了需要玩家决定的节点才输出选项。
+- 终端块中的内容只呈现当前状态允许玩家看到的项目，不因“查看”动作自动推进剧情、增加节点或解锁隐藏信息。
+`;
+
 export async function loadQiduReleaseCandidate(workspace=process.env.GITHUB_WORKSPACE||process.cwd(),options={}){
   const {card}=await loadSanitizedRelease(workspace,{skipHashCheck:true});
   const protocol=findEntry(card,'04｜');
@@ -39,6 +46,7 @@ export async function loadQiduReleaseCandidate(workspace=process.env.GITHUB_WORK
   const tesla=findEntry(card,'67｜');
   appendOnce(protocol,'第一活骸事故事实边界｜隐藏执行',FIRST_CHIMERA_SCOPE);
   appendOnce(protocol,'高校初见身份来源连续性｜隐藏执行',SCHOOL_IDENTITY_SCOPE);
+  appendOnce(protocol,'战术终端标签强制｜隐藏执行',TERMINAL_OUTPUT_SCOPE);
   appendOnce(day6,'第一活骸事故禁止扩写未锚定伤亡',`\n【第一活骸事故禁止扩写未锚定伤亡】进入安托涅瓦的第一活骸事故回忆时，必须明确另外两名小队成员死亡、安托涅瓦失去双腿、活骸自我毁灭；除此之外不要新增平民死亡数字、街区毁坏规模、队友具体死法、三人职位分工、彼此特殊关系、第一活骸性别/心理/最后一刻细节或其他未锚定历史事实。第一活骸在身份未解锁时统一称“它/第一个活骸/那个活骸”。\n`);
   appendOnce(school,'高校已识别角色不得重新匿名',`\n【高校已识别角色不得重新匿名】第2次巡查完成身份确认后，珈儿与泰丝拉已经是已知角色。第3次巡查若两人仍在同一撤离现场，正文必须直接写“珈儿”“泰丝拉”，不能只写“粉发少女/另一名少女”。珈儿受伤时，泰丝拉必须被明确写名并执行掩护、撤离、照看伤员等行动之一，或交代清楚她被安排去哪里。\n`);
   appendOnce(kaji,'高校第2巡查姓名来源顺序',`\n【高校第2巡查姓名来源顺序】首次正面目击且无人叫名时，旁白不得直接把你标成“珈儿”。必须先由泰丝拉在对话里叫出“珈儿”，再由你本人确认身份，之后才可由你介绍泰丝拉。\n`);
