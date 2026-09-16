@@ -1,2 +1,2 @@
-run=v0.4.23-release-candidate-6
-reason=primary provider is confirmed 502; rerun the exact privacy-sanitized release candidate using the live alternate provider with text GLM/Qwen availability, plus real SillyTavern browser acceptance and final package-byte privacy scan
+run=v0.4.23-release-candidate-7
+reason=rerun the exact privacy-sanitized release candidate after strengthening school identity continuity, pinning encounter behavior to the requested text GLM, adapting legacy probes to the live provider and exact candidate, and requiring real SillyTavern browser acceptance plus final package-byte privacy scan
