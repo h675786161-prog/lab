@@ -13,79 +13,58 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 10
     env:
       YOUZI_KEY: ${{ secrets.YOUZI }}
       GG_KEY: ${{ secrets.GG }}
       PIAOMIAO_KEY: ${{ secrets.PIAOMIAO }}
     steps:
       - uses: actions/checkout@v4
-      - name: Probe model lists and tiny text completions
+      - name: Probe live completion-capable models
         run: |
           set -euo pipefail
           mkdir -p provider-evidence
           python - <<'PY'
-          import json, os, time, urllib.request, urllib.error
-          providers=[
-            ('YOUZI','https://youzi.today/v1',os.environ.get('YOUZI_KEY','')),
-            ('GG','https://gcli.ggchan.dev/v1',os.environ.get('GG_KEY','')),
-            ('PIAOMIAO','https://claudeapi.cc.cd/v1',os.environ.get('PIAOMIAO_KEY','')),
-          ]
-          def request_json(url,key,payload=None,timeout=18):
-            headers={'Authorization':'Bearer '+key,'Accept':'application/json','User-Agent':'Qidu-Release-Probe/1.0'}
-            data=None
-            if payload is not None:
-              headers['Content-Type']='application/json'; data=json.dumps(payload,ensure_ascii=False).encode()
-            req=urllib.request.Request(url,data=data,headers=headers,method='POST' if payload is not None else 'GET')
+          import json, os, urllib.request, urllib.error
+          providers=[('YOUZI','https://youzi.today/v1',os.environ.get('YOUZI_KEY','')),('GG','https://gcli.ggchan.dev/v1',os.environ.get('GG_KEY','')),('PIAOMIAO','https://claudeapi.cc.cd/v1',os.environ.get('PIAOMIAO_KEY',''))]
+          def req(url,key,payload=None,timeout=15):
+            h={'Authorization':'Bearer '+key,'Accept':'application/json','User-Agent':'Qidu-Release-Probe/1.0'}; data=None
+            if payload is not None:h['Content-Type']='application/json';data=json.dumps(payload,ensure_ascii=False).encode()
             try:
-              with urllib.request.urlopen(req,timeout=timeout) as resp:
-                raw=resp.read(1500000); status=resp.status
-              try: body=json.loads(raw.decode('utf-8','replace'))
-              except: body={}
-              return status,body,None
-            except urllib.error.HTTPError as e:
-              raw=e.read(3000).decode('utf-8','replace')
-              return e.code,{},raw[:500]
-            except Exception as e:
-              return 'error',{},type(e).__name__+': '+str(e)[:300]
+              with urllib.request.urlopen(urllib.request.Request(url,data=data,headers=h,method='POST' if data else 'GET'),timeout=timeout) as r: raw=r.read(1000000);st=r.status
+              try:b=json.loads(raw.decode('utf-8','replace'))
+              except:b={}
+              return st,b,None
+            except urllib.error.HTTPError as e:return e.code,{},e.read(1000).decode('utf-8','replace')[:500]
+            except Exception as e:return 'error',{},type(e).__name__+': '+str(e)[:250]
           rows=[]
           for name,base,key in providers:
-            row={'provider':name,'base':base,'secret_present':bool(key),'model_list':{},'completion_probes':[]}
-            if not key:
-              row['model_list']={'ok':False,'status':'missing_secret'};rows.append(row);continue
-            status,data,err=request_json(base+'/models',key)
+            row={'provider':name,'base':base,'models':[],'probes':[]}
+            if not key:row['status']='missing_secret';rows.append(row);continue
+            st,d,er=req(base+'/models',key);seq=(d.get('data') or d.get('models') or []) if isinstance(d,dict) else []
             ids=[]
-            if isinstance(data,dict):
-              seq=data.get('data') or data.get('models') or []
-              if isinstance(seq,list):
-                for x in seq:
-                  mid=(x.get('id') or x.get('name') or x.get('model')) if isinstance(x,dict) else str(x)
-                  if mid: ids.append(str(mid))
-            wanted=[m for m in ids if any(k in m.lower() for k in ('glm-5.3','qwen3.8','step-3.5')) and 'vision' not in m.lower() and '5.3v' not in m.lower()]
-            row['model_list']={'ok':isinstance(status,int) and 200<=status<300,'status':status,'model_count':len(ids),'wanted':wanted[:80],'error':err}
-            preference=[]
-            exact_names=['zai/glm-5.3-flash','z-ai/glm-5.3','[ov]z-ai/glm-5.3-flash','[ct]glm-5.3-flash','[B]glm-5.3-flash','[ba]qwen3.8-flash','[amd]Qwen3.8-Flash-Next','[B]qwen3.8-flash']
-            for m in exact_names+wanted:
-              if m in ids and m not in preference: preference.append(m)
-            for model in preference[:10]:
-              probe={'model':model,'attempts':[],'usable':False}
-              for attempt in range(2):
-                payload={'model':model,'max_tokens':32,'temperature':0,'messages':[{'role':'user','content':'只回答：测试通过'}]}
-                st,body,er=request_json(base+'/chat/completions',key,payload,timeout=20)
-                content=''
-                try:
-                  c=body.get('choices',[{}])[0].get('message',{}).get('content','')
-                  if isinstance(c,list): content=''.join(str(x.get('text') or x.get('content') or '') if isinstance(x,dict) else str(x) for x in c)
-                  else: content=str(c or '')
-                except: pass
-                probe['attempts'].append({'status':st,'content_len':len(content),'error':er})
-                if st==200 and content.strip(): probe['usable']=True;probe['sample']=content[:80];break
-                if attempt==0: time.sleep(2)
-              row['completion_probes'].append(probe)
-              time.sleep(1)
+            for x in seq:
+              mid=(x.get('id') or x.get('name') or x.get('model')) if isinstance(x,dict) else str(x)
+              if mid:ids.append(str(mid))
+            row.update(status=st,models=ids[:100],error=er)
+            priority=[]
+            preferred=['zai/glm-5.3-flash','[ov]z-ai/glm-5.3-flash','[ct]glm-5.3-flash','[ov]z-ai/glm-5.3','z-zai/glm-5.3','[ba]qwen3.8-flash','[amd]Qwen3.8-Flash-Next']
+            for m in preferred+ids:
+              low=m.lower()
+              if m in ids and m not in priority and any(k in low for k in ('glm','qwen','gemini','claude','gpt','grok','deepseek','step')) and 'vision' not in low:priority.append(m)
+            for model in priority[:8]:
+              p={'model':model,'max_tokens':24,'temperature':0,'messages':[{'role':'user','content':'只回答：测试通过'}]}
+              ps,body,pe=req(base+'/chat/completions',key,p,12);c=''
+              try:
+                c=body.get('choices',[{}])[0].get('message',{}).get('content','')
+                if isinstance(c,list):c=''.join(str(y.get('text') or y.get('content') or '') if isinstance(y,dict) else str(y) for y in c)
+                c=str(c or '')
+              except:pass
+              row['probes'].append({'model':model,'status':ps,'usable':ps==200 and bool(c.strip()),'content_len':len(c),'error':pe})
+              if row['probes'][-1]['usable'] and name=='GG': break
             rows.append(row)
           print(json.dumps(rows,ensure_ascii=False,indent=2))
-          with open('provider-evidence/qidu-provider-probe.json','w',encoding='utf-8') as f: json.dump({'results':rows},f,ensure_ascii=False,indent=2)
+          with open('provider-evidence/qidu-provider-probe.json','w',encoding='utf-8') as f:json.dump({'results':rows},f,ensure_ascii=False,indent=2)
           PY
       - uses: actions/upload-artifact@v4
         if: always()
