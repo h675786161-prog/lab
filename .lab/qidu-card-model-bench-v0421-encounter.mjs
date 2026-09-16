@@ -1,10 +1,10 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { loadQiduOneFileCard, entryMap } from './qidu-card-v0421-encounter-focus.mjs';
+import { loadQiduReleaseCandidate as loadQiduOneFileCard, entryMap } from './qidu-card-v0423-release-candidate.mjs';
 
-const KEY=process.env.YOUZI_KEY||'';
-if(!KEY) throw new Error('YOUZI_KEY missing');
-const API_BASE='https://youzi.today/v1';
+const KEY=process.env.MODEL_API_KEY||process.env.YOUZI_KEY||'';
+if(!KEY) throw new Error('model API key missing');
+const API_BASE=process.env.MODEL_API_BASE||'https://youzi.today/v1';
 const API=`${API_BASE}/chat/completions`;
 const OUT=process.env.LAB_OUT_ENCOUNTER||'bench-evidence/qidu-card-v0421-encounter';
 await fs.mkdir(OUT,{recursive:true});
@@ -24,36 +24,29 @@ async function call(model,mode,messages,max_tokens=1300,timeoutMs=60000){
 }
 const contentOf=d=>{
   const c=d?.choices?.[0]?.message?.content;
-  if(Array.isArray(c)) return c.map(x=>typeof x==='string'?x:(x?.text||'')).join('');
+  if(Array.isArray(c)) return c.map(x=>typeof x==='string'?x:(x?.text||x?.content||'')).join('');
   return String(c||'');
 };
-async function getIds(){try{const r=await fetch(`${API_BASE}/models`,{headers:{Authorization:`Bearer ${KEY}`}});const d=await r.json();return(d?.data||[]).map(x=>x.id).filter(Boolean)}catch{return[]}}
+async function getIds(){try{const r=await fetch(`${API_BASE}/models`,{headers:{Authorization:`Bearer ${KEY}`}});const d=await r.json();return(d?.data||d?.models||[]).map(x=>typeof x==='string'?x:(x?.id||x?.name||x?.model)).filter(Boolean)}catch{return[]}}
 async function usable(model){
   for(const mode of ['thinking-disabled','plain']){
     try{const r=await call(model,mode,[{role:'system',content:'只输出中文。'},{role:'user',content:'写一句话。'}],80,25000);const t=await r.text();let d={};try{d=JSON.parse(t)}catch{};if(r.ok&&contentOf(d).length>2)return mode}catch{}
   }
   return null;
 }
-function isVisionVariant(id,version){return new RegExp(`${version.replace('.','\\.')}v(?:ision)?(?:$|[-_])`,'i').test(id)||/vision/i.test(id)}
+function isVisionVariant(id){return /vision|glm[^\n]*5\.3v(?:$|[-_])/i.test(id)}
 async function chooseTargets(){
   const ids=await getIds();
-  const exact=[];
-  const m53=ids.filter(x=>/glm[^\n]*5\.3/i.test(x)).find(x=>!isVisionVariant(x,'5.3'));
-  const m46=ids.filter(x=>/glm[^\n]*4\.6(?!\d)/i.test(x)).find(x=>!isVisionVariant(x,'4.6'));
-  for(const m of [m53,m46]) if(m&&!exact.includes(m)) exact.push(m);
-  const fallback=[process.env.GLM_MODEL,'[B]qwen3.8-flash','qwen3.8-flash','step-3.5-flash',...ids.filter(x=>/(qwen|step|glm)/i.test(x))].filter(Boolean);
-  const wanted=[...new Set([...exact,...fallback])];
-  const out=[];
-  for(const m of wanted){
-    const mode=await usable(m);
-    if(mode){
-      out.push({model:m,mode,kind:exact.includes(m)?'requested-glm':'fallback'});
-      if(out.some(x=>x.kind==='requested-glm')&&out.some(x=>x.kind==='fallback'))break;
-      if(out.length>=2&&!exact.length)break;
-    }
+  const requested=process.env.GLM_MODEL||'';
+  if(requested){
+    const mode=await usable(requested);
+    if(mode) return {ids,targets:[{model:requested,mode,kind:'requested-glm'}],exactRequested:[requested]};
+    throw new Error(`requested GLM unavailable: ${requested}`);
   }
-  if(!out.length) throw new Error('no usable model');
-  return {ids,targets:out,exactRequested:exact};
+  const exact=ids.find(x=>/glm[^\n]*5\.3/i.test(x)&&!isVisionVariant(x));
+  if(exact){const mode=await usable(exact);if(mode)return{ids,targets:[{model:exact,mode,kind:'requested-glm'}],exactRequested:[exact]}}
+  for(const m of ids.filter(x=>/qwen3\.8.*flash|step/i.test(x))){const mode=await usable(m);if(mode)return{ids,targets:[{model:m,mode,kind:'fallback'}],exactRequested:[]}}
+  throw new Error('no usable model');
 }
 
 function state(overrides={}){
@@ -67,7 +60,7 @@ function parseState(out){const bs=stateBlocks(out);if(bs.length!==1)return null;
 function stateFailures(out){const bs=stateBlocks(out),f=[];if(bs.length!==1)f.push(`state-block-count:${bs.length}`);else{try{JSON.parse(bs[0][1])}catch{f.push('state-invalid-json')}}return f}
 function firstDialogueKajiIndex(v){
   const res=[];
-  for(const re of [/“[^”\n]{0,80}珈儿[^”\n]{0,80}”/g,/「[^」\n]{0,80}珈儿[^」\n]{0,80}」/g,/^[^\n：:]{0,20}[：:][^\n]{0,80}珈儿/gm]) for(const m of v.matchAll(re)) res.push(m.index??-1);
+  for(const re of [/“[^”\n]{0,100}珈儿[^”\n]{0,100}”/g,/「[^」\n]{0,100}珈儿[^」\n]{0,100}」/g,/"[^"\n]{0,100}珈儿[^"\n]{0,100}"/g,/^[^\n：:]{0,20}[：:][^\n]{0,100}珈儿/gm]) for(const m of v.matchAll(re)) res.push(m.index??-1);
   return res.filter(x=>x>=0).sort((a,b)=>a-b)[0]??-1;
 }
 
@@ -117,7 +110,7 @@ async function runCase(target,c,sys){
     attempts.push({mode,status,out,error,finish});
     if(status===200&&out.length>80) return {...attempts.at(-1),attempts,providerIssue:null};
     if(error?.startsWith('provider-timeout')) return {...attempts.at(-1),attempts,providerIssue:error};
-    await sleep(250);
+    await sleep(500);
   }
   const best=attempts.find(a=>a.out.length)||attempts.at(-1)||{mode:target.mode,status:0,out:'',error:'no-attempt',finish:null};
   let providerIssue='provider-empty-content';
@@ -139,7 +132,7 @@ for(const target of targets){
     results.push({model:target.model,kind:target.kind,id:c.id,status:rr.status,mode:rr.mode,pass,fail,out:rr.out,error:rr.error,finish:rr.finish,attempts:rr.attempts.map(a=>({mode:a.mode,status:a.status,length:a.out.length,error:a.error,finish:a.finish}))});
     console.log(JSON.stringify({model:target.model,id:c.id,status:rr.status,mode:rr.mode,pass,fail}));
     if(!pass){const excerpt=visible(rr.out).slice(0,1600);console.error(`::error title=v0421 ${esc(target.model)} / ${esc(c.id)}::status=${rr.status}; fail=${esc(fail.join('; ')||'unknown')}; excerpt=${esc(excerpt)}`)}
-    await sleep(350);
+    await sleep(1000);
   }
 }
 const failed=results.filter(x=>!x.pass);
@@ -149,6 +142,6 @@ const requestedGlmAvailable=targets.filter(x=>x.kind==='requested-glm').map(x=>x
 const requestedGlmInconclusive=[...new Set(providerFailures.filter(x=>x.kind==='requested-glm').map(x=>x.model))];
 const summary={version:card.data.character_version,hash:compactSha256,targets,requestedGlmAvailable,requestedGlmInconclusive,total:results.length,passed:results.filter(x=>x.pass).length,providerFailures:providerFailures.map(x=>`${x.model}:${x.id}`),behaviorFailures:behaviorFailures.map(x=>`${x.model}:${x.id}`),failed:failed.map(x=>`${x.model}:${x.id}`)};
 await fs.writeFile(path.join(OUT,'report.json'),JSON.stringify({summary,results},null,2));
-await fs.writeFile(path.join(OUT,'report.md'),['# Qidu v0.4.21 encounter regression','',`- targets: ${targets.map(x=>`${x.model} (${x.kind})`).join(', ')}`,`- pass: ${summary.passed}/${summary.total}`,`- requested GLM inconclusive: ${requestedGlmInconclusive.join(', ')||'none'}`,`- provider failures: ${summary.providerFailures.join(', ')||'none'}`,`- behavior failures: ${summary.behaviorFailures.join(', ')||'none'}`,...results.flatMap(x=>['',`## ${x.model} / ${x.id} — ${x.pass?'PASS':'FAIL'}`,`fail: ${x.fail.join('; ')||'none'}`,'','```text',x.out,'```'])].join('\n'));
+await fs.writeFile(path.join(OUT,'report.md'),['# Qidu v0.4.23 encounter regression','',`- targets: ${targets.map(x=>`${x.model} (${x.kind})`).join(', ')}`,`- exact candidate hash: ${compactSha256}`,`- pass: ${summary.passed}/${summary.total}`,`- requested GLM inconclusive: ${requestedGlmInconclusive.join(', ')||'none'}`,`- provider failures: ${summary.providerFailures.join(', ')||'none'}`,`- behavior failures: ${summary.behaviorFailures.join(', ')||'none'}`,...results.flatMap(x=>['',`## ${x.model} / ${x.id} — ${x.pass?'PASS':'FAIL'}`,`fail: ${x.fail.join('; ')||'none'}`,'','```text',x.out,'```'])].join('\n'));
+if(providerFailures.length) throw new Error(`encounter provider regression inconclusive: ${summary.providerFailures.join(', ')}`);
 if(behaviorFailures.length) throw new Error(`encounter behavior regression failed: ${summary.behaviorFailures.join(', ')}`);
-if(!results.some(x=>x.pass)) throw new Error('encounter regression produced no usable passing model result');
