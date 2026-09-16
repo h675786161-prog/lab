@@ -1,0 +1,2 @@
+run=1
+reason=rerun exact release candidate after author-note minimization and use the currently live text fallback for behavioral regression while preserving real SillyTavern browser acceptance and final byte-level privacy checks
