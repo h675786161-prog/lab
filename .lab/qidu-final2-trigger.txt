@@ -1,0 +1,2 @@
+run=1
+reason=rerun exact candidate after passive-terminal hardening, corrected NPC inevitability detector, and transient provider retry; require real SillyTavern browser acceptance plus full behavior gate before packaging
