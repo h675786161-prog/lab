@@ -79,7 +79,7 @@ jobs:
 
   narrative-regression:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 55
     env:
       MODEL_API_KEY: ${{ secrets.PIAOMIAO }}
       MODEL_API_BASE: https://claudeapi.cc.cd/v1
@@ -93,7 +93,7 @@ jobs:
       LAB_OUT_NPC_SOURCE: bench-evidence/qidu-card-v0423-offscreen-source
     steps:
       - uses: actions/checkout@v4
-      - name: Adapt narrative probes to selected provider
+      - name: Adapt legacy narrative probes to selected provider and exact candidate
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -112,6 +112,11 @@ jobs:
             s=s.replace("process.env.YOUZI_KEY || ''", "process.env.MODEL_API_KEY||process.env.YOUZI_KEY||''")
             s=s.replace("const API_BASE='https://youzi.today/v1';", "const API_BASE=process.env.MODEL_API_BASE||'https://youzi.today/v1';")
             s=s.replace("const API='https://youzi.today/v1/chat/completions';", "const API=`${process.env.MODEL_API_BASE||'https://youzi.today/v1'}/chat/completions`;")
+            s=s.replace("import { loadQiduOneFileCard, entryMap } from './qidu-card-v0423-author-secret-guard.mjs';", "import { loadQiduReleaseCandidate as loadQiduOneFileCard, entryMap } from './qidu-card-v0423-release-candidate.mjs';")
+            s=s.replace("import { loadQiduOneFileCard, entryMap } from './qidu-card-v0423-release-sanitized.mjs';", "import { loadQiduReleaseCandidate as loadQiduOneFileCard, entryMap } from './qidu-card-v0423-release-candidate.mjs';")
+            s=s.replace("const contentOf=d=>String(d?.choices?.[0]?.message?.content||'');", "const contentOf=d=>{const c=d?.choices?.[0]?.message?.content;if(Array.isArray(c))return c.map(x=>typeof x==='string'?x:(x?.text||x?.content||'')).join('');return String(c||'')};")
+            s=s.replace("const pref=['[B]qwen3.8-flash','qwen3.8-flash','step-3.5-flash',...ids.filter(x=>/(qwen|step)/i.test(x))];", "const pref=[process.env.GLM_MODEL,'[B]qwen3.8-flash','qwen3.8-flash','step-3.5-flash',...ids.filter(x=>/(glm|qwen|step)/i.test(x))];")
+            s=s.replace("for(const m of ['[B]qwen3.8-flash','qwen3.8-flash','step-3.5-flash'])", "for(const m of [process.env.GLM_MODEL,'[B]qwen3.8-flash','qwen3.8-flash','step-3.5-flash'].filter(Boolean))")
             p.write_text(s,encoding='utf-8')
           PY
       - name: Record selected narrative provider
@@ -121,12 +126,15 @@ jobs:
       - id: core
         continue-on-error: true
         run: node .lab/qidu-card-model-bench-v0421-core.mjs
+      - run: sleep 4
       - id: encounter
         continue-on-error: true
         run: node .lab/qidu-card-model-bench-v0421-encounter.mjs
+      - run: sleep 4
       - id: conflict
         continue-on-error: true
         run: node .lab/qidu-card-model-bench-v0418-preset-conflict.mjs
+      - run: sleep 4
       - id: info
         continue-on-error: true
         run: node .lab/qidu-card-model-bench-v0423-info-timeline.mjs
@@ -135,14 +143,20 @@ jobs:
         if: always()
         continue-on-error: true
         run: node .lab/qidu-info-report-gate-v0423.mjs
+      - run: sleep 4
+        if: always()
       - id: npc
         if: always()
         continue-on-error: true
         run: node .lab/qidu-card-model-bench-v0423-npc-knowledge.mjs
+      - run: sleep 4
+        if: always()
       - id: npcsource
         if: always()
         continue-on-error: true
         run: node .lab/qidu-card-model-bench-v0423-offscreen-source.mjs
+      - run: sleep 4
+        if: always()
       - id: chimera
         name: Gate exact release-candidate first-chimera fidelity
         if: always()
@@ -208,7 +222,7 @@ jobs:
           if(!/<label\b/i.test(cr)||!cr.includes('for="send_textarea"')||!cr.includes('min-height:44px')||!cr.includes('linear-gradient')||!cr.includes('border-radius')) throw new Error('choice tile behavior/style missing');
           const by=p=>(card.data.character_book?.entries||[]).find(e=>String(e.name||'').startsWith(p));
           const p=by('04｜'),d7=by('10｜'),d6=by('11｜'),s=by('30｜'),a=by('41｜'),k=by('44｜'),t=by('67｜'),st=by('91｜');
-          const rules={identity:Boolean(p?.content?.includes('角色首次识别门禁｜隐藏执行')),requiredCast:Boolean(p?.content?.includes('场景必出角色连续性检查')),schoolOrder:Boolean(p?.content?.includes('高校初见姓名令牌顺序锁｜隐藏执行')),npcKnowledge:Boolean(p?.content?.includes('NPC知识来源门禁｜隐藏执行')),npcZeroSource:Boolean(p?.content?.includes('NPC零来源硬锁与不可见自检｜隐藏执行')),selfAuditBan:Boolean(p?.content?.includes('禁止合规自评旁白｜隐藏执行')),secretNames:Boolean(p?.content?.includes('未解锁秘密名词消隐｜隐藏执行')),countdownLock:Boolean(p?.content?.includes('倒计时含义未解锁时禁止补完｜隐藏执行')),firstChimeraScope:Boolean(p?.content?.includes('第一活骸事故事实边界｜隐藏执行')),day7Countdown:Boolean(d7?.content?.includes('第7天倒计时含义仍锁定')),day6Secret:Boolean(d6?.content?.includes('第6天零身份仍锁定时禁止否定式点名')),day6ChimeraScope:Boolean(d6?.content?.includes('第一活骸事故禁止扩写未锚定伤亡')),school2of6:Boolean(s?.content?.includes('高校2/6姓名顺序不可交换')),antonevaScope:Boolean(a?.content?.includes('第一活骸事故只讲已锚定事实')),kajiKnowledge:Boolean(k?.content?.includes('活骸知识边界')),kajiSource:Boolean(k?.content?.includes('珈儿无来源知识不得借名补齐')),teslaIntro:Boolean(t?.content?.includes('首次会合不得先被点名')),npcLedger:Boolean(st?.content?.includes('NPC知识账本npc_intel')),sourceInvariant:Boolean(st?.content?.includes('NPC来源不可由合理化旁白创建')),countdownSplit:Boolean(st?.content?.includes('倒计时可见与倒计时含义分离'))};
+          const rules={identity:Boolean(p?.content?.includes('角色首次识别门禁｜隐藏执行')),requiredCast:Boolean(p?.content?.includes('场景必出角色连续性检查')),schoolOrder:Boolean(p?.content?.includes('高校初见姓名令牌顺序锁｜隐藏执行')),schoolIdentityContinuity:Boolean(p?.content?.includes('高校初见身份来源连续性｜隐藏执行')),npcKnowledge:Boolean(p?.content?.includes('NPC知识来源门禁｜隐藏执行')),npcZeroSource:Boolean(p?.content?.includes('NPC零来源硬锁与不可见自检｜隐藏执行')),selfAuditBan:Boolean(p?.content?.includes('禁止合规自评旁白｜隐藏执行')),secretNames:Boolean(p?.content?.includes('未解锁秘密名词消隐｜隐藏执行')),countdownLock:Boolean(p?.content?.includes('倒计时含义未解锁时禁止补完｜隐藏执行')),firstChimeraScope:Boolean(p?.content?.includes('第一活骸事故事实边界｜隐藏执行')),day7Countdown:Boolean(d7?.content?.includes('第7天倒计时含义仍锁定')),day6Secret:Boolean(d6?.content?.includes('第6天零身份仍锁定时禁止否定式点名')),day6ChimeraScope:Boolean(d6?.content?.includes('第一活骸事故禁止扩写未锚定伤亡')),school2of6:Boolean(s?.content?.includes('高校2/6姓名顺序不可交换')),schoolKnownContinuity:Boolean(s?.content?.includes('高校已识别角色不得重新匿名')),antonevaScope:Boolean(a?.content?.includes('第一活骸事故只讲已锚定事实')),kajiKnowledge:Boolean(k?.content?.includes('活骸知识边界')),kajiSource:Boolean(k?.content?.includes('珈儿无来源知识不得借名补齐')),kajiIdentityOrder:Boolean(k?.content?.includes('高校第2巡查姓名来源顺序')),teslaIntro:Boolean(t?.content?.includes('首次会合不得先被点名')),teslaIdentitySource:Boolean(t?.content?.includes('泰丝拉姓名必须来自珈儿介绍')),npcLedger:Boolean(st?.content?.includes('NPC知识账本npc_intel')),sourceInvariant:Boolean(st?.content?.includes('NPC来源不可由合理化旁白创建')),countdownSplit:Boolean(st?.content?.includes('倒计时可见与倒计时含义分离'))};
           for(const [label,ok] of Object.entries(rules)) if(!ok) throw new Error(`missing release rule: ${label}`);
           const m=String(card.data.first_mes||'').match(/<f7d_state>([\s\S]*?)<\/f7d_state>/i);
           if(!m) throw new Error('initial state missing');
