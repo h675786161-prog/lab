@@ -1,2 +1,2 @@
-run=1
-reason=integrated direct CG trigger with embedded Ann first-meet asset; verify real SillyTavern import, image rendering, and mobile/desktop responsiveness
+run=2
+reason=rerun after updating privacy validation for new author notes and CG metadata
