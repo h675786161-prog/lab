@@ -1,0 +1,2 @@
+run=1
+reason=integrated direct CG trigger with embedded Ann first-meet asset; verify real SillyTavern import, image rendering, and mobile/desktop responsiveness
