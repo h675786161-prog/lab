@@ -1,8 +1,9 @@
 import fs from 'node:fs/promises';
 import crypto from 'node:crypto';
-import { loadQiduReleaseCandidate as loadBaseCandidate, assertReleasePrivacy, entryMap } from './qidu-card-v0423-release-candidate.mjs';
+import { loadQiduReleaseCandidate as loadBaseCandidate, entryMap } from './qidu-card-v0423-release-candidate.mjs';
 
 export const ONEFILE_VERSION='0.4.24';
+const CREATOR_NOTES='作者：叶罹。相关卡：《永远的7日之都》七日轮回文本互动。原作向文本互动角色卡，以七日轮回为核心，包含区域巡查、角色剧情、战术终端、状态记录、多结局分支与CG触发。';
 
 function findEntry(card,prefix){
   const e=(card.data.character_book?.entries||[]).find(x=>String(x.name||'').startsWith(prefix));
@@ -79,14 +80,39 @@ function addCgRegex(card,key,title,dataUri){
     maxDepth:null
   });
 }
+function hasPrivateMetadata(obj){
+  const bad=new Set(['repo','repository','git','branch','commit','source_url','homepage','author_url','creator_url']);
+  const stack=[obj];
+  while(stack.length){
+    const cur=stack.pop();
+    if(!cur||typeof cur!=='object') continue;
+    for(const [k,v] of Object.entries(cur)){
+      if(bad.has(String(k).toLowerCase())) return true;
+      if(v&&typeof v==='object') stack.push(v);
+    }
+  }
+  return false;
+}
+export function assertReleasePrivacy(card){
+  if(card.data?.creator!=='叶罹') throw new Error('creator mismatch');
+  if(card.data?.creator_notes!==CREATOR_NOTES) throw new Error('creator notes mismatch');
+  if(card.creatorcomment!==CREATOR_NOTES) throw new Error('creator comment mismatch');
+  if(card.data?.character_version!==ONEFILE_VERSION) throw new Error('version mismatch');
+  if(card.data?.character_book?.extensions?.creator!=='叶罹') throw new Error('worldbook creator mismatch');
+  if(card.data?.character_book?.extensions?.version!==ONEFILE_VERSION) throw new Error('worldbook version mismatch');
+  if(Object.prototype.hasOwnProperty.call(card,'create_date')||Object.prototype.hasOwnProperty.call(card.data||{},'create_date')) throw new Error('creation timestamp remains');
+  if(hasPrivateMetadata(card)) throw new Error('private development metadata remains');
+  const txt=JSON.stringify(card);
+  if(/(?:玲|h675786161|github\.com|raw\.githubusercontent\.com|api\.github\.com|实验酒馆|world-backstage|(?:\bLAB\b|[-_]lab\b|\blab[-_])|feature\/qidu-card|gmail\.com)/i.test(txt)) throw new Error('private development provenance remains');
+  return true;
+}
 
 export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE||process.cwd()){
   const {card}=await loadBaseCandidate(workspace,{skipHashCheck:true});
   card.data.character_version=ONEFILE_VERSION;
-  const notes='作者：叶罹。相关卡：《永远的7日之都》七日轮回文本互动。原作向文本互动角色卡，以七日轮回为核心，包含区域巡查、角色剧情、战术终端、状态记录、多结局分支与CG触发。';
   card.data.creator='叶罹';
-  card.data.creator_notes=notes;
-  card.creatorcomment=notes;
+  card.data.creator_notes=CREATOR_NOTES;
+  card.creatorcomment=CREATOR_NOTES;
   if(card.data.character_book?.extensions){
     card.data.character_book.extensions.creator='叶罹';
     card.data.character_book.extensions.version=ONEFILE_VERSION;
@@ -138,4 +164,4 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
 
 export const loadQiduReleaseCandidate=loadQiduCgCandidate;
 export const loadQiduReleaseCard=loadQiduCgCandidate;
-export { assertReleasePrivacy, entryMap };
+export { entryMap };
