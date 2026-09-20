@@ -1,0 +1,77 @@
+name: Qidu CG v0424 Real ST
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['feature/qidu-card-v0411-lab']
+    paths:
+      - '.lab/qidu-cg-v0424-trigger.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  real-sillytavern-cg:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      ST_DIR: /tmp/qidu-sillytavern
+      BROWSER_DIR: /tmp/qidu-browser-qa
+      LAB_EVIDENCE_DIR: ${{ github.workspace }}/cg-evidence
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Clone exact SillyTavern runtime
+        run: |
+          set -euo pipefail
+          rm -rf "$ST_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+      - name: Install SillyTavern dependencies
+        working-directory: /tmp/qidu-sillytavern
+        run: npm ci
+      - name: Start isolated SillyTavern
+        run: |
+          set -euo pipefail
+          rm -rf "$LAB_EVIDENCE_DIR"
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8000 --disableCsrf > /tmp/qidu-sillytavern.log 2>&1 &
+          echo $! > /tmp/qidu-sillytavern.pid
+          for i in $(seq 1 90); do
+            if curl -fsS --max-time 2 http://127.0.0.1:8000/ >/dev/null 2>&1; then exit 0; fi
+            if ! kill -0 "$(cat /tmp/qidu-sillytavern.pid)" 2>/dev/null; then cat /tmp/qidu-sillytavern.log; exit 1; fi
+            sleep 1
+          done
+          cat /tmp/qidu-sillytavern.log
+          exit 1
+      - name: Prepare browser QA
+        run: |
+          set -euo pipefail
+          rm -rf "$BROWSER_DIR"
+          mkdir -p "$BROWSER_DIR"
+          cd "$BROWSER_DIR"
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          echo "LAB_CHROME=$CHROME_BIN" >> "$GITHUB_ENV"
+          echo "LAB_PLAYWRIGHT_CORE_ENTRY=file://$BROWSER_DIR/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
+          echo "LAB_ST_URL=http://127.0.0.1:8000" >> "$GITHUB_ENV"
+      - name: Run exact CG candidate browser acceptance
+        run: node .lab/runtime-cg-v0424.mjs
+      - name: Stop isolated runtime
+        if: always()
+        run: |
+          if [ -f /tmp/qidu-sillytavern.pid ]; then kill "$(cat /tmp/qidu-sillytavern.pid)" 2>/dev/null || true; fi
+      - name: Upload CG evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-v0424-cg-real-st-evidence
+          path: cg-evidence/
+          if-no-files-found: error
