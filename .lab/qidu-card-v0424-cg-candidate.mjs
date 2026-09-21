@@ -5,18 +5,19 @@ import { loadQiduReleaseCandidate as loadBaseCandidate, entryMap } from './qidu-
 export const ONEFILE_VERSION='0.4.24';
 const CREATOR_NOTES='作者：叶罹。相关卡：《永远的7日之都》七日轮回文本互动。原作向文本互动角色卡，以七日轮回为核心，包含区域巡查、角色剧情、战术终端、状态记录、多结局分支与CG触发。';
 
-export const CG_KEYS=[
-  'cg_ann_first_meet',
-  'cg_antoneva_first_meet',
-  'cg_ending_journey',
-  'cg_ending_eternal_end',
-  'cg_ending_sacrifice_male',
-  'cg_ending_sacrifice_female',
-  'cg_ending_final_male',
-  'cg_ending_final_female',
-  'cg_ending_box_male',
-  'cg_ending_box_female'
-];
+export const CG_ASSETS={
+  cg_ann_first_meet:{file:'cg_ann_first_meet.webp',title:'安·初见',shape:'wide'},
+  cg_antoneva_first_meet:{file:'cg_antoneva_first_meet.webp',title:'安托涅瓦·初见',shape:'wide'},
+  cg_ending_journey:{file:'cg_ending_journey.webp',title:'两个人的旅途',shape:'wide'},
+  cg_ending_eternal_end:{file:'cg_ending_eternal_end.webp',title:'永恒的终焉',shape:'wide'},
+  cg_ending_sacrifice_male:{file:'cg_ending_sacrifice_male.webp',title:'牺牲的意义·男指挥使',shape:'wide'},
+  cg_ending_sacrifice_female:{file:'cg_ending_sacrifice_female.webp',title:'牺牲的意义·女指挥使',shape:'wide'},
+  cg_ending_final_male:{file:'cg_ending_final_male.webp',title:'终结·男指挥使',shape:'final'},
+  cg_ending_final_female:{file:'cg_ending_final_female.webp',title:'终结·女指挥使',shape:'final'},
+  cg_ending_box_male:{file:'cg_ending_box_male.webp',title:'箱庭风景·男指挥使',shape:'box'},
+  cg_ending_box_female:{file:'cg_ending_box_female.webp',title:'箱庭风景·女指挥使',shape:'box'}
+};
+export const CG_KEYS=Object.keys(CG_ASSETS);
 
 export function resolveEndingCg(ending,gender='unknown'){
   const fixed={
@@ -85,36 +86,19 @@ function cgRule(){
 - 《箱庭风景》：male→cg_ending_box_male；female→cg_ending_box_female。
 - 命中CG时，在剧情情绪落点后、终端前输出：<f7d_cg key="对应key"></f7d_cg>。
 - 当前版本禁止输出“已加入相册/已保存到终端/已同步到小手机”等留存提示。
-- CG展示必须手机/电脑自适应：保持原图比例，不裁主体，不强制拉伸；横图按宽度缩放，竖图同时受视口高度约束。
+- CG展示必须手机/电脑自适应：保持原图比例，不裁主体，不强制拉伸；横图按可用宽度缩放，竖图同时受视口高度约束。
 `;
 }
-function addCgSpriteRegex(card,dataUri){
+function addCgRegex(card,key,spec,dataUri){
   const scripts=card.data.extensions.regex_scripts ||= [];
-  const id='f7d-cg-sprite-v0424';
+  const id=`f7d-cg-${key}-v0424`;
   if(scripts.some(x=>x?.id===id)) return;
-  const keyAlternation=CG_KEYS.join('|');
-  const css=`
-<style data-f7d-cg-style="1">
-.f7d-cg-frame{display:block;margin:0 auto;background-image:url("${dataUri}");background-repeat:no-repeat;background-size:100% auto;background-color:#0b0d13;border-radius:10px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)}
-.f7d-cg-cg_ann_first_meet,.f7d-cg-cg_antoneva_first_meet,.f7d-cg-cg_ending_journey,.f7d-cg-cg_ending_eternal_end,.f7d-cg-cg_ending_sacrifice_male,.f7d-cg-cg_ending_sacrifice_female{width:min(100%,980px);aspect-ratio:16/9}
-.f7d-cg-cg_ending_final_male,.f7d-cg-cg_ending_final_female{width:min(100%,62.4vh);aspect-ratio:4/5}
-.f7d-cg-cg_ending_box_male,.f7d-cg-cg_ending_box_female{width:min(100%,58.6vh);aspect-ratio:640/853}
-.f7d-cg-cg_ann_first_meet{background-position:center 0%}
-.f7d-cg-cg_antoneva_first_meet{background-position:center 7.050529%}
-.f7d-cg-cg_ending_journey{background-position:center 14.101058%}
-.f7d-cg-cg_ending_eternal_end{background-position:center 21.151586%}
-.f7d-cg-cg_ending_sacrifice_male{background-position:center 28.202115%}
-.f7d-cg-cg_ending_sacrifice_female{background-position:center 35.252644%}
-.f7d-cg-cg_ending_final_male{background-position:center 46.292327%}
-.f7d-cg-cg_ending_final_female{background-position:center 63.437634%}
-.f7d-cg-cg_ending_box_male{background-position:center 81.508780%}
-.f7d-cg-cg_ending_box_female{background-position:center 100%}
-</style>`.replace(/\n/g,'');
+  const maxWidth=spec.shape==='wide'?'min(100%,980px)':spec.shape==='final'?'min(100%,62.4vh)':'min(100%,58.5vh)';
   scripts.push({
     id,
-    scriptName:'七都｜CG资源与响应式显示',
-    findRegex:`/<\\s*f7d_cg\\s+key=["'](${keyAlternation})["']\\s*>\\s*<\\s*\\/\\s*f7d_cg\\s*>/gi`,
-    replaceString:`${css}<figure data-f7d-cg="1" data-f7d-cg-key="$1" style="box-sizing:border-box;width:100%;max-width:100%;margin:.85em auto;padding:.55em;border:1px solid rgba(214,191,255,.42);border-radius:14px;background:linear-gradient(145deg,rgba(18,16,28,.96),rgba(31,24,48,.94));box-shadow:0 10px 28px rgba(0,0,0,.24);overflow:hidden"><div data-f7d-cg-image="1" class="f7d-cg-frame f7d-cg-$1" role="img" aria-label="$1"></div></figure>`,
+    scriptName:`七都｜CG｜${spec.title}`,
+    findRegex:`/<\\s*f7d_cg\\s+key=["']${key}["']\\s*>\\s*<\\s*\\/\\s*f7d_cg\\s*>/gi`,
+    replaceString:`<figure data-f7d-cg="1" data-f7d-cg-key="${key}" style="box-sizing:border-box;width:${maxWidth};max-width:100%;margin:.85em auto;padding:.55em;border:1px solid rgba(214,191,255,.42);border-radius:14px;background:linear-gradient(145deg,rgba(18,16,28,.96),rgba(31,24,48,.94));box-shadow:0 10px 28px rgba(0,0,0,.24);overflow:hidden"><img data-f7d-cg-image="1" alt="${spec.title}" src="${dataUri}" style="display:block;width:100%;max-width:100%;height:auto;object-fit:contain;object-position:center;border-radius:10px"></figure>`,
     trimStrings:[],
     placement:[2],
     markdownOnly:true,
@@ -193,9 +177,11 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
 【player_profile与cg_system字段】player_profile至少含gender；gender仅male/female/unknown。cg_system至少含enabled/mode/album_enabled/responsive_enabled/shown；当前mode固定direct_only、album_enabled=false、responsive_enabled=true。shown至少包含ann_first_meet、antoneva_first_meet、ending_journey、ending_eternal_end、ending_sacrifice_male、ending_sacrifice_female、ending_final_male、ending_final_female、ending_box_male、ending_box_female。
 `);
 
-  const spriteBytes=await fs.readFile(new URL('./qidu-cg-assets-v0424/cg_sprite.webp',import.meta.url));
-  const spriteData=`data:image/webp;base64,${spriteBytes.toString('base64')}`;
-  addCgSpriteRegex(card,spriteData);
+  for(const [key,spec] of Object.entries(CG_ASSETS)){
+    const bytes=await fs.readFile(new URL(`./qidu-cg-assets-v0424/${spec.file}`,import.meta.url));
+    const dataUri=`data:image/webp;base64,${bytes.toString('base64')}`;
+    addCgRegex(card,key,spec,dataUri);
+  }
 
   card.data.extensions.qidu_frontend={
     ...(card.data.extensions.qidu_frontend||{}),
@@ -203,7 +189,7 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
     cg_album:false,
     cg_responsive:true,
     cg_embedded_assets:true,
-    cg_asset_mode:'embedded-sprite'
+    cg_asset_mode:'embedded-images'
   };
 
   assertReleasePrivacy(card);
