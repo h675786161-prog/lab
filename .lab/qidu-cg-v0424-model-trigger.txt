@@ -1,2 +1,2 @@
-run=2
-reason=rerun after atomic CG state/tag hardening, no-meta persistence rule, and stable model retries
+run=3
+reason=parallel bounded CG behavior regression after atomic trigger hardening
