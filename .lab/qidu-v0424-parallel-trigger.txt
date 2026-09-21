@@ -1,2 +1,2 @@
-run=2
-reason=rerun after forcing every narrative probe import onto exact v0.4.24 CG candidate and adding import verification
+run=3
+reason=rerun exact v0.4.24 narrative gates after Kaji zero-source hardening, 8k probe budgets, and transient provider retry expansion
