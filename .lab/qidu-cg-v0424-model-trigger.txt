@@ -1,2 +1,2 @@
-run=4
-reason=rerun parallel CG behavior gate on currently available DeepSeek v4.1 flash
+run=5
+reason=rerun DeepSeek CG behavior gate with enough completion budget for full f7d_state plus CG and terminal
