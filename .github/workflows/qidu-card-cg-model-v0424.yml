@@ -27,7 +27,7 @@ jobs:
       MODEL_API_BASE: https://claudeapi.cc.cd/v1
       CG_MODEL: 'deepseek/deepseek-v4.1-flash'
       CG_CASES: ${{ matrix.cases }}
-      CG_MAX_TOKENS: 1200
+      CG_MAX_TOKENS: 4000
       CG_TIMEOUT_MS: 45000
       CG_ATTEMPTS: 2
       LAB_OUT_CG_MODEL: ${{ github.workspace }}/cg-model-evidence/${{ matrix.group }}
