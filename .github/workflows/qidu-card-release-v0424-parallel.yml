@@ -46,6 +46,25 @@ jobs:
       - uses: actions/checkout@v4
       - name: Adapt probe to exact v0.4.24 candidate
         run: python .lab/qidu-final-adapt-probes-v0424.py
+      - name: Verify adapted probes target v0.4.24
+        run: |
+          set -euo pipefail
+          files=(
+            .lab/qidu-card-model-bench-v0418-core.mjs
+            .lab/qidu-card-model-bench-v0421-encounter.mjs
+            .lab/qidu-card-model-bench-v0418-preset-conflict.mjs
+            .lab/qidu-card-model-bench-v0423-info-timeline.mjs
+            .lab/qidu-card-model-bench-v0423-npc-knowledge.mjs
+            .lab/qidu-card-model-bench-v0423-offscreen-source.mjs
+            .lab/qidu-first-chimera-release-v0423.mjs
+          )
+          for f in "${files[@]}"; do
+            grep -q "qidu-card-v0424-cg-candidate.mjs" "$f"
+            if grep -q "qidu-card-v0423-release-candidate.mjs" "$f"; then
+              echo "old candidate import remains in $f" >&2
+              exit 1
+            fi
+          done
       - name: Run narrative probe
         run: |
           set -euo pipefail
