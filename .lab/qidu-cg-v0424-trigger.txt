@@ -1,2 +1,2 @@
-run=6
-reason=rerun exact real-ST CG rendering after terminal tag syntax hard-lock
+run=7
+reason=exact real-ST/browser rerun after zero-source NPC hardening; CG assets unchanged
