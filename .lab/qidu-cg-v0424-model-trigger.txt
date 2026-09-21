@@ -1,2 +1,2 @@
-run=3
-reason=parallel bounded CG behavior regression after atomic trigger hardening
+run=4
+reason=rerun parallel CG behavior gate on currently available DeepSeek v4.1 flash
