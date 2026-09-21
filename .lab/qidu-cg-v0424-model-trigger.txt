@@ -1,2 +1,2 @@
-run=1
-reason=validate CG trigger tags, gender routing, unknown-gender suppression, and repeat suppression on exact v0.4.24 candidate
+run=2
+reason=rerun after atomic CG state/tag hardening, no-meta persistence rule, and stable model retries
