@@ -1,2 +1,2 @@
-run=3
-reason=full 10-CG embedded sprite, gender routing, and responsive real-ST acceptance
+run=4
+reason=full 10-CG sanitizer-safe inline images, gender routing, and responsive real-ST acceptance
