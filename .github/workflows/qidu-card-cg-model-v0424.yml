@@ -17,7 +17,7 @@ jobs:
     env:
       MODEL_API_KEY: ${{ secrets.PIAOMIAO }}
       MODEL_API_BASE: https://claudeapi.cc.cd/v1
-      GLM_MODEL: zai/glm-5.3-flash
+      CG_MODEL: '[ct]deepseek-v4-flash-0731'
       LAB_OUT_CG_MODEL: ${{ github.workspace }}/cg-model-evidence
     steps:
       - uses: actions/checkout@v4
