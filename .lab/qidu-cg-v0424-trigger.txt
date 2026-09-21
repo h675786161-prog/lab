@@ -1,2 +1,2 @@
-run=4
-reason=full 10-CG sanitizer-safe inline images, gender routing, and responsive real-ST acceptance
+run=5
+reason=rerun exact candidate after atomic CG state/tag hardening and direct-only persistence guard
