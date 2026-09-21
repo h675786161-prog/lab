@@ -28,6 +28,7 @@ jobs:
     timeout-minutes: 24
     strategy:
       fail-fast: false
+      max-parallel: 3
       matrix:
         kind: [core, encounter, conflict, info, npc, npcsource, chimera]
     env:
@@ -67,7 +68,7 @@ jobs:
         run: |
           set -euo pipefail
           export NODE_OPTIONS="--import=$GITHUB_WORKSPACE/.lab/qidu-fetch-retry-preload.mjs"
-          for n in 1 2; do
+          for n in 1 2 3; do
             ok=0
             case "${{ matrix.kind }}" in
               core)
