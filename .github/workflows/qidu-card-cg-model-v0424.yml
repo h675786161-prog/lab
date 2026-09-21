@@ -1,0 +1,34 @@
+name: Qidu CG v0424 Model Behavior
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['feature/qidu-card-v0411-lab']
+    paths:
+      - '.lab/qidu-cg-v0424-model-trigger.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  cg-model-behavior:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      MODEL_API_KEY: ${{ secrets.PIAOMIAO }}
+      MODEL_API_BASE: https://claudeapi.cc.cd/v1
+      GLM_MODEL: zai/glm-5.3-flash
+      LAB_OUT_CG_MODEL: ${{ github.workspace }}/cg-model-evidence
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Run exact v0.4.24 CG behavior bench
+        run: node .lab/qidu-card-model-bench-v0424-cg.mjs
+      - name: Upload CG model evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-v0424-cg-model-evidence
+          path: cg-model-evidence/
+          if-no-files-found: warn
