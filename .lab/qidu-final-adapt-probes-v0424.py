@@ -20,6 +20,8 @@ for name in FILES:
     s = s.replace("process.env.YOUZI_KEY || ''", "process.env.MODEL_API_KEY||''")
     s = s.replace("const API_BASE='https://youzi.today/v1';", "const API_BASE=process.env.MODEL_API_BASE;")
     s = s.replace("const API='https://youzi.today/v1/chat/completions';", "const API=`${process.env.MODEL_API_BASE}/chat/completions`;")
+    # 兜底：不管导入别名/解构形状如何，所有旧 release candidate 路径都必须指向 v0.4.24 CG candidate。
+    s = s.replace("from './qidu-card-v0423-release-candidate.mjs';", "from './qidu-card-v0424-cg-candidate.mjs';")
     for source in [
         './qidu-card-v0423-author-secret-guard.mjs',
         './qidu-card-v0423-release-sanitized.mjs',
