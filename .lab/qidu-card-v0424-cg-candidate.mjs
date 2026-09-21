@@ -77,6 +77,9 @@ function cgRule(){
 - 玩家性别只读取 f7d_state.player_profile.gender，允许 male/female/unknown。没有明确性别时不得猜测；男女差分CG必须等待性别已确认。
 - cg_system={enabled:true,mode:"direct_only",album_enabled:false,responsive_enabled:true,shown:{...}}。shown只防止本轮重复触发，不代表收藏。
 - CG不消耗行动节点。每个key同一轮回只触发一次。
+- 【CG事务原子性】只要本轮命中CG且对应shown原为false，本轮<f7d_state>必须把对应shown置为true，并且同一回复正文后必须真实输出对应<f7d_cg key="..."></f7d_cg>。这两件事必须同时发生：禁止“shown=true但漏掉CG标签”，也禁止“输出CG标签但shown仍为false”。
+- 当前direct_only模式禁止把CG写入meta.cg；meta.cg必须保持原值（通常为空数组）。shown只是本轮防重复开关，不是相册、收藏或永久解锁记录。
+- CG标签属于结构性必需输出，优先级高于额外结局散文。若输出额度紧张，应主动缩短正文，仍必须保留完整CG标签和<f7d_terminal>，不得写长篇结局导致标签或终端被截断。
 - 病房第一次正式见到安：cg_ann_first_meet。
 - 第一次正式见到安托涅瓦：cg_antoneva_first_meet。
 - 《两个人的旅途》：cg_ending_journey。
@@ -162,19 +165,19 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
 `);
   appendOnce(e04,'CG触发与展示系统｜隐藏执行',cgRule());
   appendOnce(e10,'安初见CG',`
-【安初见CG】首轮病房中第一次完成“玩家正式见到安、安确认玩家状态并自我介绍”的初见段落后，若cg_system.shown.ann_first_meet=false，则本轮把它更新为true，并在正文情绪落点后输出<f7d_cg key="cg_ann_first_meet"></f7d_cg>。CG播放0节点。
+【安初见CG】首轮病房中第一次完成“玩家正式见到安、安确认玩家状态并自我介绍”的初见段落后，若cg_system.shown.ann_first_meet=false，则本轮必须同时完成两件事：①<f7d_state>中ann_first_meet=true；②正文情绪落点后真实输出<f7d_cg key="cg_ann_first_meet"></f7d_cg>。缺一不可。不能先把shown置true再漏掉标签。CG播放0节点。
 `);
   appendOnce(e10,'安托涅瓦初见CG',`
-【安托涅瓦初见CG】首轮开场中第一次完成“玩家被带去中央庭并与安托涅瓦正式会面”的段落后，若cg_system.shown.antoneva_first_meet=false，则本轮把它更新为true，并在正文情绪落点后输出<f7d_cg key="cg_antoneva_first_meet"></f7d_cg>。仅听到名字、看见远处身影或尚未正式会面时不得提前触发。CG播放0节点。
+【安托涅瓦初见CG】首轮开场中第一次完成“玩家被带去中央庭并与安托涅瓦正式会面”的段落后，若cg_system.shown.antoneva_first_meet=false，则本轮必须原子提交：shown.antoneva_first_meet=true并输出<f7d_cg key="cg_antoneva_first_meet"></f7d_cg>。仅听到名字、看见远处身影或尚未正式会面时不得提前触发。CG播放0节点。
 `);
   appendOnce(e17,'普通线结局CG',`
-【普通线结局CG】进入《终结》《牺牲的意义》《箱庭风景》并完成结局正文情绪落点后，根据player_profile.gender输出对应CG key；只展示、不留存、不扣节点。male与female必须严格对应各自版本；若gender仍为unknown，不得擅自选图，也不得从文风、称谓或行为推测性别。
+【普通线结局CG】若后台结局已经确定为《终结》《牺牲的意义》《箱庭风景》，不得重新判定或改判。根据player_profile.gender直接选择对应CG key；male与female必须严格对应各自版本。对应shown原为false时，必须在同一回复原子完成“shown=true + 对应CG标签”。若gender仍为unknown，不得擅自选图，也不得从文风、称谓或行为推测性别，此时不触发男女差分CG、对应shown保持false。只展示、不留存、不扣节点；meta.cg不得记录该CG。结局正文应控制长度，确保CG标签与终端完整输出。
 `);
   appendOnce(e18,'安线结局CG',`
-【安线结局CG】进入《两个人的旅途》后触发cg_ending_journey；进入《永恒的终焉》后触发cg_ending_eternal_end。只展示、不留存、不扣节点。
+【安线结局CG】若后台已确定进入《两个人的旅途》，直接使用cg_ending_journey；若已确定进入《永恒的终焉》，直接使用cg_ending_eternal_end，不重新判定结局。对应shown原为false时，必须在同一回复原子完成“shown=true + 对应CG标签”。只展示、不留存、不扣节点；meta.cg不得记录CG。结局正文应控制长度，保证CG标签与终端完整输出。
 `);
   appendOnce(e91,'cg_system字段',`
-【player_profile与cg_system字段】player_profile至少含gender；gender仅male/female/unknown。cg_system至少含enabled/mode/album_enabled/responsive_enabled/shown；当前mode固定direct_only、album_enabled=false、responsive_enabled=true。shown至少包含ann_first_meet、antoneva_first_meet、ending_journey、ending_eternal_end、ending_sacrifice_male、ending_sacrifice_female、ending_final_male、ending_final_female、ending_box_male、ending_box_female。
+【player_profile与cg_system字段】player_profile至少含gender；gender仅male/female/unknown。cg_system至少含enabled/mode/album_enabled/responsive_enabled/shown；当前mode固定direct_only、album_enabled=false、responsive_enabled=true。shown至少包含ann_first_meet、antoneva_first_meet、ending_journey、ending_eternal_end、ending_sacrifice_male、ending_sacrifice_female、ending_final_male、ending_final_female、ending_box_male、ending_box_female。direct_only期间meta.cg不作为CG存档，禁止因触发CG而向meta.cg追加key。shown从false改true的回复必须同时包含对应<f7d_cg>标签；若标签本轮无法输出，则shown也不得提前置true。
 `);
 
   for(const [key,spec] of Object.entries(CG_ASSETS)){
