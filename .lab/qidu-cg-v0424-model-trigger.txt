@@ -1,0 +1,2 @@
+run=1
+reason=validate CG trigger tags, gender routing, unknown-gender suppression, and repeat suppression on exact v0.4.24 candidate
