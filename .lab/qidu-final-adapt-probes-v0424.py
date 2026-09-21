@@ -2,6 +2,7 @@ from pathlib import Path
 
 FILES = [
     '.lab/qidu-card-model-bench-v0418-core.mjs',
+    '.lab/qidu-card-model-bench-v0421-core.mjs',
     '.lab/qidu-card-model-bench-v0421-encounter.mjs',
     '.lab/qidu-card-model-bench-v0418-preset-conflict.mjs',
     '.lab/qidu-card-model-bench-v0423-info-timeline.mjs',
