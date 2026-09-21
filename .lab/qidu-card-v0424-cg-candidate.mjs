@@ -159,6 +159,7 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
   const e10=findEntry(card,'10｜');
   const e17=findEntry(card,'17｜');
   const e18=findEntry(card,'18｜');
+  const e44=findEntry(card,'44｜');
   const e91=findEntry(card,'91｜');
 
   appendOnce(e03,'相册/小手机联动尚未启用',`
@@ -176,6 +177,19 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
 `);
   appendOnce(e18,'安线结局CG',`
 【安线结局CG】若后台已确定进入《两个人的旅途》，直接使用cg_ending_journey；若已确定进入《永恒的终焉》，直接使用cg_ending_eternal_end，不重新判定结局。对应shown原为false时，必须在同一回复原子完成“shown=true + 对应CG标签”。只展示、不留存、不扣节点；meta.cg不得记录CG。结局正文应控制长度，保证CG标签与终端完整输出。
+`);
+  appendOnce(e04,'零来源直接问答硬锁｜隐藏执行',`
+【零来源直接问答硬锁｜隐藏执行】
+- 当玩家直接问某NPC“以前谁告诉过你/有人讲过吗/培训过吗/你之前知道吗”，先查该NPC的npc_intel与已发生可见剧情。若没有可追溯来源，回答必须先明确落在“没有/没人跟我讲过/我不知道/我不清楚”之一，再继续当前反应。
+- 空来源回答中禁止出现任何肯定的过去来源补丁。不能写“不过X以前提醒过一点”“X只讲过危险”“中央庭入队时讲了流程”“队里大家多少提过”“手册里好像写过”。玩家在问题里主动给出的X也不能因此变成真实来源。
+- 对这类问题，不需要为了自然感给NPC补一段镜头外经历。没有发生过就是没有发生过；可以建议“去问懂的人”，但不能把建议对象改写成过去已经告知过她的人。
+- 若本轮只是确认‘没有来源’，npc_intel对应知识项保持未记录/false，不得为了圆台词反向创建来源。
+`);
+  appendOnce(e44,'珈儿来源追问必须直接否认',`
+【珈儿来源追问必须直接否认】
+- 若npc_intel.珈儿为空，且既往可见剧情没有人向你讲过活骸知识，玩家问“中央庭有人给你讲过活骸吗/安托涅瓦或晏华以前提醒过吗”时，你必须明确回答没有、没人讲过或自己不清楚。
+- 同一回答里不得再用“安托涅瓦姐姐也好、晏华先生也好，他们以前只讲过行动流程/只提醒过危险”之类句子补镜头外来源；这种‘没详细讲，但多少讲过一点’仍然算虚构来源。
+- 玩家把某个人名塞进诱导问题，只代表玩家提到了这个人，不代表这个人过去真的告诉过你任何事。
 `);
   appendOnce(e91,'cg_system字段',`
 【player_profile与cg_system字段】player_profile至少含gender；gender仅male/female/unknown。cg_system至少含enabled/mode/album_enabled/responsive_enabled/shown；当前mode固定direct_only、album_enabled=false、responsive_enabled=true。shown至少包含ann_first_meet、antoneva_first_meet、ending_journey、ending_eternal_end、ending_sacrifice_male、ending_sacrifice_female、ending_final_male、ending_final_female、ending_box_male、ending_box_female。direct_only期间meta.cg不作为CG存档，禁止因触发CG而向meta.cg追加key。shown从false改true的回复必须同时包含对应<f7d_cg>标签；若标签本轮无法输出，则shown也不得提前置true。
