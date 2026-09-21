@@ -9,8 +9,8 @@ const {card,raw,compactSha256}=await loadQiduCgCandidate(process.env.GITHUB_WORK
 assertReleasePrivacy(card);
 
 const regexes=card.data.extensions?.regex_scripts||[];
-if(!regexes.some(x=>x?.id==='f7d-cg-sprite-v0424')) throw new Error('embedded CG sprite regex missing');
-if(card.data.extensions?.qidu_frontend?.cg_asset_mode!=='embedded-sprite') throw new Error('CG sprite mode missing');
+if(!CG_KEYS.every(k=>regexes.some(x=>x?.id===`f7d-cg-${k}-v0424`))) throw new Error('not every CG regex is embedded');
+if(card.data.extensions?.qidu_frontend?.cg_asset_mode!=='embedded-images') throw new Error('CG embedded-image mode missing');
 
 const firstState=String(card.data.first_mes||'').match(/<f7d_state>([\s\S]*?)<\/f7d_state>/i);
 if(!firstState) throw new Error('initial state missing');
@@ -54,7 +54,7 @@ if(!imported.ok) throw new Error(`CG candidate import failed ${imported.status}:
 
 const expectedAspect=key=>{
   if(key.includes('ending_final_')) return 4/5;
-  if(key.includes('ending_box_')) return 640/853;
+  if(key.includes('ending_box_')) return 3/4;
   return 16/9;
 };
 
@@ -67,6 +67,7 @@ try{
   if(!r||r.status()>=400)throw new Error(`HTTP ${r?.status()}`);
   await page.waitForTimeout(1800);
   await page.evaluate(()=>{for(const d of document.querySelectorAll('dialog[open]')){try{d.close()}catch{}}});
+
   client=await page.evaluate(async({name,version,hash,keys})=>{
     const st=await import('/script.js');
     const eng=await import('/scripts/extensions/regex/engine.js');
@@ -86,48 +87,70 @@ try{
     h.innerHTML=html;
     document.body.appendChild(h);
     h.showModal();
+
+    const imgs=[...h.querySelectorAll('[data-f7d-cg-image="1"]')];
+    await Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(resolve=>{
+      img.addEventListener('load',resolve,{once:true});
+      img.addEventListener('error',resolve,{once:true});
+      setTimeout(resolve,4000);
+    })));
     await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
 
     const R=e=>e?e.getBoundingClientRect():null;
     const hr=R(h);
     const figures=[...h.querySelectorAll('[data-f7d-cg="1"]')];
-    const items=figures.map(fig=>{
+    const items=[];
+    for(const fig of figures){
       const key=fig.getAttribute('data-f7d-cg-key');
       const img=fig.querySelector('[data-f7d-cg-image="1"]');
-      const fr=R(fig),ir=R(img),cs=img?getComputedStyle(img):null;
-      return{
+      const fr=R(fig),ir=R(img);
+      const src=String(img?.getAttribute('src')||'');
+      let sourceHash='';
+      if(src){
+        const dig=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(src));
+        sourceHash=[...new Uint8Array(dig)].slice(0,8).map(x=>x.toString(16).padStart(2,'0')).join('');
+      }
+      items.push({
         key,
         figure:Boolean(fig),
         image:Boolean(img),
-        dataUri:Boolean(cs?.backgroundImage?.includes('data:image/webp;base64,')),
-        positionY:cs?.backgroundPositionY||'',
+        complete:Boolean(img?.complete),
+        naturalWidth:Number(img?.naturalWidth||0),
+        naturalHeight:Number(img?.naturalHeight||0),
+        dataUri:src.startsWith('data:image/webp;base64,'),
+        sourceHash,
         width:ir?.width||0,
         height:ir?.height||0,
         aspect:ir&&ir.height?ir.width/ir.height:null,
         fits:Boolean(fr&&hr&&fr.left>=hr.left-2&&fr.right<=hr.right+2&&ir&&ir.left>=fr.left-2&&ir.right<=fr.right+2)
-      };
-    });
+      });
+    }
     return{
       found:true,
       creator:ch?.data?.creator,
       version:ch?.data?.character_version,
       allowed:eng.isScopedScriptsAllowed(ch),
       hidden:!h.textContent?.includes('private'),
+      noAlbumText:!/已加入相册|已保存到终端|已同步到小手机/.test(h.textContent||''),
       count:items.length,
       keys:items.map(x=>x.key),
       items,
-      styleCount:h.querySelectorAll('style[data-f7d-cg-style="1"]').length,
       terminal:Boolean(h.querySelector('[data-f7d-terminal="1"]')),
       hash
     };
   },{name:card.data.name,version:ONEFILE_VERSION,hash:compactSha256,keys:CG_KEYS});
 
-  const mobilePair=await page.evaluate(async()=>{
+  await page.evaluate(async()=>{
     const st=await import('/script.js');
     const h=document.getElementById('qidu-cg-acceptance-dialog');
     h.innerHTML=st.messageFormatting('横向CG：安·初见<f7d_cg key="cg_ann_first_meet"></f7d_cg>竖向CG：箱庭·女指挥使<f7d_cg key="cg_ending_box_female"></f7d_cg>','release',false,false,888890,{},false);
+    const imgs=[...h.querySelectorAll('[data-f7d-cg-image="1"]')];
+    await Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(resolve=>{
+      img.addEventListener('load',resolve,{once:true});
+      img.addEventListener('error',resolve,{once:true});
+      setTimeout(resolve,3000);
+    })));
     await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
-    return true;
   });
   await page.screenshot({path:path.join(evidenceDir,'qidu-v0424-cg-mobile.png'),fullPage:false});
 
@@ -157,8 +180,8 @@ try{
 
 const aspectOk=(key,x)=>Number.isFinite(x)&&Math.abs(x-expectedAspect(key))<0.035;
 const allKeysOk=CG_KEYS.every(k=>client?.keys?.includes(k));
-const itemOk=client?.items?.length===CG_KEYS.length&&client.items.every(x=>x.figure&&x.image&&x.dataUri&&x.fits&&aspectOk(x.key,x.aspect));
-const uniquePositions=new Set((client?.items||[]).map(x=>`${x.key}:${x.positionY}`)).size===CG_KEYS.length;
+const itemOk=client?.items?.length===CG_KEYS.length&&client.items.every(x=>x.figure&&x.image&&x.complete&&x.naturalWidth>0&&x.naturalHeight>0&&x.dataUri&&x.fits&&aspectOk(x.key,x.aspect));
+const uniqueSources=new Set((client?.items||[]).map(x=>x.sourceHash)).size===CG_KEYS.length;
 const desktopOk=client?.desktop?.items?.length===2&&client.desktop.items.every(x=>x.fits&&aspectOk(x.key,x.aspect));
 const ok=
   client?.found&&
@@ -166,12 +189,12 @@ const ok=
   client?.version===ONEFILE_VERSION&&
   client?.allowed&&
   client?.hidden&&
+  client?.noAlbumText&&
   client?.terminal&&
   client?.count===CG_KEYS.length&&
   allKeysOk&&
   itemOk&&
-  uniquePositions&&
-  client?.styleCount===CG_KEYS.length&&
+  uniqueSources&&
   desktopOk&&
   routingOk;
 
@@ -182,7 +205,7 @@ const report={
   routing,
   routingOk,
   client,
-  acceptance:{allKeysOk,itemOk,uniquePositions,desktopOk,ok}
+  acceptance:{allKeysOk,itemOk,uniqueSources,desktopOk,ok}
 };
 await fs.writeFile(path.join(evidenceDir,'qidu-v0424-cg-report.json'),JSON.stringify(report,null,2));
 await fs.writeFile(path.join(evidenceDir,'永远的7日之都-七日轮回文本互动-v0.4.24-cg-probe.json'),raw);
