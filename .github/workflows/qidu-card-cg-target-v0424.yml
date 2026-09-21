@@ -1,0 +1,37 @@
+name: Qidu CG v0424 Targeted Behavior
+
+on:
+  push:
+    branches: ['feature/qidu-card-v0411-lab']
+    paths:
+      - '.lab/qidu-cg-v0424-target-trigger.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  targeted-cg-behavior:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      MODEL_API_KEY: ${{ secrets.PIAOMIAO }}
+      MODEL_API_BASE: https://claudeapi.cc.cd/v1
+      CG_MODEL: 'deepseek/deepseek-v4.1-flash'
+      CG_CASES: ann_first_meet,antoneva_first_meet
+      CG_MAX_TOKENS: 8000
+      CG_TIMEOUT_MS: 60000
+      CG_ATTEMPTS: 2
+      LAB_OUT_CG_MODEL: ${{ github.workspace }}/cg-target-evidence
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Run targeted exact v0.4.24 CG behavior bench
+        run: node .lab/qidu-card-model-bench-v0424-cg.mjs
+      - name: Upload targeted evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-v0424-cg-target-evidence
+          path: cg-target-evidence/
+          if-no-files-found: warn
