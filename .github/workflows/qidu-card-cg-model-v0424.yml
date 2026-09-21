@@ -13,12 +13,24 @@ permissions:
 jobs:
   cg-model-behavior:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - group: a
+            cases: ann_first_meet,antoneva_first_meet,journey_ending,eternal_ending,sacrifice_male
+          - group: b
+            cases: sacrifice_female,final_male,box_female,box_unknown_gender,journey_repeat_suppressed
     env:
       MODEL_API_KEY: ${{ secrets.PIAOMIAO }}
       MODEL_API_BASE: https://claudeapi.cc.cd/v1
       CG_MODEL: '[ct]deepseek-v4-flash-0731'
-      LAB_OUT_CG_MODEL: ${{ github.workspace }}/cg-model-evidence
+      CG_CASES: ${{ matrix.cases }}
+      CG_MAX_TOKENS: 1200
+      CG_TIMEOUT_MS: 45000
+      CG_ATTEMPTS: 2
+      LAB_OUT_CG_MODEL: ${{ github.workspace }}/cg-model-evidence/${{ matrix.group }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,6 +41,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: qidu-v0424-cg-model-evidence
-          path: cg-model-evidence/
+          name: qidu-v0424-cg-model-evidence-${{ matrix.group }}
+          path: cg-model-evidence/${{ matrix.group }}/
           if-no-files-found: warn
