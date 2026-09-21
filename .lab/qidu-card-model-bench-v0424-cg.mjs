@@ -147,17 +147,19 @@ const {m,mode}=await chooseModel();
 const results=[];
 console.log(JSON.stringify({model:m,mode,version:card.data.character_version,hash:compactSha256,cases:cases.length}));
 for(const c of cases){
-  let status=0,out='',error=null;
+  let status=0,out='',error=null,finish_reason=null,usage=null;
   try{
     const r=await call(m,mode,[{role:'system',content:BASE},{role:'user',content:c.user}]);
     status=r.status;
     const t=await r.text();let d={};try{d=JSON.parse(t)}catch{}
     out=contentOf(d);
-  }catch(e){error=e?.name==='AbortError'?'provider-timeout-60s':String(e?.message||e)}
-  const failures=status===200&&out.length>60?c.check(out):[error||`provider-status-${status}`];
+    finish_reason=d?.choices?.[0]?.finish_reason??null;
+    usage=d?.usage??null;
+  }catch(e){error=e?.name==='AbortError'?('provider-timeout-'+Number(process.env.CG_TIMEOUT_MS||45000)+'ms'):String(e?.message||e)}
+  const failures=status===200&&out.length>60?c.check(out):[error||('provider-status-'+status)];
   const pass=status===200&&out.length>60&&failures.length===0;
-  results.push({id:c.id,status,pass,failures,out,error});
-  console.log(JSON.stringify({id:c.id,status,pass,failures}));
+  results.push({id:c.id,status,pass,failures,out,error,finish_reason,usage});
+  console.log(JSON.stringify({id:c.id,status,pass,failures,finish_reason,usage}));
   await sleep(900);
 }
 const summary={version:card.data.character_version,hash:compactSha256,model:m,mode,total:results.length,passed:results.filter(x=>x.pass).length,failed:results.filter(x=>!x.pass).map(x=>x.id)};
