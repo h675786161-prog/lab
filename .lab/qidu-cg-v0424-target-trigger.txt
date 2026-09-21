@@ -1,0 +1,2 @@
+run=1
+reason=validate Ann and Antoneva first-meet CG after terminal syntax hard-lock with 8k output budget
