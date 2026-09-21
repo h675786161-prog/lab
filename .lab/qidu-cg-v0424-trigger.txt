@@ -1,2 +1,2 @@
-run=5
-reason=rerun exact candidate after atomic CG state/tag hardening and direct-only persistence guard
+run=6
+reason=rerun exact real-ST CG rendering after terminal tag syntax hard-lock
