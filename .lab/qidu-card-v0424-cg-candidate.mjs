@@ -80,6 +80,7 @@ function cgRule(){
 - 【CG事务原子性】只要本轮命中CG且对应shown原为false，本轮<f7d_state>必须把对应shown置为true，并且同一回复正文后必须真实输出对应<f7d_cg key="..."></f7d_cg>。这两件事必须同时发生：禁止“shown=true但漏掉CG标签”，也禁止“输出CG标签但shown仍为false”。
 - 当前direct_only模式禁止把CG写入meta.cg；meta.cg必须保持原值（通常为空数组）。shown只是本轮防重复开关，不是相册、收藏或永久解锁记录。
 - CG标签属于结构性必需输出，优先级高于额外结局散文。若输出额度紧张，应主动缩短正文，仍必须保留完整CG标签和<f7d_terminal>，不得写长篇结局导致标签或终端被截断。
+- 【终端标签语法硬锁】终端只能使用精确成对标签：<f7d_terminal>……</f7d_terminal>。开始标签不得带属性、引号、冒号或其他字符；禁止写成<f7d_terminal">、<f7d_terminal:...>、Markdown代码块或其他近似形式。CG触发后仍必须保留合法终端标签。
 - 病房第一次正式见到安：cg_ann_first_meet。
 - 第一次正式见到安托涅瓦：cg_antoneva_first_meet。
 - 《两个人的旅途》：cg_ending_journey。
@@ -165,7 +166,7 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
 `);
   appendOnce(e04,'CG触发与展示系统｜隐藏执行',cgRule());
   appendOnce(e10,'安初见CG',`
-【安初见CG】首轮病房中第一次完成“玩家正式见到安、安确认玩家状态并自我介绍”的初见段落后，若cg_system.shown.ann_first_meet=false，则本轮必须同时完成两件事：①<f7d_state>中ann_first_meet=true；②正文情绪落点后真实输出<f7d_cg key="cg_ann_first_meet"></f7d_cg>。缺一不可。不能先把shown置true再漏掉标签。CG播放0节点。
+【安初见CG】首轮病房中第一次完成“玩家正式见到安、安确认玩家状态并自我介绍”的初见段落后，若cg_system.shown.ann_first_meet=false，则本轮必须同时完成两件事：①<f7d_state>中ann_first_meet=true；②正文情绪落点后真实输出<f7d_cg key="cg_ann_first_meet"></f7d_cg>。缺一不可。不能先把shown置true再漏掉标签。随后必须使用精确的<f7d_terminal>……</f7d_terminal>收尾，标签不得多出引号或属性。CG播放0节点。
 `);
   appendOnce(e10,'安托涅瓦初见CG',`
 【安托涅瓦初见CG】首轮开场中第一次完成“玩家被带去中央庭并与安托涅瓦正式会面”的段落后，若cg_system.shown.antoneva_first_meet=false，则本轮必须原子提交：shown.antoneva_first_meet=true并输出<f7d_cg key="cg_antoneva_first_meet"></f7d_cg>。仅听到名字、看见远处身影或尚未正式会面时不得提前触发。CG播放0节点。
