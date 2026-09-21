@@ -27,20 +27,21 @@ const BASE=[
 ].filter(Boolean).join('\n\n');
 
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-async function call(model,mode,messages,max_tokens=2200,timeoutMs=90000){
+async function call(model,mode,messages,max_tokens=Number(process.env.CG_MAX_TOKENS||1200),timeoutMs=Number(process.env.CG_TIMEOUT_MS||45000)){
   const p={model,temperature:.10,top_p:.9,max_tokens,messages};
   if(mode==='thinking-disabled')p.thinking={type:'disabled'};
+  const attempts=Math.max(1,Number(process.env.CG_ATTEMPTS||2));
   let lastError=null;
-  for(let attempt=0;attempt<4;attempt++){
+  for(let attempt=0;attempt<attempts;attempt++){
     const controller=new AbortController();
     const t=setTimeout(()=>controller.abort(),timeoutMs);
     try{
       const r=await fetch(API,{method:'POST',signal:controller.signal,headers:{Authorization:`Bearer ${KEY}`,'Content-Type':'application/json'},body:JSON.stringify(p)});
-      if([429,500,502,503,504].includes(r.status)&&attempt<3){await r.text();await sleep(2500*(attempt+1));continue}
+      if([429,500,502,503,504].includes(r.status)&&attempt<attempts-1){await r.text();await sleep(1800*(attempt+1));continue}
       return r;
     }catch(e){
       lastError=e;
-      if(e?.name==='AbortError'&&attempt<3){await sleep(2500*(attempt+1));continue}
+      if(e?.name==='AbortError'&&attempt<attempts-1){await sleep(2500*(attempt+1));continue}
       throw e;
     }finally{clearTimeout(t)}
   }
@@ -126,7 +127,7 @@ function negativeCheck(kind){
   };
 }
 
-const cases=[
+const allCases=[
   {id:'ann_first_meet',user:`${state()}\n我刚在病房醒来。只演到安确认我的状态并第一次自我介绍完成为止，不要继续去见其他中央庭成员。`,check:positiveCheck('cg_ann_first_meet',['cg_antoneva_first_meet'])},
   {id:'antoneva_first_meet',user:`${state({location:'中央庭',known:['安'],cg_system:{shown:{ann_first_meet:true}}})}\n安已经带我来到中央庭。现在是我第一次与安托涅瓦正式会面。只演到这次初见完成，不继续后面的主线。`,check:positiveCheck('cg_antoneva_first_meet',['cg_ann_first_meet'])},
   {id:'journey_ending',user:`${state({day:0,route:'ann',known:['安'],cg_system:{shown:{ann_first_meet:true}},meta:{endings:['两个人的旅途']}})}\n后台已完成结局判定：我明确选择跟安离开，当前进入《两个人的旅途》。不要重新判定条件，只演出结局收尾并按卡内规则触发CG。结局正文控制在700中文字以内，必须留出空间输出完整CG标签和终端。`,check:positiveCheck('cg_ending_journey')},
@@ -138,6 +139,9 @@ const cases=[
   {id:'box_unknown_gender',user:`${state({day:0,player_profile:{gender:'unknown'},meta:{endings:['箱庭风景']}})}\n后台已完成结局判定，当前结局确定为《箱庭风景》，但我从未说明指挥使性别。完成收尾，但不要猜测性别。`,check:negativeCheck('gender-unknown')},
   {id:'journey_repeat_suppressed',user:`${state({day:0,route:'ann',known:['安'],cg_system:{shown:{ending_journey:true}},meta:{endings:['两个人的旅途']}})}\n《两个人的旅途》结局CG刚刚已经展示过。继续同一段结局余韵，不要重复展示刚才的CG。`,check:negativeCheck('repeat')}
 ];
+const requestedCases=String(process.env.CG_CASES||'').split(',').map(x=>x.trim()).filter(Boolean);
+const cases=requestedCases.length?allCases.filter(x=>requestedCases.includes(x.id)):allCases;
+if(!cases.length) throw new Error('no CG behavior cases selected');
 
 const {m,mode}=await chooseModel();
 const results=[];
