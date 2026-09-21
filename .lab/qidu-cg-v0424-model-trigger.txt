@@ -1,2 +1,2 @@
-run=5
-reason=rerun DeepSeek CG behavior gate with enough completion budget for full f7d_state plus CG and terminal
+run=6
+reason=full 10-case CG behavior regression on exact post-terminal-fix candidate with 8k output budget
