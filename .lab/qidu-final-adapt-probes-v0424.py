@@ -63,11 +63,11 @@ for name in FILES:
         "(?:没能活下来|没活下来|没能幸存|没能撑过|没能回来|死亡|死去|死在|牺牲|丧生|遇难|没回来|没了)",
     )
     # v0.4.24状态块增加CG字段，给叙事探针留足完整状态+正文输出预算，避免把截断误判成剧情失败。
-    s = s.replace("max_tokens=1700", "max_tokens=3400")
-    s = s.replace("max_tokens=1500", "max_tokens=3200")
-    s = s.replace("max_tokens=1400", "max_tokens=3200")
-    s = s.replace("max_tokens=1300", "max_tokens=3000")
-    s = s.replace("max_tokens:1250", "max_tokens:3000")
-    s = s.replace("max_tokens:1100", "max_tokens:2800")
-    s = s.replace("max_tokens:1000", "max_tokens:2600")
+    s = s.replace("max_tokens=1700", "max_tokens=8000")
+    s = s.replace("max_tokens=1500", "max_tokens=8000")
+    s = s.replace("max_tokens=1400", "max_tokens=8000")
+    s = s.replace("max_tokens=1300", "max_tokens=8000")
+    s = s.replace("max_tokens:1250", "max_tokens:8000")
+    s = s.replace("max_tokens:1100", "max_tokens:8000")
+    s = s.replace("max_tokens:1000", "max_tokens:8000")
     p.write_text(s, encoding='utf-8')
