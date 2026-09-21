@@ -1,2 +1,2 @@
-run=1
-reason=parallel final narrative gates for exact hash 0432e06d50d8dacc5c48010076d7fff7ee92546b8f13e291d27d916adfada89b after real-ST and 10/10 CG behavior pass
+run=2
+reason=rerun after forcing every narrative probe import onto exact v0.4.24 CG candidate and adding import verification
