@@ -1,2 +1,2 @@
-run=2
-reason=rerun after updating privacy validation for new author notes and CG metadata
+run=3
+reason=full 10-CG embedded sprite, gender routing, and responsive real-ST acceptance
