@@ -1,2 +1,2 @@
-run=4
-reason=verify reasoning route preserves exact f7d state, CG and terminal tags under full v0.4.24 prompt
+run=5
+reason=verify alternate RP Sol route preserves exact f7d structural tags under full v0.4.24 prompt
