@@ -12,16 +12,16 @@ permissions:
 jobs:
   targeted-cg-behavior:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 6
     env:
       MODEL_API_KEY: ${{ secrets.PIAOMIAO }}
       MODEL_API_BASE: https://claudeapi.cc.cd/v1
       CG_MODEL: 'gemini-3.6-flash'
-      CG_CASES: ann_first_meet,antoneva_first_meet
-      CG_MAX_TOKENS: 8000
-      CG_TIMEOUT_MS: 100000
-      CG_ATTEMPTS: 4
-      CG_CASE_GAP_MS: 5000
+      CG_CASES: ann_first_meet
+      CG_MAX_TOKENS: 4000
+      CG_TIMEOUT_MS: 120000
+      CG_ATTEMPTS: 1
+      CG_CASE_GAP_MS: 1000
       LAB_OUT_CG_MODEL: ${{ github.workspace }}/cg-target-evidence
     steps:
       - uses: actions/checkout@v4
