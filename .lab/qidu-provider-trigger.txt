@@ -1,2 +1,2 @@
-run=3
-reason=find a currently completion-capable text model after exact GLM hit its free cap and alternate routes returned 503 or empty content
+run=4
+reason=probe usable provider routes while v0.4.24 final gate is blocked by repeated PIAOMIAO 429 caps
