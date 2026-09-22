@@ -1,2 +1,2 @@
-run=1
-reason=exact v0.4.24 final gate after 10/10 CG model behavior pass and exact real-ST/browser pass
+run=2
+reason=rerun final gate with serialized provider-heavy jobs and expanded legacy narrative budgets
