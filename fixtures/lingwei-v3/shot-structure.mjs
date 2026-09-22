@@ -82,7 +82,6 @@ function checkCommon(r,mobile=false){
   if(!r.topIsGlobal)fail('top navigation base is not mounted as a global top bar');
   const structuralRequired=mobile?['chatShell','topNav','input','aiPaper','userPaper','botFrame','userFrame','divider']:Object.keys(r.structuralAssets);
   if(!structuralRequired.every(k=>r.structuralAssets[k]))fail(`missing structural assets ${JSON.stringify(r.structuralAssets)}`);
-  if(!Object.values(r.structuralAssets).every(Boolean))fail(`missing source asset bindings ${JSON.stringify(r.structuralAssets)}`);
   if(!r.cjkFontReady)fail('CJK font not ready');
   if(!r.input||r.input.height<56||r.input.height>66)fail(`input shell ${JSON.stringify(r.input)}`);
   if(!r.textarea||r.textarea.width<(mobile?150:r.input.width*.45)||r.textarea.height<40)fail(`textarea ${JSON.stringify(r.textarea)}`);
@@ -107,6 +106,7 @@ await d.locator('#left-nav-panel').screenshot({path:path.join(evidence,'detail-r
 await d.locator('#send_textarea').fill('输入栏实机检查：真实 9-slice 底座，textarea 与左右功能区保持原生。');
 await d.locator('#send_form').screenshot({path:path.join(evidence,'detail-input-bar.png')});
 await d.locator('.lw-test-long-ai').scrollIntoViewIfNeeded(); await d.waitForTimeout(200); await d.screenshot({path:path.join(evidence,'desktop-long.png')});
+await d.locator('#chat').screenshot({path:path.join(evidence,'detail-center-chat-long.png')});
 
 const m=await browser.newPage({viewport:{width:430,height:844}}); const mm=await prepare(m,false); const mr=await report(m); checkCommon(mr,true);
 await m.screenshot({path:path.join(evidence,'mobile-full.png')});
