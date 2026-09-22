@@ -16,7 +16,7 @@ jobs:
     env:
       MODEL_API_KEY: ${{ secrets.PIAOMIAO }}
       MODEL_API_BASE: https://claudeapi.cc.cd/v1
-      CG_MODEL: '[ma]gpt-5.6-reasoning'
+      CG_MODEL: '[rp]gpt-5.6-sol'
       CG_CASES: ann_first_meet,antoneva_first_meet
       CG_MAX_TOKENS: 8000
       CG_TIMEOUT_MS: 100000
