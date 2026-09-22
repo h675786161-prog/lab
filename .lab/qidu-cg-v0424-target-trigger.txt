@@ -1,2 +1,2 @@
-run=7
-reason=fast exact one-case probe of hy3 route after Gemini returned capped/truncated structural output
+run=8
+reason=rerun hy3 exact one-case probe with 8k output budget because 4k preserved state but truncated before CG and terminal
