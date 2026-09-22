@@ -70,4 +70,22 @@ for name in FILES:
     s = s.replace("max_tokens:1250", "max_tokens:8000")
     s = s.replace("max_tokens:1100", "max_tokens:8000")
     s = s.replace("max_tokens:1000", "max_tokens:8000")
+
+    # Give the legacy narrative probes enough room for the full state block plus prose.
+    # The old budgets were tuned for smaller cards and now create false failures by truncation/timeouts.
+    s = s.replace("max_tokens=1700", "max_tokens=5000")
+    s = s.replace("max_tokens=1500", "max_tokens=5000")
+    s = s.replace("max_tokens=1400", "max_tokens=5000")
+    s = s.replace("max_tokens=1300", "max_tokens=5000")
+    s = s.replace("max_tokens:1250", "max_tokens:5000")
+    s = s.replace("max_tokens:1100", "max_tokens:5000")
+    s = s.replace("max_tokens:1000", "max_tokens:5000")
+    s = s.replace("timeoutMs=60000", "timeoutMs=90000")
+    s = s.replace("timeoutMs=75000", "timeoutMs=100000")
+    s = s.replace("setTimeout(()=>c.abort(),45000)", "setTimeout(()=>c.abort(),90000)")
+    s = s.replace("setTimeout(()=>c.abort(),60000)", "setTimeout(()=>c.abort(),90000)")
+    s = s.replace("provider-timeout-45s", "provider-timeout-90s")
+    s = s.replace("provider-timeout-60s", "provider-timeout-90s")
+    s = s.replace("provider-timeout-75s", "provider-timeout-100s")
+
     p.write_text(s, encoding='utf-8')
