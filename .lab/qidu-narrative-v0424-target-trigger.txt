@@ -1,0 +1,2 @@
+run=1
+reason=verify core and encounter on exact current v0.4.24 candidate with healthy DeepSeek route
