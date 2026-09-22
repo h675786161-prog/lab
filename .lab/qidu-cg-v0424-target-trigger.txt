@@ -1,2 +1,2 @@
-run=6
-reason=verify Gemini route preserves exact f7d structural tags under full v0.4.24 prompt
+run=7
+reason=fast exact one-case probe of hy3 route after Gemini returned capped/truncated structural output
