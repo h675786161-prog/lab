@@ -77,7 +77,7 @@ const contentOf=d=>{
   if(Array.isArray(c))return c.map(x=>typeof x==='string'?x:(x?.text||x?.content||'')).join('');
   return String(c||'');
 };
-async function chooseModel(){
+async function chooseModel(exclude=[]){
   let ids=[];
   try{
     const r=await fetch(`${API_BASE}/models`,{headers:{Authorization:`Bearer ${KEY}`}});
@@ -86,7 +86,7 @@ async function chooseModel(){
   }catch{}
   const requested=process.env.CG_MODEL||process.env.GLM_MODEL||'deepseek/deepseek-v4.1-flash';
   const pref=[requested,'deepseek/deepseek-v4.1-flash','[amd]DeepSeek-V4.1-Flash','[iao]deepseek-ai/DeepSeek-V4-Flash-0731','[ox]deepseek-ai/DeepSeek-V4-Flash-0731','zai/glm-5.3-flash','[amd]GLM-5.3-Flash','[iao]zai-org/GLM-5.3-Flash','[ox]zai-org/GLM-5.3-Flash',...ids.filter(x=>/(deepseek|glm|qwen)/i.test(x))];
-  for(const m of [...new Set(pref.filter(x=>!ids.length||ids.includes(x)))].slice(0,20)){
+  for(const m of [...new Set(pref.filter(x=>(!ids.length||ids.includes(x))&&!exclude.includes(x)))].slice(0,20)){
     for(const mode of ['thinking-disabled','plain']){
       try{
         const r=await call(m,mode,[{role:'system',content:'只输出中文。'},{role:'user',content:'只写：收到'}],80,22000);
@@ -171,10 +171,10 @@ if(!cases.length) throw new Error('no CG behavior cases selected');
 const {m,mode}=await chooseModel();
 const results=[];
 console.log(JSON.stringify({model:m,mode,version:card.data.character_version,hash:compactSha256,cases:cases.length}));
-for(const c of cases){
+async function runOneCase(c,model,runMode){
   let status=0,out='',error=null,finish_reason=null,usage=null;
   try{
-    const r=await call(m,mode,[{role:'system',content:BASE},{role:'user',content:c.user}]);
+    const r=await call(model,runMode,[{role:'system',content:BASE},{role:'user',content:c.user}]);
     status=r.status;
     const t=await r.text();let d={};try{d=JSON.parse(t)}catch{}
     out=contentOf(d);
@@ -182,16 +182,28 @@ for(const c of cases){
     usage=d?.usage??null;
   }catch(e){error=e?.name==='AbortError'?('provider-timeout-'+Number(process.env.CG_TIMEOUT_MS||45000)+'ms'):String(e?.message||e)}
   const failures=status===200&&out.length>60?c.check(out):[error||('provider-status-'+status)];
-  const pass=status===200&&out.length>60&&failures.length===0;
-  results.push({id:c.id,status,pass,failures,out,error,finish_reason,usage});
-  console.log(JSON.stringify({id:c.id,status,pass,failures,finish_reason,usage}));
+  return {id:c.id,model,mode:runMode,status,pass:status===200&&out.length>60&&failures.length===0,failures,out,error,finish_reason,usage};
+}
+for(const c of cases){
+  let result=await runOneCase(c,m,mode);
+  if(!result.pass&&result.failures.length>0&&result.failures.every(x=>String(x).startsWith('provider-'))){
+    try{
+      const fallback=await chooseModel([m]);
+      console.log(JSON.stringify({provider_case_fallback:true,id:c.id,from:m,to:fallback.m,mode:fallback.mode}));
+      result=await runOneCase(c,fallback.m,fallback.mode);
+    }catch(e){
+      console.log(JSON.stringify({provider_case_fallback:false,id:c.id,error:String(e?.message||e)}));
+    }
+  }
+  results.push(result);
+  console.log(JSON.stringify({id:result.id,model:result.model,mode:result.mode,status:result.status,pass:result.pass,failures:result.failures,finish_reason:result.finish_reason,usage:result.usage}));
   await sleep(Math.max(900,Number(process.env.CG_CASE_GAP_MS||10000)));
 }
 const failedResults=results.filter(x=>!x.pass);
 const providerBlocked=failedResults.filter(x=>x.failures.length>0&&x.failures.every(y=>String(y).startsWith('provider-')));
 const behaviorFailed=failedResults.filter(x=>!providerBlocked.includes(x));
 const summary={
-  version:card.data.character_version,hash:compactSha256,model:m,mode,total:results.length,
+  version:card.data.character_version,hash:compactSha256,model:m,mode,modelsUsed:[...new Set(results.map(x=>x.model))],total:results.length,
   passed:results.filter(x=>x.pass).length,
   providerBlocked:providerBlocked.map(x=>x.id),
   behaviorFailed:behaviorFailed.map(x=>x.id),
