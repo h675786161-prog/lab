@@ -30,18 +30,30 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function call(model,mode,messages,max_tokens=Number(process.env.CG_MAX_TOKENS||1200),timeoutMs=Number(process.env.CG_TIMEOUT_MS||45000)){
   const p={model,temperature:.10,top_p:.9,max_tokens,messages};
   if(mode==='thinking-disabled')p.thinking={type:'disabled'};
-  const attempts=Math.max(1,Number(process.env.CG_ATTEMPTS||2));
+  const attempts=Math.max(1,Number(process.env.CG_ATTEMPTS||4));
   let lastError=null;
   for(let attempt=0;attempt<attempts;attempt++){
     const controller=new AbortController();
     const t=setTimeout(()=>controller.abort(),timeoutMs);
     try{
       const r=await fetch(API,{method:'POST',signal:controller.signal,headers:{Authorization:`Bearer ${KEY}`,'Content-Type':'application/json'},body:JSON.stringify(p)});
-      if([429,500,502,503,504].includes(r.status)&&attempt<attempts-1){await r.text();await sleep(1800*(attempt+1));continue}
+      if([429,500,502,503,504].includes(r.status)&&attempt<attempts-1){
+        const retryAfter=Number(r.headers.get('retry-after')||0);
+        const waitMs=retryAfter>0?retryAfter*1000:(r.status===429?12000*(attempt+1):3500*(attempt+1));
+        await r.text();
+        console.log(JSON.stringify({provider_retry:true,status:r.status,attempt:attempt+1,wait_ms:waitMs}));
+        await sleep(waitMs);
+        continue;
+      }
       return r;
     }catch(e){
       lastError=e;
-      if(e?.name==='AbortError'&&attempt<attempts-1){await sleep(2500*(attempt+1));continue}
+      if(e?.name==='AbortError'&&attempt<attempts-1){
+        const waitMs=7000*(attempt+1);
+        console.log(JSON.stringify({provider_retry:true,status:'timeout',attempt:attempt+1,wait_ms:waitMs}));
+        await sleep(waitMs);
+        continue;
+      }
       throw e;
     }finally{clearTimeout(t)}
   }
@@ -160,7 +172,7 @@ for(const c of cases){
   const pass=status===200&&out.length>60&&failures.length===0;
   results.push({id:c.id,status,pass,failures,out,error,finish_reason,usage});
   console.log(JSON.stringify({id:c.id,status,pass,failures,finish_reason,usage}));
-  await sleep(900);
+  await sleep(Math.max(900,Number(process.env.CG_CASE_GAP_MS||10000)));
 }
 const summary={version:card.data.character_version,hash:compactSha256,model:m,mode,total:results.length,passed:results.filter(x=>x.pass).length,failed:results.filter(x=>!x.pass).map(x=>x.id)};
 await fs.writeFile(path.join(OUT,'report.json'),JSON.stringify({summary,results},null,2));
