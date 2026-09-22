@@ -1,2 +1,2 @@
-run=2
-reason=verify healthy AMD DeepSeek route against exact v0.4.24 large-prompt CG cases
+run=3
+reason=verify Sol route against exact v0.4.24 large-prompt first-meet CG cases after short-route probe passed
