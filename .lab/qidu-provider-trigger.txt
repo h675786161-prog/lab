@@ -1,2 +1,2 @@
-run=6
-reason=probe structured-output-capable routes after Sol completed but corrupted required f7d tags under full card prompt
+run=7
+reason=probe alternate model families after GPT routes preserved semantics but mangled f7d structural tags
