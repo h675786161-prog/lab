@@ -1,14 +1,14 @@
-/* LingWei v3 — final real-component asset mounting pass
+/* LingWei v3 — real SillyTavern structure pass
    Loaded after theme.css and layout-guard.css.
-   It restores the user's source art to the REAL SillyTavern components.
-   No fake page, no floating substitute UI. */
+   Key correction:
+   - top-nav-base is the GLOBAL top bar
+   - each message is a VERTICAL unit: avatar above paper
+   - message paper is split into fixed TOP + extensible MIDDLE + fixed BOTTOM
+   No fake page and no default horizontal avatar/bubble layout. */
 
-/* --------------------------------------------------------------------------
+/* ==========================================================================
    GLOBAL TOP NAV
-   top-nav-base.png is the actual top navigation base, not a message header.
-   Use border-image so decorative ends stay stable while the center stretches.
-   Native drawer toggles remain the clickable content layer.
-   -------------------------------------------------------------------------- */
+   ========================================================================== */
 #top-bar,
 body.no-blur #top-bar {
   position: fixed !important;
@@ -77,11 +77,9 @@ body.no-blur #top-bar {
   box-shadow: inset 0 -2px 0 rgba(237,214,170,.82) !important;
 }
 
-/* --------------------------------------------------------------------------
+/* ==========================================================================
    REAL INPUT BAR
-   input-bar-base.png skins #send_form itself. The real left tools, textarea
-   and right tools remain interactive children.
-   -------------------------------------------------------------------------- */
+   ========================================================================== */
 #send_form,
 body.no-blur #send_form {
   position: relative !important;
@@ -112,7 +110,6 @@ body.no-blur #send_form {
   background: none !important;
 }
 
-/* Keep layout-guard's real 3-zone input grid, but account for the border art. */
 #send_form #nonQRFormItems {
   position: relative !important;
   z-index: 2 !important;
@@ -123,17 +120,68 @@ body.no-blur #send_form {
   box-sizing: border-box !important;
 }
 
-/* --------------------------------------------------------------------------
-   AVATARS
-   Intact frame art, proportionally scaled. No slicing or geometric stretch.
-   -------------------------------------------------------------------------- */
-#chat .mes:not(.smallSysMes) .mesAvatarWrapper {
+/* ==========================================================================
+   MESSAGE STRUCTURE
+   The real .mes node becomes a vertical component.
+   Avatar belongs to the message, sits ABOVE the paper, centered on that paper.
+   ========================================================================== */
+#chat .mes:not(.smallSysMes) {
+  --lw-paper-side-src: 38;
+  --lw-paper-side-w: 26px;
+  --lw-paper-cap-h: 43px;
+  --lw-paper-top: url("./parts/message-ai-top.png");
+  --lw-paper-mid: url("./parts/message-ai-middle.png");
+  --lw-paper-bottom: url("./parts/message-ai-bottom.png");
+
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  width: min(100%, 700px) !important;
+  min-width: 0 !important;
+  margin: 0 0 24px 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+#chat .mes:not(.smallSysMes)[is_user="true"] {
+  --lw-paper-side-src: 34;
+  --lw-paper-side-w: 24px;
+  --lw-paper-cap-h: 30px;
+  --lw-paper-top: url("./parts/message-user-top.png");
+  --lw-paper-mid: url("./parts/message-user-middle.png");
+  --lw-paper-bottom: url("./parts/message-user-bottom.png");
+
+  width: min(100%, 560px) !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+
+/* Avatar frame is intact artwork and never stretched. */
+#chat .mes:not(.smallSysMes) .mesAvatarWrapper,
+#chat .mes:not(.smallSysMes)[is_user="true"] .mesAvatarWrapper {
+  order: 1 !important;
+  align-self: center !important;
+  grid-column: auto !important;
   position: relative !important;
   width: 82px !important;
   height: 90px !important;
   min-width: 82px !important;
   min-height: 90px !important;
+  margin: 0 auto -3px !important;
+  padding: 0 !important;
+  display: grid !important;
+  place-items: center !important;
+  border: 0 !important;
   background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  z-index: 4 !important;
 }
 
 #chat .mes:not(.smallSysMes) .mesAvatarWrapper::before {
@@ -157,12 +205,124 @@ body.no-blur #send_form {
   height: 60px !important;
   min-width: 60px !important;
   min-height: 60px !important;
-  margin: 12px 0 0 !important;
+  margin: 10px 0 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
   border-radius: 50% !important;
+  background: #aea8c1 !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.36) !important;
   overflow: hidden !important;
 }
 
-/* Responsive sizes from the component size table. */
+#chat .mes:not(.smallSysMes) .avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  border-radius: 50% !important;
+}
+
+/* ==========================================================================
+   THREE-PART PAPER
+   .mes_block itself is the infinitely extensible seam/body.
+   ::before is the fixed upper half.
+   ::after  is the fixed lower half.
+   Each band uses horizontal 3-slice so its corners/end ornaments do not stretch.
+   ========================================================================== */
+#chat .mes:not(.smallSysMes) .mes_block,
+#chat .mes:not(.smallSysMes)[is_user="true"] .mes_block {
+  order: 2 !important;
+  grid-column: auto !important;
+  position: relative !important;
+  isolation: isolate !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 86px !important;
+  margin: 0 !important;
+  padding: 17px 30px 18px !important;
+  box-sizing: border-box !important;
+  color: var(--lw-ink) !important;
+  background: transparent !important;
+  border-style: solid !important;
+  border-color: transparent !important;
+  border-width: 0 var(--lw-paper-side-w) !important;
+  border-image-source: var(--lw-paper-mid) !important;
+  border-image-slice: 0 var(--lw-paper-side-src) 0 var(--lw-paper-side-src) fill !important;
+  border-image-width: 0 var(--lw-paper-side-w) !important;
+  border-image-repeat: stretch !important;
+  border-image-outset: 0 !important;
+  box-shadow: 0 9px 22px rgba(53,47,69,.09) !important;
+  overflow: visible !important;
+  z-index: 1 !important;
+}
+
+#chat .mes:not(.smallSysMes)[is_user="true"] .mes_block {
+  min-height: 54px !important;
+  padding: 13px 27px 14px !important;
+  color: #4d4860 !important;
+}
+
+#chat .mes:not(.smallSysMes) .mes_block::before,
+#chat .mes:not(.smallSysMes) .mes_block::after {
+  content: "" !important;
+  position: absolute !important;
+  left: calc(-1 * var(--lw-paper-side-w)) !important;
+  right: calc(-1 * var(--lw-paper-side-w)) !important;
+  height: var(--lw-paper-cap-h) !important;
+  box-sizing: border-box !important;
+  border-style: solid !important;
+  border-color: transparent !important;
+  border-width: 0 var(--lw-paper-side-w) !important;
+  border-image-slice: 0 var(--lw-paper-side-src) 0 var(--lw-paper-side-src) fill !important;
+  border-image-width: 0 var(--lw-paper-side-w) !important;
+  border-image-repeat: stretch !important;
+  border-image-outset: 0 !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+
+#chat .mes:not(.smallSysMes) .mes_block::before {
+  top: 0 !important;
+  border-image-source: var(--lw-paper-top) !important;
+}
+
+#chat .mes:not(.smallSysMes) .mes_block::after {
+  bottom: 0 !important;
+  border-image-source: var(--lw-paper-bottom) !important;
+}
+
+/* Real SillyTavern content remains above the paper skin. */
+#chat .mes:not(.smallSysMes) .ch_name,
+#chat .mes:not(.smallSysMes) .mes_text,
+#chat .mes:not(.smallSysMes) .mes_buttons,
+#chat .mes:not(.smallSysMes) .mes_edit_buttons {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+#chat .mes:not(.smallSysMes) .ch_name {
+  min-height: 22px !important;
+  margin: 0 0 6px !important;
+  padding: 0 0 5px !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(108,94,126,.14) !important;
+  background: transparent !important;
+}
+
+#chat .mes:not(.smallSysMes) .mes_text {
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: inherit !important;
+  line-height: 1.62 !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
 @media (max-width: 1000px) {
   #top-bar,
   body.no-blur #top-bar {
@@ -195,15 +355,26 @@ body.no-blur #send_form {
     padding: 7px 44px !important;
   }
 
-  #chat .mes:not(.smallSysMes) .mesAvatarWrapper {
+  #chat .mes:not(.smallSysMes) {
+    --lw-paper-side-w: 18px;
+    --lw-paper-cap-h: 34px;
+    width: min(100%, 350px) !important;
+    margin-bottom: 20px !important;
+  }
+
+  #chat .mes:not(.smallSysMes)[is_user="true"] {
+    --lw-paper-side-w: 17px;
+    --lw-paper-cap-h: 25px;
+    width: min(100%, 320px) !important;
+  }
+
+  #chat .mes:not(.smallSysMes) .mesAvatarWrapper,
+  #chat .mes:not(.smallSysMes)[is_user="true"] .mesAvatarWrapper {
     width: 66px !important;
     height: 74px !important;
     min-width: 66px !important;
     min-height: 74px !important;
-  }
-
-  #chat .mes:not(.smallSysMes) .mesAvatarWrapper::before {
-    background-size: contain !important;
+    margin-bottom: -2px !important;
   }
 
   #chat .mes:not(.smallSysMes) .avatar {
@@ -211,6 +382,16 @@ body.no-blur #send_form {
     height: 48px !important;
     min-width: 48px !important;
     min-height: 48px !important;
-    margin-top: 10px !important;
+    margin-top: 9px !important;
+  }
+
+  #chat .mes:not(.smallSysMes) .mes_block,
+  #chat .mes:not(.smallSysMes)[is_user="true"] .mes_block {
+    max-width: none !important;
+    padding: 14px 20px 15px !important;
+  }
+
+  #chat .mes:not(.smallSysMes)[is_user="true"] .mes_block {
+    padding: 12px 19px 13px !important;
   }
 }

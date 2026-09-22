@@ -38,6 +38,7 @@ jobs:
           p=Path(sys.argv[1])
           s=p.read_text(encoding='utf-8')
           s=s.replace('url("./assets/','url("/scripts/extensions/third-party/lingwei-v3-qa/assets/')
+          s=s.replace('url("./parts/','url("/scripts/extensions/third-party/lingwei-v3-qa/parts/')
           required=(
               'chat-shell-frame.png','top-nav-base.png','left-drawer-base.png','right-drawer-base.png',
               'input-bar-base.png','message-ai-paper.png','message-user-paper.png',
@@ -48,13 +49,17 @@ jobs:
           p.write_text(s,encoding='utf-8')
           PY
           cp fixtures/lingwei-v3/assets/*.png /tmp/lingwei-v3-assets/
+          python3 -m pip install --disable-pip-version-check --quiet pillow==11.3.0
+          python3 fixtures/lingwei-v3/build_parts.py fixtures/lingwei-v3/assets /tmp/lingwei-v3-parts
           python3 - <<'PY'
           from pathlib import Path
-          files=sorted(Path('/tmp/lingwei-v3-assets').glob('*.png'))
-          assert len(files)==10, f'expected 10 PNGs, got {len(files)}'
-          for f in files:
-              assert f.read_bytes()[:8]==b'\x89PNG\r\n\x1a\n', f'invalid PNG: {f.name}'
-          print('10 source PNGs: PASS')
+          groups=[('/tmp/lingwei-v3-assets',10),('/tmp/lingwei-v3-parts',6)]
+          for root,expected in groups:
+              files=sorted(Path(root).glob('*.png'))
+              assert len(files)==expected, f'{root}: expected {expected} PNGs, got {len(files)}'
+              for f in files:
+                  assert f.read_bytes()[:8]==b'\x89PNG\r\n\x1a\n', f'invalid PNG: {f.name}'
+          print('10 source PNGs + 6 message paper fragments: PASS')
           PY
           cp /tmp/lingwei-v3.css "$EVIDENCE/combined-theme.css"
 
@@ -68,9 +73,11 @@ jobs:
       - name: Install v3 QA assets
         run: |
           DST="$ST_DIR/public/scripts/extensions/third-party/lingwei-v3-qa"
-          mkdir -p "$DST/assets"
+          mkdir -p "$DST/assets" "$DST/parts"
           cp /tmp/lingwei-v3-assets/*.png "$DST/assets"/
+          cp /tmp/lingwei-v3-parts/*.png "$DST/parts"/
           test "$(find "$DST/assets" -maxdepth 1 -name '*.png' | wc -l)" -eq 10
+          test "$(find "$DST/parts" -maxdepth 1 -name '*.png' | wc -l)" -eq 6
 
       - name: Install
         working-directory: /tmp/lingwei-v3-st

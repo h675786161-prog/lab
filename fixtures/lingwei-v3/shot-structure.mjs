@@ -23,7 +23,7 @@ async function prepare(page,desktop){
     const make=({user=false,name,time,cls,html})=>{const row=document.createElement('div');row.className=`mes last_mes ${cls}`;row.setAttribute('is_user',user?'true':'false');row.setAttribute('is_system','false');row.innerHTML=`<div class="mesAvatarWrapper"><div class="avatar"><img alt="${name}" src="${user?avatars.user:avatars.ai}"></div></div><div class="mes_block"><div class="ch_name"><span class="name_text">${name}</span><span class="timestamp">${time}</span><div class="mes_buttons"><span class="mes_button fa-solid fa-pencil"></span><span class="mes_button fa-solid fa-ellipsis"></span></div></div><div class="mes_text">${html}</div></div>`;return row};
     chat.appendChild(make({name:'聆梦',time:'04:31',cls:'lw-test-short-ai',html:'<p>单行短消息。头像、消息纸张和正文属于真实消息组件。</p>'}));
     const d=document.createElement('div');d.className='lw-date-divider';d.innerHTML='<span>9 月 15 日 · 暮色</span>';chat.appendChild(d);
-    chat.appendChild(make({user:true,name:'玲',time:'04:32',cls:'lw-test-normal-user',html:'<p>这是普通用户消息的四行压力测试。<br>右侧头像保持正常尺寸。<br>纸张只扩展中央内容区。<br>正文与操作区仍然可读。</p>'}));
+    chat.appendChild(make({user:true,name:'玲',time:'04:32',cls:'lw-test-normal-user',html:'<p>这是普通用户消息的四行压力测试。<br>头像位于消息纸张上方。<br>只有中段允许纵向无限延伸。<br>正文与操作区仍然可读。</p>'}));
     const long=Array.from({length:16},(_,i)=>`第 ${i+1} 行：长消息只允许中央纸张向下增长，四角、金边和头像框不能被纵向拉变形。`).join('<br>');
     chat.appendChild(make({name:'聆梦',time:'04:33',cls:'lw-test-long-ai',html:`<p>${long}</p>`}));
     const continuous='超长连续文本用于验证overflowwrapanywhere不会把中央聊天区域顶出横向滚动条'.repeat(18);
@@ -50,6 +50,12 @@ async function report(page){return await page.evaluate(()=>{
   const inputBorder=prop('#send_form','border-image-source');
   const botFrame=prop('.lw-test-short-ai .mesAvatarWrapper','background-image','::before');
   const userFrame=prop('.lw-test-normal-user .mesAvatarWrapper','background-image','::before');
+  const aiMid=prop('.lw-test-short-ai .mes_block','border-image-source');
+  const aiTop=prop('.lw-test-short-ai .mes_block','border-image-source','::before');
+  const aiBottom=prop('.lw-test-short-ai .mes_block','border-image-source','::after');
+  const userMid=prop('.lw-test-normal-user .mes_block','border-image-source');
+  const userTop=prop('.lw-test-normal-user .mes_block','border-image-source','::before');
+  const userBottom=prop('.lw-test-normal-user .mes_block','border-image-source','::after');
   return{
     viewport:{width:innerWidth,height:innerHeight},overflowX:Math.max(0,Math.round(root.scrollWidth-innerWidth)),chatOverflowX:chat?Math.max(0,chat.scrollWidth-chat.clientWidth):null,
     messageCount:document.querySelectorAll('#chat .mes').length,
@@ -58,6 +64,7 @@ async function report(page){return await page.evaluate(()=>{
     chat:rect('#chat'),characterRail:rect('#right-nav-panel'),settingsRail:rect('#left-nav-panel'),
     input:rect('#send_form'),textarea:rect('#send_textarea'),inputLeft:rect('#leftSendForm'),inputRight:rect('#rightSendForm'),
     shortAI:rect('.lw-test-short-ai .mes_block'),normalUser:rect('.lw-test-normal-user .mes_block'),longAI:rect('.lw-test-long-ai .mes_block'),continuousUser:metric('.lw-test-continuous-user .mes_text'),aiAvatar:rect('.lw-test-short-ai .mesAvatarWrapper'),userAvatar:rect('.lw-test-normal-user .mesAvatarWrapper'),dateDivider:rect('.lw-date-divider'),
+    aiRow:rect('.lw-test-short-ai'),userRow:rect('.lw-test-normal-user'),
     cjkFontReady:document.fonts.check('16px "Noto Sans CJK SC"'),
     nodes:{chat:!!document.querySelector('#chat'),sendForm:!!document.querySelector('#send_form'),textarea:!!document.querySelector('#send_textarea'),send:!!document.querySelector('#send_but'),stop:!!document.querySelector('#mes_stop'),continue:!!document.querySelector('#mes_continue'),characterPanel:!!document.querySelector('#right-nav-panel'),settingsPanel:!!document.querySelector('#left-nav-panel')},
     structuralAssets:{
@@ -66,8 +73,8 @@ async function report(page){return await page.evaluate(()=>{
       leftDrawer:has('#right-nav-panel','border-image-source','left-drawer-base.png'),
       rightDrawer:has('#left-nav-panel','border-image-source','right-drawer-base.png'),
       input:inputBorder.includes('input-bar-base.png'),
-      aiPaper:has('.lw-test-short-ai .mes_block','border-image-source','message-ai-paper.png'),
-      userPaper:has('.lw-test-normal-user .mes_block','border-image-source','message-user-paper.png'),
+      aiPaper:aiMid.includes('message-ai-middle.png')&&aiTop.includes('message-ai-top.png')&&aiBottom.includes('message-ai-bottom.png'),
+      userPaper:userMid.includes('message-user-middle.png')&&userTop.includes('message-user-top.png')&&userBottom.includes('message-user-bottom.png'),
       botFrame:botFrame.includes('avatar-frame-bot.png'),
       userFrame:userFrame.includes('avatar-frame-user.png'),
       divider:has('.lw-date-divider','border-image-source','date-divider.png')
@@ -94,6 +101,15 @@ function checkCommon(r,mobile=false){
     for(const c of r.topControls){if(c.width<55||c.height<42)fail(`top control too small ${JSON.stringify(c)}`)}
     if(r.shortAI.height<86)fail('short AI'); if(r.normalUser.height<54)fail('normal user'); if(r.longAI.height<=r.shortAI.height+180)fail('long AI did not expand'); if(r.continuousUser.scrollWidth>r.continuousUser.clientWidth)fail('continuous overflow');
     for(const k of['aiAvatar','userAvatar']){const a=r[k];if(!a||a.width<80||a.width>84||a.height<88||a.height>92)fail(`${k} ${JSON.stringify(a)}`)}
+    const stack=(avatar,paper,label)=>{
+      if(!avatar||!paper)fail(`${label} stack missing`);
+      const ac=(avatar.x+avatar.right)/2, pc=(paper.x+paper.right)/2;
+      if(Math.abs(ac-pc)>6)fail(`${label} avatar not centered above paper: ${JSON.stringify({avatar,paper})}`);
+      const gap=paper.y-avatar.bottom;
+      if(gap < -12 || gap > 12)fail(`${label} avatar/paper vertical relationship wrong gap=${gap}`);
+    };
+    stack(r.aiAvatar,r.shortAI,'AI');
+    stack(r.userAvatar,r.normalUser,'USER');
   }
 }
 
