@@ -1,2 +1,2 @@
-run=5
-reason=probe alternate text routes for 33k-context qidu validation after AMD DeepSeek timed out on full prompt
+run=6
+reason=probe structured-output-capable routes after Sol completed but corrupted required f7d tags under full card prompt
