@@ -117,6 +117,7 @@ jobs:
 
   narrative:
     needs: cg-behavior
+    if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 100
     env:
