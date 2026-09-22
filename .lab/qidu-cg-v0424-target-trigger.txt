@@ -1,2 +1,2 @@
-run=9
-reason=verify new highest-priority atomic final-state rule fixes hy3 shown flag while preserving exact CG and terminal tags
+run=10
+reason=verify per-case provider fallback on exact current v0.4.24 candidate without hiding behavior failures
