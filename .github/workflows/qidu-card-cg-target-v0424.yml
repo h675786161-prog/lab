@@ -16,7 +16,7 @@ jobs:
     env:
       MODEL_API_KEY: ${{ secrets.PIAOMIAO }}
       MODEL_API_BASE: https://claudeapi.cc.cd/v1
-      CG_MODEL: 'gemini-3.6-flash'
+      CG_MODEL: '[ok]hy3'
       CG_CASES: ann_first_meet
       CG_MAX_TOKENS: 4000
       CG_TIMEOUT_MS: 120000
