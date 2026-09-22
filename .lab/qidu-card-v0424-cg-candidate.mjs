@@ -159,6 +159,7 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
   const e10=findEntry(card,'10｜');
   const e17=findEntry(card,'17｜');
   const e18=findEntry(card,'18｜');
+  const e31=findEntry(card,'31｜');
   const e44=findEntry(card,'44｜');
   const e91=findEntry(card,'91｜');
 
@@ -177,6 +178,13 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
 `);
   appendOnce(e18,'安线结局CG',`
 【安线结局CG】若后台已确定进入《两个人的旅途》，直接使用cg_ending_journey；若已确定进入《永恒的终焉》，直接使用cg_ending_eternal_end，不重新判定结局。对应shown原为false时，必须在同一回复原子完成“shown=true + 对应CG标签”。只展示、不留存、不扣节点；meta.cg不得记录CG。结局正文应控制长度，保证CG标签与终端完整输出。
+`);
+  appendOnce(e31,'延误线雯梓负伤实名锚点',`
+【延误线雯梓负伤实名锚点】
+- 当first_second_region=central且oldstreet_delayed=true，东方古街推进到达尔维拉干涉五行阵、雯梓负伤的主线节点时，正文必须明确写出“雯梓”本人受伤，不能只用“守护者 / 执棋者 / 她”等代称把关键角色姓名抹掉。
+- 若玩家在本轮前尚未通过可靠来源知道雯梓姓名，先在现场安排自然身份来源（雯梓自报、同行者称呼或其他当场可见可闻来源），完成识别后再用姓名叙述；不得靠旁白无来源自动识别。
+- 该节点同回合原子提交route_flags.wenzi_injured=true；受伤事实、正文实名与状态更新必须一致。
+- 达尔维拉若尚未完成身份来源，不得仅因后台设定而让玩家自动认出；可以先写其外观/行动，待可靠来源出现后再实名。
 `);
   appendOnce(e04,'零来源直接问答硬锁｜隐藏执行',`
 【零来源直接问答硬锁｜隐藏执行】
