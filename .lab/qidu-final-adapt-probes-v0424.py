@@ -97,4 +97,14 @@ for name in FILES:
     s = s.replace("provider-timeout-60s", "provider-timeout-90s")
     s = s.replace("provider-timeout-75s", "provider-timeout-100s")
 
+    # Core has the same tiny-smoke-prompt problem as encounter: hy3 can be healthy for the real
+    # long-context case while returning empty/odd output on the 160-token preflight. If the exact
+    # release route is advertised, let the real six-case core probe judge it instead of falling
+    # through to a random Qwen route and burning six 90s timeouts.
+    if name == '.lab/qidu-card-model-bench-v0418-core.mjs':
+        s = s.replace(
+            "}throw new Error('no usable model')}",
+            "}if(requested&&(!ids.length||ids.includes(requested)))return{m:requested,mode:'plain'};throw new Error('no usable model')}",
+        )
+
     p.write_text(s, encoding='utf-8')
