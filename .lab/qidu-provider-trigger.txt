@@ -1,2 +1,2 @@
-run=4
-reason=probe usable provider routes while v0.4.24 final gate is blocked by repeated PIAOMIAO 429 caps
+run=5
+reason=probe alternate text routes for 33k-context qidu validation after AMD DeepSeek timed out on full prompt
