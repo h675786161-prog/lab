@@ -1,2 +1,2 @@
-run=6
-reason=validate Wenzi delayed-scene identity anchor and repaired encounter model qualification on exact v0.4.24 candidate
+run=7
+reason=rerun exact v0.4.24 final gate after transient hard-cap retry and core advertised-route fixes; candidate content unchanged from hash 930f0fb0d08c34a5fdcac7bcb10b0a3ffc07a78f1876cde742c71179a26dff21
