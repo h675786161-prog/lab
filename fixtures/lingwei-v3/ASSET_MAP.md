@@ -44,3 +44,7 @@
 1. `theme.css`
 2. `layout-guard.css`
 3. `structure-pass.css`
+
+## 本轮校正
+
+顶部长条固定解释为全局 SillyTavern 顶栏底座；验收同时输出中央聊天长消息局部截图。
