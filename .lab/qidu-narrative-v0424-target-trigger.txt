@@ -1,2 +1,2 @@
-run=1
-reason=verify core and encounter on exact current v0.4.24 candidate with healthy DeepSeek route
+run=2
+reason=rerun core and encounter after fixing explicit 1300-token encounter truncation; exact candidate content unchanged
