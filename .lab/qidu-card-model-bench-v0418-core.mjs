@@ -11,7 +11,29 @@ const BASE=[card.data.personality,card.data.scenario,constants,card.data.post_hi
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function call(model,mode,messages,max_tokens=1700){const p={model,temperature:.30,top_p:.9,max_tokens,messages};if(mode==='thinking-disabled')p.thinking={type:'disabled'};const c=new AbortController();const t=setTimeout(()=>c.abort(),45000);try{return await fetch(API,{method:'POST',signal:c.signal,headers:{Authorization:`Bearer ${KEY}`,'Content-Type':'application/json'},body:JSON.stringify(p)});}finally{clearTimeout(t)}}
 const contentOf=d=>{const c=d?.choices?.[0]?.message?.content;if(Array.isArray(c))return c.map(x=>typeof x==='string'?x:(x?.text||x?.content||'')).join('');return String(c||'')};
-async function chooseModel(){let ids=[];try{const r=await fetch(`${API_BASE}/models`,{headers:{Authorization:`Bearer ${KEY}`}});const d=await r.json();ids=(d?.data||d?.models||[]).map(x=>typeof x==='string'?x:(x?.id||x?.name||x?.model)).filter(Boolean)}catch{};const requested=process.env.GLM_MODEL||'[B]glm-5.3-flash';const pref=[requested,requested.replace(/^\[[^\]]+\]/,'').trim(),'[B]qwen3.8-flash','qwen3.8-flash','step-3.5-flash','grok-chat-fast'];const list=[...new Set([...pref.filter(x=>!ids.length||ids.includes(x)),...ids.filter(x=>/(qwen|step|grok|glm)/i.test(x))])].slice(0,20);for(const m of list){for(const mode of ['thinking-disabled','plain']){try{const r=await call(m,mode,[{role:'system',content:'只输出中文正文。'},{role:'user',content:'写一句话：只根据眼前证据说明风险。'}],160);const txt=await r.text();let d={};try{d=JSON.parse(txt)}catch{};if(r.ok&&contentOf(d).length>2)return{m,mode}}catch{}}}throw new Error('no usable model')}
+async function chooseModel(){
+  let ids=[];
+  try{
+    const r=await fetch(`${API_BASE}/models`,{headers:{Authorization:`Bearer ${KEY}`}});
+    const d=await r.json();
+    ids=(d?.data||d?.models||[]).map(x=>typeof x==='string'?x:(x?.id||x?.name||x?.model)).filter(Boolean);
+  }catch{}
+  const requested=process.env.GLM_MODEL||'[B]glm-5.3-flash';
+  if(!ids.length||ids.includes(requested)){
+    for(const mode of ['thinking-disabled','plain']){
+      try{
+        const r=await call(requested,mode,[{role:'system',content:'只输出中文正文。'},{role:'user',content:'写一句话：只根据眼前证据说明风险。'}],160);
+        const txt=await r.text();let d={};try{d=JSON.parse(txt)}catch{}
+        if(r.ok&&contentOf(d).length>2)return{m:requested,mode};
+      }catch{}
+    }
+    return {m:requested,mode:'plain'};
+  }
+  const pref=[requested.replace(/^\[[^\]]+\]/,'').trim(),'[B]qwen3.8-flash','qwen3.8-flash','step-3.5-flash','grok-chat-fast'];
+  const list=[...new Set([...pref.filter(x=>!ids.length||ids.includes(x)),...ids.filter(x=>/(qwen|step|grok|glm)/i.test(x))])].slice(0,20);
+  for(const m of list){for(const mode of ['thinking-disabled','plain']){try{const r=await call(m,mode,[{role:'system',content:'只输出中文正文。'},{role:'user',content:'写一句话：只根据眼前证据说明风险。'}],160);const txt=await r.text();let d={};try{d=JSON.parse(txt)}catch{};if(r.ok&&contentOf(d).length>2)return{m,mode}}catch{}}}
+  throw new Error('no usable model');
+}
 function state(overrides={}){const s={schema:'f7d_textloop_0.4',loop:1,day:4,node_used:5,route:'central',location:'中央庭',regions:{court:{patrol:0,liberated:true,build_steps:[]},school:{patrol:6,liberated:true,build_steps:[]},east:{patrol:0,liberated:false,build_steps:[]},central:{patrol:6,liberated:true,build_steps:[]},institute:{patrol:0,liberated:false,build_steps:[]},seaside:{patrol:0,liberated:false,build_steps:[]},old:{patrol:0,liberated:false,build_steps:[]},harbor:{patrol:0,liberated:false,build_steps:[]}},cores:{court:'purified',school:'purified',east:'unknown',central:'available',institute:'unknown',seaside:'unknown',old:'unknown',harbor:'unknown'},tasks:{},known:['安','晏华','珈儿'],relationships:{安:{stage:'熟悉',romance:false}},ann:{affection:45,core_events:['ANN_CORE_30'],camera:true,eligible:false,chased:null,recovered:false},hiro:{intel:2,handled:[]},route_flags:{first_second_region:'central',oldstreet_delayed:true,wenzi_injured:false,wenzi_joined:false},antoneva_choice:null,artifact_view:null,ann_release:null,battle_flags:{final_battle:null,active_corpse_final:null,sybilla_condition_obtained:false,sybilla_rescued:null},intel_flags:{countdown_visible_to_user:true,countdown_meaning_known:false,chimera_exists_known:false,zero_identity_known:false,ann_origin_known:false,loop_truth_known:false},meta:{cg:[],endings:[]}};const merge=(a,b)=>{for(const[k,v]of Object.entries(b)){if(v&&typeof v==='object'&&!Array.isArray(v)&&a[k]&&typeof a[k]==='object'&&!Array.isArray(a[k]))merge(a[k],v);else a[k]=v}return a};return `<f7d_state>${JSON.stringify(merge(s,overrides))}</f7d_state>`}
 const visible=x=>String(x).replace(/<f7d_state>[\s\S]*?<\/f7d_state>/gi,'');const choiceWrapOpen=/<\s*f7d_choices\s*>/i;const choiceOpen=/<\s*f7d_choice\s*>/i;
 const cases=[
