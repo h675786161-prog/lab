@@ -48,7 +48,7 @@ jobs:
               if mid:ids.append(str(mid))
             row.update(status=st,models=ids[:100],error=er)
             priority=[]
-            preferred=['zai/glm-5.3-flash','[ov]z-ai/glm-5.3-flash','[ct]glm-5.3-flash','[ov]z-ai/glm-5.3','z-zai/glm-5.3','[ba]qwen3.8-flash','[amd]Qwen3.8-Flash-Next']
+            preferred=['[ma]gpt-5.6-sol','[ok]glm-4-7-flash','[ox]deepseek-ai/DeepSeek-V4-Flash-0731','[qw]grok-4.6','[iao]MiniMaxAI/MiniMax-M2.7','[amd]DeepSeek-V4.1-Flash','zai/glm-5.3-flash','[ov]z-ai/glm-5.3-flash']
             for m in preferred+ids:
               low=m.lower()
               if m in ids and m not in priority and any(k in low for k in ('glm','qwen','gemini','claude','gpt','grok','deepseek','step')) and 'vision' not in low:priority.append(m)
