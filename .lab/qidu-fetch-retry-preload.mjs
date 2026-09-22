@@ -8,6 +8,12 @@ if (typeof nativeFetch === 'function') {
       try {
         response = await nativeFetch(...args);
         if (![429, 500, 502, 503, 504].includes(response.status)) return response;
+        if (response.status === 429) {
+          const probeText = await response.clone().text().catch(() => '');
+          if (/(INFERENCE_CAP_ERROR|Daily free limit reached|daily.*limit|quota.*exhaust)/i.test(probeText)) {
+            return response;
+          }
+        }
         if (attempt < 3) {
           try { await response.arrayBuffer(); } catch {}
           await new Promise(resolve => setTimeout(resolve, 1200 * (attempt + 1)));
