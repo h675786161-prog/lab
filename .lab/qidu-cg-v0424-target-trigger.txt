@@ -1,2 +1,2 @@
-run=1
-reason=validate Ann and Antoneva first-meet CG after terminal syntax hard-lock with 8k output budget
+run=2
+reason=verify healthy AMD DeepSeek route against exact v0.4.24 large-prompt CG cases
