@@ -11,6 +11,11 @@ if (typeof nativeFetch === 'function') {
         if (response.status === 429) {
           const probeText = await response.clone().text().catch(() => '');
           if (/(INFERENCE_CAP_ERROR|Daily free limit reached|daily.*limit|quota.*exhaust)/i.test(probeText)) {
+            if (attempt === 0) {
+              try { await response.arrayBuffer(); } catch {}
+              await new Promise(resolve => setTimeout(resolve, 5000));
+              continue;
+            }
             return response;
           }
         }
