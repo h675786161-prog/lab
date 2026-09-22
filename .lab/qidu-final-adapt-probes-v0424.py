@@ -63,16 +63,6 @@ for name in FILES:
         "(?:没能活下来|没活下来|没能幸存|没能撑过|没能回来|死亡|死去|死在|牺牲|丧生|遇难|没回来|没了)",
     )
     # v0.4.24状态块增加CG字段，给叙事探针留足完整状态+正文输出预算，避免把截断误判成剧情失败。
-    s = s.replace("max_tokens=1700", "max_tokens=8000")
-    s = s.replace("max_tokens=1500", "max_tokens=8000")
-    s = s.replace("max_tokens=1400", "max_tokens=8000")
-    s = s.replace("max_tokens=1300", "max_tokens=8000")
-    s = s.replace("max_tokens:1250", "max_tokens:8000")
-    s = s.replace("max_tokens:1100", "max_tokens:8000")
-    s = s.replace("max_tokens:1000", "max_tokens:8000")
-
-    # Give the legacy narrative probes enough room for the full state block plus prose.
-    # The old budgets were tuned for smaller cards and now create false failures by truncation/timeouts.
     s = s.replace("max_tokens=1700", "max_tokens=5000")
     s = s.replace("max_tokens=1500", "max_tokens=5000")
     s = s.replace("max_tokens=1400", "max_tokens=5000")
@@ -80,6 +70,9 @@ for name in FILES:
     s = s.replace("max_tokens:1250", "max_tokens:5000")
     s = s.replace("max_tokens:1100", "max_tokens:5000")
     s = s.replace("max_tokens:1000", "max_tokens:5000")
+
+    # Legacy narrative probes need enough room for the larger v0.4.24 state block, but 5000
+    # completion tokens is sufficient and avoids wasting provider quota on an 8000-token ceiling.
     s = s.replace("timeoutMs=60000", "timeoutMs=90000")
     s = s.replace("timeoutMs=75000", "timeoutMs=100000")
     s = s.replace("setTimeout(()=>c.abort(),45000)", "setTimeout(()=>c.abort(),90000)")
