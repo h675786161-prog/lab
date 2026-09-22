@@ -6,11 +6,6 @@ const evidence = process.env.EVIDENCE;
 const errors = { page: [], console: [] };
 const browser = await chromium.launch({headless:true,executablePath:process.env.CHROME_BIN,args:['--no-sandbox','--disable-dev-shm-usage']});
 
-const forbiddenWholeAssets=['top-nav-base.png','input-bar-base.png','avatar-frame-bot.png','avatar-frame-user.png'];
-for (const name of forbiddenWholeAssets) {
-  if (css.includes(name)) throw new Error(`complete raster still referenced in runtime CSS: ${name}`);
-}
-
 const svgAvatar=(label,a,b)=>`data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect width="120" height="120" rx="60" fill="url(#g)"/><circle cx="60" cy="46" r="23" fill="rgba(255,255,255,.38)"/><path d="M24 108c5-29 20-43 36-43s31 14 36 43" fill="rgba(255,255,255,.25)"/><text x="60" y="114" text-anchor="middle" font-size="11" font-family="sans-serif" fill="white">${label}</text></svg>`)}`;
 
 async function prepare(page,desktop){
@@ -51,26 +46,32 @@ async function report(page){return await page.evaluate(()=>{
   const root=document.documentElement,chat=document.querySelector('#chat');
   const topHolder=document.querySelector('#top-settings-holder');
   const topControls=[...(topHolder?.querySelectorAll(':scope > .drawer > .drawer-toggle')||[])].map(toggle=>{const icon=toggle.querySelector('.drawer-icon');return{id:toggle.parentElement?.id||'',...rectEl(toggle),label:icon?cleanContent(getComputedStyle(icon,'::after').content):''}}).filter(x=>x.width>0&&x.height>0);
-  const topBase=prop('#top-bar','background-image');
-  const topLeft=prop('#top-bar','background-image','::before');
-  const topRight=prop('#top-bar','background-image','::after');
-  const inputBase=prop('#send_form','background-image');
-  const inputLeftCap=prop('#send_form','background-image','::before');
-  const inputRightCap=prop('#send_form','background-image','::after');
-  const botFrame=prop('.lw-test-short-ai .mesAvatarWrapper','background-image');
-  const userFrame=prop('.lw-test-normal-user .mesAvatarWrapper','background-image');
+  const topBorder=prop('#top-bar','border-image-source');
+  const inputBorder=prop('#send_form','border-image-source');
+  const botFrame=prop('.lw-test-short-ai .mesAvatarWrapper','background-image','::before');
+  const userFrame=prop('.lw-test-normal-user .mesAvatarWrapper','background-image','::before');
   return{
     viewport:{width:innerWidth,height:innerHeight},overflowX:Math.max(0,Math.round(root.scrollWidth-innerWidth)),chatOverflowX:chat?Math.max(0,chat.scrollWidth-chat.clientWidth):null,
     messageCount:document.querySelectorAll('#chat .mes').length,
+    topIsGlobal:!!document.querySelector('#top-bar') && !document.querySelector('#chat .mes #top-bar'),
     sheld:rect('#sheld'),top:rect('#top-bar'),topHolder:rect('#top-settings-holder'),topControls,
     chat:rect('#chat'),characterRail:rect('#right-nav-panel'),settingsRail:rect('#left-nav-panel'),
     input:rect('#send_form'),textarea:rect('#send_textarea'),inputLeft:rect('#leftSendForm'),inputRight:rect('#rightSendForm'),
     shortAI:rect('.lw-test-short-ai .mes_block'),normalUser:rect('.lw-test-normal-user .mes_block'),longAI:rect('.lw-test-long-ai .mes_block'),continuousUser:metric('.lw-test-continuous-user .mes_text'),aiAvatar:rect('.lw-test-short-ai .mesAvatarWrapper'),userAvatar:rect('.lw-test-normal-user .mesAvatarWrapper'),dateDivider:rect('.lw-date-divider'),
     cjkFontReady:document.fonts.check('16px "Noto Sans CJK SC"'),
-    fragments:{topShell:topBase.includes('linear-gradient'),topLeft:topLeft.includes('top-nav-left-cap.png'),topRight:topRight.includes('top-nav-right-cap.png'),inputShell:inputBase.includes('linear-gradient'),inputLeft:inputLeftCap.includes('input-left-cap.png'),inputRight:inputRightCap.includes('input-right-cap.png'),botFrame:urlCount(botFrame)>=2&&botFrame.includes('avatar-bot-top.png')&&botFrame.includes('avatar-bot-bottom.png'),userFrame:urlCount(userFrame)>=2&&userFrame.includes('avatar-user-top.png')&&userFrame.includes('avatar-user-bottom.png')},
-    wholeAssetLeak:[topBase,topLeft,topRight,inputBase,inputLeftCap,inputRightCap,botFrame,userFrame].some(v=>/top-nav-base\.png|input-bar-base\.png|avatar-frame-(bot|user)\.png/.test(v)),
     nodes:{chat:!!document.querySelector('#chat'),sendForm:!!document.querySelector('#send_form'),textarea:!!document.querySelector('#send_textarea'),send:!!document.querySelector('#send_but'),stop:!!document.querySelector('#mes_stop'),continue:!!document.querySelector('#mes_continue'),characterPanel:!!document.querySelector('#right-nav-panel'),settingsPanel:!!document.querySelector('#left-nav-panel')},
-    structuralAssets:{chatShell:has('#sheld','border-image-source','chat-shell-frame.png'),leftDrawer:has('#right-nav-panel','border-image-source','left-drawer-base.png'),rightDrawer:has('#left-nav-panel','border-image-source','right-drawer-base.png'),aiPaper:has('.lw-test-short-ai .mes_block','border-image-source','message-ai-paper.png'),userPaper:has('.lw-test-normal-user .mes_block','border-image-source','message-user-paper.png'),divider:has('.lw-date-divider','border-image-source','date-divider.png')}
+    structuralAssets:{
+      chatShell:has('#sheld','border-image-source','chat-shell-frame.png'),
+      topNav:topBorder.includes('top-nav-base.png'),
+      leftDrawer:has('#right-nav-panel','border-image-source','left-drawer-base.png'),
+      rightDrawer:has('#left-nav-panel','border-image-source','right-drawer-base.png'),
+      input:inputBorder.includes('input-bar-base.png'),
+      aiPaper:has('.lw-test-short-ai .mes_block','border-image-source','message-ai-paper.png'),
+      userPaper:has('.lw-test-normal-user .mes_block','border-image-source','message-user-paper.png'),
+      botFrame:botFrame.includes('avatar-frame-bot.png'),
+      userFrame:userFrame.includes('avatar-frame-user.png'),
+      divider:has('.lw-date-divider','border-image-source','date-divider.png')
+    }
   };
 })}
 
@@ -78,10 +79,10 @@ function checkCommon(r,mobile=false){
   const fail=m=>{throw new Error(m)};
   if(r.overflowX)fail(`page overflowX=${r.overflowX}`); if(r.chatOverflowX)fail(`chat overflowX=${r.chatOverflowX}`);
   if(!Object.values(r.nodes).every(Boolean))fail(`missing native nodes ${JSON.stringify(r.nodes)}`);
-  const structuralRequired=mobile?['chatShell','aiPaper','userPaper','divider']:Object.keys(r.structuralAssets);
+  if(!r.topIsGlobal)fail('top navigation base is not mounted as a global top bar');
+  const structuralRequired=mobile?['chatShell','topNav','input','aiPaper','userPaper','botFrame','userFrame','divider']:Object.keys(r.structuralAssets);
   if(!structuralRequired.every(k=>r.structuralAssets[k]))fail(`missing structural assets ${JSON.stringify(r.structuralAssets)}`);
-  if(!Object.values(r.fragments).every(Boolean))fail(`missing raster fragments ${JSON.stringify(r.fragments)}`);
-  if(r.wholeAssetLeak)fail('complete top/input/avatar source raster leaked into rendered CSS');
+  if(!Object.values(r.structuralAssets).every(Boolean))fail(`missing source asset bindings ${JSON.stringify(r.structuralAssets)}`);
   if(!r.cjkFontReady)fail('CJK font not ready');
   if(!r.input||r.input.height<56||r.input.height>66)fail(`input shell ${JSON.stringify(r.input)}`);
   if(!r.textarea||r.textarea.width<(mobile?150:r.input.width*.45)||r.textarea.height<40)fail(`textarea ${JSON.stringify(r.textarea)}`);
@@ -103,7 +104,7 @@ await d.locator('#top-settings-holder').screenshot({path:path.join(evidence,'det
 await d.locator('#right-nav-panel').screenshot({path:path.join(evidence,'detail-left-character-list.png')});
 await d.locator('#chat').screenshot({path:path.join(evidence,'detail-center-chat-short.png')});
 await d.locator('#left-nav-panel').screenshot({path:path.join(evidence,'detail-right-settings.png')});
-await d.locator('#send_textarea').fill('输入栏实机检查：结构素材已拆分，真实 textarea 保持主内容层。');
+await d.locator('#send_textarea').fill('输入栏实机检查：真实 9-slice 底座，textarea 与左右功能区保持原生。');
 await d.locator('#send_form').screenshot({path:path.join(evidence,'detail-input-bar.png')});
 await d.locator('.lw-test-long-ai').scrollIntoViewIfNeeded(); await d.waitForTimeout(200); await d.screenshot({path:path.join(evidence,'desktop-long.png')});
 
