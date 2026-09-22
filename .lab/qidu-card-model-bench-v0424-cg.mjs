@@ -38,6 +38,12 @@ async function call(model,mode,messages,max_tokens=Number(process.env.CG_MAX_TOK
     try{
       const r=await fetch(API,{method:'POST',signal:controller.signal,headers:{Authorization:`Bearer ${KEY}`,'Content-Type':'application/json'},body:JSON.stringify(p)});
       if([429,500,502,503,504].includes(r.status)&&attempt<attempts-1){
+        const probeText=await r.clone().text().catch(()=> '');
+        const hardQuota=r.status===429&&/(INFERENCE_CAP_ERROR|Daily free limit reached|daily.*limit|quota.*exhaust)/i.test(probeText);
+        if(hardQuota){
+          console.log(JSON.stringify({provider_hard_quota:true,status:r.status,attempt:attempt+1}));
+          return r;
+        }
         const retryAfter=Number(r.headers.get('retry-after')||0);
         const waitMs=retryAfter>0?retryAfter*1000:(r.status===429?12000*(attempt+1):3500*(attempt+1));
         await r.text();
