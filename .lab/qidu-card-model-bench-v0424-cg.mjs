@@ -41,6 +41,13 @@ async function call(model,mode,messages,max_tokens=Number(process.env.CG_MAX_TOK
         const probeText=await r.clone().text().catch(()=> '');
         const hardQuota=r.status===429&&/(INFERENCE_CAP_ERROR|Daily free limit reached|daily.*limit|quota.*exhaust)/i.test(probeText);
         if(hardQuota){
+          if(attempt===0){
+            const waitMs=5000;
+            await r.text().catch(()=>{});
+            console.log(JSON.stringify({provider_hard_quota_retry:true,status:r.status,attempt:attempt+1,wait_ms:waitMs}));
+            await sleep(waitMs);
+            continue;
+          }
           console.log(JSON.stringify({provider_hard_quota:true,status:r.status,attempt:attempt+1}));
           return r;
         }
