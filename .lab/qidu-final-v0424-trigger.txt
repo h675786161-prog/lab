@@ -1,2 +1,2 @@
-run=3
-reason=rerun final gate after provider-only CG failures; add 100s timeout, 4 attempts, cooldown and 429 backoff
+run=4
+reason=run final gate with narrative allowed after CG provider failure; retain strict package gate
