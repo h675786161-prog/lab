@@ -1,2 +1,2 @@
-run=3
-reason=verify Sol route against exact v0.4.24 large-prompt first-meet CG cases after short-route probe passed
+run=4
+reason=verify reasoning route preserves exact f7d state, CG and terminal tags under full v0.4.24 prompt
