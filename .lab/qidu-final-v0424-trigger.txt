@@ -1,2 +1,2 @@
-run=2
-reason=rerun final gate with serialized provider-heavy jobs and expanded legacy narrative budgets
+run=3
+reason=rerun final gate after provider-only CG failures; add 100s timeout, 4 attempts, cooldown and 429 backoff
