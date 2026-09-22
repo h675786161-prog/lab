@@ -84,6 +84,7 @@ jobs:
     timeout-minutes: 18
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         include:
           - group: a
@@ -114,8 +115,9 @@ jobs:
           if-no-files-found: warn
 
   narrative:
+    needs: cg-behavior
     runs-on: ubuntu-latest
-    timeout-minutes: 70
+    timeout-minutes: 100
     env:
       MODEL_API_KEY: ${{ secrets.PIAOMIAO }}
       MODEL_API_BASE: https://claudeapi.cc.cd/v1
