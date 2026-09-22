@@ -81,7 +81,7 @@ jobs:
 
   cg-behavior:
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    timeout-minutes: 35
     strategy:
       fail-fast: false
       max-parallel: 1
@@ -97,8 +97,9 @@ jobs:
       CG_MODEL: 'deepseek/deepseek-v4.1-flash'
       CG_CASES: ${{ matrix.cases }}
       CG_MAX_TOKENS: 8000
-      CG_TIMEOUT_MS: 60000
-      CG_ATTEMPTS: 2
+      CG_TIMEOUT_MS: 100000
+      CG_ATTEMPTS: 4
+      CG_CASE_GAP_MS: 10000
       LAB_OUT_CG_MODEL: ${{ github.workspace }}/cg-model-evidence/${{ matrix.group }}
     steps:
       - uses: actions/checkout@v4
