@@ -174,7 +174,17 @@ for(const c of cases){
   console.log(JSON.stringify({id:c.id,status,pass,failures,finish_reason,usage}));
   await sleep(Math.max(900,Number(process.env.CG_CASE_GAP_MS||10000)));
 }
-const summary={version:card.data.character_version,hash:compactSha256,model:m,mode,total:results.length,passed:results.filter(x=>x.pass).length,failed:results.filter(x=>!x.pass).map(x=>x.id)};
+const failedResults=results.filter(x=>!x.pass);
+const providerBlocked=failedResults.filter(x=>x.failures.length>0&&x.failures.every(y=>String(y).startsWith('provider-')));
+const behaviorFailed=failedResults.filter(x=>!providerBlocked.includes(x));
+const summary={
+  version:card.data.character_version,hash:compactSha256,model:m,mode,total:results.length,
+  passed:results.filter(x=>x.pass).length,
+  providerBlocked:providerBlocked.map(x=>x.id),
+  behaviorFailed:behaviorFailed.map(x=>x.id),
+  failed:failedResults.map(x=>x.id)
+};
 await fs.writeFile(path.join(OUT,'report.json'),JSON.stringify({summary,results},null,2));
-await fs.writeFile(path.join(OUT,'report.md'),['# Qidu v0.4.24 CG model behavior','',`- pass: ${summary.passed}/${summary.total}`,`- model: ${summary.model}`,`- mode: ${summary.mode}`,`- hash: ${summary.hash}`,...results.flatMap(x=>['',`## ${x.id} — ${x.pass?'PASS':'FAIL'}`,`failures: ${x.failures.join(', ')||'none'}`,'```text',x.out,'```'])].join('\n'));
-if(summary.failed.length)throw new Error(`CG model behavior failed: ${summary.failed.join(',')}`);
+await fs.writeFile(path.join(OUT,'report.md'),['# Qidu v0.4.24 CG model behavior','',`- pass: ${summary.passed}/${summary.total}`,`- model: ${summary.model}`,`- mode: ${summary.mode}`,`- hash: ${summary.hash}`,`- provider blocked: ${summary.providerBlocked.join(', ')||'none'}`,`- behavior failed: ${summary.behaviorFailed.join(', ')||'none'}`,...results.flatMap(x=>['',`## ${x.id} — ${x.pass?'PASS':'FAIL'}`,`failures: ${x.failures.join(', ')||'none'}`,'```text',x.out,'```'])].join('\n'));
+if(summary.behaviorFailed.length)throw new Error(`CG model behavior failed: ${summary.behaviorFailed.join(',')}`);
+if(summary.providerBlocked.length)throw new Error(`CG provider inconclusive: ${summary.providerBlocked.join(',')}`);
