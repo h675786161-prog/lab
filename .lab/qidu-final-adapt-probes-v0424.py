@@ -42,6 +42,22 @@ for name in FILES:
         "const contentOf=d=>{const c=d?.choices?.[0]?.message?.content;if(Array.isArray(c))return c.map(x=>typeof x==='string'?x:(x?.text||x?.content||'')).join('');return String(c||'')};",
     )
     s = s.replace("process.env.GLM_MODEL", "process.env.RELEASE_MODEL")
+    # The encounter probe's tiny preflight can return empty content on otherwise healthy long-context
+    # routes (notably hy3). If the requested release model is advertised by /models, let the real case
+    # determine usability instead of rejecting the route on an 80-token smoke prompt.
+    s = s.replace(
+        """  if(requested){
+    const mode=await usable(requested);
+    if(mode) return {ids,targets:[{model:requested,mode,kind:'requested-glm'}],exactRequested:[requested]};
+    throw new Error(`requested GLM unavailable: ${requested}`);
+  }""",
+        """  if(requested){
+    const mode=await usable(requested);
+    if(mode) return {ids,targets:[{model:requested,mode,kind:'requested-model'}],exactRequested:[requested]};
+    if(!ids.length||ids.includes(requested)) return {ids,targets:[{model:requested,mode:'plain',kind:'requested-model'}],exactRequested:[requested]};
+    throw new Error(`requested model unavailable: ${requested}`);
+  }""",
+    )
     s = s.replace(
         "const pref=['[B]qwen3.8-flash','qwen3.8-flash','step-3.5-flash',...ids.filter(x=>/(qwen|step)/i.test(x))];",
         "const pref=[process.env.RELEASE_MODEL,'deepseek/deepseek-v4.1-flash','[amd]DeepSeek-V4.1-Flash','zai/glm-5.3-flash',...ids.filter(x=>/(deepseek|qwen|step|glm)/i.test(x))];",
