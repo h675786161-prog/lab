@@ -1,2 +1,2 @@
-run=5
-reason=validate reinforced atomic CG commit on exact v0.4.24 candidate using hy3 route proven to preserve state, CG and terminal structure
+run=6
+reason=validate Wenzi delayed-scene identity anchor and repaired encounter model qualification on exact v0.4.24 candidate
