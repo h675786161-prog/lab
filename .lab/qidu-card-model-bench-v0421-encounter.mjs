@@ -101,7 +101,7 @@ async function runCase(target,c,sys){
   for(const mode of modes){
     let status=0,out='',error=null,finish=null;
     try{
-      const r=await call(target.model,mode,[{role:'system',content:sys},{role:'user',content:c.prompt}],1300,60000);
+      const r=await call(target.model,mode,[{role:'system',content:sys},{role:'user',content:c.prompt}],5000,100000);
       status=r.status;
       const t=await r.text();let d={};try{d=JSON.parse(t)}catch{}
       out=contentOf(d);finish=d?.choices?.[0]?.finish_reason||null;
