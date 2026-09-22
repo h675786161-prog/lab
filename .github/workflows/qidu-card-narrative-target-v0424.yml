@@ -1,0 +1,49 @@
+name: Qidu v0424 Targeted Narrative
+
+on:
+  push:
+    branches: ['feature/qidu-card-v0411-lab']
+    paths:
+      - '.lab/qidu-narrative-v0424-target-trigger.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  narrative-target:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        kind: [core, encounter]
+    env:
+      MODEL_API_KEY: ${{ secrets.PIAOMIAO }}
+      MODEL_API_BASE: https://claudeapi.cc.cd/v1
+      RELEASE_MODEL: 'deepseek/deepseek-v4.1-flash'
+      LAB_OUT: bench-evidence/qidu-card-v0421-core
+      LAB_OUT_ENCOUNTER: bench-evidence/qidu-card-v0421-encounter
+    steps:
+      - uses: actions/checkout@v4
+      - name: Adapt target probes to exact v0.4.24 candidate
+        run: python .lab/qidu-final-adapt-probes-v0424.py
+      - name: Run targeted narrative probe
+        run: |
+          set -euo pipefail
+          export NODE_OPTIONS="--import=$GITHUB_WORKSPACE/.lab/qidu-fetch-retry-preload.mjs"
+          case "${{ matrix.kind }}" in
+            core)
+              node .lab/qidu-card-model-bench-v0421-core.mjs
+              ;;
+            encounter)
+              node .lab/qidu-card-model-bench-v0421-encounter.mjs
+              ;;
+          esac
+      - name: Upload targeted narrative evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-v0424-narrative-target-${{ matrix.kind }}
+          path: bench-evidence/
+          if-no-files-found: warn
