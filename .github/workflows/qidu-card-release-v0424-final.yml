@@ -23,6 +23,7 @@ jobs:
       BROWSER_DIR: /tmp/qidu-browser-qa
       LAB_EVIDENCE_DIR: ${{ github.workspace }}/release-evidence
       ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      TAVERN_HELPER_COMMIT: fe6388985ffb8a3d9ac08d09b9dfb28423a5fc2b
     steps:
       - uses: actions/checkout@v4
         with:
@@ -38,6 +39,20 @@ jobs:
       - name: Install SillyTavern dependencies
         working-directory: /tmp/qidu-sillytavern
         run: npm ci
+      - name: Install exact Tavern Helper for embedded card-script acceptance
+        run: |
+          set -euo pipefail
+          HELPER_DIR="$ST_DIR/public/scripts/extensions/third-party/JS-Slash-Runner"
+          rm -rf "$HELPER_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/N0VI028/JS-Slash-Runner.git "$HELPER_DIR"
+          git -C "$HELPER_DIR" fetch origin "$TAVERN_HELPER_COMMIT" --depth=1
+          git -C "$HELPER_DIR" checkout --detach "$TAVERN_HELPER_COMMIT"
+          test "$(git -C "$HELPER_DIR" rev-parse HEAD)" = "$TAVERN_HELPER_COMMIT"
+          corepack enable
+          cd "$HELPER_DIR"
+          pnpm install --frozen-lockfile
+          ST_IMPORT_DEPTH=5 pnpm build
+          test -s dist/index.js
       - name: Start isolated SillyTavern
         run: |
           set -euo pipefail
@@ -135,6 +150,7 @@ jobs:
       LAB_OUT_NPC_KNOWLEDGE: bench-evidence/qidu-card-v0423-npc-knowledge
       LAB_OUT_NPC_SOURCE: bench-evidence/qidu-card-v0423-offscreen-source
       LAB_OUT_GENDER: bench-evidence/qidu-card-v0424-user-gender
+      LAB_OUT_SHELL: bench-evidence/qidu-card-v0424-output-shell
     steps:
       - uses: actions/checkout@v4
       - name: Adapt narrative probes to exact v0.4.24 candidate
@@ -232,6 +248,18 @@ jobs:
             echo "gender retry $n"; sleep 15
           done
           exit 1
+      - run: sleep 12
+        if: always()
+      - id: shell
+        if: always()
+        continue-on-error: true
+        run: |
+          export NODE_OPTIONS="--import=$GITHUB_WORKSPACE/.lab/qidu-fetch-retry-preload.mjs"
+          for n in 1 2; do
+            node .lab/qidu-card-model-bench-v0424-output-shell.mjs && exit 0
+            echo "shell retry $n"; sleep 15
+          done
+          exit 1
       - name: Enforce narrative gate
         if: always()
         run: |
@@ -243,6 +271,7 @@ jobs:
           printf 'npcsource=%s\n' '${{ steps.npcsource.outcome }}'
           printf 'chimera=%s\n' '${{ steps.chimera.outcome }}'
           printf 'gender=%s\n' '${{ steps.gender.outcome }}'
+          printf 'shell=%s\n' '${{ steps.shell.outcome }}'
           test '${{ steps.core.outcome }}' = success
           test '${{ steps.encounter.outcome }}' = success
           test '${{ steps.conflict.outcome }}' = success
@@ -251,6 +280,7 @@ jobs:
           test '${{ steps.npcsource.outcome }}' = success
           test '${{ steps.chimera.outcome }}' = success
           test '${{ steps.gender.outcome }}' = success
+          test '${{ steps.shell.outcome }}' = success
       - name: Upload narrative evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -322,6 +352,15 @@ jobs:
           if(initial.cg_system?.shown?.ann_first_meet!==true) throw new Error('opening Ann CG shown flag invalid');
           if(!CG_KEYS.filter(k=>k!=='cg_ann_first_meet').every(k=>initial.cg_system?.shown?.[k.replace(/^cg_/,'')]===false)) throw new Error('other initial CG shown flags invalid');
           if(!/<f7d_cg\s+key=["']cg_ann_first_meet["']\s*>\s*<\/f7d_cg>/i.test(String(card.data?.first_mes||''))) throw new Error('opening Ann CG tag missing');
+          if(!String(card.data?.post_history_instructions||'').includes('结构壳稳定性｜最高优先级隐藏执行')) throw new Error('stable output shell rule missing');
+          const helper=card.data?.extensions?.tavern_helper;
+          const helperScript=helper?.scripts?.find(x=>x?.id==='qidu-v0424-choice-bridge');
+          if(!helperScript?.enabled||!String(helperScript?.content||'').includes('__F7D_CARD_CHOICE_BRIDGE_V0424__')) throw new Error('embedded clickable choice bridge missing');
+          const choiceWrap=rx('f7d-choices-wrap-v0414');
+          const choiceButton=rx('f7d-choice-button-v0414');
+          if(!String(choiceWrap?.replaceString||'').includes('data-f7d-choice-free="1"')) throw new Error('free-input choice missing');
+          if(!String(choiceButton?.replaceString||'').includes('<button')||!String(choiceButton?.replaceString||'').includes('data-f7d-choice="1"')) throw new Error('clickable choice button regex missing');
+          if(card.data?.extensions?.qidu_frontend?.choice_runtime!=='tavern_helper_embedded_script') throw new Error('choice runtime metadata missing');
           const name='永远的7日之都-七日轮回文本互动-v0.4.24.json';
           await fs.writeFile(`dist-release/${name}`,raw);
           await fs.writeFile('dist-release/SHA256.txt',`${compactSha256}  ${name}\n`);
