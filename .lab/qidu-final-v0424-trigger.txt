@@ -1,2 +1,2 @@
-run=20
-reason=final gate after replacing numeric action/patrol counters with narrative-flow progression; region liberation commits on real story completion; Black Core purification requires explicit user action plus prerequisites; day advances only on explicit sleep after bedtime scene and opens next day with Small God monologue; embedded bridge 1.3 scrubs legacy node counters from existing terminal messages
+run=21
+reason=final gate after full narrative-flow migration: action-node and numeric patrol mechanics removed from state/UI/worldbook flow text; region arcs auto-liberate on actual narrative completion; Black Core purification is explicit-user-action-only with prerequisite checks; end-of-day is explicit-sleep-gated with requested bedtime scene before next-day Small God monologue; bridge 1.3 also scrubs legacy counters in existing rendered terminals
