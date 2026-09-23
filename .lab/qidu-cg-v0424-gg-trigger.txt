@@ -1,2 +1,2 @@
-run=1
-reason=PIAOMIAO paid quota exhausted and free routes unavailable; test GG Gemini full-context ann_first_meet on exact candidate
+run=2
+reason=gemini-3-flash-preview passed full-context ann_first_meet; now verify all 10 exact v0.4.24 CG behaviors on GG
