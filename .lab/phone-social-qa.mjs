@@ -74,11 +74,13 @@ try {
  await page.locator('[data-chat-search]').fill('');await click('[data-chat-pin="direct-b"]');
  assert.equal(await page.locator('[data-chat-entry]').first().getAttribute('data-chat-entry'),'direct-b');
  await page.screenshot({path:path.join(output,'social-chats-390.png')});
- await click('[data-wx-chat="direct-a"]');await click('[data-wx-search-toggle]');
+ await page.setViewportSize({width:1440,height:980});await click('[data-wx-chat="direct-a"]');await click('[data-wx-search-toggle]');
  await page.locator('[data-wx-thread-search]').fill('夜市');
  assert.equal(await page.locator('[data-wx-search-match]').count(),2);
  assert.equal(await page.locator('.lqwp-wx-thread-search [aria-live]').innerText(),'1 / 2');
  await click('[data-wx-search-next]');assert.equal(await page.locator('.lqwp-wx-thread-search [aria-live]').innerText(),'2 / 2');
+ await click('[data-wx-search-prev]');assert.equal(await page.locator('.lqwp-wx-thread-search [aria-live]').innerText(),'1 / 2');
+ await click('[data-wx-search-next]');
  await page.locator('[data-wx-thread-search]').evaluate(input=>{window.__searchInputDuringIme=input;input.focus();input.dispatchEvent(new CompositionEvent('compositionstart',{bubbles:true,data:''}));input.value='夜市后';input.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertCompositionText',data:'后',isComposing:true}));});
  assert.equal(await page.evaluate(()=>window.__searchInputDuringIme.isConnected),true,'IME composition must not lose its active input node');
  assert.equal(await page.locator('[data-wx-thread-search]').inputValue(),'夜市后');
@@ -95,10 +97,11 @@ try {
  assert.equal(await page.locator('[data-wx-compose-input]').inputValue(),'','drafts must not leak between conversations');
  await click('[data-app-back]');await click('[data-wx-chat="direct-a"]');
  assert.equal(await page.locator('[data-wx-compose-input]').inputValue(),'阿青专属草稿','switching away must preserve the original conversation draft');
+ await page.setViewportSize({width:390,height:844});await page.waitForTimeout(160);await page.screenshot({path:path.join(output,'message-search-390.png')});
  await page.setViewportSize({width:320,height:740});await page.waitForTimeout(200);
  await page.screenshot({path:path.join(output,'message-search-320.png')});
  await page.setViewportSize({width:1440,height:980});
- await click('[data-app-back]');await click('[data-app="weibo"]');
+ await click('[data-app-back]');await click('[data-app-back]');await click('[data-app="weibo"]');
  await click('[data-social-detail]');await click('[data-social-save]');
  assert.match(await page.locator('[data-social-save]').innerText(),/已收藏/);
  await page.screenshot({path:path.join(output,'social-weibo-detail-390.png')});
@@ -130,7 +133,13 @@ try {
  assert.match(await page.locator('.lqwp-social-sheet-body').innerText(),/河畔夜市/);
  await page.screenshot({path:path.join(output,'social-collections-320.png')});await click('[data-social-close]');
  await click('[data-me-moments]');assert.ok(await page.locator('[data-moment-id="moment-a"]').count());
+ await page.evaluate(()=>{const social=SillyTavern.getContext().chatMetadata.world_backstage_v1.social;social.notices.push({id:'n-direct-lab',kind:'message',personId:'b',conversationId:'direct-b',text:'通知直达检查',createdAt:'2026-09-23T12:30:00Z',readAt:''});dispatchEvent(new CustomEvent('world-backstage:phone-update'));});
+ for(let i=0;i<5&&await page.locator('[data-lock]:visible').count()===0;i++){if(await page.locator('[data-app-back]:visible').count())await click('[data-app-back]');}
+ assert.equal(await page.locator('[data-lock]:visible').count(),1,'returning from WeChat reaches the phone home');
+ await click('[data-lock]');await click('[data-notice-conversation="direct-b"]');
+ await page.waitForSelector('[data-conversation-id="direct-b"]');
+ assert.ok(await page.evaluate(()=>Boolean(SillyTavern.getContext().chatMetadata.world_backstage_v1.social.notices.find(n=>n.id==='n-direct-lab')?.readAt)),'notification direct-open marks only its canonical conversation read');
  assert.deepEqual(errors,[]);assert.deepEqual(consoleErrors,[],'no browser console errors');
- fs.writeFileSync(path.join(output,'social-report.json'),JSON.stringify({passed:true,checks:['accept incoming friend','start direct chat','canonical message','create group','private moment hidden','canonical comment and live refresh','in-thread search result count and navigation','IME input continuity','search focus and selection across refresh','per-conversation draft isolation','disconnected bridge safely rejects and reconnect recovers','pin chat','social share draft and explicit send','favorites isolated and restored across Tavern metadata','desktop 390 and 320 layouts'],pageErrors:errors,consoleErrors},null,2));
+ fs.writeFileSync(path.join(output,'social-report.json'),JSON.stringify({passed:true,checks:['accept incoming friend','start direct chat','canonical message','create group','private moment hidden','canonical comment and live refresh','in-thread search result count and forward/back navigation','IME input continuity','search focus and selection across refresh','per-conversation draft isolation','lock-screen notification direct-open and canonical read state','disconnected bridge safely rejects and reconnect recovers','pin chat','social share draft and explicit send','favorites isolated and restored across Tavern metadata','desktop 390 and 320 layouts'],pageErrors:errors,consoleErrors},null,2));
  console.log('PASS: real Backstage social bridge and phone UI, search/IME, chat isolation, desktop/390/320');
 } catch(e){console.log('PAGE_ERRORS',errors);await page.screenshot({path:path.join(output,'social-failure.png')});throw e;}finally{await browser.close();}
