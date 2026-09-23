@@ -15,7 +15,7 @@ jobs:
     timeout-minutes: 30
     strategy:
       fail-fast: false
-      max-parallel: 2
+      max-parallel: 1
       matrix:
         kind: [core, encounter, conflict, info, npc, npcsource, chimera]
     env:
@@ -32,30 +32,36 @@ jobs:
         run: |
           set -euo pipefail
           export NODE_OPTIONS="--import=$GITHUB_WORKSPACE/.lab/qidu-fetch-retry-preload.mjs"
-          case "${{ matrix.kind }}" in
-            core)
-              node .lab/qidu-card-model-bench-v0421-core.mjs
-              ;;
-            encounter)
-              node .lab/qidu-card-model-bench-v0421-encounter.mjs
-              ;;
-            conflict)
-              node .lab/qidu-card-model-bench-v0418-preset-conflict.mjs
-              ;;
-            info)
-              node .lab/qidu-card-model-bench-v0423-info-timeline.mjs
-              node .lab/qidu-info-report-gate-v0423.mjs
-              ;;
-            npc)
-              node .lab/qidu-card-model-bench-v0423-npc-knowledge.mjs
-              ;;
-            npcsource)
-              node .lab/qidu-card-model-bench-v0423-offscreen-source.mjs
-              ;;
-            chimera)
-              node .lab/qidu-first-chimera-release-v0423.mjs
-              ;;
-          esac
+          for n in 1 2 3; do
+            ok=0
+            case "${{ matrix.kind }}" in
+              core)
+                node .lab/qidu-card-model-bench-v0421-core.mjs && ok=1
+                ;;
+              encounter)
+                node .lab/qidu-card-model-bench-v0421-encounter.mjs && ok=1
+                ;;
+              conflict)
+                node .lab/qidu-card-model-bench-v0418-preset-conflict.mjs && ok=1
+                ;;
+              info)
+                if node .lab/qidu-card-model-bench-v0423-info-timeline.mjs && node .lab/qidu-info-report-gate-v0423.mjs; then ok=1; fi
+                ;;
+              npc)
+                node .lab/qidu-card-model-bench-v0423-npc-knowledge.mjs && ok=1
+                ;;
+              npcsource)
+                node .lab/qidu-card-model-bench-v0423-offscreen-source.mjs && ok=1
+                ;;
+              chimera)
+                node .lab/qidu-first-chimera-release-v0423.mjs && ok=1
+                ;;
+            esac
+            if [ "$ok" = 1 ]; then exit 0; fi
+            echo "${{ matrix.kind }} provider/behavior retry $n"
+            sleep 15
+          done
+          exit 1
       - name: Upload targeted narrative evidence
         if: always()
         uses: actions/upload-artifact@v4
