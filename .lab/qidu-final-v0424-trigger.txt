@@ -1,2 +1,2 @@
-run=19
-reason=final gate after interactive-choice hotfix v1.2: embedded Tavern Helper bridge fills composer, adds free input, normalizes leaking preset decision shells into one f7d UI, synthesizes terminal from committed state when terminal tag is omitted, plus output-shell model regression
+run=20
+reason=final gate after replacing numeric action/patrol counters with narrative-flow progression; region liberation commits on real story completion; Black Core purification requires explicit user action plus prerequisites; day advances only on explicit sleep after bedtime scene and opens next day with Small God monologue; embedded bridge 1.3 scrubs legacy node counters from existing terminal messages
