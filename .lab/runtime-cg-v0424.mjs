@@ -17,6 +17,11 @@ if(!firstState) throw new Error('initial state missing');
 const initial=JSON.parse(firstState[1]);
 if(initial?.cg_system?.mode!=='direct_only'||initial?.cg_system?.album_enabled!==false||initial?.cg_system?.responsive_enabled!==true) throw new Error('initial CG system invalid');
 if(initial?.player_profile?.gender!=='unknown') throw new Error('initial gender must remain unknown');
+if(initial?.cg_system?.shown?.ann_first_meet!==true) throw new Error('opening Ann CG must already be marked shown');
+for(const k of CG_KEYS.filter(x=>x!=='cg_ann_first_meet')){
+  if(initial?.cg_system?.shown?.[k.replace(/^cg_/,'')]!==false) throw new Error(`unexpected initial CG shown: ${k}`);
+}
+if(!/<f7d_cg\s+key=["']cg_ann_first_meet["']\s*>\s*<\/f7d_cg>/i.test(String(card.data.first_mes||''))) throw new Error('opening Ann CG tag missing from first_mes');
 
 const routing={
   sacrificeMale:resolveEndingCg('牺牲的意义','male'),
@@ -78,6 +83,18 @@ try{
     const ch=st.characters[idx];
     eng.allowScopedScripts(ch);
 
+    const openingHtml=st.messageFormatting(String(ch?.data?.first_mes||ch?.first_mes||''),'release',false,false,888887,{},false);
+    const openingHost=document.createElement('div');
+    openingHost.id='qidu-opening-cg-probe';
+    openingHost.innerHTML=openingHtml;
+    document.body.appendChild(openingHost);
+    const openingAnnFigure=openingHost.querySelector('[data-f7d-cg="1"][data-f7d-cg-key="cg_ann_first_meet"]');
+    const openingAnnImage=openingAnnFigure?.querySelector('[data-f7d-cg-image="1"]');
+    const openingTerminal=openingHost.querySelector('[data-f7d-terminal="1"]');
+    const openingStateHidden=!openingHost.textContent?.includes('"schema":"f7d_textloop_0.4"');
+    const openingAnnCg=Boolean(openingAnnFigure&&openingAnnImage&&openingTerminal&&openingStateHidden);
+    openingHost.remove();
+
     const allTags=keys.map(k=>`<f7d_cg key="${k}"></f7d_cg>`).join('');
     const sample=`<f7d_state>{"private":1}</f7d_state>${allTags}<f7d_terminal>第7天｜0/12｜CG验收</f7d_terminal>`;
     const html=st.messageFormatting(sample,'release',false,false,888889,{},false);
@@ -136,6 +153,7 @@ try{
       keys:items.map(x=>x.key),
       items,
       terminal:Boolean(h.querySelector('[data-f7d-terminal="1"]')),
+      openingAnnCg,
       hash
     };
   },{name:card.data.name,version:ONEFILE_VERSION,hash:compactSha256,keys:CG_KEYS});
@@ -191,6 +209,7 @@ const ok=
   client?.hidden&&
   client?.noAlbumText&&
   client?.terminal&&
+  client?.openingAnnCg&&
   client?.count===CG_KEYS.length&&
   allKeysOk&&
   itemOk&&
