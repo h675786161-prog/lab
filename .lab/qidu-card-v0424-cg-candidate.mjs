@@ -114,6 +114,7 @@ function narrativeFlowRule(){
 - 若{{user}}明确要净化但前置条件尚未满足，本轮要正常演出被阻挡/缺少条件的结果，cores保持原值；不得因为用户有意图就强行净化。
 - 【限时剧情按天硬截止】所有写有“第X天结束前 / 第X天晚睡前 / 进入第Y天时”的任务，不再依赖巡查次数或模型自行判断宽限。每次day准备从X减到X-1之前，先结算当日全部硬截止：已满足条件→标记完成/保留资格；未满足→当场写入失败与既定后果。已经跨过截止日的条件禁止靠后续补做倒签成功，除非世界书明确存在补救剧情。
 - 【安线硬截止｜第4天→第3天】从day=4睡到day=3之前，只检查当时已经真实完成的安线进度：ann.affection>=100 且 ann.core_events 已完成3段主剧情，才算通过截止。通过则ann.deadline_checked=true、ann.deadline_passed=true；任一条件不足则ann.deadline_checked=true、ann.deadline_passed=false、route_flags.ann_route_closed=true。进入第3天后必须在“小神自语”之后触发安离开的清晨事件，正常安线资格永久关闭；之后补好感、补主剧情都不能把资格恢复。若既定分支允许玩家追安，则只能按“截止失败后的追安/BE”规则继续，不能改写成成功安线。
+- 【安线截止补锁】若读取到day<=3但ann.deadline_checked仍为false，说明旧聊天/外部格式漏做了第4天截止结算；此时不得拿第3天以后补出的好感或事件倒签成功，必须补锁为deadline_checked=true、deadline_passed=false、route_flags.ann_route_closed=true，并按安已错过正常资格处理。
 - 【第4天情报硬截止】从day=4睡到day=3之前，同时检查hiro.intel。若累计<4且港湾区黑核尚未被净化/夺走，则route_flags.harbor_core_stolen=true，并把cores.harbor结算为stolen；此后补做情报不能撤销这次夺取。hiro.intel>=4则route_flags.harbor_core_stolen=false或保持既有未被夺状态。
 - 【任务截止原子结算】tasks中deadline明确落在即将结束的当天时，不允许把pending/active原样带到下一天。换日前必须根据真实完成情况改成completed或failed，并在同一回复演出关键后果。
 - 【日结标记】day_ready_to_sleep仅表示“今天安排的主要剧情已经自然走到当日收束点”。当天最后一个必演主线收束时，把day_ready_to_sleep=true；不要因为区域解放、对话结束或模型觉得时间晚了就擅自换日。
