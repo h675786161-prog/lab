@@ -1,2 +1,2 @@
-run=23
-reason=final gate after contextual decision prompt: every decision has exactly three story-relevant choices; safe/non-continuous decisions add one explicit consequence-bearing slack/skip choice; combat/chase/rescue/immediate-danger/forced-continuation scenes disable slack and keep only three story choices; free input remains frontend-added
+run=24
+reason=final gate after hard day-bound deadlines, contextual three-story-choice prompt, light speech-bubble UI redesign, free-input/slack differentiation, narrative-flow region liberation, explicit Black Core purification, and embedded frontend bridge v1.4
