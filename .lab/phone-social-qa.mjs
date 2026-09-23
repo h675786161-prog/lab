@@ -23,8 +23,9 @@ try {
   const ctx=SillyTavern.getContext();
   ctx.chatMetadata.world_backstage_v1={schemaVersion:25,currentState:{world:{name:'青苔镇'},clock:{absoluteMinute:123,displayTime:'21:37',displayDate:'9月13日'},people:[{id:'a',name:'阿青'},{id:'b',name:'木雨'},{id:'secret',name:'隐藏人物',innerVoice:'绝不可见'}],events:[]},social:{schemaVersion:2,connections:[{personId:'a',status:'accepted'},{personId:'b',status:'accepted'}],conversations:[{id:'direct-a',type:'direct',title:'阿青',memberIds:['a'],rawMessages:[{id:'m1',senderId:'a',senderName:'阿青',text:'下楼走走？',createdAt:'2026-09-13T12:00:00Z'},{id:'m1b',senderId:'a',senderName:'阿青',text:'夜市那边灯亮了。',createdAt:'2026-09-13T12:02:00Z'},{id:'m1c',senderId:'a',senderName:'阿青',text:'夜市见？',createdAt:'2026-09-13T12:03:00Z'}]},{id:'direct-b',type:'direct',title:'木雨',memberIds:['b'],rawMessages:[{id:'m2',senderId:'b',senderName:'木雨',text:'书放前台了。',createdAt:'2026-09-13T12:01:00Z'}]}],moments:[],notices:[{id:'n1',kind:'message',personId:'b',conversationId:'direct-b',text:'书放前台了。',createdAt:'2026-09-13T12:01:00Z',readAt:''}]},publicOpinion:{news:[{id:'news-a',relatedEventId:'e-public',category:'城市',headline:'河畔夜市重新开放',summary:'今晚的河畔步道有灯光与小食摊。',source:'青苔日报',worldMinute:123}],forums:[]}};
   const store=ctx.chatMetadata.world_backstage_v1;
-  store.currentState.people.push({id:'c',name:'小禾'},{id:'d',name:'晚舟'});
-  store.social.connections.push({personId:'c',status:'incoming',requestMessage:'周末一起逛夜市吗？'},{personId:'d',status:'accepted'});
+  store.currentState.people.push({id:'c',name:'小禾'},{id:'d',name:'晚舟'},{id:'e',name:'时雨'});
+  store.social.connections.push({personId:'c',status:'incoming',requestMessage:'周末一起逛夜市吗？'},{personId:'d',status:'accepted'},{personId:'e',status:'incoming',requestMessage:'雨停后去河边走走吗？'});
+  store.social.notices.push({id:'n-request-e',kind:'friend_request',personId:'e',text:'雨停后去河边走走吗？',createdAt:'2026-09-13T12:05:00Z',readAt:''});
   store.social.moments=[{id:'moment-a',personId:'a',text:'今天雨停了，河边的花开得很好。',visibility:'public',likes:2},{id:'secret',personId:'secret',text:'不可见的秘密',visibility:'private'}];
   globalThis.qaOriginalMetadata=ctx.chatMetadata;
   if (hostModule) await import(hostModule);
@@ -40,6 +41,10 @@ try {
  await page.screenshot({path:path.join(output,'social-friends-desktop.png')});
  await click('[data-accept-friend="c"]');
  assert.equal(await page.evaluate(()=>worldBackstageHost.getPhoneSurface().social.connections.find(c=>c.personId==='c').status),'accepted');
+ await click('[data-social-close]');
+ await click('[data-social-friends]');await click('[data-decline-friend="e"]');
+ assert.equal(await page.evaluate(()=>worldBackstageHost.getPhoneSurface().social.connections.find(c=>c.personId==='e').status),'declined','declining a friend request updates canonical Backstage state');
+ assert.ok(await page.evaluate(()=>Boolean(SillyTavern.getContext().chatMetadata.world_backstage_v1.social.notices.find(n=>n.id==='n-request-e')?.readAt)),'responding to a request marks its canonical notice read');
  await click('[data-social-close]');
  await click('[data-contact-person="d"]');await click('[data-social-direct="d"]');
  await page.waitForSelector('[data-wx-compose-input]');
@@ -60,6 +65,11 @@ try {
  assert.equal(await page.evaluate(()=>SillyTavern.getContext().chatMetadata.world_backstage_v1.social.conversations.find(c=>c.type==='group').title),'周末小分队');
  await click('[data-app-back]');await click('[data-wx-tab="moments"]');
  assert.equal(await page.locator('[data-moment-id="secret"]').count(),0);
+ await click('[data-moment-like="moment-a"]');
+ assert.equal(await page.evaluate(()=>SillyTavern.getContext().chatMetadata.world_backstage_v1.social.moments.find(m=>m.id==='moment-a').likedByUser),true,'like is written to the canonical moment');
+ assert.equal(await page.evaluate(()=>SillyTavern.getContext().chatMetadata.world_backstage_v1.social.moments.find(m=>m.id==='moment-a').likes),3,'canonical like count increments once');
+ await page.evaluate(()=>dispatchEvent(new CustomEvent('world-backstage:phone-update')));await page.waitForTimeout(250);
+ assert.equal(await page.locator('[data-moment-like="moment-a"]').getAttribute('aria-pressed'),'true','like survives a fresh safe-surface refresh');
  await click('[data-social-comment="moment-a"]');await page.locator('[data-moment-comment-form] textarea').fill('等我，我也想去看花。');
  await click('[data-moment-comment-form] [type="submit"]');
  await page.waitForSelector('.lqwp-moment-replies');
@@ -150,6 +160,6 @@ try {
  assert.equal(await page.evaluate(()=>worldBackstageHost.getPhoneSurface().worldName),'青苔镇','returning to the original Tavern chat restores its authoritative surface');
  assert.equal(await page.locator('[data-wx-compose-input]').count(),0,'returning to the prior chat keeps the old conversation closed');
  assert.deepEqual(errors,[]);assert.deepEqual(pluginConsoleErrors,[],'no phone or Backstage plug-in console errors');
- fs.writeFileSync(path.join(output,'social-report.json'),JSON.stringify({passed:true,checks:['accept incoming friend','start direct chat','canonical message','create group','private moment hidden','canonical comment and live refresh','in-thread search result count and forward/back navigation','IME input continuity','search focus and selection across refresh','per-conversation draft isolation','lock-screen notification direct-open and canonical read state','real CHAT_CHANGED event and draft isolation across Tavern chats','disconnected bridge safely rejects and reconnect recovers','pin chat','social share draft and explicit send','favorites isolated and restored across Tavern metadata','desktop 390 and 320 search layouts'],pageErrors:errors,pluginConsoleErrors,otherConsoleErrors:consoleErrors.filter(item=>!pluginConsoleErrors.includes(item))},null,2));
+ fs.writeFileSync(path.join(output,'social-report.json'),JSON.stringify({passed:true,checks:['accept and decline incoming friend; canonical notice read state','start direct chat','canonical message','create group','private moment hidden','canonical like toggles and survives surface refresh','canonical comment and live refresh','in-thread search result count and forward/back navigation','IME input continuity','search focus and selection across refresh','per-conversation draft isolation','lock-screen notification direct-open and canonical read state','real CHAT_CHANGED event and old conversation route reset','disconnected bridge safely rejects and reconnect recovers','pin chat','social share draft and explicit send','favorites isolated and restored across Tavern metadata','desktop 390 and 320 search layouts'],pageErrors:errors,pluginConsoleErrors,otherConsoleErrors:consoleErrors.filter(item=>!pluginConsoleErrors.includes(item))},null,2));
  console.log('PASS: real Backstage social bridge and phone UI, search/IME, chat isolation, desktop/390/320');
 } catch(e){console.log('PAGE_ERRORS',JSON.stringify(errors));console.log('PLUGIN_CONSOLE_ERRORS',JSON.stringify(pluginConsoleErrors));console.log('ALL_CONSOLE_ERRORS',JSON.stringify(consoleErrors));await page.screenshot({path:path.join(output,'social-failure.png')});throw e;}finally{await browser.close();}
