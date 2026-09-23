@@ -1,2 +1,2 @@
-run=17
-reason=final gate after user persona gender sync fix plus static hospital opening Ann CG atomic trigger; adds dedicated gender regression and real-ST first_mes CG acceptance
+run=18
+reason=final gate after embedding Tavern Helper clickable choice bridge, adding free-input control, suppressing conflicting preset decision shell, and hard-locking state/terminal/choice output structure with dedicated regression
