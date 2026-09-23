@@ -203,8 +203,8 @@ function installChoiceFrontend(card){
   const button=scripts.find(x=>x?.id==='f7d-choice-button-v0414');
   if(!wrap||!button) throw new Error('choice regex missing');
 
-  wrap.replaceString='<div data-f7d-choice-grid="1" style="box-sizing:border-box;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:.55em;width:100%;max-width:100%;margin:.8em 0;padding:.7em;border:1px solid rgba(116,174,231,.28);border-radius:14px;background:linear-gradient(145deg,rgba(13,23,37,.78),rgba(24,39,56,.72));box-shadow:0 8px 24px rgba(0,0,0,.14);">$1<button type="button" data-f7d-choice-free="1" style="box-sizing:border-box;display:block;width:100%;min-height:44px;padding:.68em .86em;border:1px dashed rgba(180,210,238,.55);border-radius:10px;background:rgba(255,255,255,.055);color:#dcecff;font:600 13px/1.45 system-ui,-apple-system,\'Microsoft YaHei\',sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;">✎ 自由输入</button></div>';
-  button.replaceString='<button type="button" data-f7d-choice="1" style="box-sizing:border-box;display:block;width:100%;min-height:44px;padding:.68em .86em;border:1px solid rgba(133,194,255,.52);border-radius:10px;background:linear-gradient(135deg,rgba(32,60,88,.88),rgba(24,45,67,.94));box-shadow:0 4px 12px rgba(0,0,0,.16);color:#eef7ff;font:600 13px/1.45 system-ui,-apple-system,\'Microsoft YaHei\',sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;">$1</button>';
+  wrap.replaceString='<div data-f7d-choice-grid="1" style="box-sizing:border-box;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:.72em;width:100%;max-width:100%;margin:.9em 0;padding:.9em;border:1px solid rgba(117,132,94,.22);border-radius:26px;background:linear-gradient(160deg,rgba(255,255,255,.86),rgba(244,249,231,.78));box-shadow:0 10px 28px rgba(77,91,57,.12),inset 0 1px 0 rgba(255,255,255,.9);"><div data-f7d-choice-title="1" style="grid-column:1/-1;text-align:center;padding:.18em .4em .35em;color:#55633f;font:700 12px/1.3 system-ui,-apple-system,\'Microsoft YaHei\',sans-serif;letter-spacing:.12em;">✦  做出选择  ✦</div>$1<button type="button" data-f7d-choice-free="1" data-f7d-choice-kind="free" style="box-sizing:border-box;display:block;width:100%;min-height:48px;padding:.76em 1em;border:1.5px dashed rgba(112,132,91,.56);border-radius:22px;background:linear-gradient(135deg,rgba(255,255,255,.94),rgba(235,248,219,.86));box-shadow:0 4px 12px rgba(78,93,57,.08);color:#4f5b42;font:650 14px/1.45 system-ui,-apple-system,\'Microsoft YaHei\',sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;">✧ 自由输入</button></div>';
+  button.replaceString='<button type="button" data-f7d-choice="1" data-f7d-choice-kind="story" style="box-sizing:border-box;display:block;width:100%;min-height:52px;padding:.82em 1.05em;border:1.8px solid rgba(66,73,56,.72);border-radius:24px;background:linear-gradient(145deg,rgba(255,255,255,.97),rgba(247,251,237,.92));box-shadow:0 5px 14px rgba(65,75,54,.11),inset 0 1px 0 rgba(255,255,255,.96);color:#2f352b;font:650 14px/1.5 system-ui,-apple-system,\'Microsoft YaHei\',sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;">✦ $1</button>';
 
   const bridgeContent=`(() => {
   const KEY='__F7D_CARD_CHOICE_BRIDGE_V0424__';
@@ -213,10 +213,36 @@ function installChoiceFrontend(card){
   const free='[data-f7d-choice-free="1"]';
   const input=()=>doc.querySelector('#send_textarea');
   const focus=el=>{ try{el?.focus({preventScroll:true});}catch{el?.focus();} };
-  const choiceStyle='box-sizing:border-box;display:block;width:100%;min-height:44px;padding:.68em .86em;border:1px solid rgba(133,194,255,.52);border-radius:10px;background:linear-gradient(135deg,rgba(32,60,88,.88),rgba(24,45,67,.94));box-shadow:0 4px 12px rgba(0,0,0,.16);color:#eef7ff;font:600 13px/1.45 system-ui,-apple-system,Microsoft YaHei,sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;';
-  const freeStyle='box-sizing:border-box;display:block;width:100%;min-height:44px;padding:.68em .86em;border:1px dashed rgba(180,210,238,.55);border-radius:10px;background:rgba(255,255,255,.055);color:#dcecff;font:600 13px/1.45 system-ui,-apple-system,Microsoft YaHei,sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;';
-  const gridStyle='box-sizing:border-box;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:.55em;width:100%;max-width:100%;margin:.8em 0;padding:.7em;border:1px solid rgba(116,174,231,.28);border-radius:14px;background:linear-gradient(145deg,rgba(13,23,37,.78),rgba(24,39,56,.72));box-shadow:0 8px 24px rgba(0,0,0,.14);';
-  const terminalStyle='box-sizing:border-box;width:100%;max-width:100%;overflow-wrap:anywhere;margin:.65em 0;padding:.78em .9em;border:1px solid rgba(145,190,255,.42);border-radius:12px;background:linear-gradient(135deg,rgba(12,22,38,.94),rgba(18,35,55,.90));box-shadow:0 7px 20px rgba(0,0,0,.18);color:#e8f2ff;font:500 13px/1.65 system-ui,-apple-system,Microsoft YaHei,sans-serif;white-space:pre-wrap';
+  const choiceStyle='box-sizing:border-box;display:block;width:100%;min-height:52px;padding:.82em 1.05em;border:1.8px solid rgba(66,73,56,.72);border-radius:24px;background:linear-gradient(145deg,rgba(255,255,255,.97),rgba(247,251,237,.92));box-shadow:0 5px 14px rgba(65,75,54,.11),inset 0 1px 0 rgba(255,255,255,.96);color:#2f352b;font:650 14px/1.5 system-ui,-apple-system,Microsoft YaHei,sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;';
+  const freeStyle='box-sizing:border-box;display:block;width:100%;min-height:48px;padding:.76em 1em;border:1.5px dashed rgba(112,132,91,.56);border-radius:22px;background:linear-gradient(135deg,rgba(255,255,255,.94),rgba(235,248,219,.86));box-shadow:0 4px 12px rgba(78,93,57,.08);color:#4f5b42;font:650 14px/1.45 system-ui,-apple-system,Microsoft YaHei,sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;';
+  const gridStyle='box-sizing:border-box;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:.72em;width:100%;max-width:100%;margin:.9em 0;padding:.9em;border:1px solid rgba(117,132,94,.22);border-radius:26px;background:linear-gradient(160deg,rgba(255,255,255,.86),rgba(244,249,231,.78));box-shadow:0 10px 28px rgba(77,91,57,.12),inset 0 1px 0 rgba(255,255,255,.9);';
+  const terminalStyle='box-sizing:border-box;width:100%;max-width:100%;overflow-wrap:anywhere;margin:.82em 0;padding:1em 1.05em;border:1.5px solid rgba(96,112,78,.38);border-radius:26px;background:linear-gradient(155deg,rgba(255,255,255,.94),rgba(241,248,224,.90));box-shadow:0 10px 28px rgba(74,88,55,.13),inset 0 1px 0 rgba(255,255,255,.95);color:#35402f;font:560 13.5px/1.72 system-ui,-apple-system,Microsoft YaHei,sans-serif;white-space:pre-wrap';
+  const themeCss=`
+[data-f7d-terminal="1"]{position:relative!important;border:1.5px solid rgba(96,112,78,.38)!important;border-radius:26px!important;background:linear-gradient(155deg,rgba(255,255,255,.96),rgba(241,248,224,.91))!important;color:#35402f!important;box-shadow:0 10px 28px rgba(74,88,55,.13),inset 0 1px 0 rgba(255,255,255,.95)!important;overflow:hidden!important}
+[data-f7d-terminal="1"]::before{content:"✦  CENTRAL COURT · TACTICAL TERMINAL  ✦";display:block;margin:-1em -1.05em .8em;padding:.72em 1em;background:linear-gradient(90deg,rgba(207,237,132,.8),rgba(255,228,129,.72),rgba(214,244,177,.78));border-bottom:1px solid rgba(101,117,80,.25);color:#48543a;font:750 11px/1.2 system-ui,-apple-system,Microsoft YaHei,sans-serif;letter-spacing:.08em;text-align:center}
+[data-f7d-choice-grid="1"]{position:relative!important}
+[data-f7d-choice="1"]{position:relative!important;transition:transform .12s ease,box-shadow .12s ease!important}
+[data-f7d-choice="1"]:hover{transform:translateY(-1px)!important;box-shadow:0 7px 18px rgba(65,75,54,.16)!important}
+[data-f7d-choice="1"]::after{content:"";position:absolute;right:18px;bottom:-8px;width:14px;height:14px;background:inherit;border-right:1.8px solid rgba(66,73,56,.72);border-bottom:1.8px solid rgba(66,73,56,.72);transform:rotate(45deg);border-radius:0 0 4px 0}
+[data-f7d-choice-kind="slack"]{border-style:dashed!important;border-color:rgba(115,100,118,.58)!important;background:linear-gradient(145deg,rgba(255,255,255,.97),rgba(247,240,249,.92))!important;color:#514654!important}
+[data-f7d-choice-kind="slack"]::before{content:"☁";margin-right:.38em;color:#9c859f}
+[data-f7d-choice-kind="free"]::before{content:"✧";margin-right:.38em;color:#91a36f}
+[data-f7d-choice-title="1"]{background:linear-gradient(90deg,transparent,rgba(204,233,128,.34),rgba(255,226,121,.28),transparent);border-radius:999px}
+@media(max-width:640px){[data-f7d-choice-grid="1"]{grid-template-columns:1fr!important;padding:.78em!important;border-radius:22px!important}[data-f7d-choice="1"],[data-f7d-choice-free="1"]{font-size:14px!important;min-height:50px!important}[data-f7d-terminal="1"]{border-radius:22px!important;padding:.92em .9em!important}[data-f7d-terminal="1"]::before{margin:-.92em -.9em .72em}}
+`;
+  const ensureTheme=()=>{
+    let style=doc.getElementById('f7d-ui-theme-v0424');
+    if(!style){style=doc.createElement('style');style.id='f7d-ui-theme-v0424';doc.head.appendChild(style);}
+    if(style.textContent!==themeCss) style.textContent=themeCss;
+  };
+  const classifyChoices=()=>{
+    for(const el of doc.querySelectorAll(choice)){
+      const t=String(el.textContent||'');
+      const slack=/什么都不做|任由.{0,16}(?:过去|流逝)|放弃今天|跳过今天|摆烂/i.test(t);
+      el.setAttribute('data-f7d-choice-kind',slack?'slack':'story');
+    }
+    for(const el of doc.querySelectorAll(free)) el.setAttribute('data-f7d-choice-kind','free');
+  };
   const setComposer=text=>{
     const el=input();
     if(!el) return false;
@@ -237,19 +263,26 @@ function installChoiceFrontend(card){
     grid.setAttribute('data-f7d-choice-grid','1');
     grid.setAttribute('data-f7d-preset-normalized','1');
     grid.style.cssText=gridStyle;
+    const title=doc.createElement('div');
+    title.setAttribute('data-f7d-choice-title','1');
+    title.style.cssText='grid-column:1/-1;text-align:center;padding:.18em .4em .35em;color:#55633f;font:700 12px/1.3 system-ui,-apple-system,Microsoft YaHei,sans-serif;letter-spacing:.12em';
+    title.textContent='✦  做出选择  ✦';
+    grid.appendChild(title);
     for(const text of items){
       const b=doc.createElement('button');
       b.type='button';
       b.setAttribute('data-f7d-choice','1');
+      b.setAttribute('data-f7d-choice-kind',/什么都不做|任由.{0,16}(?:过去|流逝)|放弃今天|跳过今天|摆烂/i.test(text)?'slack':'story');
       b.style.cssText=choiceStyle;
-      b.textContent=text;
+      b.textContent='✦ '+text;
       grid.appendChild(b);
     }
     const f=doc.createElement('button');
     f.type='button';
     f.setAttribute('data-f7d-choice-free','1');
+    f.setAttribute('data-f7d-choice-kind','free');
     f.style.cssText=freeStyle;
-    f.textContent='✎ 自由输入';
+    f.textContent='自由输入';
     grid.appendChild(f);
     return grid;
   };
@@ -308,8 +341,8 @@ function installChoiceFrontend(card){
     wrap.setAttribute('data-f7d-terminal-fallback','1');
     wrap.style.cssText=terminalStyle;
     const title=doc.createElement('div');
-    title.style.cssText='font-size:11px;letter-spacing:.14em;color:#8ecbff;margin-bottom:.35em';
-    title.textContent='CENTRAL COURT // TACTICAL TERMINAL';
+    title.style.cssText='display:none';
+    title.textContent='';
     const body=doc.createElement('div');
     const active=Object.entries(state?.tasks||{}).filter(([,v])=>v&&v.status==='active').map(([k,v])=>String(v.objective||k)).slice(0,3);
     const labels={court:'中央庭',school:'高校学园',east:'东方古街',central:'中央城区',institute:'研究所',seaside:'海湾侧城',old:'旧城区',harbor:'港湾区'};
@@ -345,7 +378,7 @@ function installChoiceFrontend(card){
   const refresh=()=>{
     if(queued)return;
     queued=true;
-    setTimeout(()=>{queued=false;scrubLegacyTerminalCounters();normalizePresetShells();ensureTerminalFallbacks();scrubLegacyTerminalCounters();},40);
+    setTimeout(()=>{queued=false;ensureTheme();scrubLegacyTerminalCounters();normalizePresetShells();ensureTerminalFallbacks();classifyChoices();scrubLegacyTerminalCounters();},40);
   };
   const click=e=>{
     const ParentElement=window.parent?.Element||Element;
@@ -361,6 +394,7 @@ function installChoiceFrontend(card){
     }
   };
   const install=()=>{
+    ensureTheme();
     const old=window.parent[KEY];
     if(old?.click) doc.removeEventListener('click',old.click,true);
     old?.observer?.disconnect?.();
@@ -368,7 +402,7 @@ function installChoiceFrontend(card){
     const ParentObserver=window.parent?.MutationObserver||MutationObserver;
     const observer=new ParentObserver(refresh);
     observer.observe(doc.body,{subtree:true,childList:true});
-    window.parent[KEY]={version:'1.3.0',click,observer,setComposer,normalizePresetShells,ensureTerminalFallbacks,scrubLegacyTerminalCounters,refresh};
+    window.parent[KEY]={version:'1.4.0',click,observer,setComposer,normalizePresetShells,ensureTerminalFallbacks,scrubLegacyTerminalCounters,refresh};
     refresh();
   };
   if(doc.readyState==='loading') doc.addEventListener('DOMContentLoaded',install,{once:true}); else install();
