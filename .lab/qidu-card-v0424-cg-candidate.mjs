@@ -316,7 +316,7 @@ function installChoiceFrontend(card){
     const ParentObserver=window.parent?.MutationObserver||MutationObserver;
     const observer=new ParentObserver(refresh);
     observer.observe(doc.body,{subtree:true,childList:true});
-    window.parent[KEY]={version:'1.2.0',click,observer,setComposer,normalizePresetShells,ensureTerminalFallbacks,refresh};
+    window.parent[KEY]={version:'1.3.0',click,observer,setComposer,normalizePresetShells,ensureTerminalFallbacks,refresh};
     refresh();
   };
   if(doc.readyState==='loading') doc.addEventListener('DOMContentLoaded',install,{once:true}); else install();
