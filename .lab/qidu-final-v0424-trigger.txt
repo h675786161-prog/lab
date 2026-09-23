@@ -1,2 +1,2 @@
-run=7
-reason=rerun exact v0.4.24 final gate after transient hard-cap retry and core advertised-route fixes; candidate content unchanged from hash 930f0fb0d08c34a5fdcac7bcb10b0a3ffc07a78f1876cde742c71179a26dff21
+run=8
+reason=exact final gate after core 6/6 and encounter 3/3 targeted narrative passed; DeepSeek route validated; candidate hash remains 930f0fb0d08c34a5fdcac7bcb10b0a3ffc07a78f1876cde742c71179a26dff21
