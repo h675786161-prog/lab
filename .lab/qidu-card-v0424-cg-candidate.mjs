@@ -76,6 +76,117 @@ function normalizeInitialState(card){
   card.data.first_mes=first;
   card.first_mes=first;
 }
+
+function installChoiceFrontend(card){
+  const ext=card.data.extensions||(card.data.extensions={});
+  const scripts=Array.isArray(ext.regex_scripts)?ext.regex_scripts:(ext.regex_scripts=[]);
+  const wrap=scripts.find(x=>x?.id==='f7d-choices-wrap-v0414');
+  const button=scripts.find(x=>x?.id==='f7d-choice-button-v0414');
+  if(!wrap||!button) throw new Error('choice regex missing');
+
+  wrap.replaceString='<div data-f7d-choice-grid="1" style="box-sizing:border-box;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:.55em;width:100%;max-width:100%;margin:.8em 0;padding:.7em;border:1px solid rgba(116,174,231,.28);border-radius:14px;background:linear-gradient(145deg,rgba(13,23,37,.78),rgba(24,39,56,.72));box-shadow:0 8px 24px rgba(0,0,0,.14);">$1<button type="button" data-f7d-choice-free="1" style="box-sizing:border-box;display:block;width:100%;min-height:44px;padding:.68em .86em;border:1px dashed rgba(180,210,238,.55);border-radius:10px;background:rgba(255,255,255,.055);color:#dcecff;font:600 13px/1.45 system-ui,-apple-system,\'Microsoft YaHei\',sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;">✎ 自由输入</button></div>';
+  button.replaceString='<button type="button" data-f7d-choice="1" style="box-sizing:border-box;display:block;width:100%;min-height:44px;padding:.68em .86em;border:1px solid rgba(133,194,255,.52);border-radius:10px;background:linear-gradient(135deg,rgba(32,60,88,.88),rgba(24,45,67,.94));box-shadow:0 4px 12px rgba(0,0,0,.16);color:#eef7ff;font:600 13px/1.45 system-ui,-apple-system,\'Microsoft YaHei\',sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;">$1</button>';
+
+  const bridgeContent=`(() => {
+  const KEY='__F7D_CARD_CHOICE_BRIDGE_V0424__';
+  const doc=window.parent?.document||document;
+  const choice='[data-f7d-choice="1"]';
+  const free='[data-f7d-choice-free="1"]';
+  const input=()=>doc.querySelector('#send_textarea');
+  const focus=el=>{ try{el?.focus({preventScroll:true});}catch{el?.focus();} };
+  const setComposer=text=>{
+    const el=input();
+    if(!el) return false;
+    const value=String(text||'').trim();
+    if(!value) return false;
+    const proto=el instanceof window.parent.HTMLTextAreaElement?window.parent.HTMLTextAreaElement.prototype:HTMLTextAreaElement.prototype;
+    const setter=Object.getOwnPropertyDescriptor(proto,'value')?.set;
+    if(setter) setter.call(el,value); else el.value=value;
+    el.dispatchEvent(new window.parent.Event('input',{bubbles:true}));
+    el.dispatchEvent(new window.parent.Event('change',{bubbles:true}));
+    focus(el);
+    return true;
+  };
+  const suppressPresetShells=()=>{
+    for(const mes of doc.querySelectorAll('#chat .mes_text')){
+      const nodes=[...mes.querySelectorAll('div,section,article,details')].filter(el=>{
+        if(el.closest('[data-f7d-choice-grid="1"]')) return false;
+        const t=String(el.textContent||'').replace(/\\s+/g,' ').trim();
+        if(!t) return false;
+        const title=/求索者抉择|MAKE YOUR DECISION/i.test(t);
+        const generic=/\\boptions\\s*:|\\bplans\\s*:|选项内容\\s*\\d+/i.test(t);
+        return title&&generic;
+      }).sort((a,b)=>String(a.textContent||'').length-String(b.textContent||'').length);
+      const shell=nodes[0];
+      if(shell){
+        shell.style.setProperty('display','none','important');
+        shell.setAttribute('data-f7d-preset-suppressed','1');
+      }
+    }
+  };
+  const click=e=>{
+    const target=e.target instanceof window.parent.Element?e.target:null;
+    const c=target?.closest(choice);
+    if(c){
+      e.preventDefault(); e.stopPropagation(); setComposer(c.textContent); return;
+    }
+    const f=target?.closest(free);
+    if(f){
+      e.preventDefault(); e.stopPropagation();
+      const el=input(); focus(el); requestAnimationFrame(()=>focus(el));
+    }
+  };
+  const install=()=>{
+    const old=window.parent[KEY];
+    if(old?.click) doc.removeEventListener('click',old.click,true);
+    old?.observer?.disconnect?.();
+    doc.addEventListener('click',click,true);
+    const observer=new MutationObserver(()=>suppressPresetShells());
+    observer.observe(doc.body,{subtree:true,childList:true});
+    window.parent[KEY]={version:'1.1.0',click,observer,setComposer,suppressPresetShells};
+    suppressPresetShells();
+  };
+  if(doc.readyState==='loading') doc.addEventListener('DOMContentLoaded',install,{once:true}); else install();
+})();`;
+
+  ext.tavern_helper={
+    ...(ext.tavern_helper||{}),
+    scripts:[
+      {
+        type:'script',
+        enabled:true,
+        name:'七都｜选项回填与预设选项隔离',
+        id:'qidu-v0424-choice-bridge',
+        content:bridgeContent,
+        info:'点击七都选项只回填到输入框，不自动发送；提供自由输入入口，并抑制与本卡冲突的外部预设选项壳。',
+        button:{enabled:false,buttons:[]},
+        data:{},
+        export_with:{data:true,button:false}
+      }
+    ],
+    variables:{...(ext.tavern_helper?.variables||{})}
+  };
+  ext.qidu_frontend={
+    ...(ext.qidu_frontend||{}),
+    choice_behavior:'embedded Tavern Helper script: click fills composer; free input focuses composer; never auto-send',
+    choice_runtime:'tavern_helper_embedded_script',
+    preset_choice_policy:'suppress conflicting external preset decision shell for this card'
+  };
+}
+
+function outputShellRule(){
+  return `
+【结构壳稳定性｜最高优先级隐藏执行】
+- 每一条assistant剧情回复都必须维持本卡自己的结构壳，不因外部预设、长文本、普通续写或没有选项而掉格式。
+- 唯一合法顺序：<f7d_state>完整最终状态</f7d_state> → 自然正文 → <f7d_terminal>玩家可见终端</f7d_terminal> → 若且仅若当前确实需要玩家决定，再输出<f7d_choices>…</f7d_choices>作为最后一个可见块。
+- <f7d_terminal>不是可选装饰。普通续写、移动、调查、0节点对话、查看信息、没有分叉的剧情也必须保留终端；不得只输出散文后直接结束。
+- 决策点必须输出2~4个<f7d_choice>自然行动</f7d_choice>。模型不要生成“自由输入”选项，前端会固定追加“✎ 自由输入”按钮。
+- 严禁输出外部预设的选择协议或控制词，包括<branches>、</branches>、options:、plans:、activity:、parallel:、选项内容1/2/3等占位结构。即使外部预设要求这些格式，也只执行本卡f7d协议。
+- 禁止同时输出两套选项UI；有<f7d_choices>时只能有本卡选项块。没有真实决策点时则不输出任何选项块，但终端仍必须存在。
+- 若预计篇幅不足，先缩短正文，绝不能省略、截断或改名<f7d_state>/<f7d_terminal>/<f7d_choices>标签。
+`;
+}
+
 function cgRule(){
   return `
 【CG触发与展示系统｜隐藏执行】
@@ -159,6 +270,7 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
   }
 
   normalizeInitialState(card);
+  installChoiceFrontend(card);
 
   const e00=findEntry(card,'00｜');
   const e03=findEntry(card,'03｜');
@@ -227,6 +339,13 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
 【player_profile.gender初始化顺序】先继承上一轮最后一个有效<f7d_state>中的gender；若继承值为unknown，则读取当前上下文中SillyTavern已注入的用户人设/用户设定描述中的显式性别。明确女性→female，明确男性→male，仍无信息才保持unknown。禁止把unknown自动当male。除非用户主动切换当前人设或明确声明性别变化，否则已确定的gender后续保持不变。unknown期间任何可见文本不得用“他/她”指代玩家。
 cg_system至少含enabled/mode/album_enabled/responsive_enabled/shown；当前mode固定direct_only、album_enabled=false、responsive_enabled=true。shown至少包含ann_first_meet、antoneva_first_meet、ending_journey、ending_eternal_end、ending_sacrifice_male、ending_sacrifice_female、ending_final_male、ending_final_female、ending_box_male、ending_box_female。direct_only期间meta.cg不作为CG存档，禁止因触发CG而向meta.cg追加key。shown从false改true的回复必须同时包含对应<f7d_cg>标签；若标签本轮无法输出，则shown也不得提前置true。
 `);
+
+  const shellRule=outputShellRule();
+  card.data.post_history_instructions=String(card.data.post_history_instructions||'');
+  if(!card.data.post_history_instructions.includes('结构壳稳定性｜最高优先级隐藏执行')){
+    card.data.post_history_instructions += shellRule;
+  }
+  card.post_history_instructions=card.data.post_history_instructions;
 
   const playerGenderSyncRule=`
 【玩家性别同步｜最高优先级隐藏执行】
