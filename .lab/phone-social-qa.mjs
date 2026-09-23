@@ -31,7 +31,7 @@ try {
   dispatchEvent(new CustomEvent('world-backstage:phone-update'));
  }, process.env.WP_HOST_MODULE || '');
 
- await click('#world-phone-launcher'); await click('[data-unlock]');
+  await click('[data-unlock]');
  await click('[data-app="wechat"]'); await click('[data-wx-tab="contacts"]');
  await click('[data-social-friends]');
  await page.evaluate(()=>{SillyTavern.getContext().chatMetadata.world_backstage_v1.currentState.clock.absoluteMinute++;dispatchEvent(new CustomEvent('world-backstage:phone-update'));});
@@ -141,12 +141,12 @@ try {
  await page.evaluate(async()=>{const ctx=SillyTavern.getContext();const eventName=ctx.eventTypes?.CHAT_CHANGED||ctx.event_types?.CHAT_CHANGED;if(!ctx.eventSource?.emit||!eventName||!ctx.updateChatMetadata)throw new Error('SillyTavern chat switch API is unavailable');window.__qaOriginalChatMetadata=ctx.chatMetadata;window.__qaChatEventName=eventName;const next=structuredClone(ctx.chatMetadata);next.world_backstage_v1.currentState.world.name='另一条酒馆聊天';ctx.updateChatMetadata(next,true);await ctx.eventSource.emit(eventName,'lab-other-chat');});
  await page.waitForTimeout(350);
  assert.equal(await page.evaluate(()=>worldBackstageHost.getPhoneSurface().worldName),'另一条酒馆聊天','phone bridge follows a real Tavern CHAT_CHANGED event');
- await click('#world-phone-launcher');await click('[data-app="wechat"]');await click('[data-wx-chat="direct-b"]');
+ await click('[data-app="wechat"]');await click('[data-wx-chat="direct-b"]');
  assert.notEqual(await page.locator('[data-wx-compose-input]').inputValue(),'只属于原酒馆聊天的草稿','draft from previous Tavern chat must not leak');
  await page.evaluate(async()=>{const ctx=SillyTavern.getContext();ctx.updateChatMetadata(window.__qaOriginalChatMetadata,true);await ctx.eventSource.emit(window.__qaChatEventName,'lab-return-chat');});
  await page.waitForTimeout(350);
  assert.equal(await page.evaluate(()=>worldBackstageHost.getPhoneSurface().worldName),'青苔镇','returning to the original Tavern chat restores its authoritative surface');
- await click('#world-phone-launcher');await click('[data-app="wechat"]');await click('[data-wx-chat="direct-b"]');
+ await click('[data-app="wechat"]');await click('[data-wx-chat="direct-b"]');
  assert.notEqual(await page.locator('[data-wx-compose-input]').inputValue(),'只属于原酒馆聊天的草稿','switching back does not resurrect a stale draft');
  assert.deepEqual(errors,[]);assert.deepEqual(pluginConsoleErrors,[],'no phone or Backstage plug-in console errors');
  fs.writeFileSync(path.join(output,'social-report.json'),JSON.stringify({passed:true,checks:['accept incoming friend','start direct chat','canonical message','create group','private moment hidden','canonical comment and live refresh','in-thread search result count and forward/back navigation','IME input continuity','search focus and selection across refresh','per-conversation draft isolation','lock-screen notification direct-open and canonical read state','real CHAT_CHANGED event and draft isolation across Tavern chats','disconnected bridge safely rejects and reconnect recovers','pin chat','social share draft and explicit send','favorites isolated and restored across Tavern metadata','desktop 390 and 320 search layouts'],pageErrors:errors,pluginConsoleErrors,otherConsoleErrors:consoleErrors.filter(item=>!pluginConsoleErrors.includes(item))},null,2));
