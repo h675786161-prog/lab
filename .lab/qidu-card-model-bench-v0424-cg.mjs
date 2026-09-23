@@ -186,17 +186,21 @@ async function runOneCase(c,model,runMode){
 }
 for(const c of cases){
   let result=await runOneCase(c,m,mode);
-  if(!result.pass&&result.failures.length>0&&result.failures.every(x=>String(x).startsWith('provider-'))){
+  const tried=[m];
+  while(!result.pass&&result.failures.length>0&&result.failures.every(x=>String(x).startsWith('provider-'))&&tried.length<5){
     try{
-      const fallback=await chooseModel([m]);
-      console.log(JSON.stringify({provider_case_fallback:true,id:c.id,from:m,to:fallback.m,mode:fallback.mode}));
+      const fallback=await chooseModel(tried);
+      console.log(JSON.stringify({provider_case_fallback:true,id:c.id,from:result.model,to:fallback.m,mode:fallback.mode,attempt:tried.length}));
+      tried.push(fallback.m);
       result=await runOneCase(c,fallback.m,fallback.mode);
+      if(!result.pass&&result.failures.length>0&&!result.failures.every(x=>String(x).startsWith('provider-'))) break;
     }catch(e){
-      console.log(JSON.stringify({provider_case_fallback:false,id:c.id,error:String(e?.message||e)}));
+      console.log(JSON.stringify({provider_case_fallback:false,id:c.id,tried,error:String(e?.message||e)}));
+      break;
     }
   }
-  results.push(result);
-  console.log(JSON.stringify({id:result.id,model:result.model,mode:result.mode,status:result.status,pass:result.pass,failures:result.failures,finish_reason:result.finish_reason,usage:result.usage}));
+  results.push({...result,triedModels:tried});
+  console.log(JSON.stringify({id:result.id,model:result.model,mode:result.mode,status:result.status,pass:result.pass,failures:result.failures,triedModels:tried,finish_reason:result.finish_reason,usage:result.usage}));
   await sleep(Math.max(900,Number(process.env.CG_CASE_GAP_MS||10000)));
 }
 const failedResults=results.filter(x=>!x.pass);
