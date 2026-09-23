@@ -166,9 +166,9 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
 
   {
     const oldRule='3. 原作长篇台词、CG字幕不逐句复制。已有 TEXT_ID/CG_ID 只定义调用时机；没有用户提供的文本资源时，仅生成贴合含义和情绪的新文案。';
-    const newRule='3. 原作长篇台词、CG字幕：用户已经提供原文时，直接使用该原文，不改写、不概括、不另造近义版本；用户没有提供原文时，才由模型根据当前剧情自行生成。TEXT_ID/CG_ID只负责调用时机，不得以“只定义调用时机”为由忽略已经提供的原文。';
-    if(!String(e00.content||'').includes(oldRule)) throw new Error('project boundary source-text rule missing');
-    e00.content=String(e00.content).replace(oldRule,newRule);
+    if(!String(e00.content||'').includes(oldRule)) throw new Error('project boundary obsolete source-text rule missing');
+    e00.content=String(e00.content).replace(oldRule,'');
+    e00.content=String(e00.content).replace('4. 模型自由发挥只能补低风险现场细节，','3. 模型自由发挥只能补低风险现场细节，');
   }
 
   appendOnce(e03,'相册/小手机联动尚未启用',`
