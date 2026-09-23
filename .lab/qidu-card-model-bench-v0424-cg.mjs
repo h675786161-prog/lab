@@ -86,16 +86,11 @@ async function chooseModel(exclude=[]){
   }catch{}
   const requested=process.env.CG_MODEL||process.env.GLM_MODEL||'deepseek/deepseek-v4.1-flash';
   const pref=[requested,'[ok]hy3','deepseek/deepseek-v4.1-flash','[amd]DeepSeek-V4.1-Flash','[iao]deepseek-ai/DeepSeek-V4-Flash-0731','[ox]deepseek-ai/DeepSeek-V4-Flash-0731','zai/glm-5.3-flash','[amd]GLM-5.3-Flash','[iao]zai-org/GLM-5.3-Flash','[ox]zai-org/GLM-5.3-Flash',...ids.filter(x=>/(deepseek|glm|qwen|hy3)/i.test(x))];
-  for(const m of [...new Set(pref.filter(x=>(!ids.length||ids.includes(x))&&!exclude.includes(x)))].slice(0,20)){
-    for(const mode of ['thinking-disabled','plain']){
-      try{
-        const r=await call(m,mode,[{role:'system',content:'只输出中文。'},{role:'user',content:'只写：收到'}],80,22000);
-        const text=await r.text();let d={};try{d=JSON.parse(text)}catch{}
-        if(r.ok&&contentOf(d).length>=2)return{m,mode};
-      }catch{}
-    }
-  }
-  throw new Error('no usable model');
+  const candidates=[...new Set(pref.filter(x=>(!ids.length||ids.includes(x))&&!exclude.includes(x)))].slice(0,30);
+  if(!candidates.length) throw new Error('no advertised model candidate');
+  const m=candidates[0];
+  console.log(JSON.stringify({provider_route_selected:m,advertised:!ids.length||ids.includes(m),excluded:exclude.length}));
+  return {m,mode:'thinking-disabled'};
 }
 
 function state(overrides={}){
@@ -187,7 +182,7 @@ async function runOneCase(c,model,runMode){
 for(const c of cases){
   let result=await runOneCase(c,m,mode);
   const tried=[m];
-  while(!result.pass&&result.failures.length>0&&result.failures.every(x=>String(x).startsWith('provider-'))&&tried.length<5){
+  while(!result.pass&&result.failures.length>0&&result.failures.every(x=>String(x).startsWith('provider-'))&&tried.length<8){
     try{
       const fallback=await chooseModel(tried);
       console.log(JSON.stringify({provider_case_fallback:true,id:c.id,from:result.model,to:fallback.m,mode:fallback.mode,attempt:tried.length}));
