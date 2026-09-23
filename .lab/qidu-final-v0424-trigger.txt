@@ -1,2 +1,2 @@
-run=14
-reason=rerun exact final gate after project-boundary source-text rule changed: user-supplied original text must be used directly; if absent, generate context-appropriate text
+run=15
+reason=final gate after removing obsolete source-text rule from project-boundary entry because no original-text resource layer is embedded; renumber free-generation constraint from 4 to 3
