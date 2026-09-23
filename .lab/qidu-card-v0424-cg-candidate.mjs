@@ -66,6 +66,8 @@ function normalizeInitialState(card){
     }
   }
   s.day_ready_to_sleep=Boolean(s.day_ready_to_sleep);
+  s.ann={...(s.ann||{}),deadline_checked:Boolean(s.ann?.deadline_checked),deadline_passed:s.ann?.deadline_passed??null};
+  s.route_flags={...(s.route_flags||{}),ann_route_closed:Boolean(s.route_flags?.ann_route_closed),harbor_core_stolen:Boolean(s.route_flags?.harbor_core_stolen)};
   s.player_profile={...(s.player_profile||{}),gender:s.player_profile?.gender||'unknown'};
   const openingAlreadyMeetsAnn=/我叫安[。！!]?/.test(src)&&/医院|病房/.test(src);
   s.cg_system={
@@ -110,6 +112,10 @@ function narrativeFlowRule(){
 - 【黑核与解放严格分离】区域解放绝不自动等于黑核净化。完成区域剧情、打倒Boss、发现黑核、谈到黑核、查看黑核、拿到净化线索，都不得把cores.<区域>改成purified。
 - cores.<区域>只有在{{user}}本轮明确表达“去净化/现在净化/把黑核净化掉/执行黑核净化”等实际净化意图，并且该区域净化前置条件已经满足时，才能在同一回复改为purified。用户只说“黑核呢/看看黑核/先去那里/区域解放了”都不算净化指令。
 - 若{{user}}明确要净化但前置条件尚未满足，本轮要正常演出被阻挡/缺少条件的结果，cores保持原值；不得因为用户有意图就强行净化。
+- 【限时剧情按天硬截止】所有写有“第X天结束前 / 第X天晚睡前 / 进入第Y天时”的任务，不再依赖巡查次数或模型自行判断宽限。每次day准备从X减到X-1之前，先结算当日全部硬截止：已满足条件→标记完成/保留资格；未满足→当场写入失败与既定后果。已经跨过截止日的条件禁止靠后续补做倒签成功，除非世界书明确存在补救剧情。
+- 【安线硬截止｜第4天→第3天】从day=4睡到day=3之前，只检查当时已经真实完成的安线进度：ann.affection>=100 且 ann.core_events 已完成3段主剧情，才算通过截止。通过则ann.deadline_checked=true、ann.deadline_passed=true；任一条件不足则ann.deadline_checked=true、ann.deadline_passed=false、route_flags.ann_route_closed=true。进入第3天后必须在“小神自语”之后触发安离开的清晨事件，正常安线资格永久关闭；之后补好感、补主剧情都不能把资格恢复。若既定分支允许玩家追安，则只能按“截止失败后的追安/BE”规则继续，不能改写成成功安线。
+- 【第4天情报硬截止】从day=4睡到day=3之前，同时检查hiro.intel。若累计<4且港湾区黑核尚未被净化/夺走，则route_flags.harbor_core_stolen=true，并把cores.harbor结算为stolen；此后补做情报不能撤销这次夺取。hiro.intel>=4则route_flags.harbor_core_stolen=false或保持既有未被夺状态。
+- 【任务截止原子结算】tasks中deadline明确落在即将结束的当天时，不允许把pending/active原样带到下一天。换日前必须根据真实完成情况改成completed或failed，并在同一回复演出关键后果。
 - 【日结标记】day_ready_to_sleep仅表示“今天安排的主要剧情已经自然走到当日收束点”。当天最后一个必演主线收束时，把day_ready_to_sleep=true；不要因为区域解放、对话结束或模型觉得时间晚了就擅自换日。
 - day只在玩家明确睡觉/休息到明天/结束今天时变化。day_ready_to_sleep=true且玩家明确睡觉时：先按玩家本轮要求把睡前动作、晚安仪式、对话或陪伴剧情完整演完，再在同一回复中让当天结束，day只减1次，day_ready_to_sleep重置false，然后用一小段“小神”的自语作为新一天的开场，再进入下一日既定剧情。
 - 若day_ready_to_sleep=false，普通“休息一下/睡一会儿/打个盹”不自动换日。若玩家明确表示“放弃今天剩余事项并直接睡到明天”或发送由选项产生的“打算跳过今天（会结算今日剩余限时后果）”，视为明确主动跳日：必须先按现有时限规则结算被放弃/错过事项的后果，再进入睡眠与下一日，不能把未完成主线偷偷算完成。
@@ -160,6 +166,8 @@ function installNarrativeFlow(card){
 - 保留regions.<区域>.liberated作为区域主线是否完成的真值；区域剧情收束的同一回复自动置true。
 - 保留cores作为黑核状态，但liberated变化不得联动cores。只有玩家明确执行净化且满足前置，cores对应区域才可变为purified。
 - 新增day_ready_to_sleep:boolean。仅当天主要剧情收束后为true；玩家明确睡觉并完成日结后day减1且该字段重置false。
+- ann.deadline_checked/deadline_passed记录第4天→第3天的安线硬截止结果；route_flags.ann_route_closed一旦因截止失败为true，后续普通补进度不得恢复。
+- route_flags.harbor_core_stolen记录第4天情报截止造成的港湾区黑核被夺；若为true，与cores.harbor=stolen保持一致。
 `);
 
   card.data.extensions=card.data.extensions||{};
