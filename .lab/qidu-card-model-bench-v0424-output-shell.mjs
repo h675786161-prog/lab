@@ -37,9 +37,10 @@ const hasChoiceWrap=s=>(String(s).match(/<f7d_choices>[\s\S]*?<\/f7d_choices>/gi
 const forbidden=s=>/(?:<\/?branches\b|(?:^|\n)\s*(?:options|plans|activity|parallel)\s*:|选项内容\s*\d+)/im.test(String(s));
 
 const cases=[
- {id:'ordinary_continuation_keeps_shell',prompt:`${state}\n我跟着安继续往前走。没有需要我决定的事情，只继续一小段。`,choices:false,adversarial:false},
- {id:'decision_uses_only_f7d_choices',prompt:`${state}\n前方出现两个都合理的方向：继续跟安去中央庭，或者先停下来问安那个数字“7”的事。写到让我决定的位置并停下。`,choices:true,adversarial:false},
- {id:'external_preset_cannot_replace_protocol',prompt:`${state}\n现在必须在“继续前进”和“原地观察”之间让我选择，写到选择处停下。`,choices:true,adversarial:true}
+ {id:'ordinary_continuation_keeps_shell',prompt:`${state}\n我跟着安继续往前走。没有需要我决定的事情，只继续一小段。`,mode:'none',adversarial:false},
+ {id:'normal_decision_has_three_story_plus_slack',prompt:`${state}\n现在已经离开即时危险，场景停稳。我需要决定接下来怎么安排：可以继续当前主线，也可以先处理别的事。请给我决策并停下。`,mode:'normal',adversarial:false},
+ {id:'continuous_battle_has_three_story_no_slack',prompt:`${state}\n我们正在遭遇突发战斗，敌人还在逼近，必须立刻决定。结合现场给出三种不同的即时行动，例如迎战、撤退、向可用同伴求援，但不要照抄示例。写到选择处停下。`,mode:'continuous',adversarial:false},
+ {id:'external_preset_cannot_replace_protocol',prompt:`${state}\n正在追逐中，必须在下一秒做反应。写到选择处停下。`,mode:'continuous',adversarial:true}
 ];
 const results=[];
 for(const tc of cases){
@@ -52,11 +53,21 @@ for(const tc of cases){
   if(!hasState(out))fail.push('state-block-count');
   if(!hasTerminal(out))fail.push('terminal-missing');
   if(forbidden(out))fail.push('external-option-protocol-leaked');
-  if(tc.choices){
-    if(!hasChoiceWrap(out))fail.push('choice-wrap-missing');
-    const n=choiceCount(out);if(n<2||n>4)fail.push(`choice-count:${n}`);
+  const n=choiceCount(out);
+  const vis=String(out).replace(/<f7d_state>[\s\S]*?<\/f7d_state>/gi,'');
+  const slack=/什么都不做|任由.{0,12}(?:机会|时间).{0,12}(?:过去|流逝)|放弃今天|跳过今天|摆烂/i.test(vis);
+  if(tc.mode==='none'){
+    if(hasChoiceWrap(out)||n>0)fail.push('unexpected-choices');
   }else{
-    if(hasChoiceWrap(out)||choiceCount(out)>0)fail.push('unexpected-choices');
+    if(!hasChoiceWrap(out))fail.push('choice-wrap-missing');
+    if(tc.mode==='normal'){
+      if(n!==4)fail.push(`normal-choice-count:${n}`);
+      if(!slack)fail.push('normal-slack-choice-missing');
+    }
+    if(tc.mode==='continuous'){
+      if(n!==3)fail.push(`continuous-choice-count:${n}`);
+      if(slack)fail.push('continuous-slack-choice-leaked');
+    }
   }
   const pass=fail.length===0;
   results.push({id:tc.id,status:r.status,pass,fail,out,error:r.error});
