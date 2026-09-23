@@ -195,7 +195,7 @@ function installChoiceFrontend(card){
   wrap.replaceString='<div data-f7d-choice-grid="1" style="box-sizing:border-box;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:.55em;width:100%;max-width:100%;margin:.8em 0;padding:.7em;border:1px solid rgba(116,174,231,.28);border-radius:14px;background:linear-gradient(145deg,rgba(13,23,37,.78),rgba(24,39,56,.72));box-shadow:0 8px 24px rgba(0,0,0,.14);">$1<button type="button" data-f7d-choice-free="1" style="box-sizing:border-box;display:block;width:100%;min-height:44px;padding:.68em .86em;border:1px dashed rgba(180,210,238,.55);border-radius:10px;background:rgba(255,255,255,.055);color:#dcecff;font:600 13px/1.45 system-ui,-apple-system,\'Microsoft YaHei\',sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;">✎ 自由输入</button></div>';
   button.replaceString='<button type="button" data-f7d-choice="1" style="box-sizing:border-box;display:block;width:100%;min-height:44px;padding:.68em .86em;border:1px solid rgba(133,194,255,.52);border-radius:10px;background:linear-gradient(135deg,rgba(32,60,88,.88),rgba(24,45,67,.94));box-shadow:0 4px 12px rgba(0,0,0,.16);color:#eef7ff;font:600 13px/1.45 system-ui,-apple-system,\'Microsoft YaHei\',sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;">$1</button>';
 
-  const bridgeContent=\`(() => {
+  const bridgeContent=`(() => {
   const KEY='__F7D_CARD_CHOICE_BRIDGE_V0424__';
   const doc=window.parent?.document||document;
   const choice='[data-f7d-choice="1"]';
@@ -361,7 +361,7 @@ function installChoiceFrontend(card){
     refresh();
   };
   if(doc.readyState==='loading') doc.addEventListener('DOMContentLoaded',install,{once:true}); else install();
-})();\`;
+})();`;
 
   ext.tavern_helper={
     ...(ext.tavern_helper||{}),
