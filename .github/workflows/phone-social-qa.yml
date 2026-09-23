@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: h675786161-prog/phone
-          ref: 45559a0452d0a4c2e170c947137c908006b4f368
+          ref: de02723424102a3032867210f00cb55ffde3485b
           path: private-phone
           ssh-key: ${{ secrets.PHONE_SOCIAL_QA_KEY }}
           persist-credentials: false
@@ -84,7 +84,7 @@ jobs:
           mkdir -p lab-evidence
           node -e "require('fs').writeFileSync('lab-evidence/refs.json',JSON.stringify({phone:process.env.PHONE_REF,backstage:process.env.BACKSTAGE_REF,tavern:'8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8'},null,2))"
         env:
-          PHONE_REF: 45559a0452d0a4c2e170c947137c908006b4f368
+          PHONE_REF: de02723424102a3032867210f00cb55ffde3485b
           BACKSTAGE_REF: e7be1a55a46773fac286cad3147d77ea236ff0a4
       - name: Run real browser social and gameplay regressions
         shell: bash
