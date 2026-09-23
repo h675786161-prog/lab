@@ -85,7 +85,7 @@ async function chooseModel(exclude=[]){
     ids=(d?.data||d?.models||[]).map(x=>typeof x==='string'?x:(x?.id||x?.name||x?.model)).filter(Boolean);
   }catch{}
   const requested=process.env.CG_MODEL||process.env.GLM_MODEL||'deepseek/deepseek-v4.1-flash';
-  const pref=[requested,'[ok]hy3','deepseek/deepseek-v4.1-flash','[amd]DeepSeek-V4.1-Flash','[iao]deepseek-ai/DeepSeek-V4-Flash-0731','[ox]deepseek-ai/DeepSeek-V4-Flash-0731','zai/glm-5.3-flash','[amd]GLM-5.3-Flash','[iao]zai-org/GLM-5.3-Flash','[ox]zai-org/GLM-5.3-Flash',...ids.filter(x=>/(deepseek|glm|qwen|hy3)/i.test(x))];
+  const pref=[requested,'[ok]hy3','deepseek/deepseek-v4.1-flash','[amd]DeepSeek-V4.1-Flash','[iao]deepseek-ai/DeepSeek-V4-Flash-0731','[ox]deepseek-ai/DeepSeek-V4-Flash-0731','[ok]mimo-v2-5','[iao]MiniMaxAI/MiniMax-M2.7','[ov]moonshotai/kimi-k3','zai/glm-5.3-flash','[amd]GLM-5.3-Flash','[iao]zai-org/GLM-5.3-Flash','[ox]zai-org/GLM-5.3-Flash','gemini-3.6-flash','gemini-3.5-flash-lite','[ma]gpt-6-astra','[ma]gpt-5.6-sol',...ids.filter(x=>/(deepseek|glm|qwen|hy3|minimax|mimo|kimi|moonshot|gemini|gpt)/i.test(x))];
   const candidates=[...new Set(pref.filter(x=>(!ids.length||ids.includes(x))&&!exclude.includes(x)))].slice(0,30);
   if(!candidates.length) throw new Error('no advertised model candidate');
   const m=candidates[0];
