@@ -48,13 +48,14 @@ function normalizeInitialState(card){
   if(!m) throw new Error('initial state missing');
   const s=JSON.parse(m[1]);
   s.player_profile={...(s.player_profile||{}),gender:s.player_profile?.gender||'unknown'};
+  const openingAlreadyMeetsAnn=/我叫安[。！!]?/.test(src)&&/医院|病房/.test(src);
   s.cg_system={
     enabled:true,
     mode:'direct_only',
     album_enabled:false,
     responsive_enabled:true,
     shown:{
-      ann_first_meet:false,
+      ann_first_meet:openingAlreadyMeetsAnn,
       antoneva_first_meet:false,
       ending_journey:false,
       ending_eternal_end:false,
@@ -67,14 +68,19 @@ function normalizeInitialState(card){
       ...(s.cg_system?.shown||{})
     }
   };
-  card.data.first_mes=src.replace(m[0],`<f7d_state>${JSON.stringify(s)}</f7d_state>`);
-  card.first_mes=card.data.first_mes;
+  if(openingAlreadyMeetsAnn) s.cg_system.shown.ann_first_meet=true;
+  let first=src.replace(m[0],`<f7d_state>${JSON.stringify(s)}</f7d_state>`);
+  if(openingAlreadyMeetsAnn&&!/<f7d_cg\s+key=["']cg_ann_first_meet["']\s*>/i.test(first)){
+    first=first.replace(/\n?<f7d_terminal>/i,'\n\n<f7d_cg key="cg_ann_first_meet"></f7d_cg>\n\n<f7d_terminal>');
+  }
+  card.data.first_mes=first;
+  card.first_mes=first;
 }
 function cgRule(){
   return `
 【CG触发与展示系统｜隐藏执行】
 - 当前版本只启用 direct_only：CG命中剧情节点时直接展示；不接入小手机，不进入相册，不做永久留存，不提供回看列表。
-- 玩家性别只读取 f7d_state.player_profile.gender，允许 male/female/unknown。没有明确性别时不得猜测；男女差分CG必须等待性别已确认。
+- 玩家性别字段使用 f7d_state.player_profile.gender，允许 male/female/unknown。若读取到unknown，必须先检查当前上下文中SillyTavern已注入的用户人设/用户设定描述：明确女性标记（女/女性/女生/女孩/she/her）→本轮gender=female；明确男性标记（男/男性/男生/男孩/he/him）→本轮gender=male；确实没有明确标记才继续unknown。禁止把unknown默认成male。gender仍为unknown时，正文、旁白和NPC不得用“他/她”指代玩家，只用“你/指挥使/对方”等中性称呼；男女差分CG必须等待性别已确认。
 - cg_system={enabled:true,mode:"direct_only",album_enabled:false,responsive_enabled:true,shown:{...}}。shown只防止本轮重复触发，不代表收藏。
 - CG不消耗行动节点。每个key同一轮回只触发一次。
 - 【CG事务原子性】只要本轮命中CG且对应shown原为false，本轮<f7d_state>必须把对应shown置为true，并且同一回复正文后必须真实输出对应<f7d_cg key="..."></f7d_cg>。这两件事必须同时发生：禁止“shown=true但漏掉CG标签”，也禁止“输出CG标签但shown仍为false”。
@@ -169,6 +175,14 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
     if(!String(e00.content||'').includes(oldRule)) throw new Error('project boundary obsolete source-text rule missing');
     e00.content=String(e00.content).replace(oldRule,'');
     e00.content=String(e00.content).replace('4. 模型自由发挥只能补低风险现场细节，','3. 模型自由发挥只能补低风险现场细节，');
+    e00.content=String(e00.content).replace(
+      '【玩家】{{user}}固定身份为“指挥使”，但性别、性格、价值观、恋爱倾向、道德立场与过去一律留白。一次选择只代表一次选择，不自动推导人格。',
+      '【玩家】{{user}}固定身份为“指挥使”，但性格、价值观、恋爱倾向、道德立场与过去一律留白。一次选择只代表一次选择，不自动推导人格。'
+    );
+    appendOnce(e00,'玩家性别同步｜高优先',`
+【玩家性别同步｜高优先】若f7d_state.player_profile.gender仍为unknown，必须检查当前上下文中SillyTavern已注入的用户人设/用户设定描述。明确写有女/女性/女生/女孩/she/her时，本轮状态写为female；明确写有男/男性/男生/男孩/he/him时，本轮状态写为male。只有用户人设确实没有明确性别信息时才保持unknown，禁止默认male。
+【未知性别叙事锁】gender=unknown时，正文、旁白、NPC转述和气泡提示都不得把{{user}}写成“他/她”；使用“你/指挥使/这名新人/对方”等中性表达。
+`);
   }
 
   appendOnce(e03,'相册/小手机联动尚未启用',`
@@ -177,6 +191,7 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
   appendOnce(e04,'CG触发与展示系统｜隐藏执行',cgRule());
   appendOnce(e10,'安初见CG',`
 【安初见CG】首轮病房中第一次完成“玩家正式见到安、安确认玩家状态并自我介绍”的初见段落后，若cg_system.shown.ann_first_meet=false，则本轮必须同时完成两件事：①<f7d_state>中ann_first_meet=true；②正文情绪落点后真实输出<f7d_cg key="cg_ann_first_meet"></f7d_cg>。缺一不可。不能先把shown置true再漏掉标签。随后必须使用精确的<f7d_terminal>……</f7d_terminal>收尾，标签不得多出引号或属性。CG播放0节点。
+【安初见CG｜首条开场强制】静态first_mes本身已经写完病房苏醒、安确认状态并说出“我叫安”，因此首条开场本身就是初见节点：首条<f7d_state>必须直接令cg_system.shown.ann_first_meet=true，并在正文后、<f7d_terminal>前直接输出<f7d_cg key="cg_ann_first_meet"></f7d_cg>，不得等玩家发出第一条消息后才补。
 `);
   appendOnce(e10,'安托涅瓦初见CG',`
 【安托涅瓦初见CG】首轮开场中第一次完成“玩家被带去中央庭并与安托涅瓦正式会面”的段落后，若cg_system.shown.antoneva_first_meet=false，则本轮必须原子提交：shown.antoneva_first_meet=true并输出<f7d_cg key="cg_antoneva_first_meet"></f7d_cg>。仅听到名字、看见远处身影或尚未正式会面时不得提前触发。CG播放0节点。
@@ -208,8 +223,23 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
 - 玩家把某个人名塞进诱导问题，只代表玩家提到了这个人，不代表这个人过去真的告诉过你任何事。
 `);
   appendOnce(e91,'cg_system字段',`
-【player_profile与cg_system字段】player_profile至少含gender；gender仅male/female/unknown。cg_system至少含enabled/mode/album_enabled/responsive_enabled/shown；当前mode固定direct_only、album_enabled=false、responsive_enabled=true。shown至少包含ann_first_meet、antoneva_first_meet、ending_journey、ending_eternal_end、ending_sacrifice_male、ending_sacrifice_female、ending_final_male、ending_final_female、ending_box_male、ending_box_female。direct_only期间meta.cg不作为CG存档，禁止因触发CG而向meta.cg追加key。shown从false改true的回复必须同时包含对应<f7d_cg>标签；若标签本轮无法输出，则shown也不得提前置true。
+【player_profile与cg_system字段】player_profile至少含gender；gender仅male/female/unknown。
+【player_profile.gender初始化顺序】先继承上一轮最后一个有效<f7d_state>中的gender；若继承值为unknown，则读取当前上下文中SillyTavern已注入的用户人设/用户设定描述中的显式性别。明确女性→female，明确男性→male，仍无信息才保持unknown。禁止把unknown自动当male。除非用户主动切换当前人设或明确声明性别变化，否则已确定的gender后续保持不变。unknown期间任何可见文本不得用“他/她”指代玩家。
+cg_system至少含enabled/mode/album_enabled/responsive_enabled/shown；当前mode固定direct_only、album_enabled=false、responsive_enabled=true。shown至少包含ann_first_meet、antoneva_first_meet、ending_journey、ending_eternal_end、ending_sacrifice_male、ending_sacrifice_female、ending_final_male、ending_final_female、ending_box_male、ending_box_female。direct_only期间meta.cg不作为CG存档，禁止因触发CG而向meta.cg追加key。shown从false改true的回复必须同时包含对应<f7d_cg>标签；若标签本轮无法输出，则shown也不得提前置true。
 `);
+
+  const playerGenderSyncRule=`
+【玩家性别同步｜最高优先级隐藏执行】
+- 每轮生成前读取上一轮有效<f7d_state>.player_profile.gender。
+- 若值为unknown，检查当前上下文中SillyTavern已注入的用户人设/用户设定描述；明确女性标记（女/女性/女生/女孩/she/her）→本轮gender=female；明确男性标记（男/男性/男生/男孩/he/him）→本轮gender=male；确无明确信息才保持unknown。
+- 禁止把unknown默认解释成male。gender=unknown时，任何可见正文、旁白、NPC台词摘要与气泡提示不得用“他/她”指代玩家，只能使用“你/指挥使/对方”等中性称呼。
+- 已经确定为male/female后，除非用户主动切换当前人设或明确声明性别变化，否则后续状态保持该值。
+`;
+  card.data.post_history_instructions=String(card.data.post_history_instructions||'');
+  if(!card.data.post_history_instructions.includes('玩家性别同步｜最高优先级隐藏执行')){
+    card.data.post_history_instructions += playerGenderSyncRule;
+  }
+  card.post_history_instructions=card.data.post_history_instructions;
 
   const cgFinalCommitRule=`
 【CG最终提交检查｜最高优先级隐藏执行】
