@@ -1,2 +1,2 @@
-run=21
-reason=final gate after full narrative-flow migration: action-node and numeric patrol mechanics removed from state/UI/worldbook flow text; region arcs auto-liberate on actual narrative completion; Black Core purification is explicit-user-action-only with prerequisite checks; end-of-day is explicit-sleep-gated with requested bedtime scene before next-day Small God monologue; bridge 1.3 also scrubs legacy counters in existing rendered terminals
+run=22
+reason=final gate after narrative-flow migration plus valid embedded Tavern Helper bridge template: numeric action/patrol counters removed from state/UI/worldbook flow text, legacy rendered counters scrubbed, region liberation follows actual story completion, Black Core purification requires explicit user action and prerequisites, and day transition occurs only on explicit sleep after requested bedtime scene followed by next-day Small God monologue
