@@ -13,7 +13,7 @@ await fs.mkdir(OUT,{recursive:true});
 const {card,compactSha256}=await loadQiduCgCandidate(process.env.GITHUB_WORKSPACE||process.cwd());
 const BOOK=entryMap(card);
 const constants=(card.data.character_book?.entries||[]).filter(e=>e.constant).map(e=>String(e.content||'')).join('\n\n');
-const related=['04｜输出协议：隐藏状态、正文、终端','10｜第7天：苏醒与高校主线','11｜第6天','30｜高校学园：剧情流程与黑核','91｜f7d_state字段与更新规则']
+const related=['04｜输出协议：隐藏状态、正文、终端','10｜第7天：苏醒与高校主线','11｜第6天','30｜高校学园：六巡查与黑核','91｜f7d_state字段与更新规则']
   .map(n=>BOOK[n]).filter(Boolean).join('\n\n');
 const BASE=[card.data.personality,card.data.scenario,constants,card.data.post_history_instructions,card.data.extensions?.depth_prompt?.prompt,related].filter(Boolean).join('\n\n');
 
