@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: h675786161-prog/phone
-          ref: acfcc004fdd53a0a5a31394262407217ad525a1c
+          ref: 920c3486780030e5a0b4191c9e0de078073c9be5
           path: private-phone
           ssh-key: ${{ secrets.PHONE_SOCIAL_QA_KEY }}
           persist-credentials: false
@@ -33,7 +33,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: h675786161-prog/wordbankstage-test
-          ref: eebdb97c655b00efd76be49a5a6fc799bfeb721e
+          ref: d1d94a0c30657fd563155ffea38e3ec8c7050208
           path: private-backstage
           ssh-key: ${{ secrets.BACKSTAGE_SOCIAL_QA_KEY }}
           persist-credentials: false
@@ -84,8 +84,8 @@ jobs:
           mkdir -p lab-evidence
           node -e "require('fs').writeFileSync('lab-evidence/refs.json',JSON.stringify({phone:process.env.PHONE_REF,backstage:process.env.BACKSTAGE_REF,tavern:'8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8'},null,2))"
         env:
-          PHONE_REF: acfcc004fdd53a0a5a31394262407217ad525a1c
-          BACKSTAGE_REF: eebdb97c655b00efd76be49a5a6fc799bfeb721e
+          PHONE_REF: 920c3486780030e5a0b4191c9e0de078073c9be5
+          BACKSTAGE_REF: d1d94a0c30657fd563155ffea38e3ec8c7050208
       - name: Run real browser social and gameplay regressions
         shell: bash
         env:
@@ -106,6 +106,8 @@ jobs:
           echo 'Paired launcher visuals and theme sync passed'
           node .lab/phone-social-qa.mjs > /tmp/social-browser.log 2>&1
           echo 'Social bridge browser checks passed'
+          node private-phone/tests/runtime-social-realism-smoke.mjs > /tmp/social-realism-browser.log 2>&1
+          echo 'Social realism, event timeline, and unavailable communication checks passed'
           node private-phone/tests/runtime-pocket-experience-smoke.mjs > /tmp/pocket-browser.log 2>&1
           echo 'Phone gestures, sharing and pocket gameplay passed'
           node private-phone/tests/runtime-game-tables-smoke.mjs > /tmp/tables-browser.log 2>&1
@@ -116,7 +118,7 @@ jobs:
         run: |
           python3 - <<'PY'
           import pathlib,re
-          for name in ['orb-browser','social-browser','pocket-browser','tables-browser','private-phone-checks','private-backstage-checks']:
+          for name in ['orb-browser','social-browser','social-realism-browser','pocket-browser','tables-browser','private-phone-checks','private-backstage-checks']:
             p=pathlib.Path('/tmp/'+name+'.log')
             if not p.exists(): continue
             lines=p.read_text().splitlines()
