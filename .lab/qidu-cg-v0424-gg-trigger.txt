@@ -1,2 +1,2 @@
-run=3
-reason=rerun all 10 GG CG cases with 12s pacing and one retry after only box_female/box_unknown_gender hit provider 429; no behavior failures
+run=4
+reason=repeat exact box_female on gemini-3-flash-preview after one 200 semantic male/female misroute; determine whether card robustness patch is warranted
