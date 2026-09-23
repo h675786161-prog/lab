@@ -49,11 +49,13 @@ try {
  await click('[data-contact-person="d"]');await click('[data-social-direct="d"]');
  await page.waitForSelector('[data-wx-compose-input]');
  await page.locator('[data-wx-compose-input]').fill('下楼一起走走？');
- await page.evaluate(()=>{const host=worldBackstageHost;window.__getPhoneSurface=host.getPhoneSurface;host.getPhoneSurface=()=>({...window.__getPhoneSurface(),connected:false});});
- await click('[data-wx-send]');
+ await page.evaluate(()=>{const host=worldBackstageHost;window.__getPhoneSurface=host.getPhoneSurface;host.getPhoneSurface=()=>({...window.__getPhoneSurface(),connected:false});dispatchEvent(new CustomEvent('world-backstage:phone-update'));});
+ await page.waitForTimeout(300);
  assert.equal(await page.evaluate(()=>SillyTavern.getContext().chatMetadata.world_backstage_v1.social.conversations.find(c=>c.id==='direct-d').rawMessages.length),0,'disconnected bridge must not write world messages');
- assert.equal(await page.locator('[data-wx-compose-input]').inputValue(),'下楼一起走走？','failed send keeps the draft');
- await page.evaluate(()=>{worldBackstageHost.getPhoneSurface=window.__getPhoneSurface;});
+ assert.equal(await page.locator('[data-wx-send]').count(),0,'send is unavailable when the safe surface reports no SIM');
+ await page.evaluate(()=>{worldBackstageHost.getPhoneSurface=window.__getPhoneSurface;dispatchEvent(new CustomEvent('world-backstage:phone-update'));});
+ await page.waitForSelector('[data-wx-chat="direct-d"]');await click('[data-wx-chat="direct-d"]');
+ assert.equal(await page.locator('[data-wx-compose-input]').inputValue(),'下楼一起走走？','reconnection restores the unsent conversation draft');
  await click('[data-wx-send]');
  assert.equal(await page.evaluate(()=>SillyTavern.getContext().chatMetadata.world_backstage_v1.social.conversations.find(c=>c.id==='direct-d').rawMessages.at(-1).text),'下楼一起走走？');
  await click('[data-app-back]');await click('[data-wx-tab="contacts"]');
@@ -160,6 +162,6 @@ try {
  assert.equal(await page.evaluate(()=>worldBackstageHost.getPhoneSurface().worldName),'青苔镇','returning to the original Tavern chat restores its authoritative surface');
  assert.equal(await page.locator('[data-wx-compose-input]').count(),0,'returning to the prior chat keeps the old conversation closed');
  assert.deepEqual(errors,[]);assert.deepEqual(pluginConsoleErrors,[],'no phone or Backstage plug-in console errors');
- fs.writeFileSync(path.join(output,'social-report.json'),JSON.stringify({passed:true,checks:['accept and decline incoming friend; canonical notice read state','start direct chat','canonical message','create group','private moment hidden','canonical like toggles and survives surface refresh','canonical comment and live refresh','in-thread search result count and forward/back navigation','IME input continuity','search focus and selection across refresh','per-conversation draft isolation','lock-screen notification direct-open and canonical read state','real CHAT_CHANGED event and old conversation route reset','disconnected bridge safely rejects and reconnect recovers','pin chat','social share draft and explicit send','favorites isolated and restored across Tavern metadata','desktop 390 and 320 search layouts'],pageErrors:errors,pluginConsoleErrors,otherConsoleErrors:consoleErrors.filter(item=>!pluginConsoleErrors.includes(item))},null,2));
+ fs.writeFileSync(path.join(output,'social-report.json'),JSON.stringify({passed:true,checks:['accept and decline incoming friend; canonical notice read state','start direct chat','canonical message','create group','private moment hidden','canonical like toggles and survives surface refresh','canonical comment and live refresh','in-thread search result count and forward/back navigation','IME input continuity','search focus and selection across refresh','per-conversation draft isolation','lock-screen notification direct-open and canonical read state','real CHAT_CHANGED event and old conversation route reset','disconnected bridge removes send action with zero writes; reconnect restores draft and send succeeds','pin chat','social share draft and explicit send','favorites isolated and restored across Tavern metadata','desktop 390 and 320 search layouts'],pageErrors:errors,pluginConsoleErrors,otherConsoleErrors:consoleErrors.filter(item=>!pluginConsoleErrors.includes(item))},null,2));
  console.log('PASS: real Backstage social bridge and phone UI, search/IME, chat isolation, desktop/390/320');
 } catch(e){console.log('PAGE_ERRORS',JSON.stringify(errors));console.log('PLUGIN_CONSOLE_ERRORS',JSON.stringify(pluginConsoleErrors));console.log('ALL_CONSOLE_ERRORS',JSON.stringify(consoleErrors));await page.screenshot({path:path.join(output,'social-failure.png')});throw e;}finally{await browser.close();}
