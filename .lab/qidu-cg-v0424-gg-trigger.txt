@@ -1,0 +1,2 @@
+run=1
+reason=PIAOMIAO paid quota exhausted and free routes unavailable; test GG Gemini full-context ann_first_meet on exact candidate
