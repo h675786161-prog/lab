@@ -1,2 +1,2 @@
-run=2
-reason=rerun core and encounter after fixing explicit 1300-token encounter truncation; exact candidate content unchanged
+run=3
+reason=PIAOMIAO quota exhausted; validate all seven narrative gates on GG gemini-3-flash-preview against exact current v0.4.24 candidate
