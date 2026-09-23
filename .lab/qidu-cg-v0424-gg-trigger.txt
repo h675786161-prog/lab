@@ -1,2 +1,2 @@
-run=2
-reason=gemini-3-flash-preview passed full-context ann_first_meet; now verify all 10 exact v0.4.24 CG behaviors on GG
+run=3
+reason=rerun all 10 GG CG cases with 12s pacing and one retry after only box_female/box_unknown_gender hit provider 429; no behavior failures
