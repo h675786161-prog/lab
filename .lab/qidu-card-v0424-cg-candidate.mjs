@@ -124,12 +124,12 @@ function installNarrativeFlow(card){
   const migrateLegacyFlowText=text=>String(text||'')
     .replace(/第\s*([一二三四五六123456])\s*次?巡查/g,(_,n)=>'剧情阶段'+phaseMap[n])
     .replace(/(?:六|6)\s*次巡查/g,'完整区域主线')
-    .replace(/(?:额外)?消耗\s*1\s*节点/g,'额外进行一段独立行动')
-    .replace(/扣除?\s*1\s*节点/g,'按该行动推进剧情')
-    .replace(/不(?:消耗|耗)\s*节点/g,'不单独改变剧情进度')
+    .replace(/(?:额外)?消耗\s*1\s*(?:行动)?节点/g,'额外进行一段独立行动')
+    .replace(/扣除?\s*1\s*(?:行动)?节点/g,'按该行动推进剧情')
+    .replace(/不(?:消耗|耗)\s*(?:行动)?节点/g,'不单独改变剧情进度')
     .replace(/每次巡查扣\s*1\s*点/g,'按剧情阶段自然推进')
-    .replace(/第\s*12\s*(?:个)?行动?节点(?:后)?/g,'当天主要剧情收束后')
-    .replace(/一天\s*12\s*(?:个)?行动?节点/g,'一天按剧情流速推进')
+    .replace(/第\s*12\s*(?:个)?(?:行动)?节点(?:后)?/g,'当天主要剧情收束后')
+    .replace(/一天\s*12\s*(?:个)?(?:行动)?节点/g,'一天按剧情流速推进')
     .replace(/行动节点/g,'剧情进度');
   for(const entry of entries){
     const n=String(entry.name||'');
