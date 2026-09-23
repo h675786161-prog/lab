@@ -1,2 +1,2 @@
-run=4
-reason=repeat exact box_female on gemini-3-flash-preview after one 200 semantic male/female misroute; determine whether card robustness patch is warranted
+run=5
+reason=verify repeated Gemini box_female semantic failure is fixed by explicit gendered shown/key truth table in exact current v0.4.24 candidate
