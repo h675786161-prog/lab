@@ -152,6 +152,7 @@ jobs:
       LAB_OUT_GENDER: bench-evidence/qidu-card-v0424-user-gender
       LAB_OUT_SHELL: bench-evidence/qidu-card-v0424-output-shell
       LAB_OUT_FLOW: bench-evidence/qidu-card-v0424-narrative-flow
+      LAB_OUT_DEADLINE: bench-evidence/qidu-card-v0424-deadlines
     steps:
       - uses: actions/checkout@v4
       - name: Adapt narrative probes to exact v0.4.24 candidate
@@ -273,6 +274,18 @@ jobs:
             echo "flow retry $n"; sleep 15
           done
           exit 1
+      - run: sleep 12
+        if: always()
+      - id: deadlines
+        if: always()
+        continue-on-error: true
+        run: |
+          export NODE_OPTIONS="--import=$GITHUB_WORKSPACE/.lab/qidu-fetch-retry-preload.mjs"
+          for n in 1 2; do
+            node .lab/qidu-card-model-bench-v0424-deadlines.mjs && exit 0
+            echo "deadlines retry $n"; sleep 15
+          done
+          exit 1
       - name: Enforce narrative gate
         if: always()
         run: |
@@ -286,6 +299,7 @@ jobs:
           printf 'gender=%s\n' '${{ steps.gender.outcome }}'
           printf 'shell=%s\n' '${{ steps.shell.outcome }}'
           printf 'flow=%s\n' '${{ steps.flow.outcome }}'
+          printf 'deadlines=%s\n' '${{ steps.deadlines.outcome }}'
           test '${{ steps.core.outcome }}' = success
           test '${{ steps.encounter.outcome }}' = success
           test '${{ steps.conflict.outcome }}' = success
@@ -296,6 +310,7 @@ jobs:
           test '${{ steps.gender.outcome }}' = success
           test '${{ steps.shell.outcome }}' = success
           test '${{ steps.flow.outcome }}' = success
+          test '${{ steps.deadlines.outcome }}' = success
       - name: Upload narrative evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -349,6 +364,8 @@ jobs:
             [by('04｜'),'CG事务原子性'],
             [by('04｜'),'剧情流速推进与日结｜最高优先级隐藏执行'],
             [by('91｜'),'无节点状态迁移与日结字段'],
+            [by('04｜'),'限时剧情按天硬截止'],
+            [by('04｜'),'安线硬截止｜第4天→第3天'],
             [by('00｜'),'玩家性别同步｜高优先'],
             [by('91｜'),'player_profile.gender初始化顺序'],
             [by('10｜'),'安初见CG｜首条开场强制'],
@@ -368,6 +385,8 @@ jobs:
           if(Object.prototype.hasOwnProperty.call(initial,'node_used')) throw new Error('legacy node_used remains in initial state');
           if(Object.values(initial.regions||{}).some(r=>r&&Object.prototype.hasOwnProperty.call(r,'patrol'))) throw new Error('legacy patrol counter remains in initial state');
           if(initial.day_ready_to_sleep!==false) throw new Error('initial day_ready_to_sleep invalid');
+          if(initial.ann?.deadline_checked!==false||initial.ann?.deadline_passed!==null) throw new Error('initial Ann deadline lock invalid');
+          if(initial.route_flags?.ann_route_closed!==false||initial.route_flags?.harbor_core_stolen!==false) throw new Error('initial deadline route flags invalid');
           if(initial.cg_system?.mode!=='direct_only'||initial.cg_system?.album_enabled!==false||initial.cg_system?.responsive_enabled!==true) throw new Error('initial CG mode invalid');
           if(initial.cg_system?.shown?.ann_first_meet!==true) throw new Error('opening Ann CG shown flag invalid');
           if(!CG_KEYS.filter(k=>k!=='cg_ann_first_meet').every(k=>initial.cg_system?.shown?.[k.replace(/^cg_/,'')]===false)) throw new Error('other initial CG shown flags invalid');
@@ -385,6 +404,7 @@ jobs:
           if(qf.progression_mode!=='narrative_flow'||qf.action_nodes!==false||qf.patrol_counter!==false) throw new Error('narrative-flow frontend metadata invalid');
           if(qf.region_liberation!=='auto_on_story_completion'||qf.core_purification!=='explicit_user_action_only'||qf.day_transition!=='explicit_sleep_only') throw new Error('narrative-flow policy metadata invalid');
           if(qf.choice_mode!=='three_story_plus_contextual_skip_and_free_input'||qf.continuous_scene_skip!==false) throw new Error('contextual choice-mode metadata invalid');
+          if(!String(card.data?.extensions?.tavern_helper?.scripts?.find(x=>x?.id==='qidu-v0424-choice-bridge')?.content||'').includes("version:'1.4.0'")) throw new Error('redesigned UI bridge v1.4 missing');
           if(entries.some(e=>/(?:六|6)巡查/.test(String(e.name||'')))) throw new Error('counted-patrol worldbook title remains');
           const firstVisible=String(card.data?.first_mes||'').replace(/<f7d_state>[\s\S]*?<\/f7d_state>/gi,'');
           if(/行动节点\s*(?:尚未开始|\d+\s*\/\s*12)/.test(firstVisible)) throw new Error('opening still exposes action-node counter');
