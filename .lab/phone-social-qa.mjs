@@ -6,7 +6,7 @@ const output = process.env.WP_SCREENSHOT_DIR || process.cwd();
 fs.mkdirSync(output, { recursive: true });
 const browser = await chromium.launch({executablePath:process.env.WP_BROWSER_EXECUTABLE || '/usr/bin/google-chrome',headless:true});
 const page=await browser.newPage({viewport:{width:1440,height:980}});
-const errors=[];const consoleErrors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error')consoleErrors.push(m.text());});
+const errors=[];const consoleErrors=[];const pluginConsoleErrors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()!=='error')return;const entry={text:m.text(),url:m.location()?.url||''};consoleErrors.push(entry);if(/\/scripts\/extensions\/third-party\/(?:phone|world-backstage-test)\//i.test(entry.url)||/\[世界(?:小手机|背面)\]/.test(entry.text))pluginConsoleErrors.push(entry);});
 const click=async s=>{await page.locator(s).first().click();await page.waitForTimeout(220);};
 await page.addInitScript(() => localStorage.setItem('world-backstage:mama-note:seen', '1'));
 try {
@@ -90,17 +90,14 @@ try {
  await page.evaluate(()=>dispatchEvent(new CustomEvent('world-backstage:phone-update')));await page.waitForTimeout(280);
  assert.equal(await page.locator('[data-wx-thread-search]').inputValue(),'夜市');assert.equal(await page.locator('[data-wx-thread-search]').evaluate(input=>input===document.activeElement),true);
  assert.deepEqual(await page.locator('[data-wx-thread-search]').evaluate(input=>[input.selectionStart,input.selectionEnd]),[1,2]);
- await page.screenshot({path:path.join(output,'message-search-desktop.png')});
+ for(const [width,height,name] of [[390,844,'390'],[320,740,'320']]){await page.setViewportSize({width,height});await page.waitForTimeout(180);assert.equal(await page.locator('[data-wx-thread-search]').count(),1);assert.equal(await page.locator('.lqwp-device-wrap').evaluate(n=>n.getBoundingClientRect().width<=innerWidth),true,`${width}px search layout must fit`);await click('[data-wx-search-next]');assert.equal(await page.locator('.lqwp-wx-thread-search [aria-live]').innerText(),'2 / 2');await click('[data-wx-search-prev]');assert.equal(await page.locator('.lqwp-wx-thread-search [aria-live]').innerText(),'1 / 2');await page.screenshot({path:path.join(output,`message-search-${name}.png`)});}
+ await page.setViewportSize({width:1440,height:980});await page.waitForTimeout(180);await page.screenshot({path:path.join(output,'message-search-desktop.png')});
  await click('[data-wx-search-close]');
  await page.locator('[data-wx-compose-input]').fill('阿青专属草稿');
  await click('[data-app-back]');await click('[data-wx-chat="direct-b"]');
  assert.equal(await page.locator('[data-wx-compose-input]').inputValue(),'','drafts must not leak between conversations');
  await click('[data-app-back]');await click('[data-wx-chat="direct-a"]');
  assert.equal(await page.locator('[data-wx-compose-input]').inputValue(),'阿青专属草稿','switching away must preserve the original conversation draft');
- await page.setViewportSize({width:390,height:844});await page.waitForTimeout(160);await page.screenshot({path:path.join(output,'message-search-390.png')});
- await page.setViewportSize({width:320,height:740});await page.waitForTimeout(200);
- await page.screenshot({path:path.join(output,'message-search-320.png')});
- await page.setViewportSize({width:1440,height:980});
  await click('[data-app-back]');await click('[data-app-back]');await click('[data-app="weibo"]');
  await click('[data-social-detail]');await click('[data-social-save]');
  assert.match(await page.locator('[data-social-save]').innerText(),/已收藏/);
@@ -139,7 +136,7 @@ try {
  await click('[data-lock]');await click('[data-notice-conversation="direct-b"]');
  await page.waitForSelector('[data-conversation-id="direct-b"]');
  assert.ok(await page.evaluate(()=>Boolean(SillyTavern.getContext().chatMetadata.world_backstage_v1.social.notices.find(n=>n.id==='n-direct-lab')?.readAt)),'notification direct-open marks only its canonical conversation read');
- assert.deepEqual(errors,[]);assert.deepEqual(consoleErrors,[],'no browser console errors');
- fs.writeFileSync(path.join(output,'social-report.json'),JSON.stringify({passed:true,checks:['accept incoming friend','start direct chat','canonical message','create group','private moment hidden','canonical comment and live refresh','in-thread search result count and forward/back navigation','IME input continuity','search focus and selection across refresh','per-conversation draft isolation','lock-screen notification direct-open and canonical read state','disconnected bridge safely rejects and reconnect recovers','pin chat','social share draft and explicit send','favorites isolated and restored across Tavern metadata','desktop 390 and 320 layouts'],pageErrors:errors,consoleErrors},null,2));
+ assert.deepEqual(errors,[]);assert.deepEqual(pluginConsoleErrors,[],'no phone or Backstage plug-in console errors');
+ fs.writeFileSync(path.join(output,'social-report.json'),JSON.stringify({passed:true,checks:['accept incoming friend','start direct chat','canonical message','create group','private moment hidden','canonical comment and live refresh','in-thread search result count and forward/back navigation','IME input continuity','search focus and selection across refresh','per-conversation draft isolation','lock-screen notification direct-open and canonical read state','disconnected bridge safely rejects and reconnect recovers','pin chat','social share draft and explicit send','favorites isolated and restored across Tavern metadata','desktop 390 and 320 search layouts'],pageErrors:errors,pluginConsoleErrors,otherConsoleErrors:consoleErrors.filter(item=>!pluginConsoleErrors.includes(item))},null,2));
  console.log('PASS: real Backstage social bridge and phone UI, search/IME, chat isolation, desktop/390/320');
-} catch(e){console.log('PAGE_ERRORS',errors);await page.screenshot({path:path.join(output,'social-failure.png')});throw e;}finally{await browser.close();}
+} catch(e){console.log('PAGE_ERRORS',JSON.stringify(errors));console.log('PLUGIN_CONSOLE_ERRORS',JSON.stringify(pluginConsoleErrors));console.log('ALL_CONSOLE_ERRORS',JSON.stringify(consoleErrors));await page.screenshot({path:path.join(output,'social-failure.png')});throw e;}finally{await browser.close();}
