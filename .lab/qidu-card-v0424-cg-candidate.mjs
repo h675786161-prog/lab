@@ -112,7 +112,8 @@ function narrativeFlowRule(){
 - 若{{user}}明确要净化但前置条件尚未满足，本轮要正常演出被阻挡/缺少条件的结果，cores保持原值；不得因为用户有意图就强行净化。
 - 【日结标记】day_ready_to_sleep仅表示“今天安排的主要剧情已经自然走到当日收束点”。当天最后一个必演主线收束时，把day_ready_to_sleep=true；不要因为区域解放、对话结束或模型觉得时间晚了就擅自换日。
 - day只在玩家明确睡觉/休息到明天/结束今天时变化。day_ready_to_sleep=true且玩家明确睡觉时：先按玩家本轮要求把睡前动作、晚安仪式、对话或陪伴剧情完整演完，再在同一回复中让当天结束，day只减1次，day_ready_to_sleep重置false，然后用一小段“小神”的自语作为新一天的开场，再进入下一日既定剧情。
-- 若day_ready_to_sleep=false，普通“休息一下/睡一会儿/打个盹”不自动换日。若玩家明确表示“放弃今天剩余事项并直接睡到明天”，可以换日，但必须先按现有时限规则结算被放弃/错过事项的后果，不能把未完成主线偷偷算完成。
+- 若day_ready_to_sleep=false，普通“休息一下/睡一会儿/打个盹”不自动换日。若玩家明确表示“放弃今天剩余事项并直接睡到明天”或发送由选项产生的“打算跳过今天（会结算今日剩余限时后果）”，视为明确主动跳日：必须先按现有时限规则结算被放弃/错过事项的后果，再进入睡眠与下一日，不能把未完成主线偷偷算完成。
+- “什么都不做/任由这次机会过去”只表示放弃当前机会或让当前事件自然过去，不自动等于睡到明天；是否造成限时失败按该事件真实截止点结算。
 - day=1时不存在day=0的普通换日。最终日走到收束后应进入既定末日/结局判定；睡觉不能越过结局直接生成“第0天”。
 - 战术终端只显示“第X天｜剧情推进中”或“第X天｜今日主要剧情已收束，可自由活动或休息”，不再显示任何节点数或巡查计数。
 `;
@@ -181,7 +182,9 @@ function installNarrativeFlow(card){
     patrol_counter:false,
     region_liberation:'auto_on_story_completion',
     core_purification:'explicit_user_action_only',
-    day_transition:'explicit_sleep_only'
+    day_transition:'explicit_sleep_only',
+    choice_mode:'three_story_plus_contextual_skip_and_free_input',
+    continuous_scene_skip:false
   };
 }
 
