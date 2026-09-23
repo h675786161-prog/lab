@@ -47,6 +47,13 @@ function normalizeInitialState(card){
   const m=src.match(/<f7d_state>([\s\S]*?)<\/f7d_state>/i);
   if(!m) throw new Error('initial state missing');
   const s=JSON.parse(m[1]);
+  delete s.node_used;
+  if(s.regions&&typeof s.regions==='object'){
+    for(const region of Object.values(s.regions)){
+      if(region&&typeof region==='object') delete region.patrol;
+    }
+  }
+  s.day_ready_to_sleep=Boolean(s.day_ready_to_sleep);
   s.player_profile={...(s.player_profile||{}),gender:s.player_profile?.gender||'unknown'};
   const openingAlreadyMeetsAnn=/我叫安[。！!]?/.test(src)&&/医院|病房/.test(src);
   s.cg_system={
@@ -70,11 +77,86 @@ function normalizeInitialState(card){
   };
   if(openingAlreadyMeetsAnn) s.cg_system.shown.ann_first_meet=true;
   let first=src.replace(m[0],`<f7d_state>${JSON.stringify(s)}</f7d_state>`);
+  first=first
+    .replace(/\s*[｜|]\s*行动节点\s*(?:尚未开始|[^｜|\n<]*)/g,'')
+    .replace(/^\s*行动节点\s*[:：][^\n<]*(?:\n|$)/gm,'');
   if(openingAlreadyMeetsAnn&&!/<f7d_cg\s+key=["']cg_ann_first_meet["']\s*>/i.test(first)){
     first=first.replace(/\n?<f7d_terminal>/i,'\n\n<f7d_cg key="cg_ann_first_meet"></f7d_cg>\n\n<f7d_terminal>');
   }
   card.data.first_mes=first;
   card.first_mes=first;
+}
+
+
+function narrativeFlowRule(){
+  return `
+【剧情流速推进与日结｜最高优先级隐藏执行】
+- 本卡从现在起彻底废弃“12行动节点 / node_used / 每次巡查扣点 / regions.*.patrol计数”机制。它们属于旧版本账本：不要读取为触发条件，不要递增，不要补回<f7d_state>，战术终端也不得显示“行动节点x/12”。旧聊天输入里若仍带node_used或patrol，下一份最终状态直接丢弃这些字段。
+- 区域主线按剧情因果和场景流速自然推进，不按玩家发送次数、回复次数或“第N次巡查”计数。世界书旧文若还出现“第N次巡查/六次巡查/消耗节点”，只用于理解事件的先后顺序与相对阶段，绝不作为数字门槛。
+- 【区域解放原子提交】当一个区域的既定区域主线已经真实演到该区域的收束事件（该区域主要威胁被处理、救援/战斗目标完成、区域剧情没有剩余必演主线）时，同一回复直接把regions.<区域>.liberated=true，并把对应区域主任务标为完成。不要再等“第6次巡查”、下一次输入或玩家另说“解放”。
+- 只走完一段支线、临时离开区域、聊天中断或尚未处理区域最终威胁，不得提前解放。延误/受伤等分支只改变对应后果；只要区域主线确实收束，仍按该分支设定结算解放。
+- 【黑核与解放严格分离】区域解放绝不自动等于黑核净化。完成区域剧情、打倒Boss、发现黑核、谈到黑核、查看黑核、拿到净化线索，都不得把cores.<区域>改成purified。
+- cores.<区域>只有在{{user}}本轮明确表达“去净化/现在净化/把黑核净化掉/执行黑核净化”等实际净化意图，并且该区域净化前置条件已经满足时，才能在同一回复改为purified。用户只说“黑核呢/看看黑核/先去那里/区域解放了”都不算净化指令。
+- 若{{user}}明确要净化但前置条件尚未满足，本轮要正常演出被阻挡/缺少条件的结果，cores保持原值；不得因为用户有意图就强行净化。
+- 【日结标记】day_ready_to_sleep仅表示“今天安排的主要剧情已经自然走到当日收束点”。当天最后一个必演主线收束时，把day_ready_to_sleep=true；不要因为区域解放、对话结束或模型觉得时间晚了就擅自换日。
+- day只在玩家明确睡觉/休息到明天/结束今天时变化。day_ready_to_sleep=true且玩家明确睡觉时：先按玩家本轮要求把睡前动作、晚安仪式、对话或陪伴剧情完整演完，再在同一回复中让当天结束，day只减1次，day_ready_to_sleep重置false，然后用一小段“小神”的自语作为新一天的开场，再进入下一日既定剧情。
+- 若day_ready_to_sleep=false，普通“休息一下/睡一会儿/打个盹”不自动换日。若玩家明确表示“放弃今天剩余事项并直接睡到明天”，可以换日，但必须先按现有时限规则结算被放弃/错过事项的后果，不能把未完成主线偷偷算完成。
+- day=1时不存在day=0的普通换日。最终日走到收束后应进入既定末日/结局判定；睡觉不能越过结局直接生成“第0天”。
+- 战术终端只显示“第X天｜剧情推进中”或“第X天｜今日主要剧情已收束，可自由活动或休息”，不再显示任何节点数或巡查计数。
+`;
+}
+
+function installNarrativeFlow(card){
+  const entries=card.data.character_book?.entries||[];
+  for(const entry of entries){
+    entry.name=String(entry.name||'').replace(/([：:])(?:六|6)巡查/g,'$1剧情流程');
+  }
+
+  const compact=`
+【旧节点计数作废｜本条目内优先】
+本条目若仍出现“第N次巡查、六次巡查、消耗/扣除节点、node_used、patrol”等旧版措辞，只把它们当作事件先后参考，不作计数触发。按已经发生的剧情与因果自然推进；区域主线真正收束时直接liberated=true。区域解放不净化黑核；黑核只有玩家明确执行净化且前置满足时才改为purified。
+`;
+  for(const entry of entries){
+    const n=String(entry.name||'');
+    if(/^(?:1[0-6]|3[0-7]|65|66)｜/.test(n)&&!String(entry.content||'').includes('旧节点计数作废｜本条目内优先')){
+      entry.content=String(entry.content||'')+compact;
+    }
+  }
+
+  const rule=narrativeFlowRule();
+  const protocol=findEntry(card,'04｜');
+  const state=findEntry(card,'91｜');
+  appendOnce(protocol,'剧情流速推进与日结｜最高优先级隐藏执行',rule);
+  appendOnce(state,'无节点状态迁移与日结字段',`
+【无节点状态迁移与日结字段】
+- 最终<f7d_state>不再包含node_used；regions各区域对象不再包含patrol。读到旧聊天遗留字段时下一轮删除。
+- 保留regions.<区域>.liberated作为区域主线是否完成的真值；区域剧情收束的同一回复自动置true。
+- 保留cores作为黑核状态，但liberated变化不得联动cores。只有玩家明确执行净化且满足前置，cores对应区域才可变为purified。
+- 新增day_ready_to_sleep:boolean。仅当天主要剧情收束后为true；玩家明确睡觉并完成日结后day减1且该字段重置false。
+`);
+
+  card.data.extensions=card.data.extensions||{};
+  card.data.extensions.depth_prompt=card.data.extensions.depth_prompt||{};
+  const depthAdd=' ⑱不使用行动节点或巡查次数计数；按剧情因果自然推进。区域主线收束即自动解放，但绝不自动净化黑核；净化必须由用户明确发起且满足前置。当天主要剧情收束后day_ready_to_sleep=true，只有用户明确睡觉才换日，并在睡前剧情后接下一天小神自语。';
+  if(!String(card.data.extensions.depth_prompt.prompt||'').includes('不使用行动节点或巡查次数计数')){
+    card.data.extensions.depth_prompt.prompt=String(card.data.extensions.depth_prompt.prompt||'')+depthAdd;
+  }
+
+  card.data.post_history_instructions=String(card.data.post_history_instructions||'');
+  if(!card.data.post_history_instructions.includes('剧情流速推进与日结｜最高优先级隐藏执行')){
+    card.data.post_history_instructions+=rule;
+  }
+  card.post_history_instructions=card.data.post_history_instructions;
+
+  card.data.extensions.qidu_frontend={
+    ...(card.data.extensions.qidu_frontend||{}),
+    progression_mode:'narrative_flow',
+    action_nodes:false,
+    patrol_counter:false,
+    region_liberation:'auto_on_story_completion',
+    core_purification:'explicit_user_action_only',
+    day_transition:'explicit_sleep_only'
+  };
 }
 
 function installChoiceFrontend(card){
@@ -180,7 +262,8 @@ function installChoiceFrontend(card){
     const active=Object.entries(state?.tasks||{}).filter(([,v])=>v&&v.status==='active').map(([k,v])=>String(v.objective||k)).slice(0,3);
     const labels={court:'中央庭',school:'高校学园',east:'东方古街',central:'中央城区',institute:'研究所',seaside:'海湾侧城',old:'旧城区',harbor:'港湾区'};
     const cores=Object.entries(state?.cores||{}).filter(([,v])=>v&&v!=='unknown').map(([k,v])=>String(labels[k]||k)+'：'+String(v)).slice(0,8);
-    const lines=['【战术终端】第'+String(state?.day??'?')+'天｜行动节点 '+String(state?.node_used??'?')+'/12','当前位置：'+String(state?.location||'未确认')];
+    const dayStatus=state?.day_ready_to_sleep?'今日主要剧情已收束，可自由活动或休息':'剧情推进中';
+    const lines=['【战术终端】第'+String(state?.day??'?')+'天｜'+dayStatus,'当前位置：'+String(state?.location||'未确认')];
     if(active.length) lines.push('任务：\\n- '+active.join('\\n- '));
     if(cores.length) lines.push('黑核状态：\\n'+cores.join('\\n'));
     body.textContent=lines.join('\\n');
@@ -360,6 +443,7 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
   }
 
   normalizeInitialState(card);
+  installNarrativeFlow(card);
   installChoiceFrontend(card);
 
   const e00=findEntry(card,'00｜');
@@ -392,17 +476,17 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
 `);
   appendOnce(e04,'CG触发与展示系统｜隐藏执行',cgRule());
   appendOnce(e10,'安初见CG',`
-【安初见CG】首轮病房中第一次完成“玩家正式见到安、安确认玩家状态并自我介绍”的初见段落后，若cg_system.shown.ann_first_meet=false，则本轮必须同时完成两件事：①<f7d_state>中ann_first_meet=true；②正文情绪落点后真实输出<f7d_cg key="cg_ann_first_meet"></f7d_cg>。缺一不可。不能先把shown置true再漏掉标签。随后必须使用精确的<f7d_terminal>……</f7d_terminal>收尾，标签不得多出引号或属性。CG播放0节点。
+【安初见CG】首轮病房中第一次完成“玩家正式见到安、安确认玩家状态并自我介绍”的初见段落后，若cg_system.shown.ann_first_meet=false，则本轮必须同时完成两件事：①<f7d_state>中ann_first_meet=true；②正文情绪落点后真实输出<f7d_cg key="cg_ann_first_meet"></f7d_cg>。缺一不可。不能先把shown置true再漏掉标签。随后必须使用精确的<f7d_terminal>……</f7d_terminal>收尾，标签不得多出引号或属性。CG播放不参与剧情进度结算。
 【安初见CG｜首条开场强制】静态first_mes本身已经写完病房苏醒、安确认状态并说出“我叫安”，因此首条开场本身就是初见节点：首条<f7d_state>必须直接令cg_system.shown.ann_first_meet=true，并在正文后、<f7d_terminal>前直接输出<f7d_cg key="cg_ann_first_meet"></f7d_cg>，不得等玩家发出第一条消息后才补。
 `);
   appendOnce(e10,'安托涅瓦初见CG',`
-【安托涅瓦初见CG】首轮开场中第一次完成“玩家被带去中央庭并与安托涅瓦正式会面”的段落后，若cg_system.shown.antoneva_first_meet=false，则本轮必须原子提交：shown.antoneva_first_meet=true并输出<f7d_cg key="cg_antoneva_first_meet"></f7d_cg>。仅听到名字、看见远处身影或尚未正式会面时不得提前触发。CG播放0节点。
+【安托涅瓦初见CG】首轮开场中第一次完成“玩家被带去中央庭并与安托涅瓦正式会面”的段落后，若cg_system.shown.antoneva_first_meet=false，则本轮必须原子提交：shown.antoneva_first_meet=true并输出<f7d_cg key="cg_antoneva_first_meet"></f7d_cg>。仅听到名字、看见远处身影或尚未正式会面时不得提前触发。CG播放不参与剧情进度结算。
 `);
   appendOnce(e17,'普通线结局CG',`
-【普通线结局CG】若后台结局已经确定为《终结》《牺牲的意义》《箱庭风景》，不得重新判定或改判。根据player_profile.gender直接选择对应CG key；male与female必须严格对应各自版本。对应shown原为false时，必须在同一回复原子完成“shown=true + 对应CG标签”。若gender仍为unknown，不得擅自选图，也不得从文风、称谓或行为推测性别，此时不触发男女差分CG、对应shown保持false。只展示、不留存、不扣节点；meta.cg不得记录该CG。结局正文应控制长度，确保CG标签与终端完整输出。
+【普通线结局CG】若后台结局已经确定为《终结》《牺牲的意义》《箱庭风景》，不得重新判定或改判。根据player_profile.gender直接选择对应CG key；male与female必须严格对应各自版本。对应shown原为false时，必须在同一回复原子完成“shown=true + 对应CG标签”。若gender仍为unknown，不得擅自选图，也不得从文风、称谓或行为推测性别，此时不触发男女差分CG、对应shown保持false。只展示、不留存，不改变剧情推进状态；meta.cg不得记录该CG。结局正文应控制长度，确保CG标签与终端完整输出。
 `);
   appendOnce(e18,'安线结局CG',`
-【安线结局CG】若后台已确定进入《两个人的旅途》，直接使用cg_ending_journey；若已确定进入《永恒的终焉》，直接使用cg_ending_eternal_end，不重新判定结局。对应shown原为false时，必须在同一回复原子完成“shown=true + 对应CG标签”。只展示、不留存、不扣节点；meta.cg不得记录CG。结局正文应控制长度，保证CG标签与终端完整输出。
+【安线结局CG】若后台已确定进入《两个人的旅途》，直接使用cg_ending_journey；若已确定进入《永恒的终焉》，直接使用cg_ending_eternal_end，不重新判定结局。对应shown原为false时，必须在同一回复原子完成“shown=true + 对应CG标签”。只展示、不留存，不改变剧情推进状态；meta.cg不得记录CG。结局正文应控制长度，保证CG标签与终端完整输出。
 `);
   appendOnce(e31,'延误线雯梓负伤实名锚点',`
 【延误线雯梓负伤实名锚点】
