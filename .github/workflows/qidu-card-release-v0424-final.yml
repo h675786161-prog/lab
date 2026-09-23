@@ -134,6 +134,7 @@ jobs:
       LAB_OUT_ENCOUNTER: bench-evidence/qidu-card-v0421-encounter
       LAB_OUT_NPC_KNOWLEDGE: bench-evidence/qidu-card-v0423-npc-knowledge
       LAB_OUT_NPC_SOURCE: bench-evidence/qidu-card-v0423-offscreen-source
+      LAB_OUT_GENDER: bench-evidence/qidu-card-v0424-user-gender
     steps:
       - uses: actions/checkout@v4
       - name: Adapt narrative probes to exact v0.4.24 candidate
@@ -219,6 +220,18 @@ jobs:
             echo "chimera retry $n"; sleep 15
           done
           exit 1
+      - run: sleep 12
+        if: always()
+      - id: gender
+        if: always()
+        continue-on-error: true
+        run: |
+          export NODE_OPTIONS="--import=$GITHUB_WORKSPACE/.lab/qidu-fetch-retry-preload.mjs"
+          for n in 1 2; do
+            node .lab/qidu-card-model-bench-v0424-user-gender.mjs && exit 0
+            echo "gender retry $n"; sleep 15
+          done
+          exit 1
       - name: Enforce narrative gate
         if: always()
         run: |
@@ -229,6 +242,7 @@ jobs:
           printf 'npc=%s\n' '${{ steps.npc.outcome }}'
           printf 'npcsource=%s\n' '${{ steps.npcsource.outcome }}'
           printf 'chimera=%s\n' '${{ steps.chimera.outcome }}'
+          printf 'gender=%s\n' '${{ steps.gender.outcome }}'
           test '${{ steps.core.outcome }}' = success
           test '${{ steps.encounter.outcome }}' = success
           test '${{ steps.conflict.outcome }}' = success
@@ -236,6 +250,7 @@ jobs:
           test '${{ steps.npc.outcome }}' = success
           test '${{ steps.npcsource.outcome }}' = success
           test '${{ steps.chimera.outcome }}' = success
+          test '${{ steps.gender.outcome }}' = success
       - name: Upload narrative evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -287,6 +302,9 @@ jobs:
             [by('04｜'),'高校初见身份来源连续性｜隐藏执行'],
             [by('04｜'),'战术终端标签强制｜隐藏执行'],
             [by('04｜'),'CG事务原子性'],
+            [by('00｜'),'玩家性别同步｜高优先'],
+            [by('91｜'),'player_profile.gender初始化顺序'],
+            [by('10｜'),'安初见CG｜首条开场强制'],
             [by('04｜'),'终端标签语法硬锁'],
             [by('30｜'),'高校已识别角色不得重新匿名'],
             [by('41｜'),'第一活骸事故只讲已锚定事实'],
@@ -301,7 +319,9 @@ jobs:
           if(!initial.npc_intel||Object.keys(initial.npc_intel).length!==0) throw new Error('initial npc_intel invalid');
           if(initial.player_profile?.gender!=='unknown') throw new Error('initial gender invalid');
           if(initial.cg_system?.mode!=='direct_only'||initial.cg_system?.album_enabled!==false||initial.cg_system?.responsive_enabled!==true) throw new Error('initial CG mode invalid');
-          if(!CG_KEYS.every(k=>initial.cg_system?.shown?.[k.replace(/^cg_/,'')]===false)) throw new Error('initial CG shown flags invalid');
+          if(initial.cg_system?.shown?.ann_first_meet!==true) throw new Error('opening Ann CG shown flag invalid');
+          if(!CG_KEYS.filter(k=>k!=='cg_ann_first_meet').every(k=>initial.cg_system?.shown?.[k.replace(/^cg_/,'')]===false)) throw new Error('other initial CG shown flags invalid');
+          if(!/<f7d_cg\s+key=["']cg_ann_first_meet["']\s*>\s*<\/f7d_cg>/i.test(String(card.data?.first_mes||''))) throw new Error('opening Ann CG tag missing');
           const name='永远的7日之都-七日轮回文本互动-v0.4.24.json';
           await fs.writeFile(`dist-release/${name}`,raw);
           await fs.writeFile('dist-release/SHA256.txt',`${compactSha256}  ${name}\n`);
