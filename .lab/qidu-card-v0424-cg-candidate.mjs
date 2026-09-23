@@ -212,6 +212,10 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
   * 牺牲的意义 + male：ending_sacrifice_male=true ↔ cg_ending_sacrifice_male；female：ending_sacrifice_female=true ↔ cg_ending_sacrifice_female。
   * 终结 + male：ending_final_male=true ↔ cg_ending_final_male；female：ending_final_female=true ↔ cg_ending_final_female。
   * 箱庭风景 + male：ending_box_male=true ↔ cg_ending_box_male；female：ending_box_female=true ↔ cg_ending_box_female。
+- 【男女差分shown精确片段】若输入中该结局的男女shown均为false，本轮触发时必须把最终状态写成下列精确布尔组合，禁止自行改成另一组：
+  * 牺牲的意义 + male：\"ending_sacrifice_male\":true,\"ending_sacrifice_female\":false；female：\"ending_sacrifice_male\":false,\"ending_sacrifice_female\":true。
+  * 终结 + male：\"ending_final_male\":true,\"ending_final_female\":false；female：\"ending_final_male\":false,\"ending_final_female\":true。
+  * 箱庭风景 + male：\"ending_box_male\":true,\"ending_box_female\":false；female：\"ending_box_male\":false,\"ending_box_female\":true。
 - 触发男女差分CG时，只允许把“当前结局 + 当前gender”对应的那个shown从输入值false改成true；异性版本必须保持输入值不变。尤其gender=female时不得把任何本轮对应的*_male误置true，gender=male时不得把对应*_female误置true。若草稿中的CG标签性别与shown置true的字段不一致，或与player_profile.gender不一致，必须在输出<f7d_state>前纠正，直到三者完全一致。
 - 每次回复只允许一个完整<f7d_state>...</f7d_state>，不得重复、嵌套、拆分或输出第二份状态。
 - 结构顺序固定：<f7d_state>最终状态</f7d_state> → 剧情正文 → 可选<f7d_cg> → <f7d_terminal>。若额度紧张，先缩短正文，绝不截断或拼接结构标签。
