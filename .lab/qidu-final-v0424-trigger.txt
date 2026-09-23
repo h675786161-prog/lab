@@ -1,2 +1,2 @@
-run=9
-reason=final gate after multi-route CG provider fallback validated and hy3 added to fallback pool; candidate hash remains 930f0fb0d08c34a5fdcac7bcb10b0a3ffc07a78f1876cde742c71179a26dff21
+run=10
+reason=final gate with recovered hy3 primary and two-attempt per-route failover; multi-route fallback validated; candidate hash unchanged 930f0fb0d08c34a5fdcac7bcb10b0a3ffc07a78f1876cde742c71179a26dff21
