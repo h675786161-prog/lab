@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import crypto from 'node:crypto';
-import { loadQiduReleaseCandidate as loadBaseCandidate, entryMap } from './qidu-card-v0423-release-candidate.mjs';
+import { loadQiduReleaseCandidate as loadBaseCandidate, entryMap as baseEntryMap } from './qidu-card-v0423-release-candidate.mjs';
 
 export const ONEFILE_VERSION='0.4.24';
 const CREATOR_NOTES='作者：叶罹。相关卡：《永远的7日之都》七日轮回文本互动。原作向文本互动角色卡，以七日轮回为核心，包含区域巡查、角色剧情、战术终端、状态记录、多结局分支与CG触发。';
@@ -41,6 +41,18 @@ function findEntry(card,prefix){
 }
 function appendOnce(entry,marker,text){
   if(!String(entry.content||'').includes(marker)) entry.content=String(entry.content||'')+text;
+}
+export function entryMap(card){
+  const map=baseEntryMap(card);
+  const aliases=[
+    ['30｜高校学园：六巡查与黑核','30｜高校学园：区域主线与黑核'],
+    ['31｜东方古街：六巡查与五行阵黑核','31｜东方古街：区域主线与五行阵黑核'],
+  ];
+  for(const [oldName,newName] of aliases){
+    if(map[newName]&&!map[oldName]) map[oldName]=map[newName];
+    if(map[oldName]&&!map[newName]) map[newName]=map[oldName];
+  }
+  return map;
 }
 function normalizeInitialState(card){
   const src=String(card.data.first_mes||'');
@@ -108,9 +120,26 @@ function narrativeFlowRule(){
 
 function installNarrativeFlow(card){
   const entries=card.data.character_book?.entries||[];
+  const phaseMap={一:'一',二:'二',三:'三',四:'四',五:'五',六:'六','1':'一','2':'二','3':'三','4':'四','5':'五','6':'六'};
+  const migrateLegacyFlowText=text=>String(text||'')
+    .replace(/第\s*([一二三四五六123456])\s*次?巡查/g,(_,n)=>'剧情阶段'+phaseMap[n])
+    .replace(/(?:六|6)\s*次巡查/g,'完整区域主线')
+    .replace(/(?:额外)?消耗\s*1\s*节点/g,'额外进行一段独立行动')
+    .replace(/扣除?\s*1\s*节点/g,'按该行动推进剧情')
+    .replace(/不(?:消耗|耗)\s*节点/g,'不单独改变剧情进度')
+    .replace(/每次巡查扣\s*1\s*点/g,'按剧情阶段自然推进');
+  for(const entry of entries){
+    const n=String(entry.name||'');
+    if(/^(?:1[0-6]|3[0-7]|65|66)｜/.test(n)){
+      entry.content=migrateLegacyFlowText(entry.content);
+    }
+    entry.name=n
+      .replace('30｜高校学园：六巡查与黑核','30｜高校学园：区域主线与黑核')
+      .replace('31｜东方古街：六巡查与五行阵黑核','31｜东方古街：区域主线与五行阵黑核');
+  }
   const compact=`
 【旧节点计数作废｜本条目内优先】
-本条目若仍出现“第N次巡查、六次巡查、消耗/扣除节点、node_used、patrol”等旧版措辞，只把它们当作事件先后参考，不作计数触发。按已经发生的剧情与因果自然推进；区域主线真正收束时直接liberated=true。区域解放不净化黑核；黑核只有玩家明确执行净化且前置满足时才改为purified。
+本条目若从旧聊天或旧存档带入“巡查次数、消耗/扣除节点、node_used、patrol”等计数信息，一律只按已经发生的剧情事实判断进度，不作数字触发。区域主线真正收束时直接liberated=true。区域解放不净化黑核；黑核只有玩家明确执行净化且前置满足时才改为purified。
 `;
   for(const entry of entries){
     const n=String(entry.name||'');
@@ -591,4 +620,4 @@ cg_system至少含enabled/mode/album_enabled/responsive_enabled/shown；当前mo
 
 export const loadQiduReleaseCandidate=loadQiduCgCandidate;
 export const loadQiduReleaseCard=loadQiduCgCandidate;
-export { entryMap };
+
