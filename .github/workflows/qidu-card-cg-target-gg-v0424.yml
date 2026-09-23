@@ -1,0 +1,38 @@
+name: Qidu CG v0424 GG Targeted Behavior
+
+on:
+  push:
+    branches: ['feature/qidu-card-v0411-lab']
+    paths:
+      - '.lab/qidu-cg-v0424-gg-trigger.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  targeted-cg-behavior-gg:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      MODEL_API_KEY: ${{ secrets.GG }}
+      MODEL_API_BASE: https://gcli.ggchan.dev/v1
+      CG_MODEL: 'gemini-3-flash-preview'
+      CG_CASES: ann_first_meet
+      CG_MAX_TOKENS: 8000
+      CG_TIMEOUT_MS: 100000
+      CG_ATTEMPTS: 1
+      CG_CASE_GAP_MS: 1000
+      LAB_OUT_CG_MODEL: ${{ github.workspace }}/cg-target-gg-evidence
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Run GG full-context exact v0.4.24 CG behavior bench
+        run: node .lab/qidu-card-model-bench-v0424-cg.mjs
+      - name: Upload GG targeted evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-v0424-cg-target-gg-evidence
+          path: cg-target-gg-evidence/
+          if-no-files-found: warn
