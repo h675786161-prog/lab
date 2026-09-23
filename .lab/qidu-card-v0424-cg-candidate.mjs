@@ -385,7 +385,9 @@ function installChoiceFrontend(card){
     const target=e.target instanceof ParentElement?e.target:null;
     const c=target?.closest(choice);
     if(c){
-      e.preventDefault();e.stopPropagation();setComposer(c.textContent);return;
+      e.preventDefault();e.stopPropagation();
+      const value=String(c.textContent||'').replace(/^[✦✧☁]\s*/,'').trim();
+      setComposer(value);return;
     }
     const f=target?.closest(free);
     if(f){
