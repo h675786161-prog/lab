@@ -141,11 +141,13 @@ try {
  await page.evaluate(async()=>{const ctx=SillyTavern.getContext();const eventName=ctx.eventTypes?.CHAT_CHANGED||ctx.event_types?.CHAT_CHANGED;if(!ctx.eventSource?.emit||!eventName||!ctx.updateChatMetadata)throw new Error('SillyTavern chat switch API is unavailable');window.__qaOriginalChatMetadata=ctx.chatMetadata;window.__qaChatEventName=eventName;const next=structuredClone(ctx.chatMetadata);next.world_backstage_v1.currentState.world.name='另一条酒馆聊天';ctx.updateChatMetadata(next,true);await ctx.eventSource.emit(eventName,'lab-other-chat');});
  await page.waitForTimeout(350);
  assert.equal(await page.evaluate(()=>worldBackstageHost.getPhoneSurface().worldName),'另一条酒馆聊天','phone bridge follows a real Tavern CHAT_CHANGED event');
+ if(await page.locator('[data-unlock]').count())await click('[data-unlock]');
  await click('[data-app="wechat"]');await click('[data-wx-chat="direct-b"]');
  assert.notEqual(await page.locator('[data-wx-compose-input]').inputValue(),'只属于原酒馆聊天的草稿','draft from previous Tavern chat must not leak');
  await page.evaluate(async()=>{const ctx=SillyTavern.getContext();ctx.updateChatMetadata(window.__qaOriginalChatMetadata,true);await ctx.eventSource.emit(window.__qaChatEventName,'lab-return-chat');});
  await page.waitForTimeout(350);
  assert.equal(await page.evaluate(()=>worldBackstageHost.getPhoneSurface().worldName),'青苔镇','returning to the original Tavern chat restores its authoritative surface');
+ if(await page.locator('[data-unlock]').count())await click('[data-unlock]');
  await click('[data-app="wechat"]');await click('[data-wx-chat="direct-b"]');
  assert.notEqual(await page.locator('[data-wx-compose-input]').inputValue(),'只属于原酒馆聊天的草稿','switching back does not resurrect a stale draft');
  assert.deepEqual(errors,[]);assert.deepEqual(pluginConsoleErrors,[],'no phone or Backstage plug-in console errors');
