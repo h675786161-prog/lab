@@ -154,6 +154,7 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
 
   normalizeInitialState(card);
 
+  const e00=findEntry(card,'00｜');
   const e03=findEntry(card,'03｜');
   const e04=findEntry(card,'04｜');
   const e10=findEntry(card,'10｜');
@@ -162,6 +163,13 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
   const e31=findEntry(card,'31｜');
   const e44=findEntry(card,'44｜');
   const e91=findEntry(card,'91｜');
+
+  {
+    const oldRule='3. 原作长篇台词、CG字幕不逐句复制。已有 TEXT_ID/CG_ID 只定义调用时机；没有用户提供的文本资源时，仅生成贴合含义和情绪的新文案。';
+    const newRule='3. 原作长篇台词、CG字幕：用户已经提供原文时，直接使用该原文，不改写、不概括、不另造近义版本；用户没有提供原文时，才由模型根据当前剧情自行生成。TEXT_ID/CG_ID只负责调用时机，不得以“只定义调用时机”为由忽略已经提供的原文。';
+    if(!String(e00.content||'').includes(oldRule)) throw new Error('project boundary source-text rule missing');
+    e00.content=String(e00.content).replace(oldRule,newRule);
+  }
 
   appendOnce(e03,'相册/小手机联动尚未启用',`
 【当前CG与相册边界】相册/小手机联动尚未启用。CG当前只在剧情节点 direct_only 展示，不写入相册或小手机，不生成收藏记录。
