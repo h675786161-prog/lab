@@ -1,2 +1,2 @@
-run=7
-reason=probe alternate model families after GPT routes preserved semantics but mangled f7d structural tags
+run=20260923-1
+reason=live provider survey after PIAOMIAO full-context 403/429 instability during qidu v0.4.24 final gate
