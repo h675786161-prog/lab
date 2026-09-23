@@ -108,10 +108,6 @@ function narrativeFlowRule(){
 
 function installNarrativeFlow(card){
   const entries=card.data.character_book?.entries||[];
-  for(const entry of entries){
-    entry.name=String(entry.name||'').replace(/([：:])(?:六|6)巡查/g,'$1剧情流程');
-  }
-
   const compact=`
 【旧节点计数作废｜本条目内优先】
 本条目若仍出现“第N次巡查、六次巡查、消耗/扣除节点、node_used、patrol”等旧版措辞，只把它们当作事件先后参考，不作计数触发。按已经发生的剧情与因果自然推进；区域主线真正收束时直接liberated=true。区域解放不净化黑核；黑核只有玩家明确执行净化且前置满足时才改为purified。
@@ -229,6 +225,21 @@ function installChoiceFrontend(card){
       .filter(t=>/[\\p{L}\\p{N}\\u3400-\\u9fff]/u.test(t));
     return [...new Set(raw)].slice(0,6);
   };
+  const scrubLegacyTerminalCounters=()=>{
+    for(const terminal of doc.querySelectorAll('[data-f7d-terminal="1"]')){
+      const ParentNodeFilter=window.parent?.NodeFilter||NodeFilter;
+      const walker=doc.createTreeWalker(terminal,ParentNodeFilter.SHOW_TEXT);
+      const nodes=[];
+      while(walker.nextNode()) nodes.push(walker.currentNode);
+      for(const node of nodes){
+        const before=String(node.data||'');
+        const after=before
+          .replace(/\s*[｜|]\s*行动节点\s*(?:尚未开始|\d+\s*\/\s*12|[^｜|\n<]*)/g,'')
+          .replace(/(^|\n)\s*行动节点\s*[:：]?[^\n<]*(?=\n|$)/g,'$1');
+        if(after!==before) node.data=after;
+      }
+    }
+  };
   const normalizePresetShells=()=>{
     for(const mes of doc.querySelectorAll('#chat .mes_text')){
       const candidates=[...mes.querySelectorAll('div,section,article,details')].filter(isPresetShell).sort((a,b)=>String(a.textContent||'').length-String(b.textContent||'').length);
@@ -293,7 +304,7 @@ function installChoiceFrontend(card){
   const refresh=()=>{
     if(queued)return;
     queued=true;
-    setTimeout(()=>{queued=false;normalizePresetShells();ensureTerminalFallbacks();},40);
+    setTimeout(()=>{queued=false;scrubLegacyTerminalCounters();normalizePresetShells();ensureTerminalFallbacks();scrubLegacyTerminalCounters();},40);
   };
   const click=e=>{
     const ParentElement=window.parent?.Element||Element;
@@ -316,7 +327,7 @@ function installChoiceFrontend(card){
     const ParentObserver=window.parent?.MutationObserver||MutationObserver;
     const observer=new ParentObserver(refresh);
     observer.observe(doc.body,{subtree:true,childList:true});
-    window.parent[KEY]={version:'1.3.0',click,observer,setComposer,normalizePresetShells,ensureTerminalFallbacks,refresh};
+    window.parent[KEY]={version:'1.3.0',click,observer,setComposer,normalizePresetShells,ensureTerminalFallbacks,scrubLegacyTerminalCounters,refresh};
     refresh();
   };
   if(doc.readyState==='loading') doc.addEventListener('DOMContentLoaded',install,{once:true}); else install();
