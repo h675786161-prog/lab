@@ -1,2 +1,2 @@
-run=18
-reason=final gate after embedding Tavern Helper clickable choice bridge, adding free-input control, suppressing conflicting preset decision shell, and hard-locking state/terminal/choice output structure with dedicated regression
+run=19
+reason=final gate after interactive-choice hotfix v1.2: embedded Tavern Helper bridge fills composer, adds free input, normalizes leaking preset decision shells into one f7d UI, synthesizes terminal from committed state when terminal tag is omitted, plus output-shell model regression
