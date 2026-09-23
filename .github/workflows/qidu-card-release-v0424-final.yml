@@ -127,7 +127,7 @@ jobs:
     env:
       MODEL_API_KEY: ${{ secrets.PIAOMIAO }}
       MODEL_API_BASE: https://claudeapi.cc.cd/v1
-      RELEASE_MODEL: '[ok]hy3'
+      RELEASE_MODEL: 'deepseek/deepseek-v4.1-flash'
       LAB_OUT: bench-evidence/qidu-card-v0421-core
       LAB_OUT_CONFLICT: bench-evidence/qidu-card-v0418-preset-conflict
       LAB_OUT_INFO: bench-evidence/qidu-card-v0423-info-timeline
