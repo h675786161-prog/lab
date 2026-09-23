@@ -1,2 +1,2 @@
-run=3
-reason=PIAOMIAO quota exhausted; validate all seven narrative gates on GG gemini-3-flash-preview against exact current v0.4.24 candidate
+run=4
+reason=rerun all seven GG narrative gates sequentially with per-kind retries after observed 429-only failures
