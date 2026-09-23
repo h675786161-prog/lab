@@ -20,8 +20,8 @@ jobs:
       CG_CASES: ann_first_meet,antoneva_first_meet,journey_ending,eternal_ending,sacrifice_male,sacrifice_female,final_male,box_female,box_unknown_gender,journey_repeat_suppressed
       CG_MAX_TOKENS: 8000
       CG_TIMEOUT_MS: 100000
-      CG_ATTEMPTS: 1
-      CG_CASE_GAP_MS: 1000
+      CG_ATTEMPTS: 2
+      CG_CASE_GAP_MS: 12000
       LAB_OUT_CG_MODEL: ${{ github.workspace }}/cg-target-gg-evidence
     steps:
       - uses: actions/checkout@v4
