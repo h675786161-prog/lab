@@ -1,2 +1,2 @@
-run=5
-reason=verify repeated Gemini box_female semantic failure is fixed by explicit gendered shown/key truth table in exact current v0.4.24 candidate
+run=6
+reason=verify exact JSON boolean fragment reinforcement for Gemini box_female on current v0.4.24 candidate
