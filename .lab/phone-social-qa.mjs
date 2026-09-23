@@ -31,7 +31,8 @@ try {
   dispatchEvent(new CustomEvent('world-backstage:phone-update'));
  }, process.env.WP_HOST_MODULE || '');
 
-  await click('[data-unlock]');
+ await click('#world-phone-launcher');
+ await click('[data-unlock]');
  await click('[data-app="wechat"]'); await click('[data-wx-tab="contacts"]');
  await click('[data-social-friends]');
  await page.evaluate(()=>{SillyTavern.getContext().chatMetadata.world_backstage_v1.currentState.clock.absoluteMinute++;dispatchEvent(new CustomEvent('world-backstage:phone-update'));});
