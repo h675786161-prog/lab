@@ -87,53 +87,142 @@ function installChoiceFrontend(card){
   wrap.replaceString='<div data-f7d-choice-grid="1" style="box-sizing:border-box;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:.55em;width:100%;max-width:100%;margin:.8em 0;padding:.7em;border:1px solid rgba(116,174,231,.28);border-radius:14px;background:linear-gradient(145deg,rgba(13,23,37,.78),rgba(24,39,56,.72));box-shadow:0 8px 24px rgba(0,0,0,.14);">$1<button type="button" data-f7d-choice-free="1" style="box-sizing:border-box;display:block;width:100%;min-height:44px;padding:.68em .86em;border:1px dashed rgba(180,210,238,.55);border-radius:10px;background:rgba(255,255,255,.055);color:#dcecff;font:600 13px/1.45 system-ui,-apple-system,\'Microsoft YaHei\',sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;">✎ 自由输入</button></div>';
   button.replaceString='<button type="button" data-f7d-choice="1" style="box-sizing:border-box;display:block;width:100%;min-height:44px;padding:.68em .86em;border:1px solid rgba(133,194,255,.52);border-radius:10px;background:linear-gradient(135deg,rgba(32,60,88,.88),rgba(24,45,67,.94));box-shadow:0 4px 12px rgba(0,0,0,.16);color:#eef7ff;font:600 13px/1.45 system-ui,-apple-system,\'Microsoft YaHei\',sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;">$1</button>';
 
-  const bridgeContent=`(() => {
+  const bridgeContent=\`(() => {
   const KEY='__F7D_CARD_CHOICE_BRIDGE_V0424__';
   const doc=window.parent?.document||document;
   const choice='[data-f7d-choice="1"]';
   const free='[data-f7d-choice-free="1"]';
   const input=()=>doc.querySelector('#send_textarea');
   const focus=el=>{ try{el?.focus({preventScroll:true});}catch{el?.focus();} };
+  const choiceStyle='box-sizing:border-box;display:block;width:100%;min-height:44px;padding:.68em .86em;border:1px solid rgba(133,194,255,.52);border-radius:10px;background:linear-gradient(135deg,rgba(32,60,88,.88),rgba(24,45,67,.94));box-shadow:0 4px 12px rgba(0,0,0,.16);color:#eef7ff;font:600 13px/1.45 system-ui,-apple-system,Microsoft YaHei,sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;';
+  const freeStyle='box-sizing:border-box;display:block;width:100%;min-height:44px;padding:.68em .86em;border:1px dashed rgba(180,210,238,.55);border-radius:10px;background:rgba(255,255,255,.055);color:#dcecff;font:600 13px/1.45 system-ui,-apple-system,Microsoft YaHei,sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;';
+  const gridStyle='box-sizing:border-box;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:.55em;width:100%;max-width:100%;margin:.8em 0;padding:.7em;border:1px solid rgba(116,174,231,.28);border-radius:14px;background:linear-gradient(145deg,rgba(13,23,37,.78),rgba(24,39,56,.72));box-shadow:0 8px 24px rgba(0,0,0,.14);';
+  const terminalStyle='box-sizing:border-box;width:100%;max-width:100%;overflow-wrap:anywhere;margin:.65em 0;padding:.78em .9em;border:1px solid rgba(145,190,255,.42);border-radius:12px;background:linear-gradient(135deg,rgba(12,22,38,.94),rgba(18,35,55,.90));box-shadow:0 7px 20px rgba(0,0,0,.18);color:#e8f2ff;font:500 13px/1.65 system-ui,-apple-system,Microsoft YaHei,sans-serif;white-space:pre-wrap';
   const setComposer=text=>{
     const el=input();
     if(!el) return false;
     const value=String(text||'').trim();
     if(!value) return false;
-    const proto=el instanceof window.parent.HTMLTextAreaElement?window.parent.HTMLTextAreaElement.prototype:HTMLTextAreaElement.prototype;
+    const ParentTextarea=window.parent?.HTMLTextAreaElement||HTMLTextAreaElement;
+    const proto=el instanceof ParentTextarea?ParentTextarea.prototype:HTMLTextAreaElement.prototype;
     const setter=Object.getOwnPropertyDescriptor(proto,'value')?.set;
     if(setter) setter.call(el,value); else el.value=value;
-    el.dispatchEvent(new window.parent.Event('input',{bubbles:true}));
-    el.dispatchEvent(new window.parent.Event('change',{bubbles:true}));
+    const ParentEvent=window.parent?.Event||Event;
+    el.dispatchEvent(new ParentEvent('input',{bubbles:true}));
+    el.dispatchEvent(new ParentEvent('change',{bubbles:true}));
     focus(el);
     return true;
   };
-  const suppressPresetShells=()=>{
+  const makeGrid=items=>{
+    const grid=doc.createElement('div');
+    grid.setAttribute('data-f7d-choice-grid','1');
+    grid.setAttribute('data-f7d-preset-normalized','1');
+    grid.style.cssText=gridStyle;
+    for(const text of items){
+      const b=doc.createElement('button');
+      b.type='button';
+      b.setAttribute('data-f7d-choice','1');
+      b.style.cssText=choiceStyle;
+      b.textContent=text;
+      grid.appendChild(b);
+    }
+    const f=doc.createElement('button');
+    f.type='button';
+    f.setAttribute('data-f7d-choice-free','1');
+    f.style.cssText=freeStyle;
+    f.textContent='✎ 自由输入';
+    grid.appendChild(f);
+    return grid;
+  };
+  const isPresetShell=el=>{
+    const t=String(el?.textContent||'').replace(/\\s+/g,' ').trim();
+    return Boolean(t&&/求索者抉择|MAKE YOUR DECISION/i.test(t)&&/\\boptions\\s*:|\\bplans\\s*:|选项内容\\s*\\d+/i.test(t));
+  };
+  const extractPresetOptions=shell=>{
+    const raw=[...shell.querySelectorAll('button,[role="button"],div,p,span')]
+      .filter(el=>el===shell||el.children.length===0||el.matches('button,[role="button"]'))
+      .map(el=>String(el.textContent||'').replace(/\\s+/g,' ').trim())
+      .filter(t=>t.length>=2&&t.length<=140)
+      .filter(t=>!/求索者抉择|MAKE YOUR DECISION|^\\s*(?:options|plans|activity|parallel)\\s*:|^选项内容\\s*\\d+$/i.test(t))
+      .filter(t=>/[\\p{L}\\p{N}\\u3400-\\u9fff]/u.test(t));
+    return [...new Set(raw)].slice(0,6);
+  };
+  const normalizePresetShells=()=>{
     for(const mes of doc.querySelectorAll('#chat .mes_text')){
-      const nodes=[...mes.querySelectorAll('div,section,article,details')].filter(el=>{
-        if(el.closest('[data-f7d-choice-grid="1"]')) return false;
-        const t=String(el.textContent||'').replace(/\\s+/g,' ').trim();
-        if(!t) return false;
-        const title=/求索者抉择|MAKE YOUR DECISION/i.test(t);
-        const generic=/\\boptions\\s*:|\\bplans\\s*:|选项内容\\s*\\d+/i.test(t);
-        return title&&generic;
-      }).sort((a,b)=>String(a.textContent||'').length-String(b.textContent||'').length);
-      const shell=nodes[0];
-      if(shell){
+      const candidates=[...mes.querySelectorAll('div,section,article,details')].filter(isPresetShell).sort((a,b)=>String(a.textContent||'').length-String(b.textContent||'').length);
+      const shell=candidates[0];
+      if(!shell) continue;
+      const own=[...mes.querySelectorAll('[data-f7d-choice-grid="1"]')].find(x=>!x.hasAttribute('data-f7d-preset-normalized'));
+      if(own){
+        shell.style.setProperty('display','none','important');
+        shell.setAttribute('data-f7d-preset-suppressed','1');
+        continue;
+      }
+      const items=extractPresetOptions(shell);
+      if(items.length){
+        const grid=makeGrid(items);
+        shell.replaceWith(grid);
+      }else{
         shell.style.setProperty('display','none','important');
         shell.setAttribute('data-f7d-preset-suppressed','1');
       }
     }
   };
+  const makeTerminal=state=>{
+    const wrap=doc.createElement('div');
+    wrap.setAttribute('data-f7d-terminal','1');
+    wrap.setAttribute('data-f7d-terminal-fallback','1');
+    wrap.style.cssText=terminalStyle;
+    const title=doc.createElement('div');
+    title.style.cssText='font-size:11px;letter-spacing:.14em;color:#8ecbff;margin-bottom:.35em';
+    title.textContent='CENTRAL COURT // TACTICAL TERMINAL';
+    const body=doc.createElement('div');
+    const active=Object.entries(state?.tasks||{}).filter(([,v])=>v&&v.status==='active').map(([k,v])=>String(v.objective||k)).slice(0,3);
+    const labels={court:'中央庭',school:'高校学园',east:'东方古街',central:'中央城区',institute:'研究所',seaside:'海湾侧城',old:'旧城区',harbor:'港湾区'};
+    const cores=Object.entries(state?.cores||{}).filter(([,v])=>v&&v!=='unknown').map(([k,v])=>String(labels[k]||k)+'：'+String(v)).slice(0,8);
+    const lines=['【战术终端】第'+String(state?.day??'?')+'天｜行动节点 '+String(state?.node_used??'?')+'/12','当前位置：'+String(state?.location||'未确认')];
+    if(active.length) lines.push('任务：\\n- '+active.join('\\n- '));
+    if(cores.length) lines.push('黑核状态：\\n'+cores.join('\\n'));
+    body.textContent=lines.join('\\n');
+    wrap.append(title,body);
+    return wrap;
+  };
+  const ensureTerminalFallbacks=()=>{
+    const ctx=window.parent?.SillyTavern?.getContext?.();
+    const chat=ctx?.chat;
+    if(!Array.isArray(chat)) return;
+    for(const mes of doc.querySelectorAll('#chat > .mes[mesid]')){
+      const text=mes.querySelector('.mes_text');
+      if(!text||text.querySelector('[data-f7d-terminal="1"]')) continue;
+      const id=Number(mes.getAttribute('mesid'));
+      const raw=String(chat?.[id]?.mes||'');
+      if(!raw||/<\\s*f7d_terminal\\b/i.test(raw)) continue;
+      const m=raw.match(/<\\s*f7d_state\\s*>([\\s\\S]*?)<\\s*\\/\\s*f7d_state\\s*>/i);
+      if(!m) continue;
+      let state=null;try{state=JSON.parse(m[1]);}catch{}
+      if(!state) continue;
+      const terminal=makeTerminal(state);
+      const grid=text.querySelector('[data-f7d-choice-grid="1"]');
+      if(grid) text.insertBefore(terminal,grid); else text.appendChild(terminal);
+    }
+  };
+  let queued=false;
+  const refresh=()=>{
+    if(queued)return;
+    queued=true;
+    setTimeout(()=>{queued=false;normalizePresetShells();ensureTerminalFallbacks();},40);
+  };
   const click=e=>{
-    const target=e.target instanceof window.parent.Element?e.target:null;
+    const ParentElement=window.parent?.Element||Element;
+    const target=e.target instanceof ParentElement?e.target:null;
     const c=target?.closest(choice);
     if(c){
-      e.preventDefault(); e.stopPropagation(); setComposer(c.textContent); return;
+      e.preventDefault();e.stopPropagation();setComposer(c.textContent);return;
     }
     const f=target?.closest(free);
     if(f){
-      e.preventDefault(); e.stopPropagation();
-      const el=input(); focus(el); requestAnimationFrame(()=>focus(el));
+      e.preventDefault();e.stopPropagation();
+      const el=input();focus(el);requestAnimationFrame(()=>focus(el));
     }
   };
   const install=()=>{
@@ -141,13 +230,14 @@ function installChoiceFrontend(card){
     if(old?.click) doc.removeEventListener('click',old.click,true);
     old?.observer?.disconnect?.();
     doc.addEventListener('click',click,true);
-    const observer=new MutationObserver(()=>suppressPresetShells());
+    const ParentObserver=window.parent?.MutationObserver||MutationObserver;
+    const observer=new ParentObserver(refresh);
     observer.observe(doc.body,{subtree:true,childList:true});
-    window.parent[KEY]={version:'1.1.0',click,observer,setComposer,suppressPresetShells};
-    suppressPresetShells();
+    window.parent[KEY]={version:'1.2.0',click,observer,setComposer,normalizePresetShells,ensureTerminalFallbacks,refresh};
+    refresh();
   };
   if(doc.readyState==='loading') doc.addEventListener('DOMContentLoaded',install,{once:true}); else install();
-})();`;
+})();\`;
 
   ext.tavern_helper={
     ...(ext.tavern_helper||{}),
@@ -158,7 +248,7 @@ function installChoiceFrontend(card){
         name:'七都｜选项回填与预设选项隔离',
         id:'qidu-v0424-choice-bridge',
         content:bridgeContent,
-        info:'点击七都选项只回填到输入框，不自动发送；提供自由输入入口，并抑制与本卡冲突的外部预设选项壳。',
+        info:'点击七都选项只回填到输入框，不自动发送；提供自由输入；把冲突的外部预设选项壳归一到本卡按钮，并在模型漏掉终端标签时用已提交状态补出可见终端。',
         button:{enabled:false,buttons:[]},
         data:{},
         export_with:{data:true,button:false}
@@ -170,7 +260,7 @@ function installChoiceFrontend(card){
     ...(ext.qidu_frontend||{}),
     choice_behavior:'embedded Tavern Helper script: click fills composer; free input focuses composer; never auto-send',
     choice_runtime:'tavern_helper_embedded_script',
-    preset_choice_policy:'suppress conflicting external preset decision shell for this card'
+    preset_choice_policy:'normalize conflicting external preset decision shell into f7d choice UI; suppress placeholder-only shells'
   };
 }
 
