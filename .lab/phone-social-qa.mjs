@@ -6,7 +6,7 @@ const output = process.env.WP_SCREENSHOT_DIR || process.cwd();
 fs.mkdirSync(output, { recursive: true });
 const browser = await chromium.launch({executablePath:process.env.WP_BROWSER_EXECUTABLE || '/usr/bin/google-chrome',headless:true});
 const page=await browser.newPage({viewport:{width:1440,height:980}});
-const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+const errors=[];const consoleErrors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error')consoleErrors.push(m.text());});
 const click=async s=>{await page.locator(s).first().click();await page.waitForTimeout(220);};
 await page.addInitScript(() => localStorage.setItem('world-backstage:mama-note:seen', '1'));
 try {
@@ -21,7 +21,7 @@ try {
  await page.locator('#preloader').waitFor({state:'hidden',timeout:60000});
  await page.evaluate(async(hostModule)=>{
   const ctx=SillyTavern.getContext();
-  ctx.chatMetadata.world_backstage_v1={schemaVersion:25,currentState:{world:{name:'青苔镇'},clock:{absoluteMinute:123,displayTime:'21:37',displayDate:'9月13日'},people:[{id:'a',name:'阿青'},{id:'b',name:'木雨'},{id:'secret',name:'隐藏人物',innerVoice:'绝不可见'}],events:[]},social:{schemaVersion:2,connections:[{personId:'a',status:'accepted'},{personId:'b',status:'accepted'}],conversations:[{id:'direct-a',type:'direct',title:'阿青',memberIds:['a'],rawMessages:[{id:'m1',senderId:'a',senderName:'阿青',text:'下楼走走？',createdAt:'2026-09-13T12:00:00Z'}]},{id:'direct-b',type:'direct',title:'木雨',memberIds:['b'],rawMessages:[{id:'m2',senderId:'b',senderName:'木雨',text:'书放前台了。',createdAt:'2026-09-13T12:01:00Z'}]}],moments:[],notices:[{id:'n1',kind:'message',personId:'b',conversationId:'direct-b',text:'书放前台了。',createdAt:'2026-09-13T12:01:00Z',readAt:''}]},publicOpinion:{news:[{id:'news-a',relatedEventId:'e-public',category:'城市',headline:'河畔夜市重新开放',summary:'今晚的河畔步道有灯光与小食摊。',source:'青苔日报',worldMinute:123}],forums:[]}};
+  ctx.chatMetadata.world_backstage_v1={schemaVersion:25,currentState:{world:{name:'青苔镇'},clock:{absoluteMinute:123,displayTime:'21:37',displayDate:'9月13日'},people:[{id:'a',name:'阿青'},{id:'b',name:'木雨'},{id:'secret',name:'隐藏人物',innerVoice:'绝不可见'}],events:[]},social:{schemaVersion:2,connections:[{personId:'a',status:'accepted'},{personId:'b',status:'accepted'}],conversations:[{id:'direct-a',type:'direct',title:'阿青',memberIds:['a'],rawMessages:[{id:'m1',senderId:'a',senderName:'阿青',text:'下楼走走？',createdAt:'2026-09-13T12:00:00Z'},{id:'m1b',senderId:'a',senderName:'阿青',text:'夜市那边灯亮了。',createdAt:'2026-09-13T12:02:00Z'},{id:'m1c',senderId:'a',senderName:'阿青',text:'夜市见？',createdAt:'2026-09-13T12:03:00Z'}]},{id:'direct-b',type:'direct',title:'木雨',memberIds:['b'],rawMessages:[{id:'m2',senderId:'b',senderName:'木雨',text:'书放前台了。',createdAt:'2026-09-13T12:01:00Z'}]}],moments:[],notices:[{id:'n1',kind:'message',personId:'b',conversationId:'direct-b',text:'书放前台了。',createdAt:'2026-09-13T12:01:00Z',readAt:''}]},publicOpinion:{news:[{id:'news-a',relatedEventId:'e-public',category:'城市',headline:'河畔夜市重新开放',summary:'今晚的河畔步道有灯光与小食摊。',source:'青苔日报',worldMinute:123}],forums:[]}};
   const store=ctx.chatMetadata.world_backstage_v1;
   store.currentState.people.push({id:'c',name:'小禾'},{id:'d',name:'晚舟'});
   store.social.connections.push({personId:'c',status:'incoming',requestMessage:'周末一起逛夜市吗？'},{personId:'d',status:'accepted'});
@@ -42,7 +42,13 @@ try {
  await click('[data-social-close]');
  await click('[data-contact-person="d"]');await click('[data-social-direct="d"]');
  await page.waitForSelector('[data-wx-compose-input]');
- await page.locator('[data-wx-compose-input]').fill('下楼一起走走？');await click('[data-wx-send]');
+ await page.locator('[data-wx-compose-input]').fill('下楼一起走走？');
+ await page.evaluate(()=>{const host=worldBackstageHost;window.__getPhoneSurface=host.getPhoneSurface;host.getPhoneSurface=()=>({...window.__getPhoneSurface(),connected:false});});
+ await click('[data-wx-send]');
+ assert.equal(await page.evaluate(()=>SillyTavern.getContext().chatMetadata.world_backstage_v1.social.conversations.find(c=>c.id==='direct-d').rawMessages.length),0,'disconnected bridge must not write world messages');
+ assert.equal(await page.locator('[data-wx-compose-input]').inputValue(),'下楼一起走走？','failed send keeps the draft');
+ await page.evaluate(()=>{worldBackstageHost.getPhoneSurface=window.__getPhoneSurface;});
+ await click('[data-wx-send]');
  assert.equal(await page.evaluate(()=>SillyTavern.getContext().chatMetadata.world_backstage_v1.social.conversations.find(c=>c.id==='direct-d').rawMessages.at(-1).text),'下楼一起走走？');
  await click('[data-app-back]');await click('[data-wx-tab="contacts"]');
  await click('[data-social-group]');
@@ -68,6 +74,30 @@ try {
  await page.locator('[data-chat-search]').fill('');await click('[data-chat-pin="direct-b"]');
  assert.equal(await page.locator('[data-chat-entry]').first().getAttribute('data-chat-entry'),'direct-b');
  await page.screenshot({path:path.join(output,'social-chats-390.png')});
+ await click('[data-wx-chat="direct-a"]');await click('[data-wx-search-toggle]');
+ await page.locator('[data-wx-thread-search]').fill('夜市');
+ assert.equal(await page.locator('[data-wx-search-match]').count(),2);
+ assert.equal(await page.locator('.lqwp-wx-thread-search [aria-live]').innerText(),'1 / 2');
+ await click('[data-wx-search-next]');assert.equal(await page.locator('.lqwp-wx-thread-search [aria-live]').innerText(),'2 / 2');
+ await page.locator('[data-wx-thread-search]').evaluate(input=>{window.__searchInputDuringIme=input;input.focus();input.dispatchEvent(new CompositionEvent('compositionstart',{bubbles:true,data:''}));input.value='夜市后';input.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertCompositionText',data:'后',isComposing:true}));});
+ assert.equal(await page.evaluate(()=>window.__searchInputDuringIme.isConnected),true,'IME composition must not lose its active input node');
+ assert.equal(await page.locator('[data-wx-thread-search]').inputValue(),'夜市后');
+ await page.locator('[data-wx-thread-search]').evaluate(input=>input.dispatchEvent(new CompositionEvent('compositionend',{bubbles:true,data:input.value})));
+ await page.locator('[data-wx-thread-search]').fill('夜市');
+ await page.locator('[data-wx-thread-search]').evaluate(input=>input.setSelectionRange(1,2));
+ await page.evaluate(()=>dispatchEvent(new CustomEvent('world-backstage:phone-update')));await page.waitForTimeout(280);
+ assert.equal(await page.locator('[data-wx-thread-search]').inputValue(),'夜市');assert.equal(await page.locator('[data-wx-thread-search]').evaluate(input=>input===document.activeElement),true);
+ assert.deepEqual(await page.locator('[data-wx-thread-search]').evaluate(input=>[input.selectionStart,input.selectionEnd]),[1,2]);
+ await page.screenshot({path:path.join(output,'message-search-desktop.png')});
+ await click('[data-wx-search-close]');
+ await page.locator('[data-wx-compose-input]').fill('阿青专属草稿');
+ await click('[data-app-back]');await click('[data-wx-chat="direct-b"]');
+ assert.equal(await page.locator('[data-wx-compose-input]').inputValue(),'','drafts must not leak between conversations');
+ await click('[data-app-back]');await click('[data-wx-chat="direct-a"]');
+ assert.equal(await page.locator('[data-wx-compose-input]').inputValue(),'阿青专属草稿','switching away must preserve the original conversation draft');
+ await page.setViewportSize({width:320,height:740});await page.waitForTimeout(200);
+ await page.screenshot({path:path.join(output,'message-search-320.png')});
+ await page.setViewportSize({width:1440,height:980});
  await click('[data-app-back]');await click('[data-app="weibo"]');
  await click('[data-social-detail]');await click('[data-social-save]');
  assert.match(await page.locator('[data-social-save]').innerText(),/已收藏/);
@@ -100,7 +130,7 @@ try {
  assert.match(await page.locator('.lqwp-social-sheet-body').innerText(),/河畔夜市/);
  await page.screenshot({path:path.join(output,'social-collections-320.png')});await click('[data-social-close]');
  await click('[data-me-moments]');assert.ok(await page.locator('[data-moment-id="moment-a"]').count());
- assert.deepEqual(errors,[]);
- fs.writeFileSync(path.join(output,'social-report.json'),JSON.stringify({passed:true,checks:['accept incoming friend','start direct chat','canonical message','create group','private moment hidden','canonical comment and live refresh','search focus across refresh','pin chat','social share draft and explicit send','favorites isolated and restored across Tavern metadata','desktop 390 and 320 layouts'],pageErrors:errors},null,2));
- console.log('PASS: real Backstage social bridge and phone UI, chat isolation, desktop/390/320');
+ assert.deepEqual(errors,[]);assert.deepEqual(consoleErrors,[],'no browser console errors');
+ fs.writeFileSync(path.join(output,'social-report.json'),JSON.stringify({passed:true,checks:['accept incoming friend','start direct chat','canonical message','create group','private moment hidden','canonical comment and live refresh','in-thread search result count and navigation','IME input continuity','search focus and selection across refresh','per-conversation draft isolation','disconnected bridge safely rejects and reconnect recovers','pin chat','social share draft and explicit send','favorites isolated and restored across Tavern metadata','desktop 390 and 320 layouts'],pageErrors:errors,consoleErrors},null,2));
+ console.log('PASS: real Backstage social bridge and phone UI, search/IME, chat isolation, desktop/390/320');
 } catch(e){console.log('PAGE_ERRORS',errors);await page.screenshot({path:path.join(output,'social-failure.png')});throw e;}finally{await browser.close();}
