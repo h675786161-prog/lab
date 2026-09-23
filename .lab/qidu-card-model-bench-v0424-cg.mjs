@@ -85,7 +85,7 @@ async function chooseModel(exclude=[]){
     ids=(d?.data||d?.models||[]).map(x=>typeof x==='string'?x:(x?.id||x?.name||x?.model)).filter(Boolean);
   }catch{}
   const requested=process.env.CG_MODEL||process.env.GLM_MODEL||'deepseek/deepseek-v4.1-flash';
-  const pref=[requested,'deepseek/deepseek-v4.1-flash','[amd]DeepSeek-V4.1-Flash','[iao]deepseek-ai/DeepSeek-V4-Flash-0731','[ox]deepseek-ai/DeepSeek-V4-Flash-0731','zai/glm-5.3-flash','[amd]GLM-5.3-Flash','[iao]zai-org/GLM-5.3-Flash','[ox]zai-org/GLM-5.3-Flash',...ids.filter(x=>/(deepseek|glm|qwen)/i.test(x))];
+  const pref=[requested,'[ok]hy3','deepseek/deepseek-v4.1-flash','[amd]DeepSeek-V4.1-Flash','[iao]deepseek-ai/DeepSeek-V4-Flash-0731','[ox]deepseek-ai/DeepSeek-V4-Flash-0731','zai/glm-5.3-flash','[amd]GLM-5.3-Flash','[iao]zai-org/GLM-5.3-Flash','[ox]zai-org/GLM-5.3-Flash',...ids.filter(x=>/(deepseek|glm|qwen|hy3)/i.test(x))];
   for(const m of [...new Set(pref.filter(x=>(!ids.length||ids.includes(x))&&!exclude.includes(x)))].slice(0,20)){
     for(const mode of ['thinking-disabled','plain']){
       try{
