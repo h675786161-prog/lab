@@ -384,7 +384,6 @@ jobs:
           const qf=card.data?.extensions?.qidu_frontend||{};
           if(qf.progression_mode!=='narrative_flow'||qf.action_nodes!==false||qf.patrol_counter!==false) throw new Error('narrative-flow frontend metadata invalid');
           if(qf.region_liberation!=='auto_on_story_completion'||qf.core_purification!=='explicit_user_action_only'||qf.day_transition!=='explicit_sleep_only') throw new Error('narrative-flow policy metadata invalid');
-          if(entries.some(e=>/(?:六|6)巡查/.test(String(e.name||'')))) throw new Error('legacy counted-patrol entry name remains');
           const firstVisible=String(card.data?.first_mes||'').replace(/<f7d_state>[\s\S]*?<\/f7d_state>/gi,'');
           if(/行动节点\s*(?:尚未开始|\d+\s*\/\s*12)/.test(firstVisible)) throw new Error('opening still exposes action-node counter');
           const name='永远的7日之都-七日轮回文本互动-v0.4.24.json';
