@@ -151,6 +151,7 @@ jobs:
       LAB_OUT_NPC_SOURCE: bench-evidence/qidu-card-v0423-offscreen-source
       LAB_OUT_GENDER: bench-evidence/qidu-card-v0424-user-gender
       LAB_OUT_SHELL: bench-evidence/qidu-card-v0424-output-shell
+      LAB_OUT_FLOW: bench-evidence/qidu-card-v0424-narrative-flow
     steps:
       - uses: actions/checkout@v4
       - name: Adapt narrative probes to exact v0.4.24 candidate
@@ -260,6 +261,18 @@ jobs:
             echo "shell retry $n"; sleep 15
           done
           exit 1
+      - run: sleep 12
+        if: always()
+      - id: flow
+        if: always()
+        continue-on-error: true
+        run: |
+          export NODE_OPTIONS="--import=$GITHUB_WORKSPACE/.lab/qidu-fetch-retry-preload.mjs"
+          for n in 1 2; do
+            node .lab/qidu-card-model-bench-v0424-flow.mjs && exit 0
+            echo "flow retry $n"; sleep 15
+          done
+          exit 1
       - name: Enforce narrative gate
         if: always()
         run: |
@@ -272,6 +285,7 @@ jobs:
           printf 'chimera=%s\n' '${{ steps.chimera.outcome }}'
           printf 'gender=%s\n' '${{ steps.gender.outcome }}'
           printf 'shell=%s\n' '${{ steps.shell.outcome }}'
+          printf 'flow=%s\n' '${{ steps.flow.outcome }}'
           test '${{ steps.core.outcome }}' = success
           test '${{ steps.encounter.outcome }}' = success
           test '${{ steps.conflict.outcome }}' = success
@@ -281,6 +295,7 @@ jobs:
           test '${{ steps.chimera.outcome }}' = success
           test '${{ steps.gender.outcome }}' = success
           test '${{ steps.shell.outcome }}' = success
+          test '${{ steps.flow.outcome }}' = success
       - name: Upload narrative evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -332,6 +347,8 @@ jobs:
             [by('04｜'),'高校初见身份来源连续性｜隐藏执行'],
             [by('04｜'),'战术终端标签强制｜隐藏执行'],
             [by('04｜'),'CG事务原子性'],
+            [by('04｜'),'剧情流速推进与日结｜最高优先级隐藏执行'],
+            [by('91｜'),'无节点状态迁移与日结字段'],
             [by('00｜'),'玩家性别同步｜高优先'],
             [by('91｜'),'player_profile.gender初始化顺序'],
             [by('10｜'),'安初见CG｜首条开场强制'],
@@ -348,6 +365,9 @@ jobs:
           if(initial.intel_flags?.zero_identity_known!==false||initial.intel_flags?.countdown_meaning_known!==false) throw new Error('initial secret flags invalid');
           if(!initial.npc_intel||Object.keys(initial.npc_intel).length!==0) throw new Error('initial npc_intel invalid');
           if(initial.player_profile?.gender!=='unknown') throw new Error('initial gender invalid');
+          if(Object.prototype.hasOwnProperty.call(initial,'node_used')) throw new Error('legacy node_used remains in initial state');
+          if(Object.values(initial.regions||{}).some(r=>r&&Object.prototype.hasOwnProperty.call(r,'patrol'))) throw new Error('legacy patrol counter remains in initial state');
+          if(initial.day_ready_to_sleep!==false) throw new Error('initial day_ready_to_sleep invalid');
           if(initial.cg_system?.mode!=='direct_only'||initial.cg_system?.album_enabled!==false||initial.cg_system?.responsive_enabled!==true) throw new Error('initial CG mode invalid');
           if(initial.cg_system?.shown?.ann_first_meet!==true) throw new Error('opening Ann CG shown flag invalid');
           if(!CG_KEYS.filter(k=>k!=='cg_ann_first_meet').every(k=>initial.cg_system?.shown?.[k.replace(/^cg_/,'')]===false)) throw new Error('other initial CG shown flags invalid');
@@ -361,6 +381,12 @@ jobs:
           if(!String(choiceWrap?.replaceString||'').includes('data-f7d-choice-free="1"')) throw new Error('free-input choice missing');
           if(!String(choiceButton?.replaceString||'').includes('<button')||!String(choiceButton?.replaceString||'').includes('data-f7d-choice="1"')) throw new Error('clickable choice button regex missing');
           if(card.data?.extensions?.qidu_frontend?.choice_runtime!=='tavern_helper_embedded_script') throw new Error('choice runtime metadata missing');
+          const qf=card.data?.extensions?.qidu_frontend||{};
+          if(qf.progression_mode!=='narrative_flow'||qf.action_nodes!==false||qf.patrol_counter!==false) throw new Error('narrative-flow frontend metadata invalid');
+          if(qf.region_liberation!=='auto_on_story_completion'||qf.core_purification!=='explicit_user_action_only'||qf.day_transition!=='explicit_sleep_only') throw new Error('narrative-flow policy metadata invalid');
+          if(entries.some(e=>/(?:六|6)巡查/.test(String(e.name||'')))) throw new Error('legacy counted-patrol entry name remains');
+          const firstVisible=String(card.data?.first_mes||'').replace(/<f7d_state>[\s\S]*?<\/f7d_state>/gi,'');
+          if(/行动节点\s*(?:尚未开始|\d+\s*\/\s*12)/.test(firstVisible)) throw new Error('opening still exposes action-node counter');
           const name='永远的7日之都-七日轮回文本互动-v0.4.24.json';
           await fs.writeFile(`dist-release/${name}`,raw);
           await fs.writeFile('dist-release/SHA256.txt',`${compactSha256}  ${name}\n`);
