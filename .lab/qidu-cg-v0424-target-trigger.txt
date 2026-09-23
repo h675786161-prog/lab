@@ -1,2 +1,2 @@
-run=12
-reason=sweep widened full-context provider pool on exact current v0.4.24 ann_first_meet; no smoke preflight
+run=13
+reason=full-context ann_first_meet on free [ok]glm-4-7-flash after paid PIAOMIAO quota exhaustion and hy3 upstream outage
