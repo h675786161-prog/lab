@@ -127,12 +127,13 @@ function installNarrativeFlow(card){
     .replace(/(?:额外)?消耗\s*1\s*节点/g,'额外进行一段独立行动')
     .replace(/扣除?\s*1\s*节点/g,'按该行动推进剧情')
     .replace(/不(?:消耗|耗)\s*节点/g,'不单独改变剧情进度')
-    .replace(/每次巡查扣\s*1\s*点/g,'按剧情阶段自然推进');
+    .replace(/每次巡查扣\s*1\s*点/g,'按剧情阶段自然推进')
+    .replace(/第\s*12\s*(?:个)?行动?节点(?:后)?/g,'当天主要剧情收束后')
+    .replace(/一天\s*12\s*(?:个)?行动?节点/g,'一天按剧情流速推进')
+    .replace(/行动节点/g,'剧情进度');
   for(const entry of entries){
     const n=String(entry.name||'');
-    if(/^(?:1[0-6]|3[0-7]|65|66)｜/.test(n)){
-      entry.content=migrateLegacyFlowText(entry.content);
-    }
+    entry.content=migrateLegacyFlowText(entry.content);
     entry.name=n
       .replace('30｜高校学园：六巡查与黑核','30｜高校学园：区域主线与黑核')
       .replace('31｜东方古街：六巡查与五行阵黑核','31｜东方古街：区域主线与五行阵黑核');
