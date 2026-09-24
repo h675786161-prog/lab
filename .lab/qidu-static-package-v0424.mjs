@@ -67,6 +67,34 @@ const required=[
 ];
 for(const [entry,marker] of required) expect(String(entry?.content||'').includes(marker),`rule:${marker}`);
 
+const e04=String(by('04｜')?.content||'');
+const e13=String(by('13｜')?.content||'');
+const e14=String(by('14｜')?.content||'');
+const e17=String(by('17｜')?.content||'');
+const e18=String(by('18｜')?.content||'');
+const combinedRules=[e04,e13,e14,e17,e18,phi].join('\n');
+
+expect(e13.includes('ann.affection>=100'),'ann-qualification-affection');
+expect(e13.includes('ANN_CORE_30')&&e13.includes('ANN_CORE_60')&&e13.includes('ANN_CORE_80'),'ann-qualification-events');
+expect(e14.includes("route='ann'")&&e14.includes('eligible=true'),'ann-route-entry');
+expect(e14.includes('第三天追安失败固定剧情')&&e14.includes('安刺伤指挥使')&&e14.includes('小神')&&e14.includes('普通线继续'),'ann-chase-failure-atomic');
+expect(e14.includes('不写入meta.endings')&&/不触发.*cg_ending_/s.test(e14),'ann-chase-not-ending');
+
+expect(e17.includes("route!='ann'"),'ordinary-ending-route');
+expect(e17.includes('8/8黑核purified')&&e17.includes('牺牲的意义'),'ordinary-sacrifice-dispatch');
+expect(e17.includes('purified_core_count>=4')&&e17.includes('箱庭风景'),'ordinary-box-dispatch');
+expect(e17.includes('purified_core_count<4')&&e17.includes('终结'),'ordinary-final-dispatch');
+expect(e17.includes('满8核但牺牲其他条件不全')&&e17.includes('箱庭风景'),'ordinary-eight-core-fallback');
+expect(e17.includes('不得再要求“中央庭黑核被希罗夺”')||e17.includes('不得再要求“中央庭黑核被希罗夺走”'),'ordinary-no-central-theft-threshold');
+expect(e17.includes('最终战胜负')&&e17.includes('不得'),'ordinary-no-final-battle-threshold');
+
+expect(e18.includes('两个人的旅途')&&e18.includes('永恒的终焉'),'ann-ending-pair');
+expect(e18.includes('不参与')&&e18.includes('黑核'),'ann-endings-ignore-cores');
+expect(combinedRules.includes('被夺黑核不可逆')&&combinedRules.includes('stolen'),'stolen-core-irreversible');
+expect(combinedRules.includes('安线黑核完全可选'),'ann-core-optional');
+expect(!txt.includes('安靠门'),'no-door-death-route');
+expect(!/meta\.endings[^\n]{0,160}追安失败/.test(txt),'failed-chase-not-recorded-as-ending');
+
 const initialMatch=String(card.data?.first_mes||'').match(/<f7d_state>([\s\S]*?)<\/f7d_state>/i);
 expect(Boolean(initialMatch),'initial-state');
 let initial={};
