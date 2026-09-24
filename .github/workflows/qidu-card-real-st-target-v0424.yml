@@ -81,6 +81,8 @@ jobs:
           echo "LAB_ST_DIR=$ST_DIR" >> "$GITHUB_ENV"
       - name: Run exact release candidate helper acceptance
         run: node .lab/runtime-release-candidate-v0424.mjs
+      - name: Run exact 10-CG browser acceptance
+        run: node .lab/runtime-cg-v0424.mjs
       - name: Stop isolated runtime
         if: always()
         run: |
