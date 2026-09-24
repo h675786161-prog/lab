@@ -1,1 +1,1 @@
-run=v0.4.24-choice-ui-v1.5-dedicated\nreason=render refined choice cards in exact SillyTavern + Tavern Helper and capture mobile/desktop evidence\n
+run=v0.4.24-choice-ui-v1.5-r2\nreason=rerun after unblocking embedded-script confirmation so real ST can capture mobile and desktop choice screenshots\n
