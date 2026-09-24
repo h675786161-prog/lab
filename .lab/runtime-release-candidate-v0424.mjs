@@ -187,12 +187,14 @@ try{
   },{name:card.data.name,version:ONEFILE_VERSION,hash:compactSha256});
 
   await page.evaluate(()=>{
+    for(const d of document.querySelectorAll('dialog[open]')){try{d.close()}catch{}}
     const textarea=document.querySelector('#send_textarea');
     if(textarea){
       textarea.value='我自己输入';
       textarea.dispatchEvent(new Event('input',{bubbles:true}));
     }
   });
+  await page.waitForTimeout(60);
   const freeButton=page.locator('#qidu-release-acceptance-dialog [data-f7d-choice-free="1"]');
   await freeButton.click({timeout:10000});
   await page.waitForTimeout(80);
