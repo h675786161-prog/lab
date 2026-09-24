@@ -1,2 +1,2 @@
-run=v0.4.24-choice-ui-v1.6-tactical
-reason=real SillyTavern acceptance for restrained tactical choice panel; validate long-copy wrapping, muted skip state, mobile single-column and desktop two-column layouts
+run=v0.4.24-choice-ui-v1.6-paddingfix
+reason=rerun restrained tactical choice UI acceptance after correcting desktop full-row padding assertion
