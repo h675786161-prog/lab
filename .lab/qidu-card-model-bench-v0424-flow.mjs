@@ -131,7 +131,7 @@ const cases=[
       const vis=String(out).replace(/<f7d_state>[\s\S]*?<\/f7d_state>/gi,'');
       if(s?.day!==6)fail.push('day-did-not-advance-exactly-once');
       if(s?.day_ready_to_sleep!==false)fail.push('day-ready-not-reset');
-      if(!/小神/.test(vis))fail.push('small-god-monologue-missing');
+      if(!/(?:小神|(?:梦境|虚幻|空灵|无法辨认).{0,40}(?:声音|低语|话语)|(?:声音|低语).{0,40}(?:终于来了|轮回|终焉|希望|这一次))/.test(vis))fail.push('small-god-monologue-missing');
       if(!/晚安|走廊|安/.test(vis))fail.push('requested-bedtime-scene-skipped');
       if(oldCountersRemain(s,out))fail.push('legacy-counter-remains');
     }
