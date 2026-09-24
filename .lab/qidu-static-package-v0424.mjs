@@ -72,7 +72,10 @@ const e13=String(by('13｜')?.content||'');
 const e14=String(by('14｜')?.content||'');
 const e17=String(by('17｜')?.content||'');
 const e18=String(by('18｜')?.content||'');
-const combinedRules=[e04,e13,e14,e17,e18].join('\n');
+const phi=String(card.data?.post_history_instructions||'');
+const annRules=[e04,e13,e14,e18,phi].join('\n');
+const ordinaryRules=[e04,e17,phi].join('\n');
+const combinedRules=[e04,e13,e14,e17,e18,phi].join('\n');
 
 expect(e13.includes('ann.affection>=100'),'ann-qualification-affection');
 expect(e13.includes('ANN_CORE_30')&&e13.includes('ANN_CORE_60')&&e13.includes('ANN_CORE_80'),'ann-qualification-events');
@@ -80,16 +83,16 @@ expect(e14.includes("route='ann'")&&e14.includes('eligible=true'),'ann-route-ent
 expect(e14.includes('第三天追安失败固定剧情')&&e14.includes('安刺伤指挥使')&&e14.includes('小神')&&e14.includes('普通线继续'),'ann-chase-failure-atomic');
 expect(e14.includes('不写入meta.endings')&&/不触发.*cg_ending_/s.test(e14),'ann-chase-not-ending');
 
-expect(e17.includes("route!='ann'"),'ordinary-ending-route');
-expect(e17.includes('8/8黑核purified')&&e17.includes('牺牲的意义'),'ordinary-sacrifice-dispatch');
-expect(e17.includes('purified_core_count>=4')&&e17.includes('箱庭风景'),'ordinary-box-dispatch');
-expect(e17.includes('purified_core_count<4')&&e17.includes('终结'),'ordinary-final-dispatch');
-expect(e17.includes('满8核但牺牲其他条件不全')&&e17.includes('箱庭风景'),'ordinary-eight-core-fallback');
-expect(e17.includes('不得再要求“中央庭黑核被希罗夺”')||e17.includes('不得再要求“中央庭黑核被希罗夺走”'),'ordinary-no-central-theft-threshold');
-expect(e17.includes('最终战胜负')&&e17.includes('不得'),'ordinary-no-final-battle-threshold');
+expect(ordinaryRules.includes("route!='ann'"),'ordinary-ending-route');
+expect(ordinaryRules.includes('8/8黑核purified')&&ordinaryRules.includes('牺牲的意义'),'ordinary-sacrifice-dispatch');
+expect(ordinaryRules.includes('purified_core_count>=4')&&ordinaryRules.includes('箱庭风景'),'ordinary-box-dispatch');
+expect(ordinaryRules.includes('purified_core_count<4')&&ordinaryRules.includes('终结'),'ordinary-final-dispatch');
+expect(ordinaryRules.includes('满8核但牺牲其他条件不全')&&ordinaryRules.includes('箱庭风景'),'ordinary-eight-core-fallback');
+expect(ordinaryRules.includes('不得再要求“中央庭黑核被希罗夺”')||ordinaryRules.includes('不得再要求“中央庭黑核被希罗夺走”'),'ordinary-no-central-theft-threshold');
+expect(ordinaryRules.includes('最终战胜负')&&ordinaryRules.includes('不得'),'ordinary-no-final-battle-threshold');
 
-expect(e18.includes('两个人的旅途')&&e18.includes('永恒的终焉'),'ann-ending-pair');
-expect(e18.includes('不参与')&&e18.includes('黑核'),'ann-endings-ignore-cores');
+expect(annRules.includes('两个人的旅途')&&annRules.includes('永恒的终焉'),'ann-ending-pair');
+expect(annRules.includes('不参与')&&annRules.includes('黑核'),'ann-endings-ignore-cores');
 expect(combinedRules.includes('被夺黑核不可逆')&&combinedRules.includes('stolen'),'stolen-core-irreversible');
 expect(combinedRules.includes('安线黑核完全可选'),'ann-core-optional');
 expect(!txt.includes('安靠门'),'no-door-death-route');
@@ -112,7 +115,6 @@ expect(initial.cg_system?.mode==='direct_only'&&initial.cg_system?.album_enabled
 expect(initial.cg_system?.shown?.ann_first_meet===true,'initial-ann-cg-shown');
 expect(/<f7d_cg\s+key=["']cg_ann_first_meet["']\s*>\s*<\/f7d_cg>/i.test(String(card.data?.first_mes||'')),'opening-ann-cg');
 
-const phi=String(card.data?.post_history_instructions||'');
 for(const marker of ['结构壳稳定性｜最高优先级隐藏执行','最终日结局结算｜最高优先级隐藏执行','正式结局集合｜唯一名单｜最高优先级隐藏执行','最终状态字面量锁｜提交前最后检查']){
   expect(phi.includes(marker),`phi:${marker}`);
 }
