@@ -1,1 +1,1 @@
-run=v0.4.24-choice-ui-v1.5-r3\nreason=rerun with polling approval for Tavern Helper embedded card script modal before visual capture\n
+run=v0.4.24-choice-ui-v1.5-r4\nreason=preapprove imported card script through isolated real ST settings, reload, then verify actual Tavern Helper bridge and screenshots\n
