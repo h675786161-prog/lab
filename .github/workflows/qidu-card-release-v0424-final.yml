@@ -432,6 +432,7 @@ jobs:
           if(!CG_KEYS.filter(k=>k!=='cg_ann_first_meet').every(k=>initial.cg_system?.shown?.[k.replace(/^cg_/,'')]===false)) throw new Error('other initial CG shown flags invalid');
           if(!/<f7d_cg\s+key=["']cg_ann_first_meet["']\s*>\s*<\/f7d_cg>/i.test(String(card.data?.first_mes||''))) throw new Error('opening Ann CG tag missing');
           if(!String(card.data?.post_history_instructions||'').includes('结构壳稳定性｜最高优先级隐藏执行')) throw new Error('stable output shell rule missing');
+          if(!String(card.data?.post_history_instructions||'').includes('第一活骸五事实闭包｜最高优先级隐藏执行')) throw new Error('first chimera closure rule missing');
           if(!String(card.data?.post_history_instructions||'').includes('最终日结局结算｜最高优先级隐藏执行')) throw new Error('final settlement priority rule missing');
           if(!String(card.data?.post_history_instructions||'').includes('正式结局集合｜唯一名单｜最高优先级隐藏执行')) throw new Error('canonical ending rule missing');
           const helper=card.data?.extensions?.tavern_helper;
