@@ -1,2 +1,2 @@
-run=4
-reason=wake Tavern Helper app-ready stores with SETTINGS_UPDATED after reload, then inspect character script runtime diagnostics
+run=5
+reason=use the actual Tavern Helper character-script UI toggle after loading the imported card, then verify its embedded bridge runtime
