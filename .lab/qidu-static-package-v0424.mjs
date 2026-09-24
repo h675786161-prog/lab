@@ -72,7 +72,7 @@ const e13=String(by('13｜')?.content||'');
 const e14=String(by('14｜')?.content||'');
 const e17=String(by('17｜')?.content||'');
 const e18=String(by('18｜')?.content||'');
-const combinedRules=[e04,e13,e14,e17,e18,phi].join('\n');
+const combinedRules=[e04,e13,e14,e17,e18].join('\n');
 
 expect(e13.includes('ann.affection>=100'),'ann-qualification-affection');
 expect(e13.includes('ANN_CORE_30')&&e13.includes('ANN_CORE_60')&&e13.includes('ANN_CORE_80'),'ann-qualification-events');
