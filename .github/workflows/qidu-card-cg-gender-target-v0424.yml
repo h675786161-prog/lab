@@ -1,0 +1,38 @@
+name: Qidu v0424 Targeted Ending CG Gender
+
+on:
+  push:
+    branches: ['feature/qidu-card-v0411-lab']
+    paths:
+      - '.lab/qidu-cg-gender-v0424-target-trigger.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  ending-cg-gender:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      MODEL_API_KEY: ${{ secrets.GG }}
+      MODEL_API_BASE: https://gcli.ggchan.dev/v1
+      CG_MODEL: 'gemini-3-flash-preview'
+      CG_CASES: sacrifice_male,sacrifice_female,final_male,final_female,box_male,box_female,box_unknown_gender
+      CG_MAX_TOKENS: 8000
+      CG_TIMEOUT_MS: 100000
+      CG_ATTEMPTS: 2
+      CG_CASE_GAP_MS: 8000
+      LAB_OUT_CG_MODEL: ${{ github.workspace }}/cg-gender-evidence
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Run ending CG gender regression
+        run: node .lab/qidu-card-model-bench-v0424-cg.mjs
+      - name: Upload ending CG gender evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-v0424-ending-cg-gender
+          path: cg-gender-evidence/
+          if-no-files-found: warn
