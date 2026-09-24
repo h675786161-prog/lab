@@ -1,0 +1,95 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+const candidate = await import(pathToFileURL(path.resolve('wb-candidate/core.js')));
+const baseline = await import(pathToFileURL(path.resolve('wb-baseline/core.js')));
+const fixtures = JSON.parse(await fs.readFile('.lab/wb-memory-fixtures.json', 'utf8'));
+const out = 'bench-evidence/wb-memory';
+await fs.mkdir(out, { recursive: true });
+const key = process.env.YOUZI_KEY;
+const model = process.env.GLM_MODEL || '[B]glm-5.3-flash';
+if (!key) throw new Error('Configured LAB model credential is unavailable');
+let previousRequestAt = 0;
+async function request(messages, maxTokens) {
+    const wait = Math.max(0, previousRequestAt + 8000 - Date.now());
+    if (wait) await new Promise(resolve => setTimeout(resolve, wait));
+    previousRequestAt = Date.now();
+    const response = await fetch('https://youzi.today/v1/chat/completions', {
+        method: 'POST', signal: AbortSignal.timeout(150_000),
+        headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model, messages, max_tokens: maxTokens, temperature: 0.1,
+            thinking: { type: 'disabled' }, stream: false }),
+    });
+    if (!response.ok) throw new Error(`Model HTTP ${response.status}`);
+    const data = await response.json();
+    const text = data.choices?.[0]?.message?.content;
+    if (!text?.trim()) throw new Error('Model returned no final content');
+    return { text, usage: data.usage, model: data.model };
+}
+
+const settings = { enabled: true, worldSimulationEnabled: false, memorySystemEnabled: true, injectionMemory: true };
+const cases = [
+    { id: 'she', card: fixtures.cards[0], place: '医院', npc: '许宁', object: '铜钥匙', holder: '林医生', password: '白鹭七号', day: '周五下午三点', mark: '两短一长', first: '推正门时手滑，把雨伞碰倒了', order: '先道歉再递纸巾' },
+    { id: 'black-feather', card: fixtures.cards[1], place: '圣堂', npc: '伊莱恩', object: '银书签', holder: '守门人苏姨', password: '晚钟九号', day: '周六上午十点', mark: '三短一长', first: '跨门槛时踢歪了门垫', order: '先扶正烛台再弯腰捡起信封' },
+];
+const results = [];
+try {
+    for (const scene of cases) {
+        const history = [
+            `我来到${scene.place}，${scene.first}。`,
+            `${scene.npc}${scene.order}，随后说“进来吧”。`,
+            `我把${scene.object}交给你暂存，取回时的暗号是“${scene.password}”。`,
+            `${scene.npc}点头，确认记住了暗号。`,
+            `计划改了。我从你这里拿回${scene.object}，交给${scene.holder}。以后由${scene.holder}保管。`,
+            `${scene.npc}亲眼见证了这次转交，确认自己已经不再持有${scene.object}。`,
+            `我们约好${scene.day}在这里见面。到时我会敲门，节奏是${scene.mark}。`,
+            `${scene.npc}答应了。以上约定没有对其他人说起。`,
+            '我往走廊里走了几步，停下看窗外。',
+            `${scene.npc}留在走廊里，窗外还在下雨。`,
+            '我说：“先在这里等一会儿。”',
+            `${scene.npc}安静地等候，没有谈起别的话题。`,
+            '我又看了看墙上的钟。',
+            '钟表正常走动，走廊里没有新的人进来。',
+        ].map((content, id) => ({ id, role: id % 2 ? 'assistant' : 'user', content }));
+        let archive;
+        for (let attempt = 0; attempt < 2; attempt++) {
+            const prompt = candidate.buildHistoryIndexPrompt(candidate.createInitialState(), {
+                messages: history, userName: '玩家', compact: attempt > 0,
+            });
+            const response = await request([{ role: 'user', content: prompt }], 5000);
+            const parsed = candidate.extractJsonObject(response.text);
+            const ids = new Set((parsed?.turn_summaries || []).filter(x => x.summary?.trim()).map(x => Number(x.source_message_id)));
+            archive = { ...response, parsed, complete: history.every(x => ids.has(x.id)) };
+            if (archive.complete) break;
+        }
+        await fs.writeFile(`${out}/${scene.id}-archive.json`, JSON.stringify(archive, null, 2));
+        if (!archive.complete) throw new Error(`${scene.id}: model omitted individual floor summaries after retry`);
+        const state = candidate.applyHistoryIndexResult(candidate.createInitialState(), archive.parsed, { startMessageId: 0, endMessageId: 13 });
+        const question = '核对这段正文已经发生的事情，只输出JSON：password=取回物品的暗号；holder=物品最后交给谁保管；appointment=约见时间；knock=敲门节奏；first_action=玩家初到门口的失误；npc_action_order=NPC初见时两个动作的先后。正文证据缺失时填“未知”，不得借角色设定猜答案。';
+        const expected = { password: scene.password, holder: scene.holder, appointment: scene.day, knock: scene.mark, first_action: scene.first, npc_action_order: scene.order };
+        const recent = history.slice(-5).map(({ role, content }) => ({ role, content }));
+        const packet = candidate.buildInjectionPackage(state, settings, question);
+        const oldPacket = baseline.buildInjectionPackage(state, settings, question);
+        const system = `本轮是正文记忆核对，所有人物为成年人。不要续写故事。角色资料：${JSON.stringify(scene.card.context)}\n采用预设中的四条已启用规则：${fixtures.preset.rules.map(x => x.content).join('\n')}\n本轮输出格式统一为问题要求的JSON；未知保持未知。`;
+        for (const [variant, injection] of [['recent_only', ''], ['baseline', oldPacket.text], ['candidate', packet.text]]) {
+            const messages = [{ role: 'system', content: system }, ...recent];
+            if (injection) messages.push({ role: 'system', content: injection });
+            messages.push({ role: 'user', content: question });
+            const response = await request(messages, 700);
+            const answer = candidate.extractJsonObject(response.text) || {};
+            const checks = Object.fromEntries(Object.entries(expected).map(([field, value]) => {
+                const actual = String(answer[field] || '').replace(/[\s，。、“”]/g, '');
+                const normalized = value.replace(/[\s，。、“”]/g, '');
+                // Exact phrases are used only for the four unambiguous factual fields.
+                return [field, field.endsWith('action') || field === 'npc_action_order' ? null : actual.includes(normalized)];
+            }));
+            const result = { case: scene.id, variant, expected, answer, checks, injection, response };
+            results.push(result);
+            await fs.writeFile(`${out}/results.json`, JSON.stringify({ model, scope: fixtures.preset.scope, results }, null, 2));
+            console.log(JSON.stringify({ case: scene.id, variant, answer, checks }));
+        }
+    }
+} finally {
+    await fs.writeFile(`${out}/summary.json`, JSON.stringify({ model, completedVariants: results.length, expectedVariants: 6, sourceFiles: fixtures.cards.map(x => ({ source: x.source, sha256: x.sha256 })), preset: { source: fixtures.preset.source, sha256: fixtures.preset.sha256, scope: fixtures.preset.scope } }, null, 2));
+}
