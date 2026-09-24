@@ -95,6 +95,7 @@ expect(annRules.includes('两个人的旅途')&&annRules.includes('永恒的终�
 expect(annRules.includes('黑核')&&(/不属于安线资格或安线结局条件/.test(annRules)||/不参与安线资格或安线结局/.test(annRules)||/完全跳过普通线黑核数量与黑核状态判定/.test(annRules)),'ann-endings-ignore-cores');
 expect(combinedRules.includes('被夺黑核不可逆')&&combinedRules.includes('stolen'),'stolen-core-irreversible');
 expect(combinedRules.includes('安线黑核完全可选'),'ann-core-optional');
+expect(phi.includes('态度句必须以“我”的经历、选择、担忧为中心')&&phi.includes('威胁是毁灭性的')&&phi.includes('不得改写成“神器使/活骸/他们”作为主语的普遍结论'),'first-chimera-subjective-rationale-lock');
 expect(!txt.includes('安靠门'),'no-door-death-route');
 const chaseFailureRules=[e14,e17,e18,phi].join('\n');
 expect(!CANONICAL_ENDINGS.some(x=>String(x).includes('追安失败'))&&/追安失败[\s\S]{0,500}(?:不得|永远不)写入meta\.endings/.test(chaseFailureRules),'failed-chase-not-recorded-as-ending');
