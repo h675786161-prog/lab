@@ -1,2 +1,2 @@
-trigger 4
-reason=reject first-chimera terminology history, witness embellishment, extra emotion, risk numbers, generalized rules, and formal-policy invention
+trigger 5
+reason=require first-person subjective rationale and reject hedged generalized cost after five-fact first-chimera account
