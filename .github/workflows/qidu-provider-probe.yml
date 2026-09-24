@@ -48,12 +48,12 @@ jobs:
               if mid:ids.append(str(mid))
             row.update(status=st,models=ids[:100],error=er)
             priority=[]
-            preferred=['gemini-3-flash-preview','gemini-3.1-pro-preview-nothinking','gemini-2.5-pro-nothinking','gemini-2.5-pro','[iao]MiniMaxAI/MiniMax-M2.7','[ok]mimo-v2-5','[ok]hy3','[ov]moonshotai/kimi-k3','gemini-3.6-flash','gemini-3.5-flash-lite','[ma]gpt-6-astra','[ma]gpt-5.6-sol']
+            preferred=['gemini-3-flash-preview','gemini-3.1-pro-preview-nothinking','gemini-2.5-flash-lite','gemini-2.5-pro-nothinking','gemini-2.5-pro','gemini-3.1-pro-preview','[iao]MiniMaxAI/MiniMax-M2.7','[ok]mimo-v2-5','[ok]hy3','[ov]moonshotai/kimi-k3','gemini-3.6-flash','gemini-3.5-flash-lite','[ma]gpt-6-astra','[ma]gpt-5.6-sol']
             for m in preferred+ids:
               low=m.lower()
               if m in ids and m not in priority and any(k in low for k in ('glm','qwen','gemini','claude','gpt','grok','deepseek','step','minimax','mimo','hy3','kimi','moonshot')) and 'vision' not in low:priority.append(m)
             for model in priority[:8]:
-              p={'model':model,'max_tokens':24,'temperature':0,'messages':[{'role':'user','content':'只回答：测试通过'}]}
+              p={'model':model,'max_tokens':96,'temperature':0,'messages':[{'role':'user','content':'只回答：测试通过'}]}
               ps,body,pe=req(base+'/chat/completions',key,p,12);c=''
               try:
                 c=body.get('choices',[{}])[0].get('message',{}).get('content','')
