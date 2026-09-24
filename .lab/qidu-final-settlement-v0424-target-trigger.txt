@@ -1,2 +1,2 @@
-run=1
-reason=parallel verification of five-ending dispatcher and Ann-route black-core isolation while Final #35 narrative gate is still running
+run=2
+reason=rerun five-ending dispatcher after formal-title matcher fix; plain prose such as 轮回终结 must not count as the formal 《终结》 ending
