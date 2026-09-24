@@ -1,1 +1,2 @@
-run=v0.4.24-choice-ui-v1.5-r4\nreason=preapprove imported card script through isolated real ST settings, reload, then verify actual Tavern Helper bridge and screenshots\n
+run=v0.4.24-choice-ui-v1.5-deterministic
+reason=rerun exact SillyTavern choice visual capture with deterministic embedded-bridge execution
