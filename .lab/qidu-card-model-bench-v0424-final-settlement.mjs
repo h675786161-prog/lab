@@ -45,8 +45,17 @@ async function call(prompt){
 }
 function expectedOnly(out,title){
   const titles=['牺牲的意义','箱庭风景','终结','两个人的旅途','永恒的终焉'];
-  const present=titles.filter(x=>String(out).includes(x));
-  return present.includes(title)&&!present.some(x=>x!==title);
+  const text=String(out||'');
+  const present=new Set();
+  for(const m of text.matchAll(/《(牺牲的意义|箱庭风景|终结|两个人的旅途|永恒的终焉)》/g))present.add(m[1]);
+  const sm=text.match(/<f7d_state>([\s\S]*?)<\/f7d_state>/i);
+  if(sm){
+    try{
+      const st=JSON.parse(sm[1]);
+      for(const x of Array.isArray(st?.meta?.endings)?st.meta.endings:[])if(titles.includes(x))present.add(x);
+    }catch{}
+  }
+  return present.has(title)&&[...present].every(x=>x===title);
 }
 const cases=[
   {
