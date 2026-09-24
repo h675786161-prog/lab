@@ -1,2 +1,2 @@
-run=15
-reason=validate counted-patrol cleanup in exact current v0.4.24 payload plus real ST Helper/browser acceptance; also reject residual numbered region-flow markers before import
+run=16
+reason=real ST verify latest region-flow wording cleanup and school identity-order lock; retain trusted option refill focus no-autosubmit checks
