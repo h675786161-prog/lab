@@ -75,9 +75,8 @@ try{
     await st.getCharacters();
     const idx=st.characters.findIndex(x=>(x?.data?.name||x?.name)===name&&x?.data?.character_version===version&&x?.data?.creator==='叶罹');
     if(idx<0)return{found:false};
-    st.setCharacterId(idx);
+    await st.selectCharacterById(idx,{switchMenu:false});
     void st.eventSource.emit(st.event_types.SETTINGS_UPDATED);
-    void st.eventSource.emit(st.event_types.CHAT_CHANGED,st.characters[idx]?.chat||'qidu-helper-acceptance');
     return{found:true,avatar:st.characters[idx]?.avatar,embeddedScripts:Array.isArray(st.characters[idx]?.data?.extensions?.tavern_helper?.scripts)?st.characters[idx].data.extensions.tavern_helper.scripts.length:0};
   },{name:card.data.name,version:ONEFILE_VERSION});
   if(!helperSelection?.found||helperSelection?.embeddedScripts<1) throw new Error(`embedded choice script missing after reload: ${JSON.stringify(helperSelection)}`);
@@ -142,6 +141,7 @@ try{
     free?.click();
     await new Promise(r=>setTimeout(r,30));
     const freeKeepsDraft=Boolean(textarea&&textarea.value==='我自己输入'&&document.activeElement===textarea);
+    const composerDiag=textarea?{disabled:Boolean(textarea.disabled),connected:Boolean(textarea.isConnected),display:getComputedStyle(textarea).display,visibility:getComputedStyle(textarea).visibility,width:textarea.getBoundingClientRect().width,height:textarea.getBoundingClientRect().height,activeId:document.activeElement?.id||document.activeElement?.tagName||null}:null;
 
     const fake=document.createElement('div');
     fake.className='mes';
@@ -186,7 +186,7 @@ try{
     legacyTerminalFake.remove();
     if(terminalId>=0&&Array.isArray(ctx?.chat)&&ctx.chat.length===terminalId+1)ctx.chat.pop();
 
-    return{found:true,creator:ch?.data?.creator,bookCreator:ch?.data?.character_book?.extensions?.creator,bookVersion:ch?.data?.character_book?.extensions?.version,allowed:eng.isScopedScriptsAllowed(ch),terminal:Boolean(term),grid:Boolean(grid),hidden:!h.textContent?.includes('private'),choiceCount:labels.length,freeInput:Boolean(free),clickFilled,freeKeepsDraft,presetNormalized,normalizedClickFilled,terminalFallback,terminalNoNodeText,legacyCounterScrubbed,bridgeVersion:window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.version||null,terminalFlat:Boolean(ts?.backgroundImage==='none'),gridFlat:Boolean(gs?.backgroundImage==='none'),choiceFlat:ls.map(s=>s?.backgroundImage==='none'),choiceMinHeights:ls.map(s=>parseFloat(s?.minHeight||'0')),stacked:Boolean(rs.length===2&&rs[1].top>rs[0].top+4),gridFits:Boolean(gr&&hr&&gr.left>=hr.left-2&&gr.right<=hr.right+2),hash};
+    return{found:true,creator:ch?.data?.creator,composerDiag,bookCreator:ch?.data?.character_book?.extensions?.creator,bookVersion:ch?.data?.character_book?.extensions?.version,allowed:eng.isScopedScriptsAllowed(ch),terminal:Boolean(term),grid:Boolean(grid),hidden:!h.textContent?.includes('private'),choiceCount:labels.length,freeInput:Boolean(free),clickFilled,freeKeepsDraft,presetNormalized,normalizedClickFilled,terminalFallback,terminalNoNodeText,legacyCounterScrubbed,bridgeVersion:window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.version||null,terminalFlat:Boolean(ts?.backgroundImage==='none'),gridFlat:Boolean(gs?.backgroundImage==='none'),choiceFlat:ls.map(s=>s?.backgroundImage==='none'),choiceMinHeights:ls.map(s=>parseFloat(s?.minHeight||'0')),stacked:Boolean(rs.length===2&&rs[1].top>rs[0].top+4),gridFits:Boolean(gr&&hr&&gr.left>=hr.left-2&&gr.right<=hr.right+2),hash};
   },{name:card.data.name,version:ONEFILE_VERSION,hash:compactSha256});
   await page.screenshot({path:path.join(evidenceDir,'qidu-v0424-release-candidate-mobile.png'),fullPage:false});await page.setViewportSize({width:1366,height:768});await page.waitForTimeout(250);
   client.desktop=await page.evaluate(()=>{const h=document.getElementById('qidu-release-acceptance-dialog'),g=h?.querySelector('[data-f7d-choice-grid="1"]'),ls=[...(h?.querySelectorAll('[data-f7d-choice="1"]')||[])];const R=e=>e?e.getBoundingClientRect():null,hr=R(h),gr=R(g),rs=ls.map(R);return{multiColumn:Boolean(rs.length===2&&Math.abs(rs[0].top-rs[1].top)<4&&rs[1].left>rs[0].left+20),gridFits:Boolean(gr&&hr&&gr.left>=hr.left-2&&gr.right<=hr.right+2)}});
