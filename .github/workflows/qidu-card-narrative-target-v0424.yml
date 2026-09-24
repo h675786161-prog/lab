@@ -69,6 +69,8 @@ jobs:
             f.write('RELEASE_MODEL='+chosen+'\n')
             f.write('BEHAVIOR_MODEL_SELECTED='+chosen+'\n')
           PY
+          # Selector itself consumes one provider request. Cool down before the real regression calls.
+          sleep 25
       - name: Run targeted narrative probe
         run: |
           set -euo pipefail
