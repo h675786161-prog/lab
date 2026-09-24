@@ -1,2 +1,2 @@
-run=16
-reason=real ST verify latest region-flow wording cleanup and school identity-order lock; retain trusted option refill focus no-autosubmit checks
+run=17
+reason=real ST verify latest candidate with trusted option refill, free-input focus, and exact 10-CG browser acceptance in one isolated run
