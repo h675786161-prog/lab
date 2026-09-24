@@ -99,6 +99,52 @@ try{
   });
   if(!visualSnapshot.html) throw new Error('choice grid snapshot missing');
 
+  await page.evaluate(()=>{
+    const h=document.getElementById('qidu-v0424-ui-mount');
+    if(h?.open){h.close();h.show();}
+    const textarea=document.querySelector('#send_textarea');
+    if(textarea){textarea.value='';textarea.dispatchEvent(new Event('input',{bubbles:true}));}
+  });
+  const expectedChoices=[
+    '跟安一起去确认中央庭的情况，并顺路询问她刚才那句话真正想表达的意思',
+    '先找珈儿问清楚高校学园的消息',
+    '打开战术终端，整理目前掌握的线索',
+    '什么都不做，任由这次机会过去',
+  ];
+  const chatLenBefore=await page.evaluate(()=>window.SillyTavern?.getContext?.()?.chat?.length??-1);
+  report.refill=[];
+  for(let i=0;i<expectedChoices.length;i++){
+    const b=page.locator('#qidu-v0424-ui-mount [data-f7d-choice="1"]').nth(i);
+    await b.click({timeout:10000});
+    await page.waitForTimeout(60);
+    const got=await page.evaluate(({expected,before})=>{
+      const textarea=document.querySelector('#send_textarea');
+      const after=window.SillyTavern?.getContext?.()?.chat?.length??-1;
+      return{
+        expected,
+        value:textarea?.value||'',
+        exact:Boolean(textarea&&textarea.value===expected),
+        focused:Boolean(textarea&&document.activeElement===textarea),
+        noAutoSubmit:Boolean(before>=0&&after===before),
+      };
+    },{expected:expectedChoices[i],before:chatLenBefore});
+    report.refill.push(got);
+  }
+  await page.evaluate(()=>{
+    const textarea=document.querySelector('#send_textarea');
+    if(textarea){textarea.value='保留这段自由输入草稿';textarea.dispatchEvent(new Event('input',{bubbles:true}));}
+  });
+  await page.locator('#qidu-v0424-ui-mount [data-f7d-choice-free="1"]').click({timeout:10000});
+  await page.waitForTimeout(60);
+  report.freeInput=await page.evaluate(()=>{
+    const textarea=document.querySelector('#send_textarea');
+    return{
+      value:textarea?.value||'',
+      keepsDraft:Boolean(textarea&&textarea.value==='保留这段自由输入草稿'),
+      focused:Boolean(textarea&&document.activeElement===textarea),
+    };
+  });
+
   const preview=await browser.newPage({viewport:{width:390,height:844}});
   const previewDoc=(width)=>`<!doctype html><html><head><meta charset="utf-8"><style>
   html,body{margin:0;background:#171a1f;color:#30392b;font-family:"Noto Sans CJK SC","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif}
@@ -152,5 +198,7 @@ if(report.mobile?.skipKind!=='slack')fail.push('skip-not-classified');
 if(!report.mobile?.css?.every(x=>x.radius>=6&&x.radius<=10&&x.minHeight>=54&&x.backgroundImage==='none'&&x.backgroundColor&&x.backgroundColor!=='rgba(0, 0, 0, 0)'))fail.push('choice-style');
 if(!(report.mobile?.css?.[0]?.height>report.mobile?.css?.[1]?.height))fail.push('long-copy-wrap');
 if(!report.desktop?.multiColumn||!report.desktop?.freeFullRow)fail.push('desktop-layout');
+if(report.refill?.length!==4||!report.refill.every(x=>x.exact&&x.focused&&x.noAutoSubmit))fail.push('all-choice-refill');
+if(!report.freeInput?.keepsDraft||!report.freeInput?.focused)fail.push('free-input-focus');
 if(pageErrors.length)fail.push('page-errors');
 if(fail.length)throw new Error(`v0424 choice visual acceptance failed: ${fail.join(', ')}`);
