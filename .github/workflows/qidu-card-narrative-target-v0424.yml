@@ -21,7 +21,7 @@ jobs:
     env:
       MODEL_API_KEY: ${{ secrets.GG }}
       MODEL_API_BASE: https://gcli.ggchan.dev/v1
-      RELEASE_MODEL: 'gemini-3-flash-preview'
+      RELEASE_MODEL: 'gemini-3.1-pro-preview-nothinking'
       LAB_OUT: bench-evidence/qidu-card-v0421-core
       LAB_OUT_ENCOUNTER: bench-evidence/qidu-card-v0421-encounter
     steps:
