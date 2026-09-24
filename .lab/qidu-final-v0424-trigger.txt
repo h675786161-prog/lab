@@ -1,2 +1,2 @@
-run=42
-reason=replace stale flash-pinned CG attempt with cross-provider fail-fast CG+narrative selector; exact v0.4.24 card payload remains unchanged
+run=43
+reason=confirm current final workflow after Helper readiness-race fix; exact card payload unchanged, real ST/browser should pass while model-dependent CG/narrative may fail fast only if all providers remain unavailable
