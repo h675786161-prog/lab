@@ -1,2 +1,2 @@
-run=4
-reason=rerun deterministic static package after scoping ending and Ann semantic assertions across authoritative worldbook plus post-history rules without changing card payload
+run=5
+reason=rerun static package after replacing brittle Ann chase/ending string checks with behavior-based assertions; card payload unchanged
