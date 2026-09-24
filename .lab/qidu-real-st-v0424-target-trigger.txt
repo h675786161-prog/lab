@@ -1,2 +1,2 @@
-run=5
-reason=use the actual Tavern Helper character-script UI toggle after loading the imported card, then verify its embedded bridge runtime
+run=6
+reason=verify actual Tavern Helper bridge in real ST after removing artificial modal focus trap from composer test
