@@ -1,2 +1,2 @@
-run=12
-reason=verify trusted story-option click refills exact Chinese choice text into real SillyTavern #send_textarea and focuses composer; retain free-input focus checks
+run=13
+reason=verify option click refills exact Chinese text, second choice replaces draft, composer focus stays active, and no option click auto-submits in real SillyTavern
