@@ -773,6 +773,27 @@ cg_system至少含enabled/mode/album_enabled/responsive_enabled/shown；当前mo
   }
   card.post_history_instructions=card.data.post_history_instructions;
 
+  const finalStateLiteralLock=`
+【最终状态字面量锁｜提交前最后检查】
+- 这是写出<f7d_state>前的最后一道检查，优先于文采与叙事润色。只校验最终状态字面量，不向玩家解释。
+- meta.endings若已有正式结局，只允许原样保留以下精确中文字符串之一：终结 / 箱庭风景 / 牺牲的意义 / 永恒的终焉 / 两个人的旅途。禁止翻译、夹英文、改字、缩写或同义改写；例如“牺牲 the 意义”属于非法状态。
+- 旧字段迁移：最终状态必须删除node_used；regions下每个区域对象必须删除patrol。旧输入里存在也不得抄回。
+- 男女差分结局CG必须让“gender、shown、CG key”三者逐字一致。若任一不一致，先重写最终状态再输出，禁止带错提交：
+  * 箱庭风景 + female => ending_box_male=false, ending_box_female=true，并且只输出cg_ending_box_female。
+  * 箱庭风景 + male => ending_box_male=true, ending_box_female=false，并且只输出cg_ending_box_male。
+  * 终结 + female => ending_final_male=false, ending_final_female=true，并且只输出cg_ending_final_female。
+  * 终结 + male => ending_final_male=true, ending_final_female=false，并且只输出cg_ending_final_male。
+  * 牺牲的意义 + female => ending_sacrifice_male=false, ending_sacrifice_female=true，并且只输出cg_ending_sacrifice_female。
+  * 牺牲的意义 + male => ending_sacrifice_male=true, ending_sacrifice_female=false，并且只输出cg_ending_sacrifice_male。
+- gender=unknown时，上述六个男女差分shown都不得因本轮结局触发而猜测置true，也不得输出男女差分CG。
+`;
+  appendOnce(e17,'最终状态字面量锁｜提交前最后检查',finalStateLiteralLock);
+  appendOnce(e91,'最终状态字面量锁｜提交前最后检查',finalStateLiteralLock);
+  if(!card.data.post_history_instructions.includes('最终状态字面量锁｜提交前最后检查')){
+    card.data.post_history_instructions += finalStateLiteralLock;
+  }
+  card.post_history_instructions=card.data.post_history_instructions;
+
   for(const [key,spec] of Object.entries(CG_ASSETS)){
     const bytes=await fs.readFile(new URL(`./qidu-cg-assets-v0424/${spec.file}`,import.meta.url));
     const dataUri=`data:image/webp;base64,${bytes.toString('base64')}`;
