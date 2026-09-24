@@ -1,0 +1,1 @@
+run=1\nreason=verify corrected semantic assertions for concealed small-god monologue and natural countdown denial\n
