@@ -1,2 +1,2 @@
-run=13
-reason=verify option click refills exact Chinese text, second choice replaces draft, composer focus stays active, and no option click auto-submits in real SillyTavern
+run=14
+reason=rerun exact real SillyTavern helper acceptance after replacing fixed 350ms toggle race with bridge-or-toggle readiness wait; card payload unchanged
