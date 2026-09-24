@@ -82,17 +82,22 @@ try{
   },{name:card.data.name,version:ONEFILE_VERSION});
   if(!helperSelection?.found||helperSelection?.embeddedScripts<1) throw new Error(`embedded choice script missing after reload: ${JSON.stringify(helperSelection)}`);
 
-  await page.waitForTimeout(350);
-  const helperToggle=await page.evaluate(()=>{
-    const toggles=[...document.querySelectorAll('#tavern_helper input[id$="-script-enable-toggle"]')];
-    const summary=toggles.map((x,i)=>({i,id:x.id,checked:Boolean(x.checked)}));
-    const target=toggles.find(x=>/角色|character/i.test(String(x.id||'')))||toggles[1]||null;
-    if(!target)return{found:false,summary};
-    if(!target.checked) target.click();
-    return{found:true,id:target.id,checked:Boolean(target.checked),summary};
-  });
+  let helperToggle=null;
+  for(let i=0;i<60;i++){
+    helperToggle=await page.evaluate(()=>{
+      const toggles=[...document.querySelectorAll('#tavern_helper input[id$="-script-enable-toggle"]')];
+      const summary=toggles.map((x,i)=>({i,id:x.id,checked:Boolean(x.checked)}));
+      const target=toggles.find(x=>/角色|character/i.test(String(x.id||'')))||toggles[1]||null;
+      const bridge=Boolean(window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.setComposer);
+      if(!target)return{found:false,summary,bridge};
+      if(!target.checked) target.click();
+      return{found:true,id:target.id,checked:Boolean(target.checked),summary,bridge};
+    });
+    if(helperToggle?.checked||helperToggle?.bridge)break;
+    await page.waitForTimeout(250);
+  }
   console.log('[helper-toggle]',JSON.stringify(helperToggle));
-  if(!helperToggle?.found||!helperToggle?.checked) throw new Error(`Tavern Helper character-script toggle unavailable: ${JSON.stringify(helperToggle)}`);
+  if(!helperToggle?.checked&&!helperToggle?.bridge) throw new Error(`Tavern Helper character-script control/bridge unavailable after wait: ${JSON.stringify(helperToggle)}`);
 
   for(let i=0;i<100;i++){
     const ready=await page.evaluate(()=>Boolean(window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.setComposer));
