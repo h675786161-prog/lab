@@ -98,6 +98,7 @@ expect(combinedRules.includes('安线黑核完全可选'),'ann-core-optional');
 expect(!txt.includes('安靠门'),'no-door-death-route');
 const chaseFailureRules=[e14,e17,e18,phi].join('\n');
 expect(!CANONICAL_ENDINGS.some(x=>String(x).includes('追安失败'))&&/追安失败[\s\S]{0,500}(?:不得|永远不)写入meta\.endings/.test(chaseFailureRules),'failed-chase-not-recorded-as-ending');
+expect(combinedRules.includes('安线结局精确字面量')&&combinedRules.includes('永恒 the 终焉')&&combinedRules.includes('cg_ending_eternal_end'),'ann-ending-exact-literal-lock');
 
 const initialMatch=String(card.data?.first_mes||'').match(/<f7d_state>([\s\S]*?)<\/f7d_state>/i);
 expect(Boolean(initialMatch),'initial-state');
