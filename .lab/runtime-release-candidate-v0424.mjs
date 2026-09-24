@@ -32,21 +32,19 @@ try{
     return{found:true,avatar:st.characters[idx]?.avatar,embeddedScripts:Array.isArray(st.characters[idx]?.data?.extensions?.tavern_helper?.scripts)?st.characters[idx].data.extensions.tavern_helper.scripts.length:0};
   },{name:card.data.name,version:ONEFILE_VERSION});
   if(!helperSelection?.found||helperSelection?.embeddedScripts<1) throw new Error(`embedded choice script missing after import: ${JSON.stringify(helperSelection)}`);
-  await page.waitForTimeout(900);
-  const helperPrompt=await page.evaluate(()=>/角色卡[\s\S]*嵌入式脚本|嵌入式脚本[\s\S]*启用/.test(document.body.innerText||''));
-  if(helperPrompt){
-    const clicked=await page.evaluate(()=>{
-      const candidates=[...document.querySelectorAll('button,.menu_button')];
-      const btn=candidates.find(x=>String(x.textContent||'').trim()==='确认');
+  await page.waitForTimeout(500);
+  for(let i=0;i<100;i++){
+    const ready=await page.evaluate(()=>Boolean(window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.setComposer));
+    if(ready)break;
+    await page.evaluate(()=>{
+      const body=String(document.body.innerText||'');
+      if(!/嵌入式脚本|是否现在就启用/.test(body))return false;
+      const visible=x=>{const s=getComputedStyle(x);const r=x.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>0&&r.height>0};
+      const btn=[...document.querySelectorAll('button,.menu_button,[role="button"]')].find(x=>visible(x)&&String(x.textContent||'').trim()==='确认');
       if(!btn)return false;
       btn.click();
       return true;
     });
-    if(!clicked) throw new Error('Tavern Helper embedded-script confirmation button not found');
-  }
-  for(let i=0;i<40;i++){
-    const ready=await page.evaluate(()=>Boolean(window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.setComposer));
-    if(ready)break;
     await page.waitForTimeout(150);
   }
   const bridgeReady=await page.evaluate(()=>Boolean(window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.setComposer));
