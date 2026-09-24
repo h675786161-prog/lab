@@ -1,2 +1,2 @@
-run=v0.4.24-choice-ui-v1.6-paddingfix
-reason=rerun restrained tactical choice UI acceptance after correcting desktop full-row padding assertion
+run=v0.4.24-choice-ui-v1.6-all-options-refill
+reason=real SillyTavern acceptance clicks all four visible options and verifies exact composer refill, focus, no auto-submit, plus free-input draft preservation
