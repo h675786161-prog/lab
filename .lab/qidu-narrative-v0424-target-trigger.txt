@@ -1,2 +1,2 @@
-run=7
-reason=rerun seven targeted narrative gates with dynamic live-model fallback, 20s provider pacing, selector cooldown, and corrected Wenzi JSON whitespace assertion
+run=8
+reason=validate reusable cross-provider selector and paced targeted narrative on unchanged v0.4.24 candidate; fail fast if no provider is currently available
