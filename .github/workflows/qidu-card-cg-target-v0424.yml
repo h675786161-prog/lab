@@ -14,14 +14,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 6
     env:
-      MODEL_API_KEY: ${{ secrets.PIAOMIAO }}
-      MODEL_API_BASE: https://claudeapi.cc.cd/v1
-      CG_MODEL: '[ok]glm-4-7-flash'
-      CG_CASES: ann_first_meet
+      MODEL_API_KEY: ${{ secrets.GG }}
+      MODEL_API_BASE: https://gcli.ggchan.dev/v1
+      CG_MODEL: 'gemini-3-flash-preview'
+      CG_CASES: eternal_ending
       CG_MAX_TOKENS: 8000
-      CG_TIMEOUT_MS: 180000
-      CG_ATTEMPTS: 1
-      CG_CASE_GAP_MS: 1000
+      CG_TIMEOUT_MS: 100000
+      CG_ATTEMPTS: 2
+      CG_CASE_GAP_MS: 8000
       LAB_OUT_CG_MODEL: ${{ github.workspace }}/cg-target-evidence
     steps:
       - uses: actions/checkout@v4
