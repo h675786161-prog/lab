@@ -139,23 +139,6 @@ try{
     await new Promise(r=>setTimeout(r,30));
     const clickFilled=Boolean(textarea&&textarea.value==='Continue');
     const composerDiag=textarea?{disabled:Boolean(textarea.disabled),connected:Boolean(textarea.isConnected),display:getComputedStyle(textarea).display,visibility:getComputedStyle(textarea).visibility,width:textarea.getBoundingClientRect().width,height:textarea.getBoundingClientRect().height}:null;
-    let freeKeepsDraft=false,freeFocusesComposer=false;
-    if(textarea){
-      textarea.value='我自己输入';
-      const originalId=textarea.id;
-      textarea.id='qidu-real-send-textarea';
-      const focusProbe=document.createElement('textarea');
-      focusProbe.id='send_textarea';
-      focusProbe.value='我自己输入';
-      focusProbe.style.cssText='position:fixed;left:2px;bottom:2px;width:12px;height:12px;opacity:.01;z-index:2147483647';
-      document.body.appendChild(focusProbe);
-      free?.click();
-      await new Promise(r=>setTimeout(r,50));
-      freeKeepsDraft=focusProbe.value==='我自己输入';
-      freeFocusesComposer=document.activeElement===focusProbe;
-      focusProbe.remove();
-      textarea.id=originalId;
-    }
 
     const fake=document.createElement('div');
     fake.className='mes';
@@ -200,8 +183,31 @@ try{
     legacyTerminalFake.remove();
     if(terminalId>=0&&Array.isArray(ctx?.chat)&&ctx.chat.length===terminalId+1)ctx.chat.pop();
 
-    return{found:true,creator:ch?.data?.creator,composerDiag,freeFocusesComposer,bookCreator:ch?.data?.character_book?.extensions?.creator,bookVersion:ch?.data?.character_book?.extensions?.version,allowed:eng.isScopedScriptsAllowed(ch),terminal:Boolean(term),grid:Boolean(grid),hidden:!h.textContent?.includes('private'),choiceCount:labels.length,freeInput:Boolean(free),clickFilled,freeKeepsDraft,presetNormalized,normalizedClickFilled,terminalFallback,terminalNoNodeText,legacyCounterScrubbed,bridgeVersion:window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.version||null,terminalFlat:Boolean(ts?.backgroundImage==='none'),gridFlat:Boolean(gs?.backgroundImage==='none'),choiceFlat:ls.map(s=>s?.backgroundImage==='none'),choiceMinHeights:ls.map(s=>parseFloat(s?.minHeight||'0')),stacked:Boolean(rs.length===2&&rs[1].top>rs[0].top+4),gridFits:Boolean(gr&&hr&&gr.left>=hr.left-2&&gr.right<=hr.right+2),hash};
+    return{found:true,creator:ch?.data?.creator,composerDiag,bookCreator:ch?.data?.character_book?.extensions?.creator,bookVersion:ch?.data?.character_book?.extensions?.version,allowed:eng.isScopedScriptsAllowed(ch),terminal:Boolean(term),grid:Boolean(grid),hidden:!h.textContent?.includes('private'),choiceCount:labels.length,freeInput:Boolean(free),clickFilled,freeKeepsDraft,presetNormalized,normalizedClickFilled,terminalFallback,terminalNoNodeText,legacyCounterScrubbed,bridgeVersion:window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.version||null,terminalFlat:Boolean(ts?.backgroundImage==='none'),gridFlat:Boolean(gs?.backgroundImage==='none'),choiceFlat:ls.map(s=>s?.backgroundImage==='none'),choiceMinHeights:ls.map(s=>parseFloat(s?.minHeight||'0')),stacked:Boolean(rs.length===2&&rs[1].top>rs[0].top+4),gridFits:Boolean(gr&&hr&&gr.left>=hr.left-2&&gr.right<=hr.right+2),hash};
   },{name:card.data.name,version:ONEFILE_VERSION,hash:compactSha256});
+
+  await page.evaluate(()=>{
+    const textarea=document.querySelector('#send_textarea');
+    if(textarea){
+      textarea.value='我自己输入';
+      textarea.dispatchEvent(new Event('input',{bubbles:true}));
+    }
+  });
+  const freeButton=page.locator('#qidu-release-acceptance-dialog [data-f7d-choice-free="1"]');
+  await freeButton.click({timeout:10000});
+  await page.waitForTimeout(80);
+  const freeResult=await page.evaluate(()=>{
+    const textarea=document.querySelector('#send_textarea');
+    return{
+      keepsDraft:Boolean(textarea&&textarea.value==='我自己输入'),
+      focusesComposer:Boolean(textarea&&document.activeElement===textarea),
+      activeId:document.activeElement?.id||document.activeElement?.tagName||null,
+    };
+  });
+  client.freeKeepsDraft=freeResult.keepsDraft;
+  client.freeFocusesComposer=freeResult.focusesComposer;
+  client.freeActiveId=freeResult.activeId;
+
   await page.screenshot({path:path.join(evidenceDir,'qidu-v0424-release-candidate-mobile.png'),fullPage:false});await page.setViewportSize({width:1366,height:768});await page.waitForTimeout(250);
   client.desktop=await page.evaluate(()=>{const h=document.getElementById('qidu-release-acceptance-dialog'),g=h?.querySelector('[data-f7d-choice-grid="1"]'),ls=[...(h?.querySelectorAll('[data-f7d-choice="1"]')||[])];const R=e=>e?e.getBoundingClientRect():null,hr=R(h),gr=R(g),rs=ls.map(R);return{multiColumn:Boolean(rs.length===2&&Math.abs(rs[0].top-rs[1].top)<4&&rs[1].left>rs[0].left+20),gridFits:Boolean(gr&&hr&&gr.left>=hr.left-2&&gr.right<=hr.right+2)}});
   await page.screenshot({path:path.join(evidenceDir,'qidu-v0424-release-candidate-desktop.png'),fullPage:false});
