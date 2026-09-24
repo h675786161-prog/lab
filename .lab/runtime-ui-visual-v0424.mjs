@@ -101,6 +101,10 @@ try{
 
   await page.evaluate(()=>{
     const h=document.getElementById('qidu-v0424-ui-mount');
+    for(const d of document.querySelectorAll('dialog[open]')){
+      if(d===h) continue;
+      try{d.close()}catch{}
+    }
     if(h?.open){h.close();h.show();}
     const textarea=document.querySelector('#send_textarea');
     if(textarea){textarea.value='';textarea.dispatchEvent(new Event('input',{bubbles:true}));}
@@ -114,6 +118,13 @@ try{
   const chatLenBefore=await page.evaluate(()=>window.SillyTavern?.getContext?.()?.chat?.length??-1);
   report.refill=[];
   for(let i=0;i<expectedChoices.length;i++){
+    await page.evaluate(()=>{
+      const h=document.getElementById('qidu-v0424-ui-mount');
+      for(const d of document.querySelectorAll('dialog[open]')){
+        if(d===h) continue;
+        try{d.close()}catch{}
+      }
+    });
     const b=page.locator('#qidu-v0424-ui-mount [data-f7d-choice="1"]').nth(i);
     await b.click({timeout:10000});
     await page.waitForTimeout(60);
@@ -133,6 +144,13 @@ try{
   await page.evaluate(()=>{
     const textarea=document.querySelector('#send_textarea');
     if(textarea){textarea.value='保留这段自由输入草稿';textarea.dispatchEvent(new Event('input',{bubbles:true}));}
+  });
+  await page.evaluate(()=>{
+    const h=document.getElementById('qidu-v0424-ui-mount');
+    for(const d of document.querySelectorAll('dialog[open]')){
+      if(d===h) continue;
+      try{d.close()}catch{}
+    }
   });
   await page.locator('#qidu-v0424-ui-mount [data-f7d-choice-free="1"]').click({timeout:10000});
   await page.waitForTimeout(60);
