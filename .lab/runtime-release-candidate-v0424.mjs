@@ -128,7 +128,7 @@ try{
     const st=await import('/script.js');const eng=await import('/scripts/extensions/regex/engine.js');await st.getCharacters();
     const idx=st.characters.findIndex(x=>(x?.data?.name||x?.name)===name&&x?.data?.character_version===version&&x?.data?.creator==='叶罹'&&String(x?.data?.character_book?.entries?.find(e=>String(e?.name||'').startsWith('41｜'))?.content||'').includes('第一活骸事故只讲已锚定事实'));
     if(idx<0)return{found:false};st.setCharacterId(idx);const ch=st.characters[idx];eng.allowScopedScripts(ch);
-    const html=st.messageFormatting('<f7d_terminal>RELEASE CANDIDATE</f7d_terminal><f7d_state>{"private":1}</f7d_state><f7d_choices><f7d_choice>Continue</f7d_choice><f7d_choice>Ask Kaji</f7d_choice></f7d_choices>','release',false,false,888888,{},false);
+    const html=st.messageFormatting('<f7d_terminal>RELEASE CANDIDATE</f7d_terminal><f7d_state>{"private":1}</f7d_state><f7d_choices><f7d_choice>跟安一起去确认中央庭的情况</f7d_choice><f7d_choice>先找珈儿问清楚高校学园的消息</f7d_choice></f7d_choices>','release',false,false,888888,{},false);
     const h=document.createElement('div');h.id='qidu-release-acceptance-dialog';h.style.cssText='position:fixed;z-index:2147483646;left:12px;top:72px;margin:0;width:min(780px,calc(100vw - 24px));max-width:none;padding:10px;border:0;border-radius:16px;background:rgba(5,10,18,.96);';h.innerHTML=html;document.body.appendChild(h);
     const term=h.querySelector('[data-f7d-terminal="1"]'),grid=h.querySelector('[data-f7d-choice-grid="1"]'),labels=[...h.querySelectorAll('[data-f7d-choice="1"]')],free=h.querySelector('[data-f7d-choice-free="1"]');const ts=term?getComputedStyle(term):null,gs=grid?getComputedStyle(grid):null,ls=labels.map(x=>getComputedStyle(x));
     const rect=e=>e?e.getBoundingClientRect():null,hr=rect(h),gr=rect(grid),rs=labels.map(rect);
@@ -137,7 +137,7 @@ try{
     if(textarea)textarea.value='';
     labels[0]?.click();
     await new Promise(r=>setTimeout(r,30));
-    const clickFilled=Boolean(textarea&&textarea.value==='Continue');
+    const clickFilled=Boolean(textarea&&textarea.value==='跟安一起去确认中央庭的情况');
     const composerDiag=textarea?{disabled:Boolean(textarea.disabled),connected:Boolean(textarea.isConnected),display:getComputedStyle(textarea).display,visibility:getComputedStyle(textarea).visibility,width:textarea.getBoundingClientRect().width,height:textarea.getBoundingClientRect().height}:null;
 
     const fake=document.createElement('div');
@@ -190,6 +190,32 @@ try{
     for(const d of document.querySelectorAll('dialog[open]')){try{d.close()}catch{}}
     const textarea=document.querySelector('#send_textarea');
     if(textarea){
+      textarea.value='';
+      textarea.dispatchEvent(new Event('input',{bubbles:true}));
+    }
+  });
+  await page.waitForTimeout(60);
+  const trustedStoryButton=page.locator('#qidu-release-acceptance-dialog [data-f7d-choice="1"]').first();
+  await trustedStoryButton.click({timeout:10000});
+  await page.waitForTimeout(80);
+  const trustedStoryResult=await page.evaluate(()=>{
+    const textarea=document.querySelector('#send_textarea');
+    return{
+      filled:Boolean(textarea&&textarea.value==='跟安一起去确认中央庭的情况'),
+      focusesComposer:Boolean(textarea&&document.activeElement===textarea),
+      value:textarea?.value||'',
+      activeId:document.activeElement?.id||document.activeElement?.tagName||null,
+    };
+  });
+  client.trustedChoiceFilled=trustedStoryResult.filled;
+  client.trustedChoiceFocusesComposer=trustedStoryResult.focusesComposer;
+  client.trustedChoiceValue=trustedStoryResult.value;
+  client.trustedChoiceActiveId=trustedStoryResult.activeId;
+
+  await page.evaluate(()=>{
+    for(const d of document.querySelectorAll('dialog[open]')){try{d.close()}catch{}}
+    const textarea=document.querySelector('#send_textarea');
+    if(textarea){
       textarea.value='我自己输入';
       textarea.dispatchEvent(new Event('input',{bubbles:true}));
     }
@@ -215,5 +241,5 @@ try{
   await page.screenshot({path:path.join(evidenceDir,'qidu-v0424-release-candidate-desktop.png'),fullPage:false});
 }finally{await browser.close()}
 const report={version:ONEFILE_VERSION,sha256:compactSha256,importStatus:imported.status,client};await fs.writeFile(path.join(evidenceDir,'qidu-v0424-release-candidate-report.json'),JSON.stringify(report,null,2));await fs.writeFile(path.join(evidenceDir,'永远的7日之都-七日轮回文本互动-v0.4.24.json'),raw);console.log(JSON.stringify(report,null,2));
-const ok=client?.found&&client?.creator==='叶罹'&&client?.bookCreator==='叶罹'&&client?.bookVersion==='0.4.24'&&client?.allowed&&client?.terminal&&client?.grid&&client?.hidden&&client?.choiceCount===2&&client?.freeInput&&client?.clickFilled&&client?.freeKeepsDraft&&client?.freeFocusesComposer&&client?.presetNormalized&&client?.normalizedClickFilled&&client?.terminalFallback&&client?.terminalNoNodeText&&client?.legacyCounterScrubbed&&client?.bridgeVersion==='1.6.0'&&client?.terminalFlat&&client?.gridFlat&&client?.choiceFlat?.every(Boolean)&&client?.choiceMinHeights?.every(x=>x>=44)&&client?.stacked&&client?.gridFits&&client?.desktop?.multiColumn&&client?.desktop?.gridFits;
+const ok=client?.found&&client?.creator==='叶罹'&&client?.bookCreator==='叶罹'&&client?.bookVersion==='0.4.24'&&client?.allowed&&client?.terminal&&client?.grid&&client?.hidden&&client?.choiceCount===2&&client?.freeInput&&client?.clickFilled&&client?.trustedChoiceFilled&&client?.trustedChoiceFocusesComposer&&client?.freeKeepsDraft&&client?.freeFocusesComposer&&client?.presetNormalized&&client?.normalizedClickFilled&&client?.terminalFallback&&client?.terminalNoNodeText&&client?.legacyCounterScrubbed&&client?.bridgeVersion==='1.6.0'&&client?.terminalFlat&&client?.gridFlat&&client?.choiceFlat?.every(Boolean)&&client?.choiceMinHeights?.every(x=>x>=44)&&client?.stacked&&client?.gridFits&&client?.desktop?.multiColumn&&client?.desktop?.gridFits;
 if(!ok)throw new Error(`release candidate real-ST/browser acceptance failed: ${JSON.stringify(client)}`);
