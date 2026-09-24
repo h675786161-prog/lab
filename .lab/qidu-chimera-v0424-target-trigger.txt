@@ -1,2 +1,2 @@
-trigger 2
-reason=confirm first-chimera five-fact closure still holds on exact c30ca75e candidate after Ann ending literal lock
+trigger 3
+reason=reject generalized first-chimera risk and invented formal-rule rationale on hardened candidate
