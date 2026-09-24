@@ -1,2 +1,2 @@
-run=5
-reason=rerun all seven sequential GG narrative gates on current gender-fixed v0.4.24 candidate hash 6aab64aac8e563aed0a8a55cae79ab6614aeaa1db1711708b9745805946ccb48
+run=6
+reason=rerun seven targeted narrative gates on current v0.4.24 candidate using live GG gemini-3.1-pro-preview-nothinking fallback because gemini-3-flash-preview quota is exhausted
