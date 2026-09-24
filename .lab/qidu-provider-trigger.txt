@@ -1,2 +1,2 @@
-run=20260923-1
-reason=live provider survey after PIAOMIAO full-context 403/429 instability during qidu v0.4.24 final gate
+run=20260924-post-quota-check
+reason=check whether GG gemini flash quota recovered before rerunning final narrative gate; keep alternate providers visible only as infrastructure evidence
