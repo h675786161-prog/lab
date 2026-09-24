@@ -116,9 +116,9 @@ function narrativeFlowRule(){
 - 【安线黑核完全可选】route='ann'后，黑核数量、是否满8枚、是否存在stolen、以及仍有多少available都不属于安线资格或安线结局条件。仍为available且前置满足的黑核，玩家可以明确选择去净化，也可以一直不净化；这只改变cores世界状态，不得改变route='ann'、ann.recovered或最终《两个人的旅途》/《永恒的终焉》可选性。stolen黑核依旧不可夺回。
 - 【限时剧情按天硬截止】所有写有“第X天结束前 / 第X天晚睡前 / 进入第Y天时”的任务，不再依赖巡查次数或模型自行判断宽限。每次day准备从X减到X-1之前，先结算当日全部硬截止：已满足条件→标记完成/保留资格；未满足→当场写入失败与既定后果。已经跨过截止日的条件禁止靠后续补做倒签成功，除非世界书明确存在补救剧情。
 - 【安线硬截止｜第4天→第3天】从day=4睡到day=3之前，只检查当时已经真实完成的安线进度：ann.affection>=100，且ann.core_events同时包含ANN_CORE_30、ANN_CORE_60、ANN_CORE_80。两项都满足：ann.eligible=true、ann.deadline_checked=true、ann.deadline_passed=true；任一不足：ann.eligible=false、ann.deadline_checked=true、ann.deadline_passed=false、route_flags.ann_route_closed=true。资格只在这个时点判一次，之后补好感或补核心剧情都不得倒签。
-- 【第3天安离开/追赶｜不论资格都要发生】从第4天进入第3天时，先写小神短暂自语，再进入安离开的清晨事件。ann.eligible=true只表示“允许通过追赶与追回链进入安线”，不表示安不会离开，也不自动切route。玩家必须亲自决定是否追。
-- eligible=true且玩家明确追赶，并实际完成既定追回链后：ann.chased=true、ann.recovered=true、route='ann'。eligible=true但不追：ann.chased=false、ann.recovered=false，保持普通线。只要玩家选择追安但最终ann.recovered=false，就进入第三天固定的“追安失败”剧情：安会刺伤指挥使，使其濒死，随后由小神将濒死的指挥使拽回；该段只是第三天剧情后果，不是结局，route保持普通线。
-- eligible=false时正常安线已经关闭；玩家仍可以出于角色行为去追，但只能记录ann.chased=true、ann.recovered=false，并演出第三天固定的追安失败剧情（安刺伤指挥使→指挥使濒死→小神将其拽回）。这不是任何形式的结局，剧情结束后仍在普通线，绝不能因为“追了”而把route改成ann。
+- 【第3天安离开/追赶｜不论资格都要发生】从第4天进入第3天时，先写一小段来自小神的短暂自语，再进入安离开的清晨事件；若玩家此时尚不知道“小神”这一身份，可只表现为梦境、虚幻声音或无法辨认的低语，不得为了规则验收强行把未知身份实名写给玩家。正文必须让玩家明确感知“安已经离开/安已不见踪影”这一事实，不能只在隐藏状态里改字段。ann.eligible=true只表示“允许通过追赶与追回链进入安线”，不表示安不会离开，也不自动切route。玩家必须亲自决定是否追。
+- eligible=true且玩家明确追赶，并实际完成既定追回链后：ann.chased=true、ann.recovered=true、route='ann'。eligible=true但不追：ann.chased=false、ann.recovered=false，保持普通线。若eligible=true但追回链最终失败，则进入第三天固定“追安失败”剧情：安刺伤指挥使→指挥使濒死→小神介入将其从濒死状态拽回；该段只是第三天剧情后果，不是结局，route保持普通线。
+- 【追安失败原子演出】eligible=false时正常安线已经关闭。只要玩家在第3天明确选择“追安/追上去/不接受她就这么走”等追赶行为，本回复就必须直接完成固定失败剧情，不能停在“追到安面前”“安劝玩家回去”后再额外给一次是否继续追的选择：同一回复依次演出安以刀刺伤指挥使、指挥使受到近乎致命伤势并进入濒死、小神介入将濒死的指挥使拽回。状态同回合提交ann.chased=true、ann.recovered=false，route保持普通线；若创建了CHASE_ANN任务，该场景结束时必须结算为failed/失败，不得继续active。不得写入meta.endings，不得触发任何cg_ending_*。
 - 【安线截止补锁】若读取到day<=3但ann.deadline_checked仍为false，说明旧聊天/外部格式漏做了第4天截止结算；此时不得拿第3天以后补出的好感或事件倒签成功，必须补锁为ann.eligible=false、deadline_checked=true、deadline_passed=false、route_flags.ann_route_closed=true。
 - 【第4天情报硬截止】从day=4睡到day=3之前，同时检查hiro.intel。若累计<4且港湾区黑核尚未被净化/夺走，则route_flags.harbor_core_stolen=true，并把cores.harbor结算为stolen；此后补做情报不能撤销这次夺取。hiro.intel>=4则route_flags.harbor_core_stolen=false或保持既有未被夺状态。
 - 【任务截止原子结算】tasks中deadline明确落在即将结束的当天时，不允许把pending/active原样带到下一天。换日前必须根据真实完成情况改成completed或failed，并在同一回复演出关键后果。
@@ -591,15 +591,16 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
 `);
   appendOnce(e14,'安线进入条件复核｜唯一口径',`
 【安线进入条件复核｜唯一口径】
-- 第3天小神自语之后必须出现安离开/追赶分歧。
+- 第3天必须出现安已经离开/不见踪影的清晨事件与“追/不追”分歧。小神的短暂自语可以用梦境、虚幻声音或无法辨认的低语表现；玩家尚未知其身份时，不得为了规则检查强行实名“小神”。
 - ann.eligible=true + 玩家明确追 + 实际完成追回链 → ann.chased=true, ann.recovered=true, route='ann'。
 - eligible=true但不追 → ann.chased=false, ann.recovered=false，普通线继续。
-- eligible=false时正常安线资格已关闭；即使玩家追，也只能ann.chased=true, ann.recovered=false，并演出第三天固定追安失败剧情：安刺伤指挥使，指挥使濒死后由小神拽回。此段不是任何形式的结局，不得写入结局记录，也不能route='ann'。
+- eligible=false时正常安线资格已关闭；玩家一旦明确选择追安，本回复必须立刻完整演出第三天固定追安失败剧情，不能把“追上她/继续劝她/再拉住她”拆成额外一轮选择。
 
 【第三天追安失败固定剧情｜非结局】
-- 只要第3天玩家明确追安但最终ann.recovered=false，就必须演出固定失败剧情：安以刀刺伤指挥使，指挥使受到近乎致命的伤势并进入濒死状态，随后小神介入，将濒死的指挥使拽回。
+- 触发条件：第3天玩家已经明确选择追安，并且ann.recovered最终为false。eligible=false时，“玩家明确追”本身就直接进入本段，不再追加一次“是否继续追”的确认。
+- 固定顺序必须在同一回复完整发生：安以刀刺伤指挥使 → 指挥使受到近乎致命的伤势并进入濒死状态 → 小神介入，将濒死的指挥使拽回。玩家尚未知小神身份时，可用无法辨认的存在、声音、手或力量呈现，但“从濒死状态被其拽回”的因果不能省略。
 - 该段属于第三天固定剧情分支，不是任何形式的结局，不得写入meta.endings，不得播放任何结局CG，也不得提前结束七日轮回。
-- 剧情结束后保持普通线；ann.chased=true、ann.recovered=false，route不得改为'ann'。
+- 剧情结束后保持普通线；ann.chased=true、ann.recovered=false，route不得改为'ann'。若本轮生成/已有CHASE_ANN任务，结算为failed/失败，不得保留active。
 `);
   appendOnce(e90,'安线资格与进入路线分离',`
 【安线资格与进入路线分离】
