@@ -1,2 +1,2 @@
-run=6
-reason=verify actual Tavern Helper bridge in real ST after removing artificial modal focus trap from composer test
+run=7
+reason=verify free-input focus with active character chat in real SillyTavern and Tavern Helper
