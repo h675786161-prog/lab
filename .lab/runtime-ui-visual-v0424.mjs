@@ -35,20 +35,21 @@ try{
     return true;
   },{name:card.data.name,version:ONEFILE_VERSION});
   if(!selected) throw new Error('v0424 UI character not found after import');
-  await page.waitForTimeout(900);
+  await page.waitForTimeout(500);
 
-  const helperPrompt=await page.evaluate(()=>/角色卡[\s\S]*嵌入式脚本|嵌入式脚本[\s\S]*启用/.test(document.body.innerText||''));
-  if(helperPrompt){
-    const clicked=await page.evaluate(()=>{
-      const btn=[...document.querySelectorAll('button,.menu_button')].find(x=>String(x.textContent||'').trim()==='确认');
-      if(!btn)return false;btn.click();return true;
+  for(let i=0;i<100;i++){
+    const ready=await page.evaluate(()=>window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.version==='1.5.0');
+    if(ready)break;
+    await page.evaluate(()=>{
+      const body=String(document.body.innerText||'');
+      if(!/嵌入式脚本|是否现在就启用/.test(body))return false;
+      const visible=x=>{const s=getComputedStyle(x);const r=x.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>0&&r.height>0};
+      const btn=[...document.querySelectorAll('button,.menu_button,[role="button"]')].find(x=>visible(x)&&String(x.textContent||'').trim()==='确认');
+      if(!btn)return false;
+      btn.click();
+      return true;
     });
-    if(!clicked) throw new Error('embedded-script confirmation button missing');
-  }
-
-  for(let i=0;i<50;i++){
-    if(await page.evaluate(()=>window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.version==='1.5.0'))break;
-    await page.waitForTimeout(120);
+    await page.waitForTimeout(150);
   }
   report.bridge=await page.evaluate(()=>window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.version||null);
   if(report.bridge!=='1.5.0') throw new Error(`choice bridge version mismatch: ${report.bridge}`);
