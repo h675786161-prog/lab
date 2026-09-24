@@ -1,3 +1,2 @@
-run=5
-reason=rerun static package after replacing brittle Ann chase/ending string checks with behavior-based assertions; card payload unchanged 
-chimera-closure-rerun
+run=7
+reason=validate exact Ann ending literal lock after eternal ending state drift fix
