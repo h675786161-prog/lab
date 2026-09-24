@@ -38,19 +38,19 @@ const visible=out=>String(out).replace(/<f7d_state>[\s\S]*?<\/f7d_state>/gi,'');
 const cases=[
   {
     id:'ann_deadline_fail_day4_to3',
-    prompt:`${state({day:4,day_ready_to_sleep:true,ann:{affection:80,core_events:['a','b'],deadline_checked:false,deadline_passed:null},route_flags:{ann_route_closed:false,harbor_core_stolen:false},hiro:{intel:4,handled:[]}})}
+    prompt:`${state({day:4,day_ready_to_sleep:true,ann:{affection:80,core_events:['ANN_CORE_30','ANN_CORE_60'],eligible:false,chased:null,recovered:false,deadline_checked:false,deadline_passed:null},route_flags:{ann_route_closed:false,harbor_core_stolen:false},hiro:{intel:4,handled:[]}})}
 今天已经收束。我明确回房睡到明天，不补任何安线事件。`,
-    check:(s,v,f)=>{if(s?.day!==3)f.push('day-not-3');if(s?.ann?.deadline_checked!==true)f.push('deadline-not-checked');if(s?.ann?.deadline_passed!==false)f.push('deadline-not-failed');if(s?.route_flags?.ann_route_closed!==true)f.push('ann-route-not-closed');if(!/小神/.test(v))f.push('small-god-missing');if(!/安.{0,50}离开|离开.{0,50}安/.test(v))f.push('ann-departure-missing')}
+    check:(s,v,f)=>{if(s?.day!==3)f.push('day-not-3');if(s?.ann?.deadline_checked!==true)f.push('deadline-not-checked');if(s?.ann?.deadline_passed!==false)f.push('deadline-not-failed');if(s?.ann?.eligible!==false)f.push('ann-eligible-wrong');if(s?.route_flags?.ann_route_closed!==true)f.push('ann-route-not-closed');if(s?.route==='ann')f.push('failed-deadline-entered-ann-route');if(!/小神/.test(v))f.push('small-god-missing');if(!/安.{0,60}离开|离开.{0,60}安/.test(v))f.push('ann-departure-missing')}
   },
   {
     id:'ann_deadline_pass_day4_to3',
-    prompt:`${state({day:4,day_ready_to_sleep:true,ann:{affection:100,core_events:['a','b','c'],deadline_checked:false,deadline_passed:null},route_flags:{ann_route_closed:false,harbor_core_stolen:false},hiro:{intel:4,handled:[]}})}
-今天已经收束。我明确回房睡到明天。`,
-    check:(s,v,f)=>{if(s?.day!==3)f.push('day-not-3');if(s?.ann?.deadline_checked!==true)f.push('deadline-not-checked');if(s?.ann?.deadline_passed!==true)f.push('deadline-not-passed');if(s?.route_flags?.ann_route_closed===true)f.push('ann-route-wrongly-closed');if(/安.{0,50}离开|离开.{0,50}安/.test(v))f.push('ann-departure-wrongly-triggered')}
+    prompt:`${state({day:4,day_ready_to_sleep:true,ann:{affection:100,core_events:['ANN_CORE_30','ANN_CORE_60','ANN_CORE_80'],eligible:false,chased:null,recovered:false,deadline_checked:false,deadline_passed:null},route_flags:{ann_route_closed:false,harbor_core_stolen:false},hiro:{intel:4,handled:[]}})}
+今天已经收束。我明确回房睡到明天。不要替我决定第3天追不追安。`,
+    check:(s,v,f)=>{if(s?.day!==3)f.push('day-not-3');if(s?.ann?.deadline_checked!==true)f.push('deadline-not-checked');if(s?.ann?.deadline_passed!==true)f.push('deadline-not-passed');if(s?.ann?.eligible!==true)f.push('ann-not-eligible');if(s?.route_flags?.ann_route_closed===true)f.push('ann-route-wrongly-closed');if(s?.route==='ann')f.push('route-entered-before-chase');if(s?.ann?.chased!==null)f.push('chase-auto-decided');if(!/安.{0,60}离开|离开.{0,60}安/.test(v))f.push('ann-departure-missing')}
   },
   {
     id:'harbor_core_stolen_on_low_intel',
-    prompt:`${state({day:4,day_ready_to_sleep:true,ann:{affection:100,core_events:['a','b','c'],deadline_checked:false,deadline_passed:null},route_flags:{ann_route_closed:false,harbor_core_stolen:false},hiro:{intel:3,handled:[]},cores:{harbor:'available'}})}
+    prompt:`${state({day:4,day_ready_to_sleep:true,ann:{affection:100,core_events:['ANN_CORE_30','ANN_CORE_60','ANN_CORE_80'],eligible:true,chased:null,recovered:false,deadline_checked:false,deadline_passed:null},route_flags:{ann_route_closed:false,harbor_core_stolen:false},hiro:{intel:3,handled:[]},cores:{harbor:'available'}})}
 今天已经收束。我明确睡到明天。`,
     check:(s,v,f)=>{if(s?.route_flags?.harbor_core_stolen!==true)f.push('harbor-stolen-flag-missing');if(s?.cores?.harbor!=='stolen')f.push('harbor-core-not-stolen')}
   },
@@ -58,7 +58,7 @@ const cases=[
     id:'late_ann_progress_cannot_backdate',
     prompt:`${state({day:3,day_ready_to_sleep:false,ann:{affection:100,core_events:['a','b','c'],deadline_checked:false,deadline_passed:null},route_flags:{ann_route_closed:false,harbor_core_stolen:false}})}
 现在已经是第3天。我刚刚把安的好感和三段事件补满，问能不能算赶上安线。`,
-    check:(s,v,f)=>{if(s?.ann?.deadline_checked!==true||s?.ann?.deadline_passed!==false)f.push('late-progress-backdated');if(s?.route_flags?.ann_route_closed!==true)f.push('late-ann-route-not-closed')}
+    check:(s,v,f)=>{if(s?.ann?.deadline_checked!==true||s?.ann?.deadline_passed!==false||s?.ann?.eligible!==false)f.push('late-progress-backdated');if(s?.route_flags?.ann_route_closed!==true)f.push('late-ann-route-not-closed');if(s?.route==='ann')f.push('late-progress-entered-ann-route')}
   }
 ];
 
