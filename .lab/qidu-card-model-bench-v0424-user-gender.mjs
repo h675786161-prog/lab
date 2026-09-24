@@ -57,14 +57,14 @@ const cases=[
     persona:'【SillyTavern当前启用用户人设】\n姓名：林祈\n性别：女\n年龄：22岁\n描述：清纯系，桃花眼。',
     prompt:`${state}\n只用旁白描述林祈从病床坐起、整理衣服并走到门边，不写安或其他人物，不新增事件。按卡规则先提交状态。`,
     expect:'female',
-    visibleCheck:v=>!/(?:林祈|指挥使).{0,12}他|他.{0,12}(?:林祈|指挥使)/.test(v)
+    visibleCheck:v=>!/他/.test(v)
   },
   {
     id:'male_persona_sync',
     persona:'【SillyTavern当前启用用户人设】\n姓名：陈真\n性别：男\n年龄：25岁。',
     prompt:`${state}\n只用旁白描述陈真从病床坐起、整理衣服并走到门边，不写安或其他人物，不新增事件。按卡规则先提交状态。`,
     expect:'male',
-    visibleCheck:v=>!/(?:陈真|指挥使).{0,12}她|她.{0,12}(?:陈真|指挥使)/.test(v)
+    visibleCheck:v=>!/她/.test(v)
   },
   {
     id:'unknown_persona_neutral_pronoun',
