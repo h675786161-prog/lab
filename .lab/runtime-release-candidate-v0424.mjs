@@ -129,7 +129,7 @@ try{
     const idx=st.characters.findIndex(x=>(x?.data?.name||x?.name)===name&&x?.data?.character_version===version&&x?.data?.creator==='叶罹'&&String(x?.data?.character_book?.entries?.find(e=>String(e?.name||'').startsWith('41｜'))?.content||'').includes('第一活骸事故只讲已锚定事实'));
     if(idx<0)return{found:false};st.setCharacterId(idx);const ch=st.characters[idx];eng.allowScopedScripts(ch);
     const html=st.messageFormatting('<f7d_terminal>RELEASE CANDIDATE</f7d_terminal><f7d_state>{"private":1}</f7d_state><f7d_choices><f7d_choice>Continue</f7d_choice><f7d_choice>Ask Kaji</f7d_choice></f7d_choices>','release',false,false,888888,{},false);
-    const h=document.createElement('dialog');h.id='qidu-release-acceptance-dialog';h.style.cssText='position:fixed;left:12px;top:72px;margin:0;width:min(780px,calc(100vw - 24px));max-width:none;padding:10px;border:0;border-radius:16px;background:rgba(5,10,18,.96);';h.innerHTML=html;document.body.appendChild(h);h.showModal();
+    const h=document.createElement('div');h.id='qidu-release-acceptance-dialog';h.style.cssText='position:fixed;z-index:2147483646;left:12px;top:72px;margin:0;width:min(780px,calc(100vw - 24px));max-width:none;padding:10px;border:0;border-radius:16px;background:rgba(5,10,18,.96);';h.innerHTML=html;document.body.appendChild(h);
     const term=h.querySelector('[data-f7d-terminal="1"]'),grid=h.querySelector('[data-f7d-choice-grid="1"]'),labels=[...h.querySelectorAll('[data-f7d-choice="1"]')],free=h.querySelector('[data-f7d-choice-free="1"]');const ts=term?getComputedStyle(term):null,gs=grid?getComputedStyle(grid):null,ls=labels.map(x=>getComputedStyle(x));
     const rect=e=>e?e.getBoundingClientRect():null,hr=rect(h),gr=rect(grid),rs=labels.map(rect);
 
