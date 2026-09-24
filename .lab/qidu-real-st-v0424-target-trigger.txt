@@ -1,2 +1,2 @@
-run=9
-reason=verify free-input focus using trusted Playwright click in real SillyTavern + Tavern Helper
+run=10
+reason=verify trusted free-input browser click after removing stale local return reference
