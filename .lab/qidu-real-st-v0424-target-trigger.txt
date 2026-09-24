@@ -1,2 +1,2 @@
-run=7
-reason=verify free-input focus with active character chat in real SillyTavern and Tavern Helper
+run=8
+reason=verify free-input focus using isolated real-browser composer probe without blocking character selection
