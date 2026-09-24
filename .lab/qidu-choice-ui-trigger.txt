@@ -1,0 +1,1 @@
+run=v0.4.24-choice-ui-v1.5-dedicated\nreason=render refined choice cards in exact SillyTavern + Tavern Helper and capture mobile/desktop evidence\n
