@@ -11,6 +11,10 @@ const rawText=raw.toString('utf8');
 if(/(?:玲|h675786161|github\.com|raw\.githubusercontent\.com|api\.github\.com|实验酒馆|world-backstage|(?:\bLAB\b|[-_]lab\b|\blab[-_])|feature\/qidu-card|gmail\.com)/i.test(rawText)) throw new Error('release candidate contains private development provenance');
 const by=p=>(card.data.character_book?.entries||[]).find(e=>String(e.name||'').startsWith(p));
 if(!String(by('41｜')?.content||'').includes('第一活骸事故只讲已锚定事实')) throw new Error('release candidate first-chimera fidelity guard missing');
+const wbEntries=card.data.character_book?.entries||[];
+if(wbEntries.some(e=>/(?:六|6)\s*巡查|行动节点/.test(String(e.name||'')))) throw new Error('counted-patrol/action-node worldbook title remains');
+const regionFlowEntries=wbEntries.filter(e=>/^(?:30|31|32|33|34|35|36)｜/.test(String(e.name||'')));
+if(regionFlowEntries.some(e=>/(?:[1-6]\s*\/\s*6\s*[：:]|【(?:六|6)\s*巡查】|[（(]\s*1\s*节点\s*[）)]|为\s*0\s*节点)/.test(String(e.content||'')))) throw new Error('counted region-flow marker remains in release candidate');
 
 const form=new FormData();form.set('file_type','json');form.set('avatar',new Blob([raw],{type:'application/json'}),'qidu-v0424-release.json');
 const imported=await fetch(`${baseUrl}/api/characters/import`,{method:'POST',body:form});const importText=await imported.text();
