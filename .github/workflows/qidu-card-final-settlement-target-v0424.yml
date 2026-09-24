@@ -1,0 +1,39 @@
+name: Qidu v0424 Targeted Final Settlement
+
+on:
+  push:
+    branches: ['feature/qidu-card-v0411-lab']
+    paths:
+      - '.lab/qidu-final-settlement-v0424-target-trigger.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  endings:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      MODEL_API_KEY: ${{ secrets.GG }}
+      MODEL_API_BASE: https://gcli.ggchan.dev/v1
+      RELEASE_MODEL: 'gemini-3-flash-preview'
+      LAB_OUT_ENDINGS: bench-evidence/qidu-card-v0424-final-settlement
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run final settlement regression
+        run: |
+          set -euo pipefail
+          export NODE_OPTIONS="--import=$GITHUB_WORKSPACE/.lab/qidu-fetch-retry-preload.mjs"
+          for n in 1 2; do
+            node .lab/qidu-card-model-bench-v0424-final-settlement.mjs && exit 0
+            echo "endings retry $n"
+            sleep 15
+          done
+          exit 1
+      - name: Upload ending evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-v0424-final-settlement-target
+          path: bench-evidence/qidu-card-v0424-final-settlement/
+          if-no-files-found: warn
