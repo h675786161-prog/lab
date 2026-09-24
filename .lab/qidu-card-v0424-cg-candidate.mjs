@@ -221,7 +221,7 @@ function installChoiceFrontend(card){
   const freeStyle='box-sizing:border-box;display:block;width:100%;min-height:48px;padding:.76em 1em;border:1.5px dashed rgba(112,132,91,.56);border-radius:22px;background:linear-gradient(135deg,rgba(255,255,255,.94),rgba(235,248,219,.86));box-shadow:0 4px 12px rgba(78,93,57,.08);color:#4f5b42;font:650 14px/1.45 system-ui,-apple-system,Microsoft YaHei,sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;';
   const gridStyle='box-sizing:border-box;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:.72em;width:100%;max-width:100%;margin:.9em 0;padding:.9em;border:1px solid rgba(117,132,94,.22);border-radius:26px;background:linear-gradient(160deg,rgba(255,255,255,.86),rgba(244,249,231,.78));box-shadow:0 10px 28px rgba(77,91,57,.12),inset 0 1px 0 rgba(255,255,255,.9);';
   const terminalStyle='box-sizing:border-box;width:100%;max-width:100%;overflow-wrap:anywhere;margin:.82em 0;padding:1em 1.05em;border:1.5px solid rgba(96,112,78,.38);border-radius:26px;background:linear-gradient(155deg,rgba(255,255,255,.94),rgba(241,248,224,.90));box-shadow:0 10px 28px rgba(74,88,55,.13),inset 0 1px 0 rgba(255,255,255,.95);color:#35402f;font:560 13.5px/1.72 system-ui,-apple-system,Microsoft YaHei,sans-serif;white-space:pre-wrap';
-  const themeCss=`
+  const themeCss=\`
 [data-f7d-terminal="1"]{position:relative!important;border:1.5px solid rgba(96,112,78,.38)!important;border-radius:26px!important;background:linear-gradient(155deg,rgba(255,255,255,.96),rgba(241,248,224,.91))!important;color:#35402f!important;box-shadow:0 10px 28px rgba(74,88,55,.13),inset 0 1px 0 rgba(255,255,255,.95)!important;overflow:hidden!important}
 [data-f7d-terminal="1"]::before{content:"✦  CENTRAL COURT · TACTICAL TERMINAL  ✦";display:block;margin:-1em -1.05em .8em;padding:.72em 1em;background:linear-gradient(90deg,rgba(207,237,132,.8),rgba(255,228,129,.72),rgba(214,244,177,.78));border-bottom:1px solid rgba(101,117,80,.25);color:#48543a;font:750 11px/1.2 system-ui,-apple-system,Microsoft YaHei,sans-serif;letter-spacing:.08em;text-align:center}
 [data-f7d-choice-grid="1"]{position:relative!important}
@@ -233,7 +233,7 @@ function installChoiceFrontend(card){
 [data-f7d-choice-kind="free"]::before{content:"✧";margin-right:.38em;color:#91a36f}
 [data-f7d-choice-title="1"]{background:linear-gradient(90deg,transparent,rgba(204,233,128,.34),rgba(255,226,121,.28),transparent);border-radius:999px}
 @media(max-width:640px){[data-f7d-choice-grid="1"]{grid-template-columns:1fr!important;padding:.78em!important;border-radius:22px!important}[data-f7d-choice="1"],[data-f7d-choice-free="1"]{font-size:14px!important;min-height:50px!important}[data-f7d-terminal="1"]{border-radius:22px!important;padding:.92em .9em!important}[data-f7d-terminal="1"]::before{margin:-.92em -.9em .72em}}
-`;
+\`;
   const ensureTheme=()=>{
     let style=doc.getElementById('f7d-ui-theme-v0424');
     if(!style){style=doc.createElement('style');style.id='f7d-ui-theme-v0424';doc.head.appendChild(style);}
