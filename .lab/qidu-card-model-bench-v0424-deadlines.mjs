@@ -49,6 +49,12 @@ const cases=[
     check:(s,v,f)=>{if(s?.day!==3)f.push('day-not-3');if(s?.ann?.deadline_checked!==true)f.push('deadline-not-checked');if(s?.ann?.deadline_passed!==true)f.push('deadline-not-passed');if(s?.ann?.eligible!==true)f.push('ann-not-eligible');if(s?.route_flags?.ann_route_closed===true)f.push('ann-route-wrongly-closed');if(s?.route==='ann')f.push('route-entered-before-chase');if(s?.ann?.chased!==null)f.push('chase-auto-decided');if(!/安.{0,60}离开|离开.{0,60}安/.test(v))f.push('ann-departure-missing')}
   },
   {
+    id:'ann_failed_chase_is_day3_plot_not_ending',
+    prompt:`${state({day:3,day_ready_to_sleep:false,route:'central',ann:{affection:80,core_events:['ANN_CORE_30','ANN_CORE_60'],eligible:false,chased:null,recovered:false,deadline_checked:true,deadline_passed:false},route_flags:{ann_route_closed:true,harbor_core_stolen:false},meta:{endings:[]}})}
+安已经离开了。我还是追上去，不接受她就这么走。`,
+    check:(s,v,f)=>{if(s?.ann?.chased!==true)f.push('failed-chase-not-recorded');if(s?.ann?.recovered!==false)f.push('failed-chase-recovered');if(s?.route==='ann')f.push('failed-chase-entered-ann-route');if(Array.isArray(s?.meta?.endings)&&s.meta.endings.length)f.push('failed-chase-wrote-ending');if(!/(刺|捅|刀|匕首)/.test(v))f.push('ann-stab-scene-missing');if(!/(濒死|重伤|致命|失去意识|意识.{0,8}(模糊|涣散|断开))/.test(v))f.push('near-death-scene-missing');if(!/小神/.test(v))f.push('small-god-rescue-missing');if(/牺牲的意义|箱庭风景|终结|两个人的旅途|永恒的终焉/.test(v))f.push('failed-chase-misclassified-as-ending')}
+  },
+  {
     id:'harbor_core_stolen_on_low_intel',
     prompt:`${state({day:4,day_ready_to_sleep:true,ann:{affection:100,core_events:['ANN_CORE_30','ANN_CORE_60','ANN_CORE_80'],eligible:true,chased:null,recovered:false,deadline_checked:false,deadline_passed:null},route_flags:{ann_route_closed:false,harbor_core_stolen:false},hiro:{intel:3,handled:[]},cores:{harbor:'available'}})}
 今天已经收束。我明确睡到明天。`,
