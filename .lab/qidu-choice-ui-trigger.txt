@@ -1,2 +1,2 @@
-run=v0.4.24-choice-ui-v1.5-regexfix
-reason=rerun exact SillyTavern choice visual capture after preserving embedded bridge regex escapes
+run=v0.4.24-choice-ui-v1.5-preview
+reason=capture readable CJK mobile/desktop option previews from exact real-ST formatted DOM
