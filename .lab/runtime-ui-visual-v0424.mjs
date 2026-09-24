@@ -31,7 +31,7 @@ try{
     await st.getCharacters();
     const idx=st.characters.findIndex(x=>(x?.data?.name||x?.name)===name&&x?.data?.character_version===version&&x?.data?.creator==='叶罹');
     if(idx<0)return false;
-    await st.selectCharacterById(idx,{switchMenu:false});
+    void st.selectCharacterById(idx,{switchMenu:false});
     return true;
   },{name:card.data.name,version:ONEFILE_VERSION});
   if(!selected) throw new Error('v0424 UI character not found after import');
