@@ -1,0 +1,2 @@
+run=1
+reason=verify gender sync with user-only visible-pronoun probes to avoid NPC pronoun false positives
