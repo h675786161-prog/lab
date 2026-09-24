@@ -153,6 +153,7 @@ jobs:
       LAB_OUT_SHELL: bench-evidence/qidu-card-v0424-output-shell
       LAB_OUT_FLOW: bench-evidence/qidu-card-v0424-narrative-flow
       LAB_OUT_DEADLINE: bench-evidence/qidu-card-v0424-deadlines
+      LAB_OUT_ENDINGS: bench-evidence/qidu-card-v0424-final-settlement
     steps:
       - uses: actions/checkout@v4
       - name: Adapt narrative probes to exact v0.4.24 candidate
@@ -286,6 +287,18 @@ jobs:
             echo "deadlines retry $n"; sleep 15
           done
           exit 1
+      - run: sleep 12
+        if: always()
+      - id: endings
+        if: always()
+        continue-on-error: true
+        run: |
+          export NODE_OPTIONS="--import=$GITHUB_WORKSPACE/.lab/qidu-fetch-retry-preload.mjs"
+          for n in 1 2; do
+            node .lab/qidu-card-model-bench-v0424-final-settlement.mjs && exit 0
+            echo "endings retry $n"; sleep 15
+          done
+          exit 1
       - name: Enforce narrative gate
         if: always()
         run: |
@@ -300,6 +313,7 @@ jobs:
           printf 'shell=%s\n' '${{ steps.shell.outcome }}'
           printf 'flow=%s\n' '${{ steps.flow.outcome }}'
           printf 'deadlines=%s\n' '${{ steps.deadlines.outcome }}'
+          printf 'endings=%s\n' '${{ steps.endings.outcome }}'
           test '${{ steps.core.outcome }}' = success
           test '${{ steps.encounter.outcome }}' = success
           test '${{ steps.conflict.outcome }}' = success
@@ -311,6 +325,7 @@ jobs:
           test '${{ steps.shell.outcome }}' = success
           test '${{ steps.flow.outcome }}' = success
           test '${{ steps.deadlines.outcome }}' = success
+          test '${{ steps.endings.outcome }}' = success
       - name: Upload narrative evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -366,6 +381,10 @@ jobs:
             [by('91｜'),'无节点状态迁移与日结字段'],
             [by('04｜'),'限时剧情按天硬截止'],
             [by('04｜'),'安线硬截止｜第4天→第3天'],
+            [by('13｜'),'安线资格复核｜剧情流速版'],
+            [by('14｜'),'安线进入条件复核｜唯一口径'],
+            [by('17｜'),'最终日普通线结局｜唯一判定优先级'],
+            [by('17｜'),'牺牲失败后的普通线回落'],
             [by('00｜'),'玩家性别同步｜高优先'],
             [by('91｜'),'player_profile.gender初始化顺序'],
             [by('10｜'),'安初见CG｜首条开场强制'],
@@ -392,6 +411,7 @@ jobs:
           if(!CG_KEYS.filter(k=>k!=='cg_ann_first_meet').every(k=>initial.cg_system?.shown?.[k.replace(/^cg_/,'')]===false)) throw new Error('other initial CG shown flags invalid');
           if(!/<f7d_cg\s+key=["']cg_ann_first_meet["']\s*>\s*<\/f7d_cg>/i.test(String(card.data?.first_mes||''))) throw new Error('opening Ann CG tag missing');
           if(!String(card.data?.post_history_instructions||'').includes('结构壳稳定性｜最高优先级隐藏执行')) throw new Error('stable output shell rule missing');
+          if(!String(card.data?.post_history_instructions||'').includes('最终日结局结算｜最高优先级隐藏执行')) throw new Error('final settlement priority rule missing');
           const helper=card.data?.extensions?.tavern_helper;
           const helperScript=helper?.scripts?.find(x=>x?.id==='qidu-v0424-choice-bridge');
           if(!helperScript?.enabled||!String(helperScript?.content||'').includes('__F7D_CARD_CHOICE_BRIDGE_V0424__')) throw new Error('embedded clickable choice bridge missing');
