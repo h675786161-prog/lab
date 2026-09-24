@@ -1,2 +1,2 @@
-run=14
-reason=target eternal ending exact meta.endings literal on gemini-3-flash-preview after Final Gate #45 exposed ending-state-drift
+run=15
+reason=reconfirm eternal ending exact meta.endings literal after first-chimera closure hardening changed candidate prompt hash
