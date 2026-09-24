@@ -29,8 +29,8 @@ jobs:
           path: wb-baseline
       - name: Compare archived recall with the configured LAB model
         env:
-          YOUZI_KEY: ${{ secrets.YOUZI }}
-          GLM_MODEL: '[B]glm-5.3-flash'
+          LAB_MODEL_KEY: ${{ secrets.GG }}
+          LAB_MODEL_BASE_URL: https://gcli.ggchan.dev
         run: node .lab/wb-memory-live.mjs
       - uses: actions/upload-artifact@v4
         if: always()

@@ -7,15 +7,23 @@ const baseline = await import(pathToFileURL(path.resolve('wb-baseline/core.js'))
 const fixtures = JSON.parse(await fs.readFile('.lab/wb-memory-fixtures.json', 'utf8'));
 const out = 'bench-evidence/wb-memory';
 await fs.mkdir(out, { recursive: true });
-const key = process.env.YOUZI_KEY;
-const model = process.env.GLM_MODEL || '[B]glm-5.3-flash';
-if (!key) throw new Error('Configured LAB model credential is unavailable');
+const key = process.env.LAB_MODEL_KEY;
+const baseUrl = process.env.LAB_MODEL_BASE_URL;
+if (!key || !baseUrl) throw new Error('Configured LAB model connection is unavailable');
+const modelsResponse = await fetch(`${baseUrl}/v1/models`, {
+    headers: { Authorization: `Bearer ${key}` }, signal: AbortSignal.timeout(25_000),
+});
+if (!modelsResponse.ok) throw new Error(`LAB model list HTTP ${modelsResponse.status}`);
+const modelList = (await modelsResponse.json()).data || [];
+const model = process.env.LAB_MODEL_ID || modelList.map(x => x.id)
+    .find(id => /glm-5|deepseek-v4/i.test(id));
+if (!model) throw new Error('No supported GLM/DeepSeek model in the LAB model list');
 let previousRequestAt = 0;
 async function request(messages, maxTokens) {
     const wait = Math.max(0, previousRequestAt + 8000 - Date.now());
     if (wait) await new Promise(resolve => setTimeout(resolve, wait));
     previousRequestAt = Date.now();
-    const response = await fetch('https://youzi.today/v1/chat/completions', {
+    const response = await fetch(`${baseUrl}/v1/chat/completions`, {
         method: 'POST', signal: AbortSignal.timeout(150_000),
         headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ model, messages, max_tokens: maxTokens, temperature: 0.1,
