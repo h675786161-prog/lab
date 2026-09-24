@@ -96,6 +96,7 @@ expect(annRules.includes('黑核')&&(/不属于安线资格或安线结局条件
 expect(combinedRules.includes('被夺黑核不可逆')&&combinedRules.includes('stolen'),'stolen-core-irreversible');
 expect(combinedRules.includes('安线黑核完全可选'),'ann-core-optional');
 expect(phi.includes('态度句必须以“我”的经历、选择、担忧为中心')&&phi.includes('威胁是毁灭性的')&&phi.includes('不得改写成“神器使/活骸/他们”作为主语的普遍结论'),'first-chimera-subjective-rationale-lock');
+expect(phi.includes('当时还不知道活骸化这个词/概念/含义')&&phi.includes('亲眼看着/目睹')&&phi.includes('万分之一/千分之一/百分之一')&&phi.includes('只允许世界书已锚定的“巨大痛苦”'),'first-chimera-residual-inference-lock');
 expect(!txt.includes('安靠门'),'no-door-death-route');
 const chaseFailureRules=[e14,e17,e18,phi].join('\n');
 expect(!CANONICAL_ENDINGS.some(x=>String(x).includes('追安失败'))&&/追安失败[\s\S]{0,500}(?:不得|永远不)写入meta\.endings/.test(chaseFailureRules),'failed-chase-not-recorded-as-ending');
