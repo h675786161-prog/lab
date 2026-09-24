@@ -1,0 +1,2 @@
+run=1
+reason=verify exact gender-shown-CG-key lock for sacrifice/final/box endings
