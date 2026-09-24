@@ -127,6 +127,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      - name: Select live CG provider/model
+        run: |
+          python .lab/qidu-select-live-provider-v0424.py
+          sleep 25
       - name: Run exact CG behavior gate
         run: node .lab/qidu-card-model-bench-v0424-cg.mjs
       - name: Upload CG behavior evidence
