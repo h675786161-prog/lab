@@ -1,0 +1,103 @@
+name: Qidu Card v0424 Choice UI Visual
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['feature/qidu-card-v0411-lab']
+    paths:
+      - '.lab/qidu-choice-ui-trigger.txt'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qidu-v0424-choice-ui-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  choice-ui-real-st:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ST_DIR: /tmp/qidu-choice-ui-st
+      BROWSER_DIR: /tmp/qidu-choice-ui-browser
+      LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      TAVERN_HELPER_COMMIT: fe6388985ffb8a3d9ac08d09b9dfb28423a5fc2b
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Clone exact SillyTavern runtime
+        run: |
+          set -euo pipefail
+          rm -rf "$ST_DIR" "$LAB_EVIDENCE_DIR"
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+
+      - name: Install SillyTavern dependencies
+        working-directory: /tmp/qidu-choice-ui-st
+        run: npm ci
+
+      - name: Install exact Tavern Helper
+        run: |
+          set -euo pipefail
+          HELPER_DIR="$ST_DIR/public/scripts/extensions/third-party/JS-Slash-Runner"
+          rm -rf "$HELPER_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/N0VI028/JS-Slash-Runner.git "$HELPER_DIR"
+          git -C "$HELPER_DIR" fetch origin "$TAVERN_HELPER_COMMIT" --depth=1
+          git -C "$HELPER_DIR" checkout --detach "$TAVERN_HELPER_COMMIT"
+          test "$(git -C "$HELPER_DIR" rev-parse HEAD)" = "$TAVERN_HELPER_COMMIT"
+          corepack enable
+          cd "$HELPER_DIR"
+          pnpm install --frozen-lockfile
+          ST_IMPORT_DEPTH=5 pnpm build
+          test -s dist/index.js
+
+      - name: Start isolated SillyTavern
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8000 --disableCsrf > "$LAB_EVIDENCE_DIR/sillytavern.log" 2>&1 &
+          echo $! > /tmp/qidu-choice-ui-st.pid
+          for i in $(seq 1 90); do
+            if curl -fsS --max-time 2 http://127.0.0.1:8000/ >/dev/null 2>&1; then exit 0; fi
+            if ! kill -0 "$(cat /tmp/qidu-choice-ui-st.pid)" 2>/dev/null; then cat "$LAB_EVIDENCE_DIR/sillytavern.log"; exit 1; fi
+            sleep 1
+          done
+          cat "$LAB_EVIDENCE_DIR/sillytavern.log"
+          exit 1
+
+      - name: Prepare real browser QA
+        run: |
+          set -euo pipefail
+          rm -rf "$BROWSER_DIR"
+          mkdir -p "$BROWSER_DIR"
+          cd "$BROWSER_DIR"
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          echo "LAB_CHROME=$CHROME_BIN" >> "$GITHUB_ENV"
+          echo "LAB_PLAYWRIGHT_CORE_ENTRY=file://$BROWSER_DIR/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
+          echo "LAB_ST_URL=http://127.0.0.1:8000" >> "$GITHUB_ENV"
+
+      - name: Run v0424 choice visual acceptance
+        run: node .lab/runtime-ui-visual-v0424.mjs
+
+      - name: Stop isolated runtime
+        if: always()
+        run: |
+          if [ -f /tmp/qidu-choice-ui-st.pid ]; then kill "$(cat /tmp/qidu-choice-ui-st.pid)" 2>/dev/null || true; fi
+
+      - name: Upload choice UI evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-v0424-choice-ui-evidence
+          path: lab-evidence/
+          if-no-files-found: error
