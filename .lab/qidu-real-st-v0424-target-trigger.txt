@@ -1,2 +1,2 @@
-run=14
-reason=rerun exact real SillyTavern helper acceptance after replacing fixed 350ms toggle race with bridge-or-toggle readiness wait; card payload unchanged
+run=15
+reason=validate counted-patrol cleanup in exact current v0.4.24 payload plus real ST Helper/browser acceptance; also reject residual numbered region-flow markers before import
