@@ -335,8 +335,8 @@ function installChoiceFrontend(card){
       for(const node of nodes){
         const before=String(node.data||'');
         const after=before
-          .replace(/\s*[｜|]\s*行动节点\s*(?:尚未开始|\d+\s*\/\s*12|[^｜|\n<]*)/g,'')
-          .replace(/(^|\n)\s*行动节点\s*[:：]?[^\n<]*(?=\n|$)/g,'$1');
+          .replace(/\\s*[｜|]\\s*行动节点\\s*(?:尚未开始|\\d+\\s*\\/\\s*12|[^｜|\\n<]*)/g,'')
+          .replace(/(^|\\n)\\s*行动节点\\s*[:：]?[^\\n<]*(?=\\n|$)/g,'$1');
         if(after!==before) node.data=after;
       }
     }
@@ -413,7 +413,7 @@ function installChoiceFrontend(card){
     const c=target?.closest(choice);
     if(c){
       e.preventDefault();e.stopPropagation();
-      const value=String(c.textContent||'').replace(/^[✦✧☁]\s*/,'').trim();
+      const value=String(c.textContent||'').replace(/^[✦✧☁]\\s*/,'').trim();
       setComposer(value);return;
     }
     const f=target?.closest(free);
