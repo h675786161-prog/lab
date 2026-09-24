@@ -116,7 +116,7 @@ expect(initial.cg_system?.mode==='direct_only'&&initial.cg_system?.album_enabled
 expect(initial.cg_system?.shown?.ann_first_meet===true,'initial-ann-cg-shown');
 expect(/<f7d_cg\s+key=["']cg_ann_first_meet["']\s*>\s*<\/f7d_cg>/i.test(String(card.data?.first_mes||'')),'opening-ann-cg');
 
-for(const marker of ['结构壳稳定性｜最高优先级隐藏执行','最终日结局结算｜最高优先级隐藏执行','正式结局集合｜唯一名单｜最高优先级隐藏执行','最终状态字面量锁｜提交前最后检查']){
+for(const marker of ['结构壳稳定性｜最高优先级隐藏执行','第一活骸五事实闭包｜最高优先级隐藏执行','最终日结局结算｜最高优先级隐藏执行','正式结局集合｜唯一名单｜最高优先级隐藏执行','最终状态字面量锁｜提交前最后检查']){
   expect(phi.includes(marker),`phi:${marker}`);
 }
 
