@@ -23,28 +23,47 @@ try{
   const r=await page.goto(`${baseUrl}/`,{waitUntil:'domcontentloaded',timeout:60000});if(!r||r.status()>=400)throw new Error(`HTTP ${r?.status()}`);await page.waitForTimeout(1800);
   await page.evaluate(()=>{for(const d of document.querySelectorAll('dialog[open]')){try{d.close()}catch{}}});
 
+  const preapproved=await page.evaluate(async({name,version})=>{
+    const st=await import('/script.js');
+    const ext=await import('/scripts/extensions.js');
+    await st.getCharacters();
+    const idx=st.characters.findIndex(x=>(x?.data?.name||x?.name)===name&&x?.data?.character_version===version&&x?.data?.creator==='叶罹');
+    if(idx<0)return{found:false};
+    const avatar=st.characters[idx]?.avatar;
+    const embeddedScripts=Array.isArray(st.characters[idx]?.data?.extensions?.tavern_helper?.scripts)?st.characters[idx].data.extensions.tavern_helper.scripts.length:0;
+    const root=ext.extension_settings.tavern_helper ||= {};
+    const script=root.script ||= {};
+    const enabled=script.enabled ||= {global:true,presets:[],characters:[]};
+    if(!Array.isArray(enabled.presets)) enabled.presets=[];
+    if(!Array.isArray(enabled.characters)) enabled.characters=[];
+    enabled.global=true;
+    if(avatar&&!enabled.characters.includes(avatar)) enabled.characters.push(avatar);
+    const popuped=script.popuped ||= {presets:[],characters:[]};
+    if(!Array.isArray(popuped.presets)) popuped.presets=[];
+    if(!Array.isArray(popuped.characters)) popuped.characters=[];
+    if(avatar&&!popuped.characters.includes(avatar)) popuped.characters.push(avatar);
+    await st.saveSettings();
+    return{found:true,avatar,embeddedScripts};
+  },{name:card.data.name,version:ONEFILE_VERSION});
+  if(!preapproved?.found||preapproved?.embeddedScripts<1) throw new Error(`embedded choice script missing after import: ${JSON.stringify(preapproved)}`);
+
+  await page.reload({waitUntil:'domcontentloaded',timeout:60000});
+  await page.waitForTimeout(1600);
+  await page.evaluate(()=>{for(const d of document.querySelectorAll('dialog[open]')){try{d.close()}catch{}}});
+
   const helperSelection=await page.evaluate(async({name,version})=>{
     const st=await import('/script.js');
     await st.getCharacters();
     const idx=st.characters.findIndex(x=>(x?.data?.name||x?.name)===name&&x?.data?.character_version===version&&x?.data?.creator==='叶罹');
     if(idx<0)return{found:false};
-    void st.selectCharacterById(idx,{switchMenu:false});
+    await st.selectCharacterById(idx,{switchMenu:false});
     return{found:true,avatar:st.characters[idx]?.avatar,embeddedScripts:Array.isArray(st.characters[idx]?.data?.extensions?.tavern_helper?.scripts)?st.characters[idx].data.extensions.tavern_helper.scripts.length:0};
   },{name:card.data.name,version:ONEFILE_VERSION});
-  if(!helperSelection?.found||helperSelection?.embeddedScripts<1) throw new Error(`embedded choice script missing after import: ${JSON.stringify(helperSelection)}`);
-  await page.waitForTimeout(500);
+  if(!helperSelection?.found||helperSelection?.embeddedScripts<1) throw new Error(`embedded choice script missing after reload: ${JSON.stringify(helperSelection)}`);
+
   for(let i=0;i<100;i++){
     const ready=await page.evaluate(()=>Boolean(window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.setComposer));
     if(ready)break;
-    await page.evaluate(()=>{
-      const body=String(document.body.innerText||'');
-      if(!/嵌入式脚本|是否现在就启用/.test(body))return false;
-      const visible=x=>{const s=getComputedStyle(x);const r=x.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>0&&r.height>0};
-      const btn=[...document.querySelectorAll('button,.menu_button,[role="button"]')].find(x=>visible(x)&&String(x.textContent||'').trim()==='确认');
-      if(!btn)return false;
-      btn.click();
-      return true;
-    });
     await page.waitForTimeout(150);
   }
   const bridgeReady=await page.evaluate(()=>Boolean(window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.setComposer));
