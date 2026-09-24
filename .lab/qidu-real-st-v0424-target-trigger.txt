@@ -1,1 +1,1 @@
-run=2\nreason=activate preapproved imported card through real ST CHAT_CHANGED so actual Tavern Helper executes embedded bridge without chat-load deadlock\n
+run=3\nreason=real ST helper acceptance without awaiting unrelated CHAT_CHANGED listeners\n
