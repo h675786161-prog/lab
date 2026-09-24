@@ -82,6 +82,18 @@ try{
   },{name:card.data.name,version:ONEFILE_VERSION});
   if(!helperSelection?.found||helperSelection?.embeddedScripts<1) throw new Error(`embedded choice script missing after reload: ${JSON.stringify(helperSelection)}`);
 
+  await page.waitForTimeout(350);
+  const helperToggle=await page.evaluate(()=>{
+    const toggles=[...document.querySelectorAll('#tavern_helper input[id$="-script-enable-toggle"]')];
+    const summary=toggles.map((x,i)=>({i,id:x.id,checked:Boolean(x.checked)}));
+    const target=toggles.find(x=>/角色|character/i.test(String(x.id||'')))||toggles[1]||null;
+    if(!target)return{found:false,summary};
+    if(!target.checked) target.click();
+    return{found:true,id:target.id,checked:Boolean(target.checked),summary};
+  });
+  console.log('[helper-toggle]',JSON.stringify(helperToggle));
+  if(!helperToggle?.found||!helperToggle?.checked) throw new Error(`Tavern Helper character-script toggle unavailable: ${JSON.stringify(helperToggle)}`);
+
   for(let i=0;i<100;i++){
     const ready=await page.evaluate(()=>Boolean(window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.setComposer));
     if(ready)break;
@@ -102,6 +114,7 @@ try{
       enabledButtons,
       enabledCharacters:ext.extension_settings?.tavern_helper?.script?.enabled?.characters??null,
       popupedCharacters:ext.extension_settings?.tavern_helper?.script?.popuped?.characters??null,
+      toggles:[...document.querySelectorAll('#tavern_helper input[id$="-script-enable-toggle"]')].map((x,i)=>({i,id:x.id,checked:Boolean(x.checked)})),
       iframes:[...document.querySelectorAll('iframe')].map(x=>({id:x.id||null,name:x.name||null,src:x.getAttribute('src')||null,title:x.title||null})).slice(0,30),
       bridge:Boolean(window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.setComposer),
       bridgeVersion:window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.version||null,
