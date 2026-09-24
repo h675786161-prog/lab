@@ -191,3 +191,4 @@ with open(env_path, "a", encoding="utf-8") as handle:
     handle.write("RELEASE_MODEL=" + selected["model"] + "\n")
     handle.write("BEHAVIOR_PROVIDER_SELECTED=" + selected["provider"] + "\n")
     handle.write("BEHAVIOR_MODEL_SELECTED=" + selected["model"] + "\n")
+    handle.write("CG_MODEL=" + selected["model"] + "\n")
