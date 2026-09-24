@@ -1,2 +1,2 @@
-run=v0.4.23-ui-visible-2
-reason=repeat v0423 real SillyTavern UI proof after separating actual label-to-composer focus behavior from modal top-layer screenshot layout; verify author metadata, hidden state, responsive choice styling and real composer focus without modal focus-trap false failure
+run=v0.4.24-choice-ui-v1.5
+reason=real SillyTavern visual acceptance for refined responsive choice cards; capture mobile and desktop choice screenshots, skip-state styling, free-input full-row layout, and click bridge v1.5
