@@ -1,2 +1,2 @@
-run=20260924-post-quota-check
-reason=check whether GG gemini flash quota recovered before rerunning final narrative gate; keep alternate providers visible only as infrastructure evidence
+run=20260924-release-model-first
+reason=probe exact release model gemini-3-flash-preview and pro no-thinking fallback before resuming narrative verification
