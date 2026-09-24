@@ -92,6 +92,27 @@ try{
     };
   },{name:card.data.name,version:ONEFILE_VERSION});
 
+  const visualSnapshot=await page.evaluate(()=>{
+    const grid=document.querySelector('#qidu-v0424-ui-mount [data-f7d-choice-grid="1"]');
+    const css=document.getElementById('f7d-ui-theme-v0424')?.textContent||'';
+    return{html:grid?.outerHTML||'',css};
+  });
+  if(!visualSnapshot.html) throw new Error('choice grid snapshot missing');
+
+  const preview=await browser.newPage({viewport:{width:390,height:844}});
+  const previewDoc=(width)=>`<!doctype html><html><head><meta charset="utf-8"><style>
+  html,body{margin:0;background:#171a1f;color:#30392b;font-family:"Noto Sans CJK SC","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif}
+  body{padding:18px;box-sizing:border-box;width:100vw}
+  #preview{width:min(760px,100%);margin:0 auto}
+  ${visualSnapshot.css}
+  </style></head><body><main id="preview">${visualSnapshot.html}</main></body></html>`;
+  await preview.setContent(previewDoc(390),{waitUntil:'domcontentloaded'});
+  await preview.locator('#preview').screenshot({path:path.join(evidenceDir,'qidu-v0424-choice-mobile-preview.png')});
+  await preview.setViewportSize({width:1366,height:768});
+  await preview.setContent(previewDoc(1366),{waitUntil:'domcontentloaded'});
+  await preview.locator('#preview').screenshot({path:path.join(evidenceDir,'qidu-v0424-choice-desktop-preview.png')});
+  await preview.close();
+
   const mobileGrid=page.locator('#qidu-v0424-ui-mount [data-f7d-choice-grid="1"]');
   await mobileGrid.screenshot({path:path.join(evidenceDir,'qidu-v0424-choice-mobile.png')});
   await page.screenshot({path:path.join(evidenceDir,'qidu-v0424-choice-mobile-context.png'),fullPage:false});
