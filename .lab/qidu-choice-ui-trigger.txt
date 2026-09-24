@@ -1,2 +1,2 @@
-run=v0.4.24-choice-ui-v1.5-deterministic
-reason=rerun exact SillyTavern choice visual capture with deterministic embedded-bridge execution
+run=v0.4.24-choice-ui-v1.5-regexfix
+reason=rerun exact SillyTavern choice visual capture after preserving embedded bridge regex escapes
