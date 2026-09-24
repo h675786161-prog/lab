@@ -14,10 +14,12 @@ const modelsResponse = await fetch(`${baseUrl}/v1/models`, {
     headers: { Authorization: `Bearer ${key}` }, signal: AbortSignal.timeout(25_000),
 });
 if (!modelsResponse.ok) throw new Error(`LAB model list HTTP ${modelsResponse.status}`);
-const modelList = (await modelsResponse.json()).data || [];
-const model = process.env.LAB_MODEL_ID || modelList.map(x => x.id)
-    .find(id => /glm-5|deepseek-v4/i.test(id));
-if (!model) throw new Error('No supported GLM/DeepSeek model in the LAB model list');
+const modelPayload = await modelsResponse.json();
+const modelList = modelPayload.data || modelPayload.models || [];
+const modelIds = modelList.map(x => typeof x === 'string' ? x : x.id || x.name).filter(Boolean);
+console.log(JSON.stringify({ modelCount: modelIds.length, modelIds: modelIds.slice(0, 30), responseKeys: Object.keys(modelPayload) }));
+const model = process.env.LAB_MODEL_ID || modelIds.find(id => /glm|deepseek/i.test(id)) || modelIds[0];
+if (!model) throw new Error('No text model was listed by the configured LAB route');
 let previousRequestAt = 0;
 async function request(messages, maxTokens) {
     const wait = Math.max(0, previousRequestAt + 8000 - Date.now());
