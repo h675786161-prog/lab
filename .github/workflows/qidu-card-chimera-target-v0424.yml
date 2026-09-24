@@ -1,0 +1,45 @@
+name: Qidu v0424 Targeted First Chimera
+
+on:
+  push:
+    branches: ['feature/qidu-card-v0411-lab']
+    paths:
+      - '.lab/qidu-chimera-v0424-target-trigger.txt'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qidu-v0424-targeted-chimera-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  chimera:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      MODEL_API_KEY: ${{ secrets.GG }}
+      MODEL_API_BASE: https://gcli.ggchan.dev/v1
+      GG_KEY: ${{ secrets.GG }}
+      YOUZI_KEY: ${{ secrets.YOUZI }}
+      PIAOMIAO_KEY: ${{ secrets.PIAOMIAO }}
+      RELEASE_MODEL: 'gemini-3-flash-preview'
+      QIDU_MODEL_GAP_MS: '20000'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Adapt chimera probe to exact v0.4.24 candidate
+        run: python .lab/qidu-final-adapt-probes-v0424.py
+      - name: Select live behavioral provider/model
+        run: |
+          python .lab/qidu-select-live-provider-v0424.py
+          sleep 25
+      - name: Run first-chimera boundary gate
+        run: |
+          set -euo pipefail
+          export NODE_OPTIONS="--import=$GITHUB_WORKSPACE/.lab/qidu-fetch-retry-preload.mjs"
+          for n in 1 2 3; do
+            node .lab/qidu-first-chimera-release-v0423.mjs && exit 0
+            echo "chimera retry $n"
+            sleep 15
+          done
+          exit 1
