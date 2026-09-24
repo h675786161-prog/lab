@@ -1,1 +1,2 @@
-rerun-final-after-trusted-option-refill-no-autosubmit-pass
+run=41
+reason=validate unchanged v0.4.24 candidate on exact real ST and CG gates with new cross-provider narrative selector; expected to fail fast only if all live narrative providers remain unavailable
