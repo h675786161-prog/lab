@@ -211,8 +211,8 @@ function installChoiceFrontend(card){
   const button=scripts.find(x=>x?.id==='f7d-choice-button-v0414');
   if(!wrap||!button) throw new Error('choice regex missing');
 
-  wrap.replaceString='<div data-f7d-choice-grid="1" style="box-sizing:border-box;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:.68em;width:100%;max-width:100%;margin:.9em 0;padding:.82em;border:1px solid rgba(117,132,94,.24);border-radius:20px;background:linear-gradient(155deg,rgba(255,255,252,.97),rgba(240,247,224,.94));box-shadow:0 14px 34px rgba(60,72,46,.12),inset 0 1px 0 rgba(255,255,255,.96);"><div data-f7d-choice-title="1" style="grid-column:1/-1;display:flex;align-items:center;gap:.62em;padding:.12em .12em .38em;color:#4b583e;font:750 12px/1.25 system-ui,-apple-system,\'Microsoft YaHei\',sans-serif;letter-spacing:.08em;"><span data-f7d-choice-title-mark="1" style="display:inline-grid;place-items:center;width:26px;height:26px;border-radius:9px;background:linear-gradient(145deg,#dff18a,#ffe798);box-shadow:0 4px 10px rgba(91,108,59,.16);color:#3f4c32;font-size:12px;">◆</span><span>选择行动</span><small style="margin-left:auto;color:#879373;font:700 10px/1 system-ui,-apple-system,\'Microsoft YaHei\',sans-serif;letter-spacing:.14em;">CHOOSE ACTION</small></div>$1<button type="button" data-f7d-choice-free="1" data-f7d-choice-kind="free" style="box-sizing:border-box;display:block;grid-column:1/-1;width:100%;min-height:44px;padding:.7em 1em;border:1.5px dashed rgba(105,122,84,.48);border-radius:14px;background:rgba(255,255,255,.72);box-shadow:inset 0 1px 0 rgba(255,255,255,.92);color:#5c684d;font:650 13.5px/1.4 system-ui,-apple-system,\'Microsoft YaHei\',sans-serif;text-align:center;cursor:pointer;overflow-wrap:anywhere;">自由输入</button></div>';
-  button.replaceString='<button type="button" data-f7d-choice="1" data-f7d-choice-kind="story" style="box-sizing:border-box;display:block;width:100%;min-height:58px;padding:.9em 3.05em .9em 3.65em;border:1px solid rgba(91,108,68,.26);border-radius:16px;background:linear-gradient(145deg,rgba(255,255,255,.99),rgba(249,252,240,.96));box-shadow:0 6px 16px rgba(66,78,52,.09),inset 0 1px 0 rgba(255,255,255,.98);color:#30392b;font:650 14px/1.5 system-ui,-apple-system,\'Microsoft YaHei\',sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;">$1</button>';
+  wrap.replaceString='<div data-f7d-choice-grid="1" style="box-sizing:border-box;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.72em;width:100%;max-width:100%;margin:.9em 0;padding:1em;border:1px solid rgba(107,119,110,.24);border-radius:10px;background:rgba(250,250,247,.96);box-shadow:0 8px 22px rgba(35,42,38,.07);"><div data-f7d-choice-title="1" style="grid-column:1/-1;display:flex;align-items:end;gap:.8em;padding:.08em .18em .52em;border-bottom:1px solid rgba(107,119,110,.18);color:#202824;font:750 18px/1.2 system-ui,-apple-system,\'Microsoft YaHei\',sans-serif;"><span data-f7d-choice-title-mark="1" style="display:block;width:4px;height:24px;border-radius:1px;background:#c8a957;"></span><span>选择行动</span><small style="padding-bottom:.12em;color:#8b938e;font:600 9px/1 system-ui,-apple-system,\'Microsoft YaHei\',sans-serif;letter-spacing:.22em;">TACTICAL OPTIONS</small></div>$1<button type="button" data-f7d-choice-free="1" data-f7d-choice-kind="free" style="box-sizing:border-box;display:block;grid-column:1/-1;width:100%;min-height:44px;padding:.72em 2.6em;border:1px solid rgba(107,119,110,.28);border-radius:7px;background:rgba(246,248,245,.9);box-shadow:none;color:#536158;font:620 13.5px/1.45 system-ui,-apple-system,\'Microsoft YaHei\',sans-serif;text-align:center;cursor:pointer;overflow-wrap:anywhere;">自由输入</button></div>';
+  button.replaceString='<button type="button" data-f7d-choice="1" data-f7d-choice-kind="story" style="box-sizing:border-box;display:block;width:100%;min-height:68px;padding:1em 2.6em 1em 3.9em;border:1px solid rgba(107,119,110,.27);border-radius:7px;background:rgba(255,255,253,.97);box-shadow:none;color:#202724;font:640 14px/1.58 system-ui,-apple-system,\'Microsoft YaHei\',sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;word-break:break-word;">$1</button>';
 
   const bridgeContent=`(() => {
   const KEY='__F7D_CARD_CHOICE_BRIDGE_V0424__';
@@ -221,40 +221,40 @@ function installChoiceFrontend(card){
   const free='[data-f7d-choice-free="1"]';
   const input=()=>doc.querySelector('#send_textarea');
   const focus=el=>{ try{el?.focus({preventScroll:true});}catch{el?.focus();} };
-  const choiceStyle='box-sizing:border-box;display:block;width:100%;min-height:58px;padding:.9em 3.05em .9em 3.65em;border:1px solid rgba(91,108,68,.26);border-radius:16px;background:linear-gradient(145deg,rgba(255,255,255,.99),rgba(249,252,240,.96));box-shadow:0 6px 16px rgba(66,78,52,.09),inset 0 1px 0 rgba(255,255,255,.98);color:#30392b;font:650 14px/1.5 system-ui,-apple-system,Microsoft YaHei,sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;';
-  const freeStyle='box-sizing:border-box;display:block;grid-column:1/-1;width:100%;min-height:44px;padding:.7em 1em;border:1.5px dashed rgba(105,122,84,.48);border-radius:14px;background:rgba(255,255,255,.72);box-shadow:inset 0 1px 0 rgba(255,255,255,.92);color:#5c684d;font:650 13.5px/1.4 system-ui,-apple-system,Microsoft YaHei,sans-serif;text-align:center;cursor:pointer;overflow-wrap:anywhere;';
-  const gridStyle='box-sizing:border-box;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:.68em;width:100%;max-width:100%;margin:.9em 0;padding:.82em;border:1px solid rgba(117,132,94,.24);border-radius:20px;background:linear-gradient(155deg,rgba(255,255,252,.97),rgba(240,247,224,.94));box-shadow:0 14px 34px rgba(60,72,46,.12),inset 0 1px 0 rgba(255,255,255,.96);';
-  const terminalStyle='box-sizing:border-box;width:100%;max-width:100%;overflow-wrap:anywhere;margin:.82em 0;padding:1em 1.05em;border:1.5px solid rgba(96,112,78,.38);border-radius:26px;background:linear-gradient(155deg,rgba(255,255,255,.94),rgba(241,248,224,.90));box-shadow:0 10px 28px rgba(74,88,55,.13),inset 0 1px 0 rgba(255,255,255,.95);color:#35402f;font:560 13.5px/1.72 system-ui,-apple-system,Microsoft YaHei,sans-serif;white-space:pre-wrap';
+  const choiceStyle='box-sizing:border-box;display:block;width:100%;min-height:68px;padding:1em 2.6em 1em 3.9em;border:1px solid rgba(107,119,110,.27);border-radius:7px;background:rgba(255,255,253,.97);box-shadow:none;color:#202724;font:640 14px/1.58 system-ui,-apple-system,Microsoft YaHei,sans-serif;text-align:left;cursor:pointer;overflow-wrap:anywhere;word-break:break-word;';
+  const freeStyle='box-sizing:border-box;display:block;grid-column:1/-1;width:100%;min-height:44px;padding:.72em 2.6em;border:1px solid rgba(107,119,110,.28);border-radius:7px;background:rgba(246,248,245,.9);box-shadow:none;color:#536158;font:620 13.5px/1.45 system-ui,-apple-system,Microsoft YaHei,sans-serif;text-align:center;cursor:pointer;overflow-wrap:anywhere;';
+  const gridStyle='box-sizing:border-box;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.72em;width:100%;max-width:100%;margin:.9em 0;padding:1em;border:1px solid rgba(107,119,110,.24);border-radius:10px;background:rgba(250,250,247,.96);box-shadow:0 8px 22px rgba(35,42,38,.07);';
+  const terminalStyle='box-sizing:border-box;width:100%;max-width:100%;overflow-wrap:anywhere;margin:.82em 0;padding:.82em .95em;border:1px solid rgba(107,119,110,.26);border-radius:8px;background:rgba(249,250,247,.94);box-shadow:none;color:#4b5650;font:560 13px/1.65 system-ui,-apple-system,Microsoft YaHei,sans-serif;white-space:pre-wrap';
   const themeCss=\`
-[data-f7d-terminal="1"]{position:relative!important;border:1.5px solid rgba(96,112,78,.38)!important;border-radius:26px!important;background:linear-gradient(155deg,rgba(255,255,255,.96),rgba(241,248,224,.91))!important;color:#35402f!important;box-shadow:0 10px 28px rgba(74,88,55,.13),inset 0 1px 0 rgba(255,255,255,.95)!important;overflow:hidden!important}
-[data-f7d-terminal="1"]::before{content:"✦  CENTRAL COURT · TACTICAL TERMINAL  ✦";display:block;margin:-1em -1.05em .8em;padding:.72em 1em;background:linear-gradient(90deg,rgba(207,237,132,.8),rgba(255,228,129,.72),rgba(214,244,177,.78));border-bottom:1px solid rgba(101,117,80,.25);color:#48543a;font:750 11px/1.2 system-ui,-apple-system,Microsoft YaHei,sans-serif;letter-spacing:.08em;text-align:center}
-[data-f7d-choice-grid="1"]{position:relative!important;isolation:isolate;overflow:hidden;counter-reset:f7dChoice}
-[data-f7d-choice-grid="1"]::after{content:"";position:absolute;z-index:-1;right:-54px;top:-64px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(224,242,145,.34),rgba(255,232,148,.12) 48%,transparent 72%);pointer-events:none}
+[data-f7d-terminal="1"]{position:relative!important;border:1px solid rgba(107,119,110,.26)!important;border-radius:8px!important;background:rgba(249,250,247,.94)!important;color:#4b5650!important;box-shadow:none!important;overflow:hidden!important}
+[data-f7d-terminal="1"]::before{content:"TACTICAL TERMINAL";display:block;margin:-.82em -.95em .65em;padding:.5em .9em;border-bottom:1px solid rgba(107,119,110,.16);background:rgba(244,246,242,.84);color:#909894;font:650 9px/1.2 system-ui,-apple-system,Microsoft YaHei,sans-serif;letter-spacing:.18em;text-align:left}
+[data-f7d-choice-grid="1"]{position:relative!important;isolation:isolate;counter-reset:f7dChoice}
 [data-f7d-choice-title-mark="1"]{flex:0 0 auto}
-[data-f7d-choice="1"]{counter-increment:f7dChoice;position:relative!important;isolation:isolate;transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease,background .14s ease!important}
-[data-f7d-choice="1"]::before{content:counter(f7dChoice,decimal-leading-zero);position:absolute;left:14px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:30px;height:30px;border-radius:10px;background:linear-gradient(145deg,#dff18a,#ffe59a);box-shadow:0 4px 10px rgba(83,99,57,.14);color:#425034;font:800 10px/1 system-ui,-apple-system,Microsoft YaHei,sans-serif;letter-spacing:.04em}
-[data-f7d-choice="1"]::after{content:"›";position:absolute;right:16px;top:50%;transform:translateY(-53%);color:#9aa687;font:400 24px/1 system-ui,-apple-system,Microsoft YaHei,sans-serif;transition:transform .14s ease,color .14s ease}
-[data-f7d-choice="1"]:hover{transform:translateY(-2px)!important;border-color:rgba(112,132,79,.42)!important;background:linear-gradient(145deg,#fff,#f6fbe8)!important;box-shadow:0 9px 22px rgba(65,78,49,.14),inset 0 1px 0 rgba(255,255,255,.98)!important}
-[data-f7d-choice="1"]:hover::after{transform:translate(3px,-53%);color:#718058}
-[data-f7d-choice="1"]:active{transform:translateY(0)!important;box-shadow:0 3px 9px rgba(65,78,49,.12)!important}
-[data-f7d-choice="1"]:focus-visible,[data-f7d-choice-free="1"]:focus-visible{outline:3px solid rgba(206,230,119,.48)!important;outline-offset:2px!important}
-[data-f7d-choice-kind="slack"]{counter-increment:none!important;border-style:dashed!important;border-color:rgba(135,116,139,.34)!important;background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(248,242,249,.94))!important;color:#5a4d5d!important}
-[data-f7d-choice-kind="slack"]::before{content:"SKIP"!important;width:38px;border-radius:9px;background:linear-gradient(145deg,#eee2f0,#f7ecda)!important;color:#796a7c!important;font-size:8px!important;letter-spacing:.06em!important}
-[data-f7d-choice-kind="slack"]::after{color:#aa99ad}
+[data-f7d-choice="1"]{counter-increment:f7dChoice;position:relative!important;transition:border-color .14s ease,background .14s ease,transform .14s ease!important}
+[data-f7d-choice="1"]::before{content:counter(f7dChoice,decimal-leading-zero);position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#51655a;font:750 12px/1 system-ui,-apple-system,Microsoft YaHei,sans-serif;letter-spacing:.04em}
+[data-f7d-choice="1"]::after{content:"›";position:absolute;right:15px;top:50%;transform:translateY(-52%);color:#74827a;font:400 22px/1 system-ui,-apple-system,Microsoft YaHei,sans-serif;transition:transform .14s ease,color .14s ease}
+[data-f7d-choice="1"]:hover{transform:translateY(-1px)!important;border-color:rgba(83,103,91,.46)!important;background:rgba(249,251,247,.99)!important}
+[data-f7d-choice="1"]:hover::after{transform:translate(2px,-52%);color:#51665a}
+[data-f7d-choice="1"]:active{transform:translateY(0)!important;background:rgba(245,248,244,.99)!important}
+[data-f7d-choice="1"]:focus-visible,[data-f7d-choice-free="1"]:focus-visible{outline:2px solid rgba(188,163,91,.48)!important;outline-offset:2px!important}
+[data-f7d-choice-kind="slack"]{border-color:rgba(132,137,134,.22)!important;background:rgba(247,247,245,.82)!important;color:#7f8581!important}
+[data-f7d-choice-kind="slack"]::before{color:#9a9f9c!important}
+[data-f7d-choice-kind="slack"]::after{color:#a4aaa6!important}
 [data-f7d-choice-free="1"]{position:relative!important;transition:border-color .14s ease,background .14s ease,color .14s ease!important}
-[data-f7d-choice-free="1"]::before{content:"✎";margin-right:.42em;color:#8ba061;font-size:13px}
-[data-f7d-choice-free="1"]:hover{border-color:rgba(107,129,75,.7)!important;background:rgba(250,253,242,.96)!important;color:#445139!important}
+[data-f7d-choice-free="1"]::before{content:"✎";margin-right:.48em;color:#73877b;font-size:12px}
+[data-f7d-choice-free="1"]::after{content:"›";position:absolute;right:15px;top:50%;transform:translateY(-52%);color:#849188;font:400 20px/1 system-ui,-apple-system,Microsoft YaHei,sans-serif}
+[data-f7d-choice-free="1"]:hover{border-color:rgba(83,103,91,.42)!important;background:rgba(249,250,247,.98)!important;color:#435248!important}
 [data-f7d-choice-title="1"]{position:relative;z-index:1}
 @media(max-width:640px){
-  [data-f7d-choice-grid="1"]{grid-template-columns:1fr!important;padding:.72em!important;border-radius:18px!important;gap:.58em!important}
-  [data-f7d-choice-title="1"]{padding-bottom:.32em!important}
-  [data-f7d-choice-title="1"] small{display:none!important}
-  [data-f7d-choice="1"]{font-size:14px!important;min-height:56px!important;padding:.82em 2.7em .82em 3.45em!important;border-radius:15px!important}
-  [data-f7d-choice="1"]::before{left:12px;width:28px;height:28px;border-radius:9px}
+  [data-f7d-choice-grid="1"]{grid-template-columns:1fr!important;padding:.82em!important;border-radius:9px!important;gap:.62em!important}
+  [data-f7d-choice-title="1"]{align-items:center!important;padding:.04em .08em .48em!important;font-size:17px!important}
+  [data-f7d-choice-title="1"] small{font-size:8px!important;letter-spacing:.18em!important}
+  [data-f7d-choice="1"]{font-size:14px!important;min-height:62px!important;padding:.92em 2.45em .92em 3.5em!important;border-radius:7px!important}
+  [data-f7d-choice="1"]::before{left:13px}
   [data-f7d-choice="1"]::after{right:13px}
-  [data-f7d-choice-free="1"]{min-height:44px!important;border-radius:13px!important}
-  [data-f7d-terminal="1"]{border-radius:22px!important;padding:.92em .9em!important}
-  [data-f7d-terminal="1"]::before{margin:-.92em -.9em .72em}
+  [data-f7d-choice-free="1"]{min-height:42px!important;border-radius:7px!important}
+  [data-f7d-terminal="1"]{border-radius:7px!important;padding:.78em .82em!important}
+  [data-f7d-terminal="1"]::before{margin:-.78em -.82em .6em}
 }
 \`;
   const ensureTheme=()=>{
@@ -292,8 +292,8 @@ function installChoiceFrontend(card){
     grid.style.cssText=gridStyle;
     const title=doc.createElement('div');
     title.setAttribute('data-f7d-choice-title','1');
-    title.style.cssText='grid-column:1/-1;display:flex;align-items:center;gap:.62em;padding:.12em .12em .38em;color:#4b583e;font:750 12px/1.25 system-ui,-apple-system,Microsoft YaHei,sans-serif;letter-spacing:.08em';
-    title.innerHTML='<span data-f7d-choice-title-mark="1" style="display:inline-grid;place-items:center;width:26px;height:26px;border-radius:9px;background:linear-gradient(145deg,#dff18a,#ffe798);box-shadow:0 4px 10px rgba(91,108,59,.16);color:#3f4c32;font-size:12px;">◆</span><span>选择行动</span><small style="margin-left:auto;color:#879373;font:700 10px/1 system-ui,-apple-system,Microsoft YaHei,sans-serif;letter-spacing:.14em;">CHOOSE ACTION</small>';
+    title.style.cssText='grid-column:1/-1;display:flex;align-items:end;gap:.8em;padding:.08em .18em .52em;border-bottom:1px solid rgba(107,119,110,.18);color:#202824;font:750 18px/1.2 system-ui,-apple-system,Microsoft YaHei,sans-serif';
+    title.innerHTML='<span data-f7d-choice-title-mark="1" style="display:block;width:4px;height:24px;border-radius:1px;background:#c8a957;"></span><span>选择行动</span><small style="padding-bottom:.12em;color:#8b938e;font:600 9px/1 system-ui,-apple-system,Microsoft YaHei,sans-serif;letter-spacing:.22em;">TACTICAL OPTIONS</small>';
     grid.appendChild(title);
     for(const text of items){
       const b=doc.createElement('button');
@@ -431,7 +431,7 @@ function installChoiceFrontend(card){
     const ParentObserver=window.parent?.MutationObserver||MutationObserver;
     const observer=new ParentObserver(refresh);
     observer.observe(doc.body,{subtree:true,childList:true});
-    window.parent[KEY]={version:'1.5.0',click,observer,setComposer,normalizePresetShells,ensureTerminalFallbacks,scrubLegacyTerminalCounters,refresh};
+    window.parent[KEY]={version:'1.6.0',click,observer,setComposer,normalizePresetShells,ensureTerminalFallbacks,scrubLegacyTerminalCounters,refresh};
     refresh();
   };
   if(doc.readyState==='loading') doc.addEventListener('DOMContentLoaded',install,{once:true}); else install();
