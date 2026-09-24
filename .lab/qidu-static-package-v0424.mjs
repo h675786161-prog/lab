@@ -80,8 +80,8 @@ const combinedRules=[e04,e13,e14,e17,e18,phi].join('\n');
 expect(e13.includes('ann.affection>=100'),'ann-qualification-affection');
 expect(e13.includes('ANN_CORE_30')&&e13.includes('ANN_CORE_60')&&e13.includes('ANN_CORE_80'),'ann-qualification-events');
 expect(e14.includes("route='ann'")&&e14.includes('eligible=true'),'ann-route-entry');
-expect(e14.includes('第三天追安失败固定剧情')&&e14.includes('安刺伤指挥使')&&e14.includes('小神')&&e14.includes('普通线继续'),'ann-chase-failure-atomic');
-expect(e14.includes('不写入meta.endings')&&/不触发.*cg_ending_/s.test(e14),'ann-chase-not-ending');
+expect(e14.includes('第三天追安失败固定剧情')&&/安(?:以刀)?刺伤指挥使/.test(e14)&&e14.includes('指挥使受到近乎致命的伤势并进入濒死状态')&&e14.includes('小神介入')&&(e14.includes('保持普通线')||e14.includes('普通线继续')),'ann-chase-failure-atomic');
+expect(/(?:不得|不)写入meta\.endings/.test(e14)&&(/不得播放任何结局CG/.test(e14)||/不得触发.*cg_ending_/s.test(e14)),'ann-chase-not-ending');
 
 expect(ordinaryRules.includes("route!='ann'"),'ordinary-ending-route');
 expect(ordinaryRules.includes('8/8黑核purified')&&ordinaryRules.includes('牺牲的意义'),'ordinary-sacrifice-dispatch');
@@ -92,11 +92,12 @@ expect(ordinaryRules.includes('不得再要求“中央庭黑核被希罗夺”'
 expect(ordinaryRules.includes('最终战胜负')&&ordinaryRules.includes('不得'),'ordinary-no-final-battle-threshold');
 
 expect(annRules.includes('两个人的旅途')&&annRules.includes('永恒的终焉'),'ann-ending-pair');
-expect(annRules.includes('不参与')&&annRules.includes('黑核'),'ann-endings-ignore-cores');
+expect(annRules.includes('黑核')&&(/不属于安线资格或安线结局条件/.test(annRules)||/不参与安线资格或安线结局/.test(annRules)||/完全跳过普通线黑核数量与黑核状态判定/.test(annRules)),'ann-endings-ignore-cores');
 expect(combinedRules.includes('被夺黑核不可逆')&&combinedRules.includes('stolen'),'stolen-core-irreversible');
 expect(combinedRules.includes('安线黑核完全可选'),'ann-core-optional');
 expect(!txt.includes('安靠门'),'no-door-death-route');
-expect(!/meta\.endings[^\n]{0,160}追安失败/.test(txt),'failed-chase-not-recorded-as-ending');
+const chaseFailureRules=[e14,e17,e18,phi].join('\n');
+expect(!CANONICAL_ENDINGS.some(x=>String(x).includes('追安失败'))&&/追安失败[\s\S]{0,500}(?:不得|永远不)写入meta\.endings/.test(chaseFailureRules),'failed-chase-not-recorded-as-ending');
 
 const initialMatch=String(card.data?.first_mes||'').match(/<f7d_state>([\s\S]*?)<\/f7d_state>/i);
 expect(Boolean(initialMatch),'initial-state');
