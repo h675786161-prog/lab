@@ -1,1 +1,1 @@
-run=v0.4.24-choice-ui-v1.5-r2\nreason=rerun after unblocking embedded-script confirmation so real ST can capture mobile and desktop choice screenshots\n
+run=v0.4.24-choice-ui-v1.5-r3\nreason=rerun with polling approval for Tavern Helper embedded card script modal before visual capture\n
