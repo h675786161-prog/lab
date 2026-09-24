@@ -1,1 +1,1 @@
-run=1\nreason=verify exact SillyTavern + exact Tavern Helper embedded choice bridge after onboarding completion\n
+run=2\nreason=activate preapproved imported card through real ST CHAT_CHANGED so actual Tavern Helper executes embedded bridge without chat-load deadlock\n
