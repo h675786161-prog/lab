@@ -1,0 +1,1 @@
+run=1\nreason=verify exact SillyTavern + exact Tavern Helper embedded choice bridge after onboarding completion\n
