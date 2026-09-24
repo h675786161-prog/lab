@@ -1,2 +1,2 @@
-run=2
-reason=validate static package after removing counted-patrol contamination and adding explicit school identity-order lock
+run=3
+reason=validate exact static package plus deterministic Ann deadline, chase-failure, five-ending dispatch, stolen-core irreversibility, and no door-death route contracts
