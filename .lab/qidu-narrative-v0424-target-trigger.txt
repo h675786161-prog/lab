@@ -1,2 +1,2 @@
-run=6
-reason=rerun seven targeted narrative gates on current v0.4.24 candidate using live GG gemini-3.1-pro-preview-nothinking fallback because gemini-3-flash-preview quota is exhausted
+run=7
+reason=rerun seven targeted narrative gates with dynamic live-model fallback, 20s provider pacing, selector cooldown, and corrected Wenzi JSON whitespace assertion
