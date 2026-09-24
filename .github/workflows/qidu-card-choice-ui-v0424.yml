@@ -72,6 +72,11 @@ jobs:
           cat "$LAB_EVIDENCE_DIR/sillytavern.log"
           exit 1
 
+      - name: Install CJK font for screenshots
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y fonts-noto-cjk
+
       - name: Prepare real browser QA
         run: |
           set -euo pipefail
