@@ -9,6 +9,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: qidu-v0424-targeted-narrative-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   narrative-target:
     runs-on: ubuntu-latest
@@ -22,6 +26,7 @@ jobs:
       MODEL_API_KEY: ${{ secrets.GG }}
       MODEL_API_BASE: https://gcli.ggchan.dev/v1
       RELEASE_MODEL: 'gemini-3-flash-preview'
+      QIDU_MODEL_GAP_MS: '20000'
       LAB_OUT: bench-evidence/qidu-card-v0421-core
       LAB_OUT_ENCOUNTER: bench-evidence/qidu-card-v0421-encounter
     steps:
