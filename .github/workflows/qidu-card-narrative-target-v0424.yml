@@ -25,6 +25,9 @@ jobs:
     env:
       MODEL_API_KEY: ${{ secrets.GG }}
       MODEL_API_BASE: https://gcli.ggchan.dev/v1
+      GG_KEY: ${{ secrets.GG }}
+      YOUZI_KEY: ${{ secrets.YOUZI }}
+      PIAOMIAO_KEY: ${{ secrets.PIAOMIAO }}
       RELEASE_MODEL: 'gemini-3-flash-preview'
       QIDU_MODEL_GAP_MS: '20000'
       LAB_OUT: bench-evidence/qidu-card-v0421-core
@@ -33,43 +36,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Adapt target probes to exact v0.4.24 candidate
         run: python .lab/qidu-final-adapt-probes-v0424.py
-      - name: Select live behavioral model
+      - name: Select live behavioral provider/model
         run: |
-          python - <<'PY'
-          import json, os, urllib.request, urllib.error
-          base=os.environ['MODEL_API_BASE'].rstrip('/')
-          key=os.environ['MODEL_API_KEY']
-          candidates=['gemini-3-flash-preview','gemini-3.1-pro-preview-nothinking']
-          chosen=None
-          rows=[]
-          for model in candidates:
-            payload={'model':model,'max_tokens':32,'temperature':0,'messages':[{'role':'user','content':'只回答：测试通过'}]}
-            req=urllib.request.Request(base+'/chat/completions',data=json.dumps(payload,ensure_ascii=False).encode(),headers={'Authorization':'Bearer '+key,'Content-Type':'application/json'},method='POST')
-            try:
-              with urllib.request.urlopen(req,timeout=25) as r:
-                raw=r.read(200000).decode('utf-8','replace'); status=r.status
-              data=json.loads(raw)
-              content=data.get('choices',[{}])[0].get('message',{}).get('content','')
-              if isinstance(content,list):
-                content=''.join(str(x.get('text') or x.get('content') or '') if isinstance(x,dict) else str(x) for x in content)
-              usable=status==200 and bool(str(content or '').strip())
-              rows.append({'model':model,'status':status,'usable':usable})
-              if usable:
-                chosen=model
-                break
-            except urllib.error.HTTPError as e:
-              body=e.read(800).decode('utf-8','replace')
-              rows.append({'model':model,'status':e.code,'usable':False,'error':body[:500]})
-            except Exception as e:
-              rows.append({'model':model,'status':'error','usable':False,'error':type(e).__name__+': '+str(e)[:300]})
-          print(json.dumps({'behavior_model_probe':rows,'chosen':chosen},ensure_ascii=False))
-          if not chosen:
-            raise SystemExit('no live behavioral model available')
-          with open(os.environ['GITHUB_ENV'],'a',encoding='utf-8') as f:
-            f.write('RELEASE_MODEL='+chosen+'\n')
-            f.write('BEHAVIOR_MODEL_SELECTED='+chosen+'\n')
-          PY
-          # Selector itself consumes one provider request. Cool down before the real regression calls.
+          python .lab/qidu-select-live-provider-v0424.py
+          # Selector itself consumes provider traffic; cool down before the real regression calls.
           sleep 25
       - name: Run targeted narrative probe
         run: |
