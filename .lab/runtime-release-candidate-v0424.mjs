@@ -76,7 +76,7 @@ try{
     const idx=st.characters.findIndex(x=>(x?.data?.name||x?.name)===name&&x?.data?.character_version===version&&x?.data?.creator==='叶罹');
     if(idx<0)return{found:false};
     st.setCharacterId(idx);
-    await st.eventSource.emit(st.event_types.CHAT_CHANGED,st.characters[idx]?.chat||'qidu-helper-acceptance');
+    void st.eventSource.emit(st.event_types.CHAT_CHANGED,st.characters[idx]?.chat||'qidu-helper-acceptance');
     return{found:true,avatar:st.characters[idx]?.avatar,embeddedScripts:Array.isArray(st.characters[idx]?.data?.extensions?.tavern_helper?.scripts)?st.characters[idx].data.extensions.tavern_helper.scripts.length:0};
   },{name:card.data.name,version:ONEFILE_VERSION});
   if(!helperSelection?.found||helperSelection?.embeddedScripts<1) throw new Error(`embedded choice script missing after reload: ${JSON.stringify(helperSelection)}`);
