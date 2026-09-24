@@ -21,6 +21,17 @@ let client;
 try{
   const page=await browser.newPage({viewport:{width:390,height:844}});
   const r=await page.goto(`${baseUrl}/`,{waitUntil:'domcontentloaded',timeout:60000});if(!r||r.status()>=400)throw new Error(`HTTP ${r?.status()}`);await page.waitForTimeout(1800);
+  const completedOnboarding=await page.evaluate(()=>{
+    const text=String(document.body.innerText||'');
+    if(!/Your Persona|Persona Name|你的角色设定|人设名称/i.test(text))return false;
+    const visible=el=>{const s=getComputedStyle(el),r=el.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>0&&r.height>0};
+    const buttons=[...document.querySelectorAll('button,.menu_button,[role="button"]')].filter(visible);
+    const save=buttons.find(x=>/^(?:Save|保存)$/i.test(String(x.textContent||'').trim()));
+    if(!save)return false;
+    save.click();
+    return true;
+  });
+  if(completedOnboarding) await page.waitForTimeout(700);
   await page.evaluate(()=>{for(const d of document.querySelectorAll('dialog[open]')){try{d.close()}catch{}}});
 
   const preapproved=await page.evaluate(async({name,version})=>{
@@ -49,7 +60,15 @@ try{
 
   await page.reload({waitUntil:'domcontentloaded',timeout:60000});
   await page.waitForTimeout(1600);
-  await page.evaluate(()=>{for(const d of document.querySelectorAll('dialog[open]')){try{d.close()}catch{}}});
+  await page.evaluate(()=>{
+    const visible=el=>{const s=getComputedStyle(el),r=el.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>0&&r.height>0};
+    if(/Your Persona|Persona Name|你的角色设定|人设名称/i.test(String(document.body.innerText||''))){
+      const save=[...document.querySelectorAll('button,.menu_button,[role="button"]')].find(x=>visible(x)&&/^(?:Save|保存)$/i.test(String(x.textContent||'').trim()));
+      save?.click();
+    }
+    for(const d of document.querySelectorAll('dialog[open]')){try{d.close()}catch{}}
+  });
+  await page.waitForTimeout(300);
 
   const helperSelection=await page.evaluate(async({name,version})=>{
     const st=await import('/script.js');
