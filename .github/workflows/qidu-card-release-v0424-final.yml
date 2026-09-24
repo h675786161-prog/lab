@@ -195,6 +195,8 @@ jobs:
             f.write('RELEASE_MODEL='+chosen+'\n')
             f.write('BEHAVIOR_MODEL_SELECTED='+chosen+'\n')
           PY
+          # Selector itself consumes one provider request. Cool down before the real regression calls.
+          sleep 25
       - name: Record behavioral gate model
         run: |
           echo "provider_base=$MODEL_API_BASE"
