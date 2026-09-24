@@ -177,6 +177,18 @@ function installNarrativeFlow(card){
 - route_flags.harbor_core_stolen记录第4天情报截止造成的港湾区黑核被夺；若为true，与cores.harbor=stolen保持一致。任何cores.*=stolen都视为不可逆，不得被后续普通行动改回available/purified。
 - route='ann'时cores仅记录世界状态，不参与安线资格和结局判断；available可由用户自愿净化或留着不动，stolen不可夺回。
 `);
+  appendOnce(protocol,'港湾区黑核被夺原子提交｜最高优先级隐藏执行',`
+【港湾区黑核被夺原子提交｜最高优先级隐藏执行】
+- 第4天→第3天日结时，若hiro.intel<4且cores.harbor尚未purified/stolen，必须在同一个最终<f7d_state>原子提交：route_flags.harbor_core_stolen=true 且 cores.harbor="stolen"。
+- 这里的隐藏字段值只能写英文枚举stolen。不得写lost、missing、taken、丢失、被夺等任何同义词代替；这些词只允许出现在可见中文叙述或战术终端展示里。
+- 若route_flags.harbor_core_stolen已经为true，则提交前强制自检cores.harbor必须严格等于"stolen"；若草稿不是stolen，先修正状态再输出。
+- cores.harbor="stolen"后不可逆；玩家之后说“夺回来/回收/净化”都不能把它改回available或purified。
+`);
+  appendOnce(state,'港湾区stolen枚举硬锁',`
+【港湾区stolen枚举硬锁】
+route_flags.harbor_core_stolen=true ⇒ cores.harbor必须严格为字符串"stolen"。这是状态字段协议，不接受lost或任何同义词。可见文本可写“已丢失/被夺走”，隐藏状态仍只能写stolen。
+`);
+
 
   card.data.extensions=card.data.extensions||{};
   card.data.extensions.depth_prompt=card.data.extensions.depth_prompt||{};
