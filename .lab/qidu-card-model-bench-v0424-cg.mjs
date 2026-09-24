@@ -95,12 +95,12 @@ async function chooseModel(exclude=[]){
 
 function state(overrides={}){
   const s={
-    schema:'f7d_textloop_0.4',loop:1,day:7,node_used:0,route:'central',location:'中央庭病房',
-    regions:{court:{patrol:0,liberated:true,build_steps:[]},school:{patrol:0,liberated:false,build_steps:[]},east:{patrol:0,liberated:false,build_steps:[]},central:{patrol:0,liberated:false,build_steps:[]},institute:{patrol:0,liberated:false,build_steps:[]},seaside:{patrol:0,liberated:false,build_steps:[]},old:{patrol:0,liberated:false,build_steps:[]},harbor:{patrol:0,liberated:false,build_steps:[]}},
+    schema:'f7d_textloop_0.4',loop:1,day:7,day_ready_to_sleep:false,route:'central',location:'中央庭病房',
+    regions:{court:{liberated:true,build_steps:[]},school:{liberated:false,build_steps:[]},east:{liberated:false,build_steps:[]},central:{liberated:false,build_steps:[]},institute:{liberated:false,build_steps:[]},seaside:{liberated:false,build_steps:[]},old:{liberated:false,build_steps:[]},harbor:{liberated:false,build_steps:[]}},
     cores:{court:'unknown',school:'unknown',east:'unknown',central:'unknown',institute:'unknown',seaside:'unknown',old:'unknown',harbor:'unknown'},
     tasks:{},known:[],relationships:{},
-    ann:{affection:0,core_events:[],camera:false,eligible:false,chased:null,recovered:false},
-    hiro:{intel:0,handled:[]},route_flags:{},artifact_view:null,antoneva_choice:null,ann_release:null,
+    ann:{affection:0,core_events:[],camera:false,eligible:false,chased:null,recovered:false,deadline_checked:false,deadline_passed:null},
+    hiro:{intel:0,handled:[]},route_flags:{ann_route_closed:false,harbor_core_stolen:false},artifact_view:null,antoneva_choice:null,ann_release:null,
     battle_flags:{sybilla_condition_obtained:false,sybilla_rescued:null},
     intel_flags:{countdown_visible_to_user:true,countdown_meaning_known:false,city_blackgate_history_known:false,central_court_basics_known:false,hiro_founder_known:false,hiro_prior_commander_known:false,chimera_exists_known:false,hiro_chimera_research_known:false,antoneva_chimera_policy_known:false,first_chimera_incident_known:false,zero_identity_known:false,ann_origin_known:false,loop_truth_known:false},
     npc_intel:{},
@@ -119,13 +119,22 @@ function parseState(out){
 const tagFor=k=>new RegExp(`<\\s*f7d_cg\\s+key=["']${k}["']\\s*>\\s*<\\s*\\/\\s*f7d_cg\\s*>`,'i');
 const anyGendered=/<\s*f7d_cg\s+key=["']cg_ending_(?:sacrifice|final|box)_(?:male|female)["']/i;
 const flagFor=k=>k.replace(/^cg_/,'');
-function positiveCheck(expected,forbidden=[]){
+function positiveCheck(expected,forbidden=[],ending=null){
   return out=>{
     const f=[];const s=parseState(out);
     if(!s)f.push('state-missing-or-invalid');
     if(!tagFor(expected).test(out))f.push(`missing-cg:${expected}`);
-    for(const k of forbidden)if(tagFor(k).test(out))f.push(`wrong-cg:${k}`);
+    for(const k of forbidden){
+      if(tagFor(k).test(out))f.push(`wrong-cg:${k}`);
+      if(s?.cg_system?.shown?.[flagFor(k)]===true)f.push(`wrong-shown:${flagFor(k)}`);
+    }
     if(s?.cg_system?.shown?.[flagFor(expected)]!==true)f.push(`shown-not-true:${flagFor(expected)}`);
+    if(ending){
+      const es=Array.isArray(s?.meta?.endings)?s.meta.endings:[];
+      if(es.length!==1||es[0]!==ending)f.push('ending-state-drift');
+    }
+    if(Object.prototype.hasOwnProperty.call(s||{},'node_used'))f.push('legacy-node-used-returned');
+    if(Object.values(s?.regions||{}).some(r=>r&&Object.prototype.hasOwnProperty.call(r,'patrol')))f.push('legacy-patrol-returned');
     if(Array.isArray(s?.meta?.cg)&&s.meta.cg.length)f.push('meta-cg-persistence');
     if(!/<\s*f7d_terminal\s*>/i.test(out))f.push('terminal-missing');
     if(/已加入相册|已保存到终端|已同步到小手机/.test(out))f.push('album-persistence-leak');
