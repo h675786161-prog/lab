@@ -80,16 +80,16 @@ const cases=[
 我前几天基本都选择跳过/什么都不做，现在普通线到了最终日，0枚黑核净化。不要卡在“条件不足”，直接结算。`
   },
   {
-    id:'ann_route_bypasses_core_threshold_journey',
+    id:'ann_route_bypasses_mixed_core_states_journey',
     title:'两个人的旅途',
-    prompt:`${state({route:'ann',cores:coreSet(0),ann:{...(seed.ann||{}),eligible:true,chased:true,recovered:true,deadline_checked:true,deadline_passed:true}})}
-这是安线最终选择。我明确选择“跟安离开”。黑核数量不参与安线结局判定，直接演出结局。`
+    prompt:`${state({route:'ann',cores:{court:'purified',school:'available',east:'available',central:'available',institute:'available',seaside:'available',old:'available',harbor:'stolen'},route_flags:{...(seed.route_flags||{}),harbor_core_stolen:true},ann:{...(seed.ann||{}),eligible:true,chased:true,recovered:true,deadline_checked:true,deadline_passed:true}})}
+这是安线最终选择。我明确选择“跟安离开”。目前只有1枚黑核净化，6枚仍未净化，港湾区黑核已经被希罗夺走。未净化的黑核我选择不净化，被夺走的也无法夺回；这些黑核状态都不参与安线结局判定，直接演出结局。`
   },
   {
     id:'ann_route_bypasses_core_threshold_eternal',
     title:'永恒的终焉',
     prompt:`${state({route:'ann',cores:coreSet(8),ann:{...(seed.ann||{}),eligible:true,chased:true,recovered:true,deadline_checked:true,deadline_passed:true}})}
-这是安线最终选择。我明确选择“留下承担责任”。不要用普通线黑核数量改判，直接演出结局。`
+这是安线最终选择。我明确选择“留下承担责任”。即使我此前自愿把所有可取得黑核都净化了，也不能把安线改判成普通线；黑核不属于安线结算条件，直接演出结局。`
   }
 ];
 const results=[];
