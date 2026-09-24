@@ -46,8 +46,14 @@ function appendOnce(entry,marker,text){
 export function entryMap(card){
   const map=baseEntryMap(card);
   const aliases=[
+    ['01｜七日状态机与行动节点','01｜七日状态机与剧情流速'],
     ['30｜高校学园：六巡查与黑核','30｜高校学园：区域主线与黑核'],
     ['31｜东方古街：六巡查与五行阵黑核','31｜东方古街：区域主线与五行阵黑核'],
+    ['32｜中央城区：六巡查与蜂蜜蛋糕黑核','32｜中央城区：区域主线与蜂蜜蛋糕黑核'],
+    ['33｜研究所：六巡查、让·塔克与羽弥黑核','33｜研究所：区域主线、让·塔克与羽弥黑核'],
+    ['34｜海湾侧城：六巡查、阿岚幻境与黑核','34｜海湾侧城：区域主线、阿岚幻境与黑核'],
+    ['35｜旧城区：六巡查、艾露比/薇拉与黑核','35｜旧城区：区域主线、艾露比/薇拉与黑核'],
+    ['36｜港湾区：六巡查、幽桐/濑由衣与深海黑核','36｜港湾区：区域主线、幽桐/濑由衣与深海黑核'],
   ];
   for(const [oldName,newName] of aliases){
     if(map[newName]&&!map[oldName]) map[oldName]=map[newName];
@@ -137,7 +143,12 @@ function installNarrativeFlow(card){
   const phaseMap={一:'一',二:'二',三:'三',四:'四',五:'五',六:'六','1':'一','2':'二','3':'三','4':'四','5':'五','6':'六'};
   const migrateLegacyFlowText=text=>String(text||'')
     .replace(/第\s*([一二三四五六123456])\s*次?巡查/g,(_,n)=>'剧情阶段'+phaseMap[n])
+    .replace(/([1-6])\s*\/\s*6\s*[：:]/g,(_,n)=>'剧情阶段'+phaseMap[n]+'：')
+    .replace(/【(?:六|6)\s*巡查】/g,'【区域主线阶段】')
     .replace(/(?:六|6)\s*次巡查/g,'完整区域主线')
+    .replace(/(?:六|6)\s*巡查/g,'完整区域主线')
+    .replace(/为\s*0\s*节点/g,'不单独占用剧情阶段')
+    .replace(/[（(]\s*1\s*节点\s*[）)]/g,'')
     .replace(/(?:额外)?消耗\s*1\s*(?:行动)?节点/g,'额外进行一段独立行动')
     .replace(/扣除?\s*1\s*(?:行动)?节点/g,'按该行动推进剧情')
     .replace(/不(?:消耗|耗)\s*(?:行动)?节点/g,'不单独改变剧情进度')
@@ -147,10 +158,35 @@ function installNarrativeFlow(card){
     .replace(/行动节点/g,'剧情进度');
   for(const entry of entries){
     const n=String(entry.name||'');
-    entry.content=migrateLegacyFlowText(entry.content);
+    let content=migrateLegacyFlowText(entry.content);
+    if(n.startsWith('32｜')){
+      content=content
+        .replace('携带蛋糕巡查中央城区1次，按角色反应与现场线索定位并净化黑核。','携带蛋糕前往中央城区，按角色反应与现场线索定位并净化黑核。');
+    }else if(n.startsWith('33｜')){
+      content=content
+        .replace('解放后先建设研究所1次恢复基础设施，再巡查1次；','解放后先完成研究所基础设施恢复，再进行一段定位行动；');
+    }else if(n.startsWith('34｜')){
+      content=content
+        .replace('巡查东方古街1次找到阿岚','前往东方古街找到阿岚')
+        .replace('再巡查海湾侧城1次','再返回海湾侧城');
+    }else if(n.startsWith('35｜')){
+      content=content
+        .replace('不占用完整区域主线固定核心位','不占用区域主线的固定核心阶段')
+        .replace('再巡查旧城区1次处理并净化','再前往旧城区处理并净化');
+    }else if(n.startsWith('36｜')){
+      content=content
+        .replace('先巡查研究所1次取得深海潜艇图纸/技术方案，再在港湾区建设深海潜艇，最后巡查港湾区进入深海位置并净化。','先前往研究所取得深海潜艇图纸/技术方案，再在港湾区建设深海潜艇，最后从港湾区进入深海位置并净化。');
+    }
+    entry.content=content;
     entry.name=n
+      .replace('01｜七日状态机与行动节点','01｜七日状态机与剧情流速')
       .replace('30｜高校学园：六巡查与黑核','30｜高校学园：区域主线与黑核')
-      .replace('31｜东方古街：六巡查与五行阵黑核','31｜东方古街：区域主线与五行阵黑核');
+      .replace('31｜东方古街：六巡查与五行阵黑核','31｜东方古街：区域主线与五行阵黑核')
+      .replace('32｜中央城区：六巡查与蜂蜜蛋糕黑核','32｜中央城区：区域主线与蜂蜜蛋糕黑核')
+      .replace('33｜研究所：六巡查、让·塔克与羽弥黑核','33｜研究所：区域主线、让·塔克与羽弥黑核')
+      .replace('34｜海湾侧城：六巡查、阿岚幻境与黑核','34｜海湾侧城：区域主线、阿岚幻境与黑核')
+      .replace('35｜旧城区：六巡查、艾露比/薇拉与黑核','35｜旧城区：区域主线、艾露比/薇拉与黑核')
+      .replace('36｜港湾区：六巡查、幽桐/濑由衣与深海黑核','36｜港湾区：区域主线、幽桐/濑由衣与深海黑核');
   }
   const compact=`
 【旧节点计数作废｜本条目内优先】
