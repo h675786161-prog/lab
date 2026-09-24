@@ -1,2 +1,2 @@
-run=3
-reason=validate exact static package plus deterministic Ann deadline, chase-failure, five-ending dispatch, stolen-core irreversibility, and no door-death route contracts
+run=4
+reason=rerun deterministic static package after scoping ending and Ann semantic assertions across authoritative worldbook plus post-history rules without changing card payload
