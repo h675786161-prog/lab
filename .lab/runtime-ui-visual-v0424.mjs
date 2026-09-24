@@ -129,7 +129,7 @@ try{
     const rs=choices.map(rect),gr=rect(grid),fr=rect(free);
     return{
       multiColumn:Boolean(rs.length===4&&Math.abs(rs[0].top-rs[1].top)<4&&rs[1].left>rs[0].left+20&&Math.abs(rs[2].top-rs[3].top)<4),
-      freeFullRow:Boolean(fr&&gr&&fr.width>=gr.width-30),
+      freeFullRow:Boolean(fr&&gr&&fr.width>=gr.width-40),
       grid:gr,free:fr,choices:rs
     };
   });
