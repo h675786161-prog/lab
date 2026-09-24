@@ -1,6 +1,6 @@
 const nativeFetch = globalThis.fetch;
 let nextModelRequestAt = 0;
-const minModelGapMs = Math.max(0, Number(process.env.QIDU_MODEL_GAP_MS || 12000));
+const minModelGapMs = Math.max(0, Number(process.env.QIDU_MODEL_GAP_MS || 20000));
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const isModelCompletion = args => {
