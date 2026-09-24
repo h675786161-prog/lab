@@ -18,6 +18,7 @@ export const CG_ASSETS={
   cg_ending_box_female:{file:'cg_ending_box_female.webp',title:'箱庭风景·女指挥使',shape:'box'}
 };
 export const CG_KEYS=Object.keys(CG_ASSETS);
+export const CANONICAL_ENDINGS=Object.freeze(['终结','箱庭风景','牺牲的意义','永恒的终焉','两个人的旅途']);
 
 export function resolveEndingCg(ending,gender='unknown'){
   const fixed={
@@ -687,6 +688,20 @@ cg_system至少含enabled/mode/album_enabled/responsive_enabled/shown；当前mo
   card.data.post_history_instructions=String(card.data.post_history_instructions||'');
   if(!card.data.post_history_instructions.includes('最终日结局结算｜最高优先级隐藏执行')){
     card.data.post_history_instructions += endingSettlementRule;
+  }
+  card.post_history_instructions=card.data.post_history_instructions;
+
+  const canonicalEndingRule=`
+【正式结局集合｜唯一名单｜最高优先级隐藏执行】
+- 本卡正式结局只有五个：《终结》《箱庭风景》《牺牲的意义》《永恒的终焉》《两个人的旅途》。不得自行新增、改名、拆分或把普通剧情后果包装成第六个结局。
+- 第三天“追安失败”只属于固定剧情分支：安刺伤指挥使→指挥使濒死→小神介入拽回→普通线继续。它永远不写入meta.endings，不触发任何cg_ending_*，也不结束当前轮回。
+- CG构图、美术备注、角色死亡/受伤画面描述只决定视觉表现；除非它明确对应上述五个正式结局之一，否则不得反向创造剧情分支、结局名或结局判定条件。
+- meta.endings中的每个条目只能来自上述五个正式结局。单次轮回最终只结算一个正式结局；跨轮回若保留历史记录，也只能累计这五个名称。
+`;
+  appendOnce(e17,'正式结局集合｜唯一名单',canonicalEndingRule);
+  appendOnce(e18,'正式结局集合｜唯一名单',canonicalEndingRule);
+  if(!card.data.post_history_instructions.includes('正式结局集合｜唯一名单｜最高优先级隐藏执行')){
+    card.data.post_history_instructions += canonicalEndingRule;
   }
   card.post_history_instructions=card.data.post_history_instructions;
 
