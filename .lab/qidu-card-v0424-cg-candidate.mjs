@@ -834,7 +834,10 @@ cg_system至少含enabled/mode/album_enabled/responsive_enabled/shown；当前mo
   const finalStateLiteralLock=`
 【最终状态字面量锁｜提交前最后检查】
 - 这是写出<f7d_state>前的最后一道检查，优先于文采与叙事润色。只校验最终状态字面量，不向玩家解释。
-- meta.endings若已有正式结局，只允许原样保留以下精确中文字符串之一：终结 / 箱庭风景 / 牺牲的意义 / 永恒的终焉 / 两个人的旅途。禁止翻译、夹英文、改字、缩写或同义改写；例如“牺牲 the 意义”属于非法状态。
+- meta.endings若已有正式结局，只允许原样保留以下精确中文字符串之一：终结 / 箱庭风景 / 牺牲的意义 / 永恒的终焉 / 两个人的旅途。禁止翻译、夹英文、改字、缩写或同义改写；例如“牺牲 the 意义”与“永恒 the 终焉”都属于非法状态。
+- 【安线结局精确字面量】route='ann'且输入meta.endings已经是单一正式安线结局时，本轮属于已判定结局收尾，最终状态必须逐字复制该结局名，不得重新生成标题：输入["永恒的终焉"] => 输出仍严格为["永恒的终焉"]；输入["两个人的旅途"] => 输出仍严格为["两个人的旅途"]。
+- 若本轮触发cg_ending_eternal_end，则提交前强制检查meta.endings长度为1且唯一元素逐字等于“永恒的终焉”；若不是，先纠正meta.endings再输出<f7d_state>。若触发cg_ending_journey，同理唯一元素必须逐字等于“两个人的旅途”。
+- 已判定结局收尾时，CG标签、cg_system.shown、meta.endings三者是一笔原子提交。任何一个结局名出现英文单词、空格插入、同义词或错字，都必须在最终状态输出前改回上述精确中文字符串。
 - 旧字段迁移：最终状态必须删除node_used；regions下每个区域对象必须删除patrol。旧输入里存在也不得抄回。
 - 男女差分结局CG必须让“gender、shown、CG key”三者逐字一致。若任一不一致，先重写最终状态再输出，禁止带错提交：
   * 箱庭风景 + female => ending_box_male=false, ending_box_female=true，并且只输出cg_ending_box_female。
