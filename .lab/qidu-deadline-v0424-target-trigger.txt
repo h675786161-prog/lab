@@ -1,2 +1,2 @@
-run=4
-reason=verify harbor stolen exact enum after atomic state hard-lock; route_flags.harbor_core_stolen=true must serialize cores.harbor as stolen, never lost
+run=5
+reason=rerun after exact stolen-enum lock; harbor theft must commit cores.harbor=stolen
