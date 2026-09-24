@@ -435,6 +435,7 @@ jobs:
           if(!String(card.data?.post_history_instructions||'').includes('第一活骸五事实闭包｜最高优先级隐藏执行')) throw new Error('first chimera closure rule missing');
           if(!String(card.data?.post_history_instructions||'').includes('最终日结局结算｜最高优先级隐藏执行')) throw new Error('final settlement priority rule missing');
           if(!String(card.data?.post_history_instructions||'').includes('正式结局集合｜唯一名单｜最高优先级隐藏执行')) throw new Error('canonical ending rule missing');
+          if(!String(card.data?.post_history_instructions||'').includes('安线结局精确字面量')) throw new Error('exact Ann ending literal lock missing');
           const helper=card.data?.extensions?.tavern_helper;
           const helperScript=helper?.scripts?.find(x=>x?.id==='qidu-v0424-choice-bridge');
           if(!helperScript?.enabled||!String(helperScript?.content||'').includes('__F7D_CARD_CHOICE_BRIDGE_V0424__')) throw new Error('embedded clickable choice bridge missing');
