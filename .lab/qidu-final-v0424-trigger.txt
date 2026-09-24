@@ -1,2 +1,2 @@
-run=43
-reason=confirm current final workflow after Helper readiness-race fix; exact card payload unchanged, real ST/browser should pass while model-dependent CG/narrative may fail fast only if all providers remain unavailable
+run=44
+reason=rerun full final gate for exact f913c8fa candidate after Static Package #5 PASS; Real ST Helper #17 already passed the identical SHA
