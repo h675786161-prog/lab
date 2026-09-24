@@ -1,2 +1,2 @@
-run=8
-reason=verify free-input focus using isolated real-browser composer probe without blocking character selection
+run=9
+reason=verify free-input focus using trusted Playwright click in real SillyTavern + Tavern Helper
