@@ -113,8 +113,11 @@ function narrativeFlowRule(){
 - cores.<区域>只有在{{user}}本轮明确表达“去净化/现在净化/把黑核净化掉/执行黑核净化”等实际净化意图，并且该区域净化前置条件已经满足时，才能在同一回复改为purified。用户只说“黑核呢/看看黑核/先去那里/区域解放了”都不算净化指令。
 - 若{{user}}明确要净化但前置条件尚未满足，本轮要正常演出被阻挡/缺少条件的结果，cores保持原值；不得因为用户有意图就强行净化。
 - 【限时剧情按天硬截止】所有写有“第X天结束前 / 第X天晚睡前 / 进入第Y天时”的任务，不再依赖巡查次数或模型自行判断宽限。每次day准备从X减到X-1之前，先结算当日全部硬截止：已满足条件→标记完成/保留资格；未满足→当场写入失败与既定后果。已经跨过截止日的条件禁止靠后续补做倒签成功，除非世界书明确存在补救剧情。
-- 【安线硬截止｜第4天→第3天】从day=4睡到day=3之前，只检查当时已经真实完成的安线进度：ann.affection>=100 且 ann.core_events 已完成3段主剧情，才算通过截止。通过则ann.deadline_checked=true、ann.deadline_passed=true；任一条件不足则ann.deadline_checked=true、ann.deadline_passed=false、route_flags.ann_route_closed=true。进入第3天后必须在“小神自语”之后触发安离开的清晨事件，正常安线资格永久关闭；之后补好感、补主剧情都不能把资格恢复。若既定分支允许玩家追安，则只能按“截止失败后的追安/BE”规则继续，不能改写成成功安线。
-- 【安线截止补锁】若读取到day<=3但ann.deadline_checked仍为false，说明旧聊天/外部格式漏做了第4天截止结算；此时不得拿第3天以后补出的好感或事件倒签成功，必须补锁为deadline_checked=true、deadline_passed=false、route_flags.ann_route_closed=true，并按安已错过正常资格处理。
+- 【安线硬截止｜第4天→第3天】从day=4睡到day=3之前，只检查当时已经真实完成的安线进度：ann.affection>=100，且ann.core_events同时包含ANN_CORE_30、ANN_CORE_60、ANN_CORE_80。两项都满足：ann.eligible=true、ann.deadline_checked=true、ann.deadline_passed=true；任一不足：ann.eligible=false、ann.deadline_checked=true、ann.deadline_passed=false、route_flags.ann_route_closed=true。资格只在这个时点判一次，之后补好感或补核心剧情都不得倒签。
+- 【第3天安离开/追赶｜不论资格都要发生】从第4天进入第3天时，先写小神短暂自语，再进入安离开的清晨事件。ann.eligible=true只表示“允许通过追赶与追回链进入安线”，不表示安不会离开，也不自动切route。玩家必须亲自决定是否追。
+- eligible=true且玩家明确追赶，并实际完成既定追回链后：ann.chased=true、ann.recovered=true、route='ann'。eligible=true但不追：ann.chased=false、ann.recovered=false，保持普通线。追但追回链失败：ann.chased=true、ann.recovered=false，保持普通线。
+- eligible=false时正常安线已经关闭；玩家仍可以出于角色行为去追，但最多记录ann.chased=true、ann.recovered=false并进入既定失败/BE后果，绝不能因为“追了”而把route改成ann。
+- 【安线截止补锁】若读取到day<=3但ann.deadline_checked仍为false，说明旧聊天/外部格式漏做了第4天截止结算；此时不得拿第3天以后补出的好感或事件倒签成功，必须补锁为ann.eligible=false、deadline_checked=true、deadline_passed=false、route_flags.ann_route_closed=true。
 - 【第4天情报硬截止】从day=4睡到day=3之前，同时检查hiro.intel。若累计<4且港湾区黑核尚未被净化/夺走，则route_flags.harbor_core_stolen=true，并把cores.harbor结算为stolen；此后补做情报不能撤销这次夺取。hiro.intel>=4则route_flags.harbor_core_stolen=false或保持既有未被夺状态。
 - 【任务截止原子结算】tasks中deadline明确落在即将结束的当天时，不允许把pending/active原样带到下一天。换日前必须根据真实完成情况改成completed或failed，并在同一回复演出关键后果。
 - 【日结标记】day_ready_to_sleep仅表示“今天安排的主要剧情已经自然走到当日收束点”。当天最后一个必演主线收束时，把day_ready_to_sleep=true；不要因为区域解放、对话结束或模型觉得时间晚了就擅自换日。
@@ -542,8 +545,11 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
   const e03=findEntry(card,'03｜');
   const e04=findEntry(card,'04｜');
   const e10=findEntry(card,'10｜');
+  const e13=findEntry(card,'13｜');
+  const e14=findEntry(card,'14｜');
   const e17=findEntry(card,'17｜');
   const e18=findEntry(card,'18｜');
+  const e90=findEntry(card,'90｜');
   const e31=findEntry(card,'31｜');
   const e44=findEntry(card,'44｜');
   const e91=findEntry(card,'91｜');
@@ -574,6 +580,37 @@ export async function loadQiduCgCandidate(workspace=process.env.GITHUB_WORKSPACE
   appendOnce(e10,'安托涅瓦初见CG',`
 【安托涅瓦初见CG】首轮开场中第一次完成“玩家被带去中央庭并与安托涅瓦正式会面”的段落后，若cg_system.shown.antoneva_first_meet=false，则本轮必须原子提交：shown.antoneva_first_meet=true并输出<f7d_cg key="cg_antoneva_first_meet"></f7d_cg>。仅听到名字、看见远处身影或尚未正式会面时不得提前触发。CG播放不参与剧情进度结算。
 `);
+  appendOnce(e13,'安线资格复核｜剧情流速版',`
+【安线资格复核｜剧情流速版】
+- 第4天结束并明确睡觉前，资格硬条件只有两项：ann.affection>=100；ann.core_events包含ANN_CORE_30、ANN_CORE_60、ANN_CORE_80。缺一项都不能ann.eligible=true。
+- 资格通过不等于已经进入安线。第3天安仍会离开，必须由玩家自己选择追不追；只有eligible=true且真实完成追回链才route='ann'。
+- 第3天以后补满好感/核心事件不得倒签第4天资格。
+`);
+  appendOnce(e14,'安线进入条件复核｜唯一口径',`
+【安线进入条件复核｜唯一口径】
+- 第3天小神自语之后必须出现安离开/追赶分歧。
+- ann.eligible=true + 玩家明确追 + 实际完成追回链 → ann.chased=true, ann.recovered=true, route='ann'。
+- eligible=true但不追 → ann.chased=false, ann.recovered=false，普通线继续。
+- eligible=false时正常安线资格已关闭；即使玩家追，也只能ann.chased=true, ann.recovered=false并走失败后果，不能route='ann'。
+`);
+  appendOnce(e90,'安线资格与进入路线分离',`
+【安线资格与进入路线分离】
+第4天睡前的100好感+ANN_CORE_30/60/80三段完成只产生ann.eligible=true；它不是route='ann'。真正进入安线还必须在第3天安离开时由玩家主动追赶，并实际完成追回链。
+`);
+
+  {
+    const oldEnding='【先结算战斗，再判结局】隐藏判定优先级：\n1. 若关键黑核/最终战条件不足（通常包括purified_core_count<4或关键战失败）：《终结》。\n2. 若满足完整牺牲条件：优先进入《牺牲的意义》。\n3. 其余满足purified_core_count>=4且最终关键战胜利的普通线：进入《箱庭风景》。';
+    const newEnding='【最终日普通线结局｜唯一判定优先级】\n仅当route!=\'ann\'时执行。先计算purified_core_count=cores中值严格等于purified的数量；unknown/available/lost/stolen都不计入净化数。\n1. 若8枚可取得黑核全部purified，并且下方“牺牲的意义”其他审计条件也全部满足：进入《牺牲的意义》。\n2. 否则，只要purified_core_count>=4：进入《箱庭风景》。\n3. 否则，只要purified_core_count<4：进入《终结》。\n这三条覆盖普通线最终结局，不再把“最终关键战失败/中央庭黑核是否被夺”作为《箱庭风景》与《终结》之间的额外阈值。它们仍可以影响剧情演出和世界后果，但不能改写上述黑核数量判定。玩家一路摆烂、主动跳过多天、错过净化导致最终净化数<4时，同样正常进入《终结》，不能因为“没认真推主线”而卡在无结局状态。';
+    if(!String(e17.content||'').includes(oldEnding)) throw new Error('ordinary ending priority source missing');
+    e17.content=String(e17.content).replace(oldEnding,newEnding);
+  }
+  appendOnce(e17,'牺牲失败后的普通线回落',`
+【牺牲失败后的普通线回落】
+- “满黑核”明确指court/school/east/central/institute/seaside/old/harbor这8项cores全部为purified。
+- 满8核只是牺牲线必要条件，不会单独强制进入《牺牲的意义》。仍需artifact_view='weapon'、antoneva_choice='help_release'、ann_release='released'、最终关键战胜利，以及已认识且终局活骸化神器使的既定亲手结束后果等本条目列出的审计条件全部兑现。
+- 满8核但任一其他牺牲条件不满足，因为purified_core_count>=4，所以回落《箱庭风景》，不得回落《终结》。
+`);
+
   appendOnce(e17,'普通线结局CG',`
 【普通线结局CG】若后台结局已经确定为《终结》《牺牲的意义》《箱庭风景》，不得重新判定或改判。根据player_profile.gender直接选择对应CG key；male与female必须严格对应各自版本。对应shown原为false时，必须在同一回复原子完成“shown=true + 对应CG标签”。若gender仍为unknown，不得擅自选图，也不得从文风、称谓或行为推测性别，此时不触发男女差分CG、对应shown保持false。只展示、不留存，不改变剧情推进状态；meta.cg不得记录该CG。结局正文应控制长度，确保CG标签与终端完整输出。
 `);
@@ -623,6 +660,24 @@ cg_system至少含enabled/mode/album_enabled/responsive_enabled/shown；当前mo
   card.data.post_history_instructions=String(card.data.post_history_instructions||'');
   if(!card.data.post_history_instructions.includes('玩家性别同步｜最高优先级隐藏执行')){
     card.data.post_history_instructions += playerGenderSyncRule;
+  }
+  card.post_history_instructions=card.data.post_history_instructions;
+
+  const endingSettlementRule=`
+【最终日结局结算｜最高优先级隐藏执行】
+- route='ann'时完全跳过普通线黑核数量判定，按安线独立时间轴与最终玩家选择结算《永恒的终焉》/《两个人的旅途》。
+- route!='ann'时，普通线只按以下顺序选一个结局：
+  A. 8/8黑核purified + 牺牲其余审计条件全部满足 → 《牺牲的意义》；
+  B. 否则purified_core_count>=4 → 《箱庭风景》；
+  C. 否则purified_core_count<4 → 《终结》。
+- 满8核但牺牲其他条件不全，必须走B《箱庭风景》。
+- 直接摆烂、跳过今天或长期不净化导致最终<4，必须正常走C《终结》，不得生成“条件不足所以没有结局”。
+- 不得再要求“中央庭黑核被希罗夺”才能进入《终结》；也不得拿最终战胜负把>=4的普通线从《箱庭风景》改成《终结》。
+- 一旦后台按上述规则确定结局，本轮状态、正文、CG与meta.endings必须保持同一结局，不得在后文二次改判。
+`;
+  card.data.post_history_instructions=String(card.data.post_history_instructions||'');
+  if(!card.data.post_history_instructions.includes('最终日结局结算｜最高优先级隐藏执行')){
+    card.data.post_history_instructions += endingSettlementRule;
   }
   card.post_history_instructions=card.data.post_history_instructions;
 
