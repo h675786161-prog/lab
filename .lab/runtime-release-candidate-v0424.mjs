@@ -76,6 +76,7 @@ try{
     const idx=st.characters.findIndex(x=>(x?.data?.name||x?.name)===name&&x?.data?.character_version===version&&x?.data?.creator==='叶罹');
     if(idx<0)return{found:false};
     st.setCharacterId(idx);
+    void st.eventSource.emit(st.event_types.SETTINGS_UPDATED);
     void st.eventSource.emit(st.event_types.CHAT_CHANGED,st.characters[idx]?.chat||'qidu-helper-acceptance');
     return{found:true,avatar:st.characters[idx]?.avatar,embeddedScripts:Array.isArray(st.characters[idx]?.data?.extensions?.tavern_helper?.scripts)?st.characters[idx].data.extensions.tavern_helper.scripts.length:0};
   },{name:card.data.name,version:ONEFILE_VERSION});
@@ -86,7 +87,28 @@ try{
     if(ready)break;
     await page.waitForTimeout(150);
   }
-  const bridgeReady=await page.evaluate(()=>Boolean(window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.setComposer));
+  const helperDiag=await page.evaluate(async()=>{
+    const ext=await import('/scripts/extensions.js');
+    const th=window.TavernHelper||globalThis.TavernHelper;
+    let charTrees=null,currentCharacterId=null,enabledButtons=null;
+    try{charTrees=th?.getScriptTrees?.({type:'character'})?.map(x=>({id:x?.id,name:x?.name,enabled:x?.enabled,type:x?.type}))??null;}catch(e){charTrees={error:String(e)}}
+    try{currentCharacterId=th?.getCurrentCharacterId?.()??null;}catch(e){currentCharacterId={error:String(e)}}
+    try{enabledButtons=th?.getAllEnabledScriptButtons?.()??null;}catch(e){enabledButtons={error:String(e)}}
+    return{
+      helperPresent:Boolean(th),
+      helperKeys:th?Object.keys(th).slice(0,80):[],
+      currentCharacterId,
+      charTrees,
+      enabledButtons,
+      enabledCharacters:ext.extension_settings?.tavern_helper?.script?.enabled?.characters??null,
+      popupedCharacters:ext.extension_settings?.tavern_helper?.script?.popuped?.characters??null,
+      iframes:[...document.querySelectorAll('iframe')].map(x=>({id:x.id||null,name:x.name||null,src:x.getAttribute('src')||null,title:x.title||null})).slice(0,30),
+      bridge:Boolean(window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.setComposer),
+      bridgeVersion:window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.version||null,
+    };
+  });
+  console.log('[helper-diag]',JSON.stringify(helperDiag));
+  const bridgeReady=Boolean(helperDiag?.bridge);
   if(!bridgeReady) throw new Error('embedded Tavern Helper choice bridge did not start');
 
   client=await page.evaluate(async({name,version,hash})=>{
