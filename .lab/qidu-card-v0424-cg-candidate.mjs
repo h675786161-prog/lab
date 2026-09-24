@@ -167,6 +167,20 @@ function installNarrativeFlow(card){
   const protocol=findEntry(card,'04｜');
   const state=findEntry(card,'91｜');
   appendOnce(protocol,'剧情流速推进与日结｜最高优先级隐藏执行',rule);
+  const coreEnumRule=`
+【黑核状态枚举精确值｜最高优先级】
+- cores各区域只允许使用以下精确英文枚举：unknown / available / purified / stolen。不得自行造 lost、taken、missing、cleared 等近义值，也不得把中文“丢失/已被夺走”写进状态字段。
+- route_flags.harbor_core_stolen=true 时，cores.harbor 必须在同一份最终状态中精确等于 "stolen"；这两个字段不得出现 true + lost/available/unknown 的不一致组合。
+- 第4天→第3天结算若 hiro.intel<4 且港湾区黑核尚未 purified/stolen，必须原子提交 route_flags.harbor_core_stolen=true 与 cores.harbor="stolen"。正文可以写“被夺走/丢失”，但隐藏状态只能写 stolen。
+- 任何 cores.* 已经为 stolen 后保持不可逆，除非世界书未来明确新增正式夺回机制；当前主线没有该机制。
+`;
+  appendOnce(protocol,'黑核状态枚举精确值｜最高优先级',coreEnumRule);
+  appendOnce(state,'黑核状态枚举精确值｜最高优先级',coreEnumRule);
+  if(!card.data.post_history_instructions.includes('黑核状态枚举精确值｜最高优先级')){
+    card.data.post_history_instructions += coreEnumRule;
+  }
+  card.post_history_instructions=card.data.post_history_instructions;
+
   appendOnce(state,'无节点状态迁移与日结字段',`
 【无节点状态迁移与日结字段】
 - 最终<f7d_state>不再包含node_used；regions各区域对象不再包含patrol。读到旧聊天遗留字段时下一轮删除。
