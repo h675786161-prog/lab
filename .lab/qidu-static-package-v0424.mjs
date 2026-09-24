@@ -62,7 +62,8 @@ const required=[
   [by('41｜'),'第一活骸事故只讲已锚定事实'],
   [by('44｜'),'高校身份来源顺序'],
   [by('67｜'),'泰丝拉姓名必须来自珈儿介绍'],
-  [by('04｜'),'最终状态字面量锁｜提交前最后检查'],
+  [by('17｜'),'最终状态字面量锁｜提交前最后检查'],
+  [by('91｜'),'最终状态字面量锁｜提交前最后检查'],
 ];
 for(const [entry,marker] of required) expect(String(entry?.content||'').includes(marker),`rule:${marker}`);
 
