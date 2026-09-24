@@ -49,7 +49,7 @@ try{
   if(!setup?.found||!setup?.allowed) throw new Error(`card setup failed: ${JSON.stringify(setup)}`);
   await page.waitForTimeout(120);
   report.bridge=await page.evaluate(()=>window.__F7D_CARD_CHOICE_BRIDGE_V0424__?.version||null);
-  if(report.bridge!=='1.5.0') throw new Error(`choice bridge version mismatch: ${report.bridge}`);
+  if(report.bridge!=='1.6.0') throw new Error(`choice bridge version mismatch: ${report.bridge}`);
 
   console.log('[ui] render mobile');
   report.mobile=await page.evaluate(async({name,version})=>{
@@ -59,7 +59,7 @@ try{
     const idx=st.characters.findIndex(x=>(x?.data?.name||x?.name)===name&&x?.data?.character_version===version&&x?.data?.creator==='叶罹');
     if(idx<0)return{error:'not-found'};
     st.setCharacterId(idx);const ch=st.characters[idx];eng.allowScopedScripts(ch);
-    const source='<f7d_terminal>【战术终端】第4天｜剧情推进中\n当前位置：中央庭</f7d_terminal><f7d_state>{"hidden":true}</f7d_state><f7d_choices><f7d_choice>跟安一起去确认中央庭的情况</f7d_choice><f7d_choice>先找珈儿问清楚高校学园的消息</f7d_choice><f7d_choice>打开战术终端，整理目前掌握的线索</f7d_choice><f7d_choice>什么都不做，任由这次机会过去</f7d_choice></f7d_choices>';
+    const source='<f7d_terminal>【战术终端】第4天｜剧情推进中\n当前位置：中央庭</f7d_terminal><f7d_state>{"hidden":true}</f7d_state><f7d_choices><f7d_choice>跟安一起去确认中央庭的情况，并顺路询问她刚才那句话真正想表达的意思</f7d_choice><f7d_choice>先找珈儿问清楚高校学园的消息</f7d_choice><f7d_choice>打开战术终端，整理目前掌握的线索</f7d_choice><f7d_choice>什么都不做，任由这次机会过去</f7d_choice></f7d_choices>';
     const html=st.messageFormatting(source,'Qidu UI QA',false,false,919191,{},false);
     document.getElementById('qidu-v0424-ui-mount')?.remove();
     document.getElementById('qidu-v0424-ui-mount-style')?.remove();
@@ -81,7 +81,7 @@ try{
     const title=h.querySelector('[data-f7d-choice-title="1"]');
     const rect=e=>{if(!e)return null;const r=e.getBoundingClientRect();return{left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height}};
     const rs=choices.map(rect),gr=rect(grid),fr=rect(free);
-    const css=choices.map(x=>{const s=getComputedStyle(x);return{radius:parseFloat(s.borderRadius),minHeight:parseFloat(s.minHeight),background:s.backgroundImage,kind:x.getAttribute('data-f7d-choice-kind')}});
+    const css=choices.map(x=>{const s=getComputedStyle(x);return{radius:parseFloat(s.borderRadius),minHeight:parseFloat(s.minHeight),height:x.getBoundingClientRect().height,backgroundImage:s.backgroundImage,backgroundColor:s.backgroundColor,kind:x.getAttribute('data-f7d-choice-kind')}});
     return{
       grid:Boolean(grid),choiceCount:choices.length,free:Boolean(free),title:String(title?.textContent||'').replace(/\s+/g,' ').trim(),
       hiddenStateVisible:Boolean(h.textContent?.includes('"hidden"')),
@@ -144,12 +144,13 @@ await fs.writeFile(path.join(evidenceDir,'qidu-v0424-choice-visual-report.json')
 console.log(JSON.stringify(report,null,2));
 
 const fail=[];
-if(report.bridge!=='1.5.0')fail.push('bridge');
+if(report.bridge!=='1.6.0')fail.push('bridge');
 if(report.mobile?.error||!report.mobile?.grid||report.mobile?.choiceCount!==4||!report.mobile?.free)fail.push('mobile-structure');
 if(report.mobile?.hiddenStateVisible)fail.push('state-visible');
 if(!report.mobile?.stacked)fail.push('mobile-not-stacked');
 if(report.mobile?.skipKind!=='slack')fail.push('skip-not-classified');
-if(!report.mobile?.css?.every(x=>x.radius>=14&&x.minHeight>=54&&x.background&&x.background!=='none'))fail.push('choice-style');
+if(!report.mobile?.css?.every(x=>x.radius>=6&&x.radius<=10&&x.minHeight>=54&&x.backgroundImage==='none'&&x.backgroundColor&&x.backgroundColor!=='rgba(0, 0, 0, 0)'))fail.push('choice-style');
+if(!(report.mobile?.css?.[0]?.height>report.mobile?.css?.[1]?.height))fail.push('long-copy-wrap');
 if(!report.desktop?.multiColumn||!report.desktop?.freeFullRow)fail.push('desktop-layout');
 if(pageErrors.length)fail.push('page-errors');
 if(fail.length)throw new Error(`v0424 choice visual acceptance failed: ${fail.join(', ')}`);
