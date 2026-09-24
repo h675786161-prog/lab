@@ -1,2 +1,2 @@
-trigger 3
-reason=reject generalized first-chimera risk and invented formal-rule rationale on hardened candidate
+trigger 4
+reason=reject first-chimera terminology history, witness embellishment, extra emotion, risk numbers, generalized rules, and formal-policy invention
