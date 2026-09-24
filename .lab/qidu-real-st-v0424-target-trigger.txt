@@ -1,1 +1,2 @@
-run=3\nreason=real ST helper acceptance without awaiting unrelated CHAT_CHANGED listeners\n
+run=4
+reason=wake Tavern Helper app-ready stores with SETTINGS_UPDATED after reload, then inspect character script runtime diagnostics
