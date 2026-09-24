@@ -1,2 +1,2 @@
-run=1
-reason=validate current v0.4.24 release bytes and package contract independently of exhausted external model quotas
+run=2
+reason=validate static package after removing counted-patrol contamination and adding explicit school identity-order lock
