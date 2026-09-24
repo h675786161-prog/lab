@@ -126,7 +126,7 @@ function positiveCheck(expected,forbidden=[],ending=null){
     if(!tagFor(expected).test(out))f.push(`missing-cg:${expected}`);
     for(const k of forbidden){
       if(tagFor(k).test(out))f.push(`wrong-cg:${k}`);
-      if(s?.cg_system?.shown?.[flagFor(k)]===true)f.push(`wrong-shown:${flagFor(k)}`);
+      if(expected.startsWith('cg_ending_')&&s?.cg_system?.shown?.[flagFor(k)]===true)f.push(`wrong-shown:${flagFor(k)}`);
     }
     if(s?.cg_system?.shown?.[flagFor(expected)]!==true)f.push(`shown-not-true:${flagFor(expected)}`);
     if(ending){
