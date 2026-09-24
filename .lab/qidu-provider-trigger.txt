@@ -1,2 +1,2 @@
-run=20260924-flash-lite-fallback
-reason=probe gemini-2.5-flash-lite and remaining GG routes after both gemini-3-flash-preview and gemini-3.1-pro-preview-nothinking quotas exhausted
+run=20260924-late-recovery-check
+reason=single low-frequency provider recovery check after static package gate; do not start model regression unless a completion route is actually live
