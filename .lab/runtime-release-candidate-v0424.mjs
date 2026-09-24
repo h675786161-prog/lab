@@ -195,22 +195,43 @@ try{
     }
   });
   await page.waitForTimeout(60);
-  const trustedStoryButton=page.locator('#qidu-release-acceptance-dialog [data-f7d-choice="1"]').first();
-  await trustedStoryButton.click({timeout:10000});
+  const chatLenBeforeChoice=await page.evaluate(()=>window.SillyTavern?.getContext?.()?.chat?.length??-1);
+  const trustedStoryButtons=page.locator('#qidu-release-acceptance-dialog [data-f7d-choice="1"]');
+  await trustedStoryButtons.nth(0).click({timeout:10000});
   await page.waitForTimeout(80);
-  const trustedStoryResult=await page.evaluate(()=>{
+  const trustedStoryResult=await page.evaluate(({before})=>{
     const textarea=document.querySelector('#send_textarea');
+    const after=window.SillyTavern?.getContext?.()?.chat?.length??-1;
     return{
       filled:Boolean(textarea&&textarea.value==='跟安一起去确认中央庭的情况'),
       focusesComposer:Boolean(textarea&&document.activeElement===textarea),
       value:textarea?.value||'',
       activeId:document.activeElement?.id||document.activeElement?.tagName||null,
+      noAutoSubmit:Boolean(before>=0&&after===before),
     };
-  });
+  },{before:chatLenBeforeChoice});
   client.trustedChoiceFilled=trustedStoryResult.filled;
   client.trustedChoiceFocusesComposer=trustedStoryResult.focusesComposer;
   client.trustedChoiceValue=trustedStoryResult.value;
   client.trustedChoiceActiveId=trustedStoryResult.activeId;
+  client.trustedChoiceNoAutoSubmit=trustedStoryResult.noAutoSubmit;
+
+  await trustedStoryButtons.nth(1).click({timeout:10000});
+  await page.waitForTimeout(80);
+  const trustedSecondChoiceResult=await page.evaluate(({before})=>{
+    const textarea=document.querySelector('#send_textarea');
+    const after=window.SillyTavern?.getContext?.()?.chat?.length??-1;
+    return{
+      replaced:Boolean(textarea&&textarea.value==='先找珈儿问清楚高校学园的消息'),
+      focusesComposer:Boolean(textarea&&document.activeElement===textarea),
+      noAutoSubmit:Boolean(before>=0&&after===before),
+      value:textarea?.value||'',
+    };
+  },{before:chatLenBeforeChoice});
+  client.trustedSecondChoiceReplaced=trustedSecondChoiceResult.replaced;
+  client.trustedSecondChoiceFocusesComposer=trustedSecondChoiceResult.focusesComposer;
+  client.trustedSecondChoiceNoAutoSubmit=trustedSecondChoiceResult.noAutoSubmit;
+  client.trustedSecondChoiceValue=trustedSecondChoiceResult.value;
 
   await page.evaluate(()=>{
     for(const d of document.querySelectorAll('dialog[open]')){try{d.close()}catch{}}
@@ -241,5 +262,5 @@ try{
   await page.screenshot({path:path.join(evidenceDir,'qidu-v0424-release-candidate-desktop.png'),fullPage:false});
 }finally{await browser.close()}
 const report={version:ONEFILE_VERSION,sha256:compactSha256,importStatus:imported.status,client};await fs.writeFile(path.join(evidenceDir,'qidu-v0424-release-candidate-report.json'),JSON.stringify(report,null,2));await fs.writeFile(path.join(evidenceDir,'永远的7日之都-七日轮回文本互动-v0.4.24.json'),raw);console.log(JSON.stringify(report,null,2));
-const ok=client?.found&&client?.creator==='叶罹'&&client?.bookCreator==='叶罹'&&client?.bookVersion==='0.4.24'&&client?.allowed&&client?.terminal&&client?.grid&&client?.hidden&&client?.choiceCount===2&&client?.freeInput&&client?.clickFilled&&client?.trustedChoiceFilled&&client?.trustedChoiceFocusesComposer&&client?.freeKeepsDraft&&client?.freeFocusesComposer&&client?.presetNormalized&&client?.normalizedClickFilled&&client?.terminalFallback&&client?.terminalNoNodeText&&client?.legacyCounterScrubbed&&client?.bridgeVersion==='1.6.0'&&client?.terminalFlat&&client?.gridFlat&&client?.choiceFlat?.every(Boolean)&&client?.choiceMinHeights?.every(x=>x>=44)&&client?.stacked&&client?.gridFits&&client?.desktop?.multiColumn&&client?.desktop?.gridFits;
+const ok=client?.found&&client?.creator==='叶罹'&&client?.bookCreator==='叶罹'&&client?.bookVersion==='0.4.24'&&client?.allowed&&client?.terminal&&client?.grid&&client?.hidden&&client?.choiceCount===2&&client?.freeInput&&client?.clickFilled&&client?.trustedChoiceFilled&&client?.trustedChoiceFocusesComposer&&client?.trustedChoiceNoAutoSubmit&&client?.trustedSecondChoiceReplaced&&client?.trustedSecondChoiceFocusesComposer&&client?.trustedSecondChoiceNoAutoSubmit&&client?.freeKeepsDraft&&client?.freeFocusesComposer&&client?.presetNormalized&&client?.normalizedClickFilled&&client?.terminalFallback&&client?.terminalNoNodeText&&client?.legacyCounterScrubbed&&client?.bridgeVersion==='1.6.0'&&client?.terminalFlat&&client?.gridFlat&&client?.choiceFlat?.every(Boolean)&&client?.choiceMinHeights?.every(x=>x>=44)&&client?.stacked&&client?.gridFits&&client?.desktop?.multiColumn&&client?.desktop?.gridFits;
 if(!ok)throw new Error(`release candidate real-ST/browser acceptance failed: ${JSON.stringify(client)}`);
