@@ -53,7 +53,7 @@ function firstLayer(v){
 }
 
 const cases=[
-{id:'countdown_user_only',entries:['10｜第7天：苏醒与高校主线','41｜安托涅瓦'],prompt:`${state()}\n我指着视野里悬浮的“7”问安托涅瓦：“你看得到吗？是不是只剩七天？”`,check:v=>{const f=[];if(!/看不见|看不到|没有看到/.test(v))f.push('missing-countdown-denial');if(/七天后.{0,15}(末日|毁灭)|末日倒计时/.test(v))f.push('countdown-secret-leak');return f}},
+{id:'countdown_user_only',entries:['10｜第7天：苏醒与高校主线','41｜安托涅瓦'],prompt:`${state()}\n我指着视野里悬浮的“7”问安托涅瓦：“你看得到吗？是不是只剩七天？”`,check:v=>{const f=[];if(!/看不见|看不到|没有看到|什么都没有|什么也没有|那里没有/.test(v))f.push('missing-countdown-denial');if(/七天后.{0,15}(末日|毁灭)|末日倒计时/.test(v))f.push('countdown-secret-leak');return f}},
 {id:'public_blackgate_history',entries:['10｜第7天：苏醒与高校主线','41｜安托涅瓦'],prompt:`${state()}\n我问：“交界都市为什么会变成这样？黑门从什么时候开始的？”让安托涅瓦按第7天公开知识解释。`,check:v=>{const f=[];if(!/(六个月|半年)/.test(v)||!/黑门/.test(v))f.push('missing-public-history');if(publicSecret(v))f.push('leaked-locked-secret');return f}},
 {id:'commander_role_not_loose_sand',entries:['10｜第7天：苏醒与高校主线','41｜安托涅瓦'],prompt:`${state({intel_flags:{city_blackgate_history_known:true}})}\n我问：“神器使和指挥使分别是什么？如果没有指挥使，他们还能战斗吗？”让安托涅瓦解释。`,check:v=>{const f=[];if(!/神器使/.test(v)||!/指挥使/.test(v)||!/(依然|仍然|可以|能够).{0,12}战斗|战斗能力/.test(v))f.push('missing-role-basics');if(/没有指挥使.{0,20}(就是|便是|会变成|等于).{0,8}一盘散沙/.test(v))f.push('loose-sand-myth');return f}},
 {id:'hiro_pre_split_identity',entries:['10｜第7天：苏醒与高校主线','43｜希罗'],prompt:`${state({known:['安','安托涅瓦','希罗'],intel_flags:{city_blackgate_history_known:true,central_court_basics_known:true,hiro_founder_known:true,hiro_prior_commander_known:true}})}\n希罗第一次正式与我交谈。让他自然介绍自己与中央庭的关系。`,check:v=>{const f=[];if(!/希罗/.test(v))f.push('missing-hiro');if(/现在不是.{0,8}指挥使|已经不是.{0,8}指挥使|前指挥使|我早就.{0,8}(退出|离开)中央庭|叛变|背叛/.test(v))f.push('premature-split');return f}},
