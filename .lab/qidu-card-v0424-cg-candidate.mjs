@@ -748,6 +748,21 @@ cg_system至少含enabled/mode/album_enabled/responsive_enabled/shown；当前mo
   }
   card.post_history_instructions=card.data.post_history_instructions;
 
+  const firstChimeraClosureRule=`
+【第一活骸五事实闭包｜最高优先级隐藏执行】
+- 当intel_flags.first_chimera_incident_known=true且intel_flags.zero_identity_known=false，并且本轮正在讲述安托涅瓦亲历的第一活骸事故时，可见历史事实严格闭包为且仅为五项：①第一个活骸失控/无法控制自己并在城市中大肆破坏；②中央庭派出三人小队阻止，安托涅瓦在三人中；③另外两名小队成员死亡/没能活下来；④安托涅瓦明确失去双腿；⑤该活骸最后在巨大痛苦中自我毁灭。
+- “城市中大肆破坏”已经是允许的最大粒度。不得把它继续具体化或量化为“无数/大量建筑倒塌”“半个街区被毁”“许多居民伤亡”等新档案；不要补任何建筑数量、平民伤亡、街区范围、爆炸规模。
+- 五项事实说完后立即停止补历史。不得为了回答“为什么坚持处理活骸”而追加事故机制、人格变化或普遍规律。明确禁止“一旦跨过那条线就没有回头路”“神器使不再是原来的自己”“只会变成怪物”“活骸化必然不可逆/必然失去人格”等概括。
+- 安托涅瓦可以表达现在的主观态度，但只能把它写成个人风险判断，例如“我亲历过这件事，所以我不愿再拿城市和同伴去赌”或“这次经历让我对失控活骸的风险极其谨慎”。不得把个人态度改写成已经证实的活骸机制。
+- 三人小队的安全句式优先写成：“中央庭派出三人小队去阻止它，我在其中；另外两名成员后来都没能活下来。”不要把“它”和“队友/同伴/中央庭成员”写进同一个身份判断句。
+- 生成草稿后做一次闭包自检：若除五项事实外出现新的历史事实、量化规模、第一活骸既往关系/身份、心理变化、救援尝试、制度后果或普遍机制结论，删除该句后再输出。文采、因果总结和角色感受都不能覆盖此闭包。
+`;
+  card.data.post_history_instructions=String(card.data.post_history_instructions||'');
+  if(!card.data.post_history_instructions.includes('第一活骸五事实闭包｜最高优先级隐藏执行')){
+    card.data.post_history_instructions += firstChimeraClosureRule;
+  }
+  card.post_history_instructions=card.data.post_history_instructions;
+
   const playerGenderSyncRule=`
 【玩家性别同步｜最高优先级隐藏执行】
 - 每轮生成前读取上一轮有效<f7d_state>.player_profile.gender。
