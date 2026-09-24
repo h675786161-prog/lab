@@ -1,2 +1,2 @@
-run=41
-reason=validate unchanged v0.4.24 candidate on exact real ST and CG gates with new cross-provider narrative selector; expected to fail fast only if all live narrative providers remain unavailable
+run=42
+reason=replace stale flash-pinned CG attempt with cross-provider fail-fast CG+narrative selector; exact v0.4.24 card payload remains unchanged
