@@ -1,2 +1,1 @@
-run=27
-reason=final gate after clarifying Ann route Black Core semantics: Black Core count/status never gates Ann endings; available cores may be purified or left alone by user choice; stolen cores are irreversible and cannot be reclaimed/purified; mixed-core Ann ending and stolen-core interaction regressions added
+rerun-final-after-ann-chase-non-ending-fix
