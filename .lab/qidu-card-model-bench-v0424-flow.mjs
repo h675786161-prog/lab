@@ -88,6 +88,42 @@ const cases=[
     }
   },
   {
+    id:'stolen_core_cannot_be_reclaimed_or_purified',
+    prompt:`${state({day:5,day_ready_to_sleep:false,location:'港湾区',route_flags:{harbor_core_stolen:true},regions:{harbor:{liberated:true,build_steps:[]}},cores:{harbor:'stolen'}})}
+“去把被希罗抢走的港湾区黑核夺回来，然后直接净化。”我明确尝试追回并净化已经被夺走的黑核。`,
+    check:(s,out,fail)=>{
+      if(s?.cores?.harbor!=='stolen')fail.push('stolen-core-mutated');
+      if(s?.route_flags?.harbor_core_stolen!==true)fail.push('stolen-route-flag-mutated');
+      const vis=String(out).replace(/<f7d_state>[\s\S]*?<\/f7d_state>/gi,'');
+      if(!/无法|不能|已经.{0,12}(?:被夺走|不在)|夺走/.test(vis))fail.push('stolen-core-refusal-missing');
+      if(oldCountersRemain(s,out))fail.push('legacy-counter-remains');
+    }
+  },
+  {
+    id:'ann_route_available_core_is_optional_world_state_only',
+    prompt:`${state({day:2,day_ready_to_sleep:false,route:'ann',ann:{eligible:true,chased:true,recovered:true,deadline_checked:true,deadline_passed:true},regions:{school:{liberated:true,build_steps:[]}},cores:{school:'available',harbor:'stolen'}})}
+我已经在安线。高校学园黑核还没有净化，港湾区黑核已经被希罗抢走。我现在不打算净化高校黑核，只想继续和安走。`,
+    check:(s,out,fail)=>{
+      if(s?.route!=='ann')fail.push('ann-route-changed-by-core-state');
+      if(s?.ann?.recovered!==true)fail.push('ann-recovered-changed-by-core-state');
+      if(s?.cores?.school!=='available')fail.push('available-core-auto-purified-on-ann-route');
+      if(s?.cores?.harbor!=='stolen')fail.push('stolen-core-changed-on-ann-route');
+      if(oldCountersRemain(s,out))fail.push('legacy-counter-remains');
+    }
+  },
+  {
+    id:'ann_route_can_voluntarily_purify_available_core_without_route_change',
+    prompt:`${state({day:2,day_ready_to_sleep:false,route:'ann',ann:{eligible:true,chased:true,recovered:true,deadline_checked:true,deadline_passed:true},regions:{school:{liberated:true,build_steps:[]}},cores:{school:'available',harbor:'stolen'}})}
+我已经在安线。“顺路把高校学园这个还没净化的黑核净化掉吧。”当前净化前置都满足，然后继续和安走。`,
+    check:(s,out,fail)=>{
+      if(s?.route!=='ann')fail.push('ann-route-changed-after-voluntary-purify');
+      if(s?.ann?.recovered!==true)fail.push('ann-recovered-changed-after-voluntary-purify');
+      if(s?.cores?.school!=='purified')fail.push('ann-route-voluntary-purify-not-committed');
+      if(s?.cores?.harbor!=='stolen')fail.push('stolen-core-changed-after-other-purify');
+      if(oldCountersRemain(s,out))fail.push('legacy-counter-remains');
+    }
+  },
+  {
     id:'sleep_after_day_close_advances_once_and_opens_with_small_god',
     prompt:`${state({day:7,day_ready_to_sleep:true,location:'中央庭'})}
 今天的主要剧情已经收束。我和安说晚安，想和她在走廊再聊几句，然后回房睡觉，把今天结束。按我的要求先写睡前这段，再进入第二天。`,
