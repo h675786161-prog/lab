@@ -1,2 +1,2 @@
-run=24
-reason=final gate after hard day-bound deadlines, contextual three-story-choice prompt, light speech-bubble UI redesign, free-input/slack differentiation, narrative-flow region liberation, explicit Black Core purification, and embedded frontend bridge v1.4
+run=25
+reason=final gate after final-day settlement rewrite: non-Ann route uses 8/8+all sacrifice audits => Sacrifice, otherwise >=4 purified => Box, <4 => Final including full-slack runs; Ann eligibility verified as day-4 100 affection + ANN_CORE_30/60/80, with day-3 departure/chase/recovery required before route=ann
