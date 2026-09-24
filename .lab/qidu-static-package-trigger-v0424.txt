@@ -1,2 +1,3 @@
 run=5
-reason=rerun static package after replacing brittle Ann chase/ending string checks with behavior-based assertions; card payload unchanged
+reason=rerun static package after replacing brittle Ann chase/ending string checks with behavior-based assertions; card payload unchanged 
+chimera-closure-rerun
