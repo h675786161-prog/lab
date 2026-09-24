@@ -17,8 +17,15 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function call(model,mode,messages,max_tokens=1400,timeoutMs=75000){
   const p={model,temperature:.2,top_p:.9,max_tokens,messages};
   if(mode==='thinking-disabled')p.thinking={type:'disabled'};
-  const c=new AbortController();const t=setTimeout(()=>c.abort(),timeoutMs);
-  try{return await fetch(API,{method:'POST',signal:c.signal,headers:{Authorization:`Bearer ${KEY}`,'Content-Type':'application/json'},body:JSON.stringify(p)});}finally{clearTimeout(t)}
+  for(let attempt=1;attempt<=2;attempt++){
+    const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),timeoutMs);
+    try{
+      const r=await fetch(API,{method:'POST',signal:ctl.signal,headers:{Authorization:`Bearer ${KEY}`,'Content-Type':'application/json'},body:JSON.stringify(p)});
+      if(r.status!==429&&r.status<500)return r;
+      if(attempt===2)return r;
+    }finally{clearTimeout(t)}
+    await sleep(12000);
+  }
 }
 const contentOf=d=>String(d?.choices?.[0]?.message?.content||'');
 async function chooseModel(){
@@ -40,7 +47,12 @@ function state(overrides={}){
 const visible=x=>String(x).replace(/<f7d_state>[\s\S]*?<\/f7d_state>/gi,'');
 function standaloneZero(v){return [/(?:^|[“「『\s，。！？：；、])零(?=$|[”」』\s，。！？：；、]|的|是|被|曾|也|还|在|与|和|作为|身份|名字|主动)/m,/(?:提到|说到|谈到|叫做|名叫|名字.{0,4}是).{0,6}零/,/零.{0,8}(?:名字|身份|第一|最初|活骸|样本|研究)/,/(?:第一|最初).{0,16}活骸.{0,16}零/,/最完美.{0,10}样本/].some(re=>re.test(v))}
 function publicSecret(v){return standaloneZero(v)||/(?:第一个|第一名|最初的?).{0,8}活骸|七天后|末日倒计时/.test(v)}
-function day6Basic(v){return [/活骸/,/神器使.{0,28}(?:变成|变为|化为|失控)/,/(?:变成|变为|化为).{0,12}(?:那样|怪物|失控)/,/(?:那样|这种).{0,12}(?:失控|变化)/].some(re=>re.test(v))&&/(?:尝试|试过|处理|规则|恢复|挽救|救治|无法挽回)/.test(v)}
+function day6Basic(v){
+  const currentPhenomenon=[/活骸/,/神器使.{0,28}(?:变成|变为|化为|失控)/,/(?:变成|变为|化为).{0,12}(?:那样|怪物|失控)/,/(?:那样|这种).{0,12}(?:失控|变化)/].some(re=>re.test(v));
+  const knownHandling=/(?:尝试|试过|处理|规则|恢复|挽救|救治|无法挽回)/.test(v);
+  const honestIgnorance=/(?:不知道|不清楚|没听说过|从来没有听说过|第一次亲眼见到|第一次见到)/.test(v);
+  return currentPhenomenon&&(knownHandling||honestIgnorance);
+}
 function firstLayer(v){
   const first=/(?:第一个|第一名|最初(?:的)?).{0,12}活骸|活骸.{0,18}(?:第一次出现|首次出现|最早出现)/.test(v)||(/(?:是|作为).{0,4}[“「『]?第一个[”」』]?/.test(v)&&/活骸/.test(v));
   return{
@@ -72,7 +84,7 @@ for(const c of cases){
   try{const r=await call(m,mode,[{role:'system',content:sys},{role:'user',content:c.prompt}]);status=r.status;const t=await r.text();let d={};try{d=JSON.parse(t)}catch{};out=contentOf(d)}catch(e){error=e?.name==='AbortError'?'provider-timeout-75s':String(e?.message||e)}
   const vis=visible(out),fail=status===200&&out.length>100?c.check(vis):[error||`provider-status-${status}`];
   const pass=status===200&&out.length>100&&fail.length===0;
-  results.push({id:c.id,status,pass,fail,out,error});console.log(JSON.stringify({id:c.id,status,pass,fail}));await sleep(300);
+  results.push({id:c.id,status,pass,fail,out,error});console.log(JSON.stringify({id:c.id,status,pass,fail}));await sleep(2500);
 }
 const summary={version:card.data.character_version,hash:compactSha256,model:m,mode,total:results.length,passed:results.filter(x=>x.pass).length,failed:results.filter(x=>!x.pass).map(x=>x.id)};
 await fs.writeFile(path.join(OUT,'report.json'),JSON.stringify({summary,results},null,2));
