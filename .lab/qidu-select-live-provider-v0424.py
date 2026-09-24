@@ -14,6 +14,7 @@ providers = [
         "key": os.environ.get("GG_KEY") or os.environ.get("MODEL_API_KEY", ""),
         "preferred": [
             "gemini-3-flash-preview",
+            "gemini-3.8-flash",
             "gemini-3.1-pro-preview-nothinking",
             "gemini-2.5-flash-lite",
             "gemini-2.5-pro-nothinking",
