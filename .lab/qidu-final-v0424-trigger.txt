@@ -1,2 +1,2 @@
-run=26
-reason=rerun exact final gate after escaping embedded UI theme syntax; includes final-day ending thresholds, corrected Ann eligibility/chase/recovery semantics, hard day deadlines, redesigned bridge v1.4, narrative-flow progression, explicit Black Core purification, and all previous CG/gender/source locks
+run=27
+reason=final gate after clarifying Ann route Black Core semantics: Black Core count/status never gates Ann endings; available cores may be purified or left alone by user choice; stolen cores are irreversible and cannot be reclaimed/purified; mixed-core Ann ending and stolen-core interaction regressions added
