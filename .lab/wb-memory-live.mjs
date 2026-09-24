@@ -18,24 +18,37 @@ const modelPayload = await modelsResponse.json();
 const modelList = modelPayload.data || modelPayload.models || [];
 const modelIds = modelList.map(x => typeof x === 'string' ? x : x.id || x.name).filter(Boolean);
 console.log(JSON.stringify({ modelCount: modelIds.length, modelIds: modelIds.slice(0, 30), responseKeys: Object.keys(modelPayload) }));
-const model = process.env.LAB_MODEL_ID || modelIds.find(id => /glm|deepseek/i.test(id)) || modelIds[0];
+const model = process.env.LAB_MODEL_ID || modelIds.find(id => id === 'gemini-3-flash-preview')
+    || modelIds.find(id => /glm|deepseek/i.test(id)) || modelIds[0];
 if (!model) throw new Error('No text model was listed by the configured LAB route');
 let previousRequestAt = 0;
 async function request(messages, maxTokens) {
-    const wait = Math.max(0, previousRequestAt + 8000 - Date.now());
-    if (wait) await new Promise(resolve => setTimeout(resolve, wait));
-    previousRequestAt = Date.now();
-    const response = await fetch(`${baseUrl}/v1/chat/completions`, {
-        method: 'POST', signal: AbortSignal.timeout(150_000),
-        headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model, messages, max_tokens: maxTokens, temperature: 0.1,
-            thinking: { type: 'disabled' }, stream: false }),
-    });
-    if (!response.ok) throw new Error(`Model HTTP ${response.status}`);
-    const data = await response.json();
-    const text = data.choices?.[0]?.message?.content;
-    if (!text?.trim()) throw new Error('Model returned no final content');
-    return { text, usage: data.usage, model: data.model };
+    for (let attempt = 0; attempt < 3; attempt++) {
+        const wait = Math.max(0, previousRequestAt + (attempt ? 60_000 * attempt : 20_000) - Date.now());
+        if (wait) await new Promise(resolve => setTimeout(resolve, wait));
+        try {
+            const response = await fetch(`${baseUrl}/v1/chat/completions`, {
+                method: 'POST', signal: AbortSignal.timeout(150_000),
+                headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ model, messages, max_tokens: maxTokens, temperature: 0.1,
+                    thinking: { type: 'disabled' }, stream: false }),
+            });
+            previousRequestAt = Date.now();
+            if (response.status === 429 && attempt < 2) {
+                console.log(JSON.stringify({ rateLimited: true, retry: attempt + 1, model }));
+                continue;
+            }
+            if (!response.ok) throw new Error(`Model HTTP ${response.status}`);
+            const data = await response.json();
+            const text = data.choices?.[0]?.message?.content;
+            if (!text?.trim()) throw new Error('Model returned no final content');
+            return { text, usage: data.usage, model: data.model };
+        } catch (error) {
+            previousRequestAt = Date.now();
+            throw error;
+        }
+    }
+    throw new Error('Model rate limit did not clear after two cooldowns');
 }
 
 const settings = { enabled: true, worldSimulationEnabled: false, memorySystemEnabled: true, injectionMemory: true };
