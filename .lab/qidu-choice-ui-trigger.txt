@@ -1,2 +1,2 @@
-run=v0.4.24-choice-ui-v1.6-all-options-refill
-reason=real SillyTavern acceptance clicks all four visible options and verifies exact composer refill, focus, no auto-submit, plus free-input draft preservation
+run=v0.4.24-choice-ui-v1.6-all-options-refill-dialogfix
+reason=rerun all four option refill checks after dismissing transient SillyTavern modal dialogs before trusted clicks
