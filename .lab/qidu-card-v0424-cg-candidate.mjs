@@ -112,6 +112,8 @@ function narrativeFlowRule(){
 - 【黑核与解放严格分离】区域解放绝不自动等于黑核净化。完成区域剧情、打倒Boss、发现黑核、谈到黑核、查看黑核、拿到净化线索，都不得把cores.<区域>改成purified。
 - cores.<区域>只有在{{user}}本轮明确表达“去净化/现在净化/把黑核净化掉/执行黑核净化”等实际净化意图，并且该区域净化前置条件已经满足时，才能在同一回复改为purified。用户只说“黑核呢/看看黑核/先去那里/区域解放了”都不算净化指令。
 - 若{{user}}明确要净化但前置条件尚未满足，本轮要正常演出被阻挡/缺少条件的结果，cores保持原值；不得因为用户有意图就强行净化。
+- 【被夺黑核不可逆】cores.<区域>=stolen表示该黑核已经被希罗一方成功夺走并脱离玩家可操作范围。在本主线中stolen是不可逆状态：玩家不能再“夺回来/抢回来/回收/净化”这枚黑核，也不能把stolen改回available或purified。若玩家尝试，正常演出无法执行或目标已不在可夺取范围，状态保持stolen。
+- 【安线黑核完全可选】route='ann'后，黑核数量、是否满8枚、是否存在stolen、以及仍有多少available都不属于安线资格或安线结局条件。仍为available且前置满足的黑核，玩家可以明确选择去净化，也可以一直不净化；这只改变cores世界状态，不得改变route='ann'、ann.recovered或最终《两个人的旅途》/《永恒的终焉》可选性。stolen黑核依旧不可夺回。
 - 【限时剧情按天硬截止】所有写有“第X天结束前 / 第X天晚睡前 / 进入第Y天时”的任务，不再依赖巡查次数或模型自行判断宽限。每次day准备从X减到X-1之前，先结算当日全部硬截止：已满足条件→标记完成/保留资格；未满足→当场写入失败与既定后果。已经跨过截止日的条件禁止靠后续补做倒签成功，除非世界书明确存在补救剧情。
 - 【安线硬截止｜第4天→第3天】从day=4睡到day=3之前，只检查当时已经真实完成的安线进度：ann.affection>=100，且ann.core_events同时包含ANN_CORE_30、ANN_CORE_60、ANN_CORE_80。两项都满足：ann.eligible=true、ann.deadline_checked=true、ann.deadline_passed=true；任一不足：ann.eligible=false、ann.deadline_checked=true、ann.deadline_passed=false、route_flags.ann_route_closed=true。资格只在这个时点判一次，之后补好感或补核心剧情都不得倒签。
 - 【第3天安离开/追赶｜不论资格都要发生】从第4天进入第3天时，先写小神短暂自语，再进入安离开的清晨事件。ann.eligible=true只表示“允许通过追赶与追回链进入安线”，不表示安不会离开，也不自动切route。玩家必须亲自决定是否追。
@@ -171,12 +173,13 @@ function installNarrativeFlow(card){
 - 保留cores作为黑核状态，但liberated变化不得联动cores。只有玩家明确执行净化且满足前置，cores对应区域才可变为purified。
 - 新增day_ready_to_sleep:boolean。仅当天主要剧情收束后为true；玩家明确睡觉并完成日结后day减1且该字段重置false。
 - ann.deadline_checked/deadline_passed记录第4天→第3天的安线硬截止结果；route_flags.ann_route_closed一旦因截止失败为true，后续普通补进度不得恢复。
-- route_flags.harbor_core_stolen记录第4天情报截止造成的港湾区黑核被夺；若为true，与cores.harbor=stolen保持一致。
+- route_flags.harbor_core_stolen记录第4天情报截止造成的港湾区黑核被夺；若为true，与cores.harbor=stolen保持一致。任何cores.*=stolen都视为不可逆，不得被后续普通行动改回available/purified。
+- route='ann'时cores仅记录世界状态，不参与安线资格和结局判断；available可由用户自愿净化或留着不动，stolen不可夺回。
 `);
 
   card.data.extensions=card.data.extensions||{};
   card.data.extensions.depth_prompt=card.data.extensions.depth_prompt||{};
-  const depthAdd=' ⑱不使用行动节点或巡查次数计数；按剧情因果自然推进。区域主线收束即自动解放，但绝不自动净化黑核；净化必须由用户明确发起且满足前置。当天主要剧情收束后day_ready_to_sleep=true，只有用户明确睡觉才换日，并在睡前剧情后接下一天小神自语。 ⑲决策时固定先给3个剧情相关选项；普通安全决策再加1个明确带后果的摆烂/跳过选项，连续战斗、追逐、救援、即时危险与强制过场禁用摆烂，只保留3个剧情选项；自由输入由前端固定追加。';
+  const depthAdd=' ⑱不使用行动节点或巡查次数计数；按剧情因果自然推进。区域主线收束即自动解放，但绝不自动净化黑核；净化必须由用户明确发起且满足前置。stolen黑核不可夺回或净化。route=ann时黑核完全不参与安线资格/结局，available黑核可由用户自愿净化或不净化。当天主要剧情收束后day_ready_to_sleep=true，只有用户明确睡觉才换日，并在睡前剧情后接下一天小神自语。 ⑲决策时固定先给3个剧情相关选项；普通安全决策再加1个明确带后果的摆烂/跳过选项，连续战斗、追逐、救援、即时危险与强制过场禁用摆烂，只保留3个剧情选项；自由输入由前端固定追加。';
   if(!String(card.data.extensions.depth_prompt.prompt||'').includes('不使用行动节点或巡查次数计数')){
     card.data.extensions.depth_prompt.prompt=String(card.data.extensions.depth_prompt.prompt||'')+depthAdd;
   }
@@ -665,7 +668,7 @@ cg_system至少含enabled/mode/album_enabled/responsive_enabled/shown；当前mo
 
   const endingSettlementRule=`
 【最终日结局结算｜最高优先级隐藏执行】
-- route='ann'时完全跳过普通线黑核数量判定，按安线独立时间轴与最终玩家选择结算《永恒的终焉》/《两个人的旅途》。
+- route='ann'时完全跳过普通线黑核数量与黑核状态判定。无论0~8枚purified、是否存在available未净化黑核、是否有黑核已被希罗夺走为stolen，都不影响安线结局资格；只按安线独立时间轴与最终玩家选择结算《永恒的终焉》/《两个人的旅途》。安线途中自愿净化available黑核只更新世界状态，不得因此改线或改结局。
 - route!='ann'时，普通线只按以下顺序选一个结局：
   A. 8/8黑核purified + 牺牲其余审计条件全部满足 → 《牺牲的意义》；
   B. 否则purified_core_count>=4 → 《箱庭风景》；
