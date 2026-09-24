@@ -1,2 +1,2 @@
-run=16
-reason=reconfirm eternal ending exact meta.endings literal after complete first-chimera closure changed candidate prompt hash
+run=17
+reason=reconfirm eternal ending exact meta.endings literal after strict first-chimera closeout changed candidate prompt hash
