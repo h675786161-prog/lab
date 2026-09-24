@@ -1,2 +1,2 @@
-ann-chase-atomic-regression-v3
-test=350178e278b4200ffd9a35e7339ea6cf76cde585
+run=4
+reason=verify harbor stolen exact enum after atomic state hard-lock; route_flags.harbor_core_stolen=true must serialize cores.harbor as stolen, never lost
