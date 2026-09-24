@@ -1,2 +1,2 @@
-run=11
-reason=verify trusted free-input click after closing transient SillyTavern dialogs
+run=12
+reason=verify trusted story-option click refills exact Chinese choice text into real SillyTavern #send_textarea and focuses composer; retain free-input focus checks
