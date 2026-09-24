@@ -1,2 +1,2 @@
-run=20260924-late-recovery-check
-reason=single low-frequency provider recovery check after static package gate; do not start model regression unless a completion route is actually live
+run=20260924-gemini38-check
+reason=probe newly listed gemini-3.8-flash before concluding all GG completion routes are exhausted
