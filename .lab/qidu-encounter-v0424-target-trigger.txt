@@ -1,0 +1,2 @@
+run=1
+reason=separate provider timeout noise from actual encounter semantics on exact b6ad382e candidate after Final Gate #51
