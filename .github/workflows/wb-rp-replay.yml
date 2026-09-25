@@ -1,0 +1,42 @@
+name: World Backstage GG live RP replay
+on:
+  pull_request:
+    paths:
+      - '.lab/wb-rp-replay.mjs'
+      - '.github/workflows/wb-rp-replay.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/checkout@v4
+        with:
+          repository: h675786161-prog/world-backstage
+          ref: 8b99b8150d1153a0720dc48ef5ac7a8c132a5a0b
+          path: wb-candidate
+      - name: Load exact GG-generated 120-floor archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p bench-evidence/wb-rp-source
+          gh run download 36136504193 -R h675786161-prog/lab -n wb-gg-live-rp -D bench-evidence/wb-rp-source
+      - name: Re-ask 121st-floor recall with revised plugin
+        env:
+          LAB_MODEL_KEY: ${{ secrets.GG }}
+          LAB_MODEL_BASE_URL: https://gcli.ggchan.dev
+          LAB_MODEL_ID: gemini-2.5-flash-lite
+        run: node .lab/wb-rp-replay.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wb-gg-live-rp-replay
+          path: bench-evidence/wb-rp-replay/
+          if-no-files-found: warn
