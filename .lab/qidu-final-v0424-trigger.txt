@@ -1,2 +1,2 @@
-run=52
-reason=full final gate for exact b6ad382e candidate after targeted Encounter #1 PASS and targeted Flow+Info #3 PASS; final narrative harness now adds provider cooldown and focused third-attempt recovery without changing card payload
+run=53
+reason=full final gate for exact 1e648885 dispatch-priority candidate after Static Package #14 PASS, Real ST #18 PASS, Dispatch Priority #1 PASS, Final Settlement #7 PASS, Output Shell #3 PASS, CG #21 PASS, and Flow+Info #4 PASS
