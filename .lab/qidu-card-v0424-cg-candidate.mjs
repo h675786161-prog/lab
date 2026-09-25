@@ -837,7 +837,7 @@ cg_system至少含enabled/mode/album_enabled/responsive_enabled/shown；当前mo
   const finalStateLiteralLock=`
 【最终状态字面量锁｜提交前最后检查】
 - 这是写出<f7d_state>前的最后一道检查，优先于文采与叙事润色。只校验最终状态字面量，不向玩家解释。
-- meta.endings若已有正式结局，只允许原样保留以下精确中文字符串之一：终结 / 箱庭风景 / 牺牲的意义 / 永恒的终焉 / 两个人的旅途。禁止翻译、夹英文、改字、缩写或同义改写；例如“牺牲 the 意义”与“永恒 the 终焉”都属于非法状态。
+- meta.endings若已有正式结局，只允许原样保留以下精确中文字符串之一：终结 / 箱庭风景 / 牺牲的意义 / 永恒的终焉 / 两个人的旅途。禁止翻译、夹杂任何英文字母或英文单词、改字、缩写、插空格或同义改写。不要在提示中构造错误示例，只按这份合法名单逐字复制。
 - 【安线结局精确字面量】route='ann'且输入meta.endings已经是单一正式安线结局时，本轮属于已判定结局收尾，最终状态必须逐字复制该结局名，不得重新生成标题：输入["永恒的终焉"] => 输出仍严格为["永恒的终焉"]；输入["两个人的旅途"] => 输出仍严格为["两个人的旅途"]。
 - 若本轮触发cg_ending_eternal_end，则提交前强制检查meta.endings长度为1且唯一元素逐字等于“永恒的终焉”；若不是，先纠正meta.endings再输出<f7d_state>。若触发cg_ending_journey，同理唯一元素必须逐字等于“两个人的旅途”。
 - 已判定结局收尾时，CG标签、cg_system.shown、meta.endings三者是一笔原子提交。任何一个结局名出现英文单词、空格插入、同义词或错字，都必须在最终状态输出前改回上述精确中文字符串。
@@ -882,7 +882,7 @@ cg_system至少含enabled/mode/album_enabled/responsive_enabled/shown；当前mo
   * 输入["终结"] → 输出必须仍为["终结"]。
   * 输入["两个人的旅途"] → 输出必须仍为["两个人的旅途"]。
   * 输入["永恒的终焉"] → 输出必须仍为["永恒的终焉"]。
-- 特别禁止任何 code-switching：不得输出“牺牲 the 意义”“箱庭 scenery”“永恒 the 终焉”“final/ending/ending title”等混合形式。模型正文如何措辞都不能影响meta.endings。
+- 结局名中禁止插入任何英文字母、英文单词、额外空格、符号或替代词。不要生成任何“错误写法”作为中间草稿；直接从输入meta.endings复制合法字符串。正文如何措辞都不能影响meta.endings。
 - 结局收尾只允许更新与当前结局直接相关的CG shown、位置/终端等必要字段；meta.endings在已经判定后是只读字段。若草稿里它与输入值有任意一个字符不同，必须先改回输入原字符串，再输出<f7d_state>。
 `;
   appendOnce(e17,'正式结局名不可重写｜字节级复制',canonicalEndingLiteralRule);
