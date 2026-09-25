@@ -1,2 +1,2 @@
-run=10
-reason=validate no hedged first-chimera universal conclusions and exact Ann ending literal lock
+run=11
+reason=validate atomic Ann ending CG contract plus prior strict first-chimera and literal locks
