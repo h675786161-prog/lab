@@ -49,17 +49,26 @@ jobs:
                 .filter(Boolean).slice(0, 300),
               replied: Boolean(data.choices?.[0]?.message?.content) };
           }
-          for (const model of ['[OR]deepseek-v4-flash-0731', '[NV]deepseek-v4.1-flash']) {
-            for (let attempt = 0; attempt < 5; attempt++) {
+          const fixtures = JSON.parse(await fs.readFile('.lab/wb-memory-fixtures.json', 'utf8'));
+          const card = fixtures.cards.find(item => item.name === '圣堂上的黑羽');
+          const system = [`角色卡：${JSON.stringify(card.context)}`,
+            ...fixtures.preset.rules.map(rule => rule.content),
+            '你扮演伊莱恩及其他 NPC。只写 NPC 的言行、外部场景的变化；玩家的动作、语言和内心留给玩家。',
+            '承接上一轮的现场，不跳过玩家正在做的事情。每轮自然回复 100 到 220 字，避免机械重述设定。',
+          ].join('\\n\\n').replaceAll('{{getvar::LQ_AGENCY}}', 'NO_PROXY');
+          const prompt = '我跨进圣堂时踢歪了蓝色门垫。先扶好墙边烛台，再拾起掉在地上的白色信封。抬头看向伊莱恩。';
+          for (const model of ['[NV]deepseek-v4.1-flash', 'step-3.7-flash', '[OR]deepseek-v4-flash-0731']) {
+            for (let attempt = 0; attempt < 4; attempt++) {
               await new Promise(resolve => setTimeout(resolve, 4_500));
               try {
                 const result = await request('https://cofi.date/v1/chat/completions',
-                  { model, messages: [{ role: 'user', content: '只答：好' }], max_tokens: 60,
-                    temperature: 0.1, stream: false });
-                rows.push({ host: 'https://cofi.date/v1', kind: 'chat', model, attempt: attempt + 1, ...result });
+                  { model, messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
+                    max_tokens: 950, temperature: 0.65, stream: false });
+                rows.push({ host: 'https://cofi.date/v1', kind: 'full-rp', model,
+                  attempt: attempt + 1, ...result });
                 if (result.replied || (result.status !== 403 && result.status !== 429)) break;
               } catch (error) {
-                rows.push({ host: 'https://cofi.date/v1', kind: 'chat', model,
+                rows.push({ host: 'https://cofi.date/v1', kind: 'full-rp', model,
                   attempt: attempt + 1, error: String(error).slice(0, 180) });
               }
             }
