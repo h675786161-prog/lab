@@ -1,2 +1,2 @@
-run=2
-reason=reconfirm output shell on candidate after ending-literal prompt cleanup
+run=3
+reason=retest ordinary and forced choice shell after adding explicit story dispatch priority rules
