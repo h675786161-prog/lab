@@ -1,1 +1,2 @@
-run=2\nreason=rerun flow+info after accepting honest NPC ignorance and adding provider backoff\n
+run=3
+reason=retest exact b6ad382e candidate after Final Gate #51 provider-heavy encounter/info failure and flow variance; no card change from targeted green set
