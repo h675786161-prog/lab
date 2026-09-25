@@ -1,2 +1,2 @@
-run=5
-reason=retest canonical ending settlement on immutable ending-name candidate after Final Gate #48 sacrifice_female drift
+run=6
+reason=retest all canonical ending settlement after removing malformed ending-name prompt priming
