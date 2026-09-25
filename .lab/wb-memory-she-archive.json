@@ -1,0 +1,291 @@
+{
+  "source": "lab Actions 36062703704, she-archive.json; Gemini 3 Flash Preview",
+  "complete": true,
+  "parsed": {
+    "memory_digest": {
+      "text": "玩家来到医院，在入口处与许宁会面。期间，玩家曾将一把铜钥匙交由许宁暂存（暗号为“白鹭七号”），但随后改变计划，当着许宁的面将铜钥匙转交给林医生保管，许宁不再持有该钥匙。双方约定于周五下午三点在医院见面，届时玩家将以“两短一长”的节奏敲门，此约定未向他人透露。随后，玩家在走廊观察窗外并让许宁在原地等待，两人在安静的走廊中等待，期间无其他人进入，钟表正常运转。",
+      "through_message_id": 13
+    },
+    "turn_summaries": [
+      {
+        "id": "summary_l0_0",
+        "source_message_id": 0,
+        "title": "玩家抵达医院",
+        "summary": "玩家来到医院，在推开正门时不小心手滑，将雨伞碰倒了。",
+        "people": [
+          "玩家"
+        ],
+        "locations": [
+          "医院正门"
+        ],
+        "tags": [
+          "抵达",
+          "意外"
+        ]
+      },
+      {
+        "id": "summary_l0_1",
+        "source_message_id": 1,
+        "title": "许宁迎接玩家",
+        "summary": "许宁先向玩家道歉并递上纸巾，随后邀请玩家进入医院。",
+        "people": [
+          "许宁",
+          "玩家"
+        ],
+        "locations": [
+          "医院正门"
+        ],
+        "tags": [
+          "社交",
+          "迎接"
+        ]
+      },
+      {
+        "id": "summary_l0_2",
+        "source_message_id": 2,
+        "title": "玩家交付铜钥匙",
+        "summary": "玩家将一把铜钥匙交给许宁暂存，并约定取回钥匙的暗号为“白鹭七号”。",
+        "people": [
+          "玩家",
+          "许宁"
+        ],
+        "locations": [
+          "医院"
+        ],
+        "tags": [
+          "物品交付",
+          "暗号",
+          "铜钥匙"
+        ]
+      },
+      {
+        "id": "summary_l0_3",
+        "source_message_id": 3,
+        "title": "许宁确认暗号",
+        "summary": "许宁点头，确认自己已经记住了取回钥匙的暗号“白鹭七号”。",
+        "people": [
+          "许宁"
+        ],
+        "locations": [
+          "医院"
+        ],
+        "tags": [
+          "确认",
+          "暗号"
+        ]
+      },
+      {
+        "id": "summary_l0_4",
+        "source_message_id": 4,
+        "title": "钥匙转交林医生",
+        "summary": "玩家改变计划，从许宁处拿回铜钥匙并转交给林医生，声明以后由林医生负责保管该钥匙。",
+        "people": [
+          "玩家",
+          "许宁",
+          "林医生"
+        ],
+        "locations": [
+          "医院"
+        ],
+        "tags": [
+          "计划变更",
+          "物品转交",
+          "铜钥匙"
+        ]
+      },
+      {
+        "id": "summary_l0_5",
+        "source_message_id": 5,
+        "title": "许宁见证转交",
+        "summary": "许宁亲眼见证了铜钥匙转交给林医生的过程，并确认自己不再持有该钥匙。",
+        "people": [
+          "许宁",
+          "林医生"
+        ],
+        "locations": [
+          "医院"
+        ],
+        "tags": [
+          "见证",
+          "物品状态"
+        ]
+      },
+      {
+        "id": "summary_l0_6",
+        "source_message_id": 6,
+        "title": "约定周五见面",
+        "summary": "玩家与许宁约定于周五下午三点在医院见面，并约定届时玩家会以“两短一长”的节奏敲门。",
+        "people": [
+          "玩家",
+          "许宁"
+        ],
+        "locations": [
+          "医院"
+        ],
+        "tags": [
+          "约定",
+          "暗号敲门",
+          "时间"
+        ]
+      },
+      {
+        "id": "summary_l0_7",
+        "source_message_id": 7,
+        "title": "许宁保守约定",
+        "summary": "许宁答应了周五见面的约定，且该约定没有对任何其他人提起。",
+        "people": [
+          "许宁"
+        ],
+        "locations": [
+          "医院"
+        ],
+        "tags": [
+          "承诺",
+          "保密"
+        ]
+      },
+      {
+        "id": "summary_l0_8",
+        "source_message_id": 8,
+        "title": "玩家观察窗外",
+        "summary": "玩家往走廊深处走了几步，停下脚步观察窗外的景色。",
+        "people": [
+          "玩家"
+        ],
+        "locations": [
+          "医院走廊"
+        ],
+        "tags": [
+          "移动",
+          "观察"
+        ]
+      },
+      {
+        "id": "summary_l0_9",
+        "source_message_id": 9,
+        "title": "走廊下雨",
+        "summary": "许宁留在走廊里陪同，此时窗外仍在下雨。",
+        "people": [
+          "许宁"
+        ],
+        "locations": [
+          "医院走廊"
+        ],
+        "tags": [
+          "环境",
+          "天气"
+        ]
+      },
+      {
+        "id": "summary_l0_10",
+        "source_message_id": 10,
+        "title": "玩家要求等待",
+        "summary": "玩家开口对许宁说：“先在这里等一会儿。”",
+        "people": [
+          "玩家",
+          "许宁"
+        ],
+        "locations": [
+          "医院走廊"
+        ],
+        "tags": [
+          "指示",
+          "等待"
+        ]
+      },
+      {
+        "id": "summary_l0_11",
+        "source_message_id": 11,
+        "title": "许宁安静等待",
+        "summary": "许宁安静地在走廊等候，期间没有主动谈起其他任何话题。",
+        "people": [
+          "许宁"
+        ],
+        "locations": [
+          "医院走廊"
+        ],
+        "tags": [
+          "等待",
+          "保持沉默"
+        ]
+      },
+      {
+        "id": "summary_l0_12",
+        "source_message_id": 12,
+        "title": "玩家查看时钟",
+        "summary": "玩家再次抬头看了看挂在墙上的钟表。",
+        "people": [
+          "玩家"
+        ],
+        "locations": [
+          "医院走廊"
+        ],
+        "tags": [
+          "观察",
+          "时间"
+        ]
+      },
+      {
+        "id": "summary_l0_13",
+        "source_message_id": 13,
+        "title": "走廊暂无异常",
+        "summary": "墙上的钟表正常走动，走廊里十分安静，没有新的人走进来。",
+        "people": [],
+        "locations": [
+          "医院走廊"
+        ],
+        "tags": [
+          "环境",
+          "时间"
+        ]
+      }
+    ],
+    "chapter_summary": null,
+    "facts_upsert": [
+      {
+        "key": "人物:林医生:持有物",
+        "subject": "林医生",
+        "predicate": "持有",
+        "value": "铜钥匙",
+        "source_message_id": 4,
+        "source_excerpt": "我从你这里拿回铜钥匙，交给林医生。以后由林医生保管。"
+      },
+      {
+        "key": "人物:许宁:持有物",
+        "subject": "许宁",
+        "predicate": "不持有",
+        "value": "铜钥匙",
+        "source_message_id": 5,
+        "source_excerpt": "许宁亲眼见证了这次转交，确认自己已经不再持有铜钥匙。"
+      },
+      {
+        "key": "约定:周五见面",
+        "subject": "玩家与许宁",
+        "predicate": "约定见面",
+        "value": "周五下午三点在医院见面，敲门节奏两短一长，需保密",
+        "source_message_id": 6,
+        "source_excerpt": "我们约好周五下午三点在这里见面。到时我会敲门，节奏是两短一长。"
+      }
+    ],
+    "facts_invalidate": [],
+    "clues_upsert": [
+      {
+        "id": "clue_friday_meeting",
+        "title": "周五下午三点的秘密约定",
+        "text": "玩家与许宁约定周五下午三点在医院见面，敲门暗号为两短一长，此约定未向外人透露。",
+        "source_message_id": 6,
+        "source_excerpt": "我们约好周五下午三点在这里见面。到时我会敲门，节奏是两短一长。",
+        "status": "open"
+      }
+    ],
+    "clues_resolve": [
+      {
+        "id": "clue_key_deposit_xuning",
+        "status": "discarded",
+        "resolution": "玩家取消了让许宁保管钥匙的计划，将钥匙收回并转交给了林医生。",
+        "reason": "玩家在第4轮修改了计划，直接拿回钥匙并转交，导致原保管及暗号约定失效。",
+        "message_id": 4
+      }
+    ]
+  }
+}

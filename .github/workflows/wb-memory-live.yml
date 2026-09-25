@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: h675786161-prog/world-backstage
-          ref: 7a75ba4cf7422ce790d8bafa44b4cac70cc6ff9d
+          ref: 1a1be09708ae80903becfb74354976770a0bc3ef
           path: wb-candidate
       - uses: actions/checkout@v4
         with:
@@ -31,6 +31,7 @@ jobs:
         env:
           LAB_MODEL_KEY: ${{ secrets.GG }}
           LAB_MODEL_BASE_URL: https://gcli.ggchan.dev
+          LAB_MODEL_ID: gemini-2.5-flash-lite
         run: node .lab/wb-memory-live.mjs
       - uses: actions/upload-artifact@v4
         if: always()

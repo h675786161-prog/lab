@@ -75,8 +75,10 @@ try {
             '我又看了看墙上的钟。',
             '钟表正常走动，走廊里没有新的人进来。',
         ].map((content, id) => ({ id, role: id % 2 ? 'assistant' : 'user', content }));
-        let archive;
-        for (let attempt = 0; attempt < 2; attempt++) {
+        let archive = await fs.readFile(`.lab/wb-memory-${scene.id}-archive.json`, 'utf8')
+            .then(JSON.parse)
+            .catch(error => { if (error.code === 'ENOENT') return null; throw error; });
+        for (let attempt = 0; !archive?.complete && attempt < 2; attempt++) {
             const prompt = candidate.buildHistoryIndexPrompt(candidate.createInitialState(), {
                 messages: history, userName: '玩家', compact: attempt > 0,
             });
@@ -87,7 +89,8 @@ try {
             if (archive.complete) break;
         }
         await fs.writeFile(`${out}/${scene.id}-archive.json`, JSON.stringify(archive, null, 2));
-        if (!archive.complete) throw new Error(`${scene.id}: model omitted individual floor summaries after retry`);
+        const coveredIds = new Set((archive?.parsed?.turn_summaries || []).filter(x => x.summary?.trim()).map(x => Number(x.source_message_id)));
+        if (!history.every(x => coveredIds.has(x.id))) throw new Error(`${scene.id}: archived summary lacks individual floors`);
         const state = candidate.applyHistoryIndexResult(candidate.createInitialState(), archive.parsed, { startMessageId: 0, endMessageId: 13 });
         const question = '核对这段正文已经发生的事情，只输出JSON：password=取回物品的暗号；holder=物品最后交给谁保管；appointment=约见时间；knock=敲门节奏；first_action=玩家初到门口的失误；npc_action_order=NPC初见时两个动作的先后。正文证据缺失时填“未知”，不得借角色设定猜答案。';
         const expected = { password: scene.password, holder: scene.holder, appointment: scene.day, knock: scene.mark, first_action: scene.first, npc_action_order: scene.order };
@@ -104,8 +107,15 @@ try {
             const checks = Object.fromEntries(Object.entries(expected).map(([field, value]) => {
                 const actual = String(answer[field] || '').replace(/[\s，。、“”]/g, '');
                 const normalized = value.replace(/[\s，。、“”]/g, '');
-                // Exact phrases are used only for the four unambiguous factual fields.
-                return [field, field.endsWith('action') || field === 'npc_action_order' ? null : actual.includes(normalized)];
+                if (field === 'first_action') return [field, scene.id === 'she'
+                    ? /雨伞/.test(actual) && /(碰倒|弄倒|打翻|倒了|倒地)/.test(actual)
+                    : /门垫/.test(actual) && /(踢歪|踢偏|踢动|歪)/.test(actual)];
+                if (field === 'npc_action_order') {
+                    const [earlier, later] = scene.id === 'she' ? ['道歉', '纸巾'] : ['烛台', '信封'];
+                    return [field, actual.includes(earlier) && actual.includes(later)
+                        && actual.indexOf(earlier) < actual.indexOf(later)];
+                }
+                return [field, actual.includes(normalized)];
             }));
             const result = { case: scene.id, variant, expected, answer, checks, injection, response };
             results.push(result);
