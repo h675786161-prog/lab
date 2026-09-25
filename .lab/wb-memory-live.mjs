@@ -91,7 +91,24 @@ try {
         await fs.writeFile(`${out}/${scene.id}-archive.json`, JSON.stringify(archive, null, 2));
         const coveredIds = new Set((archive?.parsed?.turn_summaries || []).filter(x => x.summary?.trim()).map(x => Number(x.source_message_id)));
         if (!history.every(x => coveredIds.has(x.id))) throw new Error(`${scene.id}: archived summary lacks individual floors`);
-        const state = candidate.applyHistoryIndexResult(candidate.createInitialState(), archive.parsed, { startMessageId: 0, endMessageId: 13 });
+        const indexedState = candidate.applyHistoryIndexResult(candidate.createInitialState(), archive.parsed, { startMessageId: 0, endMessageId: 13 });
+        // Exercise the first L0 rollup even when a model gave those summaries no tags.
+        for (const summary of indexedState.storyMemory.summaries) {
+            if (summary.level === 0 && summary.hierarchyManaged) summary.tags = [];
+        }
+        const rollup = candidate.planMemoryRollup(indexedState);
+        if (!rollup || rollup.sourceLevel !== 0) throw new Error(`${scene.id}: expected a first L0 rollup`);
+        const state = candidate.applyMemoryRollupResult(indexedState, {
+            summary_rollup: { title: '初见阶段', summary: archive.parsed.memory_digest?.text || '开局经历' },
+        }, rollup);
+        const opening = state.storyMemory.summaries
+            .filter(item => item.level === 0 && item.startMessageId <= 1);
+        if (opening.length !== 2 || opening.some(item => item.retentionState === 'compacted')) {
+            throw new Error(`${scene.id}: opening L0 details disappeared after rollup`);
+        }
+        if (!state.storyMemory.summaries.some(item => item.level === 0 && item.retentionState === 'compacted')) {
+            throw new Error(`${scene.id}: no other L0 details were compacted`);
+        }
         const question = '核对这段正文已经发生的事情，只输出JSON：password=取回物品的暗号；holder=物品最后交给谁保管；appointment=约见时间；knock=敲门节奏；first_action=玩家初到门口的失误；npc_action_order=NPC初见时两个动作的先后。正文证据缺失时填“未知”，不得借角色设定猜答案。';
         const expected = { password: scene.password, holder: scene.holder, appointment: scene.day, knock: scene.mark, first_action: scene.first, npc_action_order: scene.order };
         const recent = history.slice(-5).map(({ role, content }) => ({ role, content }));
