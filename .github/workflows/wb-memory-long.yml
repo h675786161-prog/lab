@@ -1,0 +1,40 @@
+name: World Backstage 121-floor memory comparison
+on:
+  pull_request:
+    paths:
+      - '.lab/wb-memory-long.mjs'
+      - '.github/workflows/wb-memory-long.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compare-long:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/checkout@v4
+        with:
+          repository: h675786161-prog/world-backstage
+          ref: f192ccadbfa30d6f915016960f9796d8615e4078
+          path: wb-candidate
+      - uses: actions/checkout@v4
+        with:
+          repository: h675786161-prog/world-backstage
+          ref: 9adafde433c13e20cde88e3ac7c712855969a430
+          path: wb-baseline
+      - name: Evaluate 121-floor recall with LAB model
+        env:
+          LAB_MODEL_KEY: ${{ secrets.GG }}
+          LAB_MODEL_BASE_URL: https://gcli.ggchan.dev
+          LAB_MODEL_ID: gemini-2.5-flash-lite
+        run: node .lab/wb-memory-long.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wb-121-floor-memory
+          path: bench-evidence/wb-long-memory/
+          if-no-files-found: warn
