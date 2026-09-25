@@ -1,2 +1,2 @@
-run=11
-reason=validate atomic Ann ending CG contract plus prior strict first-chimera and literal locks
+run=12
+reason=validate immutable canonical ending literal lock after sacrifice_female drift in Final Gate #48
