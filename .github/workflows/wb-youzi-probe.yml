@@ -30,6 +30,7 @@ jobs:
             const response = await fetch(url, {
               method: body ? 'POST' : 'GET',
               headers: { Authorization: 'Bearer ' + key, Accept: 'application/json',
+                'User-Agent': 'SillyTavern/1.18.0',
                 ...(body ? { 'Content-Type': 'application/json' } : {}) },
               body: body ? JSON.stringify(body) : undefined,
               signal: AbortSignal.timeout(45_000),
@@ -40,6 +41,9 @@ jobs:
             return { status: response.status, contentType: response.headers.get('content-type'),
               code: data.error?.code || data.code || '',
               message: String(data.error?.message || data.message || '').slice(0, 180),
+              htmlMarker: /cloudflare|access denied|just a moment|error 403/i.test(raw),
+              htmlExcerpt: response.headers.get('content-type')?.includes('text/html')
+                ? raw.replace(/<[^>]*>/g, ' ').replace(/\\s+/g, ' ').slice(0, 220) : '',
               modelIds: (Array.isArray(data.data) ? data.data : Array.isArray(data.models) ? data.models : [])
                 .map(item => typeof item === 'string' ? item : item.id || item.name || item.model)
                 .filter(Boolean).slice(0, 300),
