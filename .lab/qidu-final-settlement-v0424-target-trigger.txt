@@ -1,2 +1,2 @@
-run=3
-reason=rerun five-ending dispatcher on latest candidate after matcher and core-enum fixes
+run=4
+reason=retest all canonical ending settlement after alternating missing Ann ending CG tags in Final Gate #47
