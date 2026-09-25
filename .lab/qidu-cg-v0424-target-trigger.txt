@@ -1,2 +1,2 @@
-run=17
-reason=reconfirm eternal ending exact meta.endings literal after strict first-chimera closeout changed candidate prompt hash
+run=18
+reason=target journey and eternal ending CG atomicity together on latest candidate
