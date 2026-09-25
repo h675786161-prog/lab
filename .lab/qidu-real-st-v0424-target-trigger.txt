@@ -1,2 +1,2 @@
-run=17
-reason=real ST verify latest candidate with trusted option refill, free-input focus, and exact 10-CG browser acceptance in one isolated run
+run=18
+reason=real ST and browser verify exact 1e648885 dispatch-priority candidate after Static Package #14 PASS
