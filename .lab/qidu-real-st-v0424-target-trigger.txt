@@ -1,2 +1,2 @@
-run=18
-reason=real ST and browser verify exact 1e648885 dispatch-priority candidate after Static Package #14 PASS
+run=19
+reason=rerun exact 1e648885 candidate with CJK fonts so Chinese browser screenshots can be visually reviewed
