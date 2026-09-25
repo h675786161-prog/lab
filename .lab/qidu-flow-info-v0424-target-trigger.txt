@@ -1,2 +1,2 @@
-run=3
-reason=retest exact b6ad382e candidate after Final Gate #51 provider-heavy encounter/info failure and flow variance; no card change from targeted green set
+run=4
+reason=retest exact 1e648885 dispatch-priority candidate for narrative flow and information timeline
