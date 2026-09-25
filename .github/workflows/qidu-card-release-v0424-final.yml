@@ -155,6 +155,7 @@ jobs:
       LAB_OUT_CONFLICT: bench-evidence/qidu-card-v0418-preset-conflict
       LAB_OUT_INFO: bench-evidence/qidu-card-v0423-info-timeline
       LAB_OUT_ENCOUNTER: bench-evidence/qidu-card-v0421-encounter
+      LAB_OUT_DISPATCH: bench-evidence/qidu-card-v0424-dispatch-priority
       LAB_OUT_NPC_KNOWLEDGE: bench-evidence/qidu-card-v0423-npc-knowledge
       LAB_OUT_NPC_SOURCE: bench-evidence/qidu-card-v0423-offscreen-source
       LAB_OUT_GENDER: bench-evidence/qidu-card-v0424-user-gender
@@ -193,6 +194,16 @@ jobs:
           for n in 1 2 3; do
             node .lab/qidu-card-model-bench-v0421-encounter.mjs && exit 0
             echo "encounter retry $n"; sleep 25
+          done
+          exit 1
+      - run: sleep 20
+      - id: dispatch
+        continue-on-error: true
+        run: |
+          export NODE_OPTIONS="--import=$GITHUB_WORKSPACE/.lab/qidu-fetch-retry-preload.mjs"
+          for n in 1 2 3; do
+            node .lab/qidu-card-model-bench-v0424-dispatch-priority.mjs && exit 0
+            echo "dispatch retry $n"; sleep 25
           done
           exit 1
       - run: sleep 20
@@ -318,6 +329,7 @@ jobs:
         run: |
           printf 'core=%s\n' '${{ steps.core.outcome }}'
           printf 'encounter=%s\n' '${{ steps.encounter.outcome }}'
+          printf 'dispatch=%s\n' '${{ steps.dispatch.outcome }}'
           printf 'conflict=%s\n' '${{ steps.conflict.outcome }}'
           printf 'info=%s\n' '${{ steps.info.outcome }}'
           printf 'npc=%s\n' '${{ steps.npc.outcome }}'
@@ -330,6 +342,7 @@ jobs:
           printf 'endings=%s\n' '${{ steps.endings.outcome }}'
           test '${{ steps.core.outcome }}' = success
           test '${{ steps.encounter.outcome }}' = success
+          test '${{ steps.dispatch.outcome }}' = success
           test '${{ steps.conflict.outcome }}' = success
           test '${{ steps.info.outcome }}' = success
           test '${{ steps.npc.outcome }}' = success
