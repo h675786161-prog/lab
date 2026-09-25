@@ -253,6 +253,11 @@ route_flags.harbor_core_stolen=true ⇒ cores.harbor必须严格为字符串"sto
   }
   card.post_history_instructions=card.data.post_history_instructions;
 
+  const dispatchDepthLock=' ⑳剧情调度固定顺序：强制剧情 > 首轮关键主线 > 玩家明确选择且当前可触发剧情的同行神器使 > 当前地区剧情 > 自由/随机事件；低级不得插队高级，同级按截止更近→场景连续性→本轮明确意图。 ㉑线路与结局结算固定顺序：线路关闭条件 > 强制剧情结果 > 结局资格条件 > 结局优先级 > 演出/CG；后一步不得反向重开或改判前一步。';
+  if(!String(card.data.extensions.depth_prompt.prompt||'').includes('⑳剧情调度固定顺序')){
+    card.data.extensions.depth_prompt.prompt=String(card.data.extensions.depth_prompt.prompt||'')+dispatchDepthLock;
+  }
+
   card.data.extensions.qidu_frontend={
     ...(card.data.extensions.qidu_frontend||{}),
     progression_mode:'narrative_flow',
