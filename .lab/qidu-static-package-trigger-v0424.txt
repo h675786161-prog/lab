@@ -1,2 +1,2 @@
-run=13
-reason=validate exact ending-name preservation without malformed code-switch examples in prompt
+run=14
+reason=validate explicit story dispatch priority and ending resolution order metadata/rules
