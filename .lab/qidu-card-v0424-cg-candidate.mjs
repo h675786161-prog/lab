@@ -873,6 +873,26 @@ cg_system至少含enabled/mode/album_enabled/responsive_enabled/shown；当前mo
   }
   card.post_history_instructions=card.data.post_history_instructions;
 
+  const canonicalEndingLiteralRule=`
+【正式结局名不可重写｜字节级复制】
+- 如果输入<f7d_state>.meta.endings已经恰好含一个正式结局，则本轮无条件把该字符串视为不可编辑数据，不重新生成、不翻译、不拆词、不润色、不做中英混写；输出最终<f7d_state>时逐字复制输入值。
+- 五个唯一合法字符串及其唯一复制结果如下：
+  * 输入["牺牲的意义"] → 输出必须仍为["牺牲的意义"]。
+  * 输入["箱庭风景"] → 输出必须仍为["箱庭风景"]。
+  * 输入["终结"] → 输出必须仍为["终结"]。
+  * 输入["两个人的旅途"] → 输出必须仍为["两个人的旅途"]。
+  * 输入["永恒的终焉"] → 输出必须仍为["永恒的终焉"]。
+- 特别禁止任何 code-switching：不得输出“牺牲 the 意义”“箱庭 scenery”“永恒 the 终焉”“final/ending/ending title”等混合形式。模型正文如何措辞都不能影响meta.endings。
+- 结局收尾只允许更新与当前结局直接相关的CG shown、位置/终端等必要字段；meta.endings在已经判定后是只读字段。若草稿里它与输入值有任意一个字符不同，必须先改回输入原字符串，再输出<f7d_state>。
+`;
+  appendOnce(e17,'正式结局名不可重写｜字节级复制',canonicalEndingLiteralRule);
+  appendOnce(e18,'正式结局名不可重写｜字节级复制',canonicalEndingLiteralRule);
+  appendOnce(e91,'正式结局名不可重写｜字节级复制',canonicalEndingLiteralRule);
+  if(!card.data.post_history_instructions.includes('正式结局名不可重写｜字节级复制')){
+    card.data.post_history_instructions += canonicalEndingLiteralRule;
+  }
+  card.post_history_instructions=card.data.post_history_instructions;
+
 
   for(const [key,spec] of Object.entries(CG_ASSETS)){
     const bytes=await fs.readFile(new URL(`./qidu-cg-assets-v0424/${spec.file}`,import.meta.url));
