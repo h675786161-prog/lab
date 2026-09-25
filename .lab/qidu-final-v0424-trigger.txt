@@ -1,2 +1,2 @@
-run=51
-reason=full final gate for exact b6ad382e candidate after Static Package #13 PASS, targeted CG #20 PASS, targeted Output Shell #2 PASS, and targeted Final Settlement #6 PASS
+run=52
+reason=full final gate for exact b6ad382e candidate after targeted Encounter #1 PASS and targeted Flow+Info #3 PASS; final narrative harness now adds provider cooldown and focused third-attempt recovery without changing card payload
