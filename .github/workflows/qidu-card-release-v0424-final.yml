@@ -394,6 +394,10 @@ jobs:
             [by('04｜'),'战术终端标签强制｜隐藏执行'],
             [by('04｜'),'CG事务原子性'],
             [by('04｜'),'剧情流速推进与日结｜最高优先级隐藏执行'],
+            [by('04｜'),'剧情调度唯一优先级｜最高优先级隐藏执行'],
+            [by('91｜'),'剧情调度唯一优先级｜最高优先级隐藏执行'],
+            [by('17｜'),'线路与结局结算唯一顺序｜最高优先级隐藏执行'],
+            [by('18｜'),'线路与结局结算唯一顺序｜最高优先级隐藏执行'],
             [by('91｜'),'无节点状态迁移与日结字段'],
             [by('04｜'),'限时剧情按天硬截止'],
             [by('04｜'),'安线硬截止｜第4天→第3天'],
@@ -438,6 +442,8 @@ jobs:
           if(!String(card.data?.post_history_instructions||'').includes('安线结局精确字面量')) throw new Error('exact Ann ending literal lock missing');
           if(!String(card.data?.post_history_instructions||'').includes('安线结局CG原子提交｜最高优先级隐藏执行')) throw new Error('atomic Ann ending CG lock missing');
           if(!String(card.data?.post_history_instructions||'').includes('正式结局名不可重写｜字节级复制')) throw new Error('immutable canonical ending literal lock missing');
+          if(!String(card.data?.post_history_instructions||'').includes('剧情调度唯一优先级｜最高优先级隐藏执行')) throw new Error('dispatch priority rule missing');
+          if(!String(card.data?.post_history_instructions||'').includes('线路与结局结算唯一顺序｜最高优先级隐藏执行')) throw new Error('ending resolution order rule missing');
           const helper=card.data?.extensions?.tavern_helper;
           const helperScript=helper?.scripts?.find(x=>x?.id==='qidu-v0424-choice-bridge');
           if(!helperScript?.enabled||!String(helperScript?.content||'').includes('__F7D_CARD_CHOICE_BRIDGE_V0424__')) throw new Error('embedded clickable choice bridge missing');
@@ -450,6 +456,8 @@ jobs:
           if(qf.progression_mode!=='narrative_flow'||qf.action_nodes!==false||qf.patrol_counter!==false) throw new Error('narrative-flow frontend metadata invalid');
           if(qf.region_liberation!=='auto_on_story_completion'||qf.core_purification!=='explicit_user_action_only'||qf.day_transition!=='explicit_sleep_only') throw new Error('narrative-flow policy metadata invalid');
           if(qf.choice_mode!=='three_story_plus_contextual_skip_and_free_input'||qf.continuous_scene_skip!==false) throw new Error('contextual choice-mode metadata invalid');
+          if(JSON.stringify(qf.dispatch_priority)!==JSON.stringify(['forced','first_loop_mainline','selected_companion','region','free_random'])) throw new Error('dispatch priority metadata invalid');
+          if(JSON.stringify(qf.ending_resolution_order)!==JSON.stringify(['route_closure','forced_plot_result','ending_eligibility','ending_priority','performance'])) throw new Error('ending resolution order metadata invalid');
           if(!String(card.data?.extensions?.tavern_helper?.scripts?.find(x=>x?.id==='qidu-v0424-choice-bridge')?.content||'').includes("version:'1.6.0'")) throw new Error('restrained tactical UI bridge v1.6 missing');
           if(entries.some(e=>/(?:六|6)巡查/.test(String(e.name||'')))) throw new Error('counted-patrol worldbook title remains');
           const firstVisible=String(card.data?.first_mes||'').replace(/<f7d_state>[\s\S]*?<\/f7d_state>/gi,'');
