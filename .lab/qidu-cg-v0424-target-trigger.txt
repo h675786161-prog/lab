@@ -1,2 +1,2 @@
-run=18
-reason=target journey and eternal ending CG atomicity together on latest candidate
+run=19
+reason=target sacrifice_female plus journey and eternal exact ending state and CG atomicity on immutable-literal candidate
