@@ -1,0 +1,39 @@
+name: Qidu v0424 Targeted Dispatch Priority
+
+on:
+  push:
+    branches: ['feature/qidu-card-v0411-lab']
+    paths:
+      - '.lab/qidu-dispatch-v0424-target-trigger.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      MODEL_API_KEY: ${{ secrets.GG }}
+      MODEL_API_BASE: https://gcli.ggchan.dev/v1
+      RELEASE_MODEL: 'gemini-3-flash-preview'
+      LAB_OUT_DISPATCH: bench-evidence/qidu-card-v0424-dispatch-priority
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run dispatch priority regression
+        run: |
+          set -euo pipefail
+          export NODE_OPTIONS="--import=$GITHUB_WORKSPACE/.lab/qidu-fetch-retry-preload.mjs"
+          for n in 1 2 3; do
+            node .lab/qidu-card-model-bench-v0424-dispatch-priority.mjs && exit 0
+            echo "dispatch retry $n"
+            sleep 20
+          done
+          exit 1
+      - name: Upload dispatch evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-v0424-dispatch-priority-target
+          path: bench-evidence/qidu-card-v0424-dispatch-priority/
+          if-no-files-found: warn
