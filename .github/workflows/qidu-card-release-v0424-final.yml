@@ -437,6 +437,7 @@ jobs:
           if(!String(card.data?.post_history_instructions||'').includes('正式结局集合｜唯一名单｜最高优先级隐藏执行')) throw new Error('canonical ending rule missing');
           if(!String(card.data?.post_history_instructions||'').includes('安线结局精确字面量')) throw new Error('exact Ann ending literal lock missing');
           if(!String(card.data?.post_history_instructions||'').includes('安线结局CG原子提交｜最高优先级隐藏执行')) throw new Error('atomic Ann ending CG lock missing');
+          if(!String(card.data?.post_history_instructions||'').includes('正式结局名不可重写｜字节级复制')) throw new Error('immutable canonical ending literal lock missing');
           const helper=card.data?.extensions?.tavern_helper;
           const helperScript=helper?.scripts?.find(x=>x?.id==='qidu-v0424-choice-bridge');
           if(!helperScript?.enabled||!String(helperScript?.content||'').includes('__F7D_CARD_CHOICE_BRIDGE_V0424__')) throw new Error('embedded clickable choice bridge missing');
