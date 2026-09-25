@@ -17,7 +17,7 @@ jobs:
       MODEL_API_KEY: ${{ secrets.GG }}
       MODEL_API_BASE: https://gcli.ggchan.dev/v1
       CG_MODEL: 'gemini-3-flash-preview'
-      CG_CASES: journey_ending,eternal_ending
+      CG_CASES: sacrifice_female,journey_ending,eternal_ending
       CG_MAX_TOKENS: 8000
       CG_TIMEOUT_MS: 100000
       CG_ATTEMPTS: 2
