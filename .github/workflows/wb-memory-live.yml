@@ -1,10 +1,6 @@
 name: World Backstage memory model comparison
+# GG API quota is shared; run model benchmarks only when explicitly requested.
 on:
-  pull_request:
-    paths:
-      - '.lab/wb-memory-live.mjs'
-      - '.lab/wb-memory-fixtures.json'
-      - '.github/workflows/wb-memory-live.yml'
   workflow_dispatch:
 permissions:
   contents: read

@@ -1,9 +1,6 @@
 name: World Backstage GG live RP replay
+# GG API quota is shared; run model benchmarks only when explicitly requested.
 on:
-  pull_request:
-    paths:
-      - '.lab/wb-rp-replay.mjs'
-      - '.github/workflows/wb-rp-replay.yml'
   workflow_dispatch:
 permissions:
   contents: read

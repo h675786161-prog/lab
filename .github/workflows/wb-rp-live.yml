@@ -1,9 +1,6 @@
 name: World Backstage GG live RP memory
+# GG API quota is shared; run model benchmarks only when explicitly requested.
 on:
-  pull_request:
-    paths:
-      - '.lab/wb-rp-live.mjs'
-      - '.github/workflows/wb-rp-live.yml'
   workflow_dispatch:
 permissions:
   contents: read

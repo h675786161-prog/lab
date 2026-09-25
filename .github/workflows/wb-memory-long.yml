@@ -1,9 +1,6 @@
 name: World Backstage 121-floor memory comparison
+# GG API quota is shared; run model benchmarks only when explicitly requested.
 on:
-  pull_request:
-    paths:
-      - '.lab/wb-memory-long.mjs'
-      - '.github/workflows/wb-memory-long.yml'
   workflow_dispatch:
 permissions:
   contents: read
