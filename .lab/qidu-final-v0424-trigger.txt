@@ -1,2 +1,2 @@
-run=48
-reason=full final gate for exact 97b2a002 candidate after Static Package #11 PASS, both Ann ending CG targeted PASS, and targeted Final Settlement #4 PASS
+run=49
+reason=full final gate for exact 9687e297 candidate after Static Package #12 PASS, targeted canonical CG #19 PASS, and targeted Final Settlement #5 first-pass 7/7 PASS
