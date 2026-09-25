@@ -11,7 +11,7 @@ permissions:
 jobs:
   live-rp:
     runs-on: ubuntu-latest
-    timeout-minutes: 80
+    timeout-minutes: 110
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -32,7 +32,7 @@ jobs:
           LAB_MODEL_KEY: ${{ secrets.YOUZI }}
           LAB_MODEL_BASE_URL: https://cofi.date/v1
           LAB_MODEL_ID: agnes-3.0-flash
-          LAB_RP_ROUNDS: 10
+          LAB_RP_ROUNDS: 60
         run: node .lab/wb-rp-youzi.mjs
       - uses: actions/upload-artifact@v4
         if: always()
