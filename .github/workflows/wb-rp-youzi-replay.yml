@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: h675786161-prog/world-backstage
-          ref: a2bb5f954ce2c77664b8ff175d76681ee5d42c7b
+          ref: e6ad92742e486ef06d564c9c75646ff8a2d6deaf
           path: wb-candidate
       - name: Download fixed Youzi 60-round archive
         env:

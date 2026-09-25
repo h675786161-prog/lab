@@ -85,7 +85,7 @@ for (let i = 0; i < 3; i++) {
     };
     replies.push({ response, answer, checks, score: Object.values(checks).filter(Boolean).length });
     await fs.writeFile(`${out}/results.json`, JSON.stringify({
-        sourceRun: 36166138268, candidateCommit: 'a2bb5f954ce2c77664b8ff175d76681ee5d42c7b',
+        sourceRun: 36166138268, candidateCommit: 'e6ad92742e486ef06d564c9c75646ff8a2d6deaf',
         model, requests, challenges, injection, replies,
         scope: 'Fixed live Youzi RP archive; only candidate injection and three model answer samples replayed',
     }, null, 2));
