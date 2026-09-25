@@ -47,7 +47,10 @@ jobs:
               modelIds: (Array.isArray(data.data) ? data.data : Array.isArray(data.models) ? data.models : [])
                 .map(item => typeof item === 'string' ? item : item.id || item.name || item.model)
                 .filter(Boolean).slice(0, 300),
-              replied: Boolean(data.choices?.[0]?.message?.content) };
+              replied: Boolean(data.choices?.[0]?.message?.content),
+              finishReason: data.choices?.[0]?.finish_reason || '',
+              contentLength: String(data.choices?.[0]?.message?.content || '').length,
+              reasoningLength: String(data.choices?.[0]?.message?.reasoning_content || '').length };
           }
           const fixtures = JSON.parse(await fs.readFile('.lab/wb-memory-fixtures.json', 'utf8'));
           const card = fixtures.cards.find(item => item.name === '圣堂上的黑羽');
@@ -57,7 +60,7 @@ jobs:
             '承接上一轮的现场，不跳过玩家正在做的事情。每轮自然回复 100 到 220 字，避免机械重述设定。',
           ].join('\\n\\n').replaceAll('{{getvar::LQ_AGENCY}}', 'NO_PROXY');
           const prompt = '我跨进圣堂时踢歪了蓝色门垫。先扶好墙边烛台，再拾起掉在地上的白色信封。抬头看向伊莱恩。';
-          for (const model of ['[NV]deepseek-v4.1-flash', 'step-3.7-flash', '[OR]deepseek-v4-flash-0731']) {
+          for (const model of ['agnes-3.0-flash', 'step-3.5-flash', 'grok-chat-fast', '[NV]GLM-5.3-flash']) {
             for (let attempt = 0; attempt < 4; attempt++) {
               await new Promise(resolve => setTimeout(resolve, 4_500));
               try {
@@ -76,7 +79,8 @@ jobs:
           await fs.writeFile('bench-evidence/wb-youzi-probe/models.json', JSON.stringify(rows, null, 2));
           for (const row of rows) console.log(JSON.stringify({ host: row.host, kind: row.kind,
             model: row.model, status: row.status, code: row.code, replied: row.replied,
-            modelCount: row.modelIds?.length, error: row.error }));
+            modelCount: row.modelIds?.length, contentLength: row.contentLength,
+            reasoningLength: row.reasoningLength, finishReason: row.finishReason, error: row.error }));
           JS
       - uses: actions/upload-artifact@v4
         if: always()
