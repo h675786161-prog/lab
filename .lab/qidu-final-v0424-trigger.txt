@@ -1,2 +1,2 @@
-run=50
-reason=full final gate for exact 9687e297 candidate after corrected non-forced output-shell fixture PASS; card payload unchanged since Static Package #12 and targeted ending gates PASS
+run=51
+reason=full final gate for exact b6ad382e candidate after Static Package #13 PASS, targeted CG #20 PASS, targeted Output Shell #2 PASS, and targeted Final Settlement #6 PASS
