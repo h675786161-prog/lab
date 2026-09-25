@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: h675786161-prog/world-backstage
-          ref: 8b8fc052436a6b6c30f2be96fe12ced5d8d531a9
+          ref: 8f6292553daeb951e174e3e395850db61355d582
           path: wb-candidate
       - uses: actions/checkout@v4
         with:
