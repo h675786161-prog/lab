@@ -857,6 +857,22 @@ cg_system至少含enabled/mode/album_enabled/responsive_enabled/shown；当前mo
     card.data.post_history_instructions += finalStateLiteralLock;
   }
   card.post_history_instructions=card.data.post_history_instructions;
+  const annEndingCgAtomicRule=`
+【安线结局CG原子提交｜最高优先级隐藏执行】
+- 只要route='ann'且本轮根据玩家最终选择确定《两个人的旅途》或《永恒的终焉》，结局名称、cg_system.shown与CG标签必须在同一回复一次性提交。不能只写结局标题或只改shown。
+- 《两个人的旅途》唯一合法提交：meta.endings最终只含“两个人的旅途”；若输入shown.ending_journey=false，则最终状态必须把ending_journey=true，并且正文情绪落点后、<f7d_terminal>前必须逐字输出<f7d_cg key="cg_ending_journey"></f7d_cg>。
+- 《永恒的终焉》唯一合法提交：meta.endings最终只含“永恒的终焉”；若输入shown.ending_eternal_end=false，则最终状态必须把ending_eternal_end=true，并且正文情绪落点后、<f7d_terminal>前必须逐字输出<f7d_cg key="cg_ending_eternal_end"></f7d_cg>。
+- 黑核数量、黑核是否stolen、普通线阈值、玩家性别都不能取消这两张安线固定结局CG。安线两张CG不做男女差分。
+- 若对应shown在输入中已经true，则禁止重复播放该CG；否则第一次正式结局演出绝对不能省略CG标签。输出前最后检查：若本轮把对应shown从false改为true但文本里没有精确CG标签，必须先补标签再输出；若有标签但shown仍false，必须先把shown改true。
+- 为防止长结局正文挤掉结构标签，安线结局正文优先压缩；CG标签和<f7d_terminal>的完整性高于额外散文。
+`;
+  appendOnce(e18,'安线结局CG原子提交｜最高优先级隐藏执行',annEndingCgAtomicRule);
+  appendOnce(e91,'安线结局CG原子提交｜最高优先级隐藏执行',annEndingCgAtomicRule);
+  if(!card.data.post_history_instructions.includes('安线结局CG原子提交｜最高优先级隐藏执行')){
+    card.data.post_history_instructions += annEndingCgAtomicRule;
+  }
+  card.post_history_instructions=card.data.post_history_instructions;
+
 
   for(const [key,spec] of Object.entries(CG_ASSETS)){
     const bytes=await fs.readFile(new URL(`./qidu-cg-assets-v0424/${spec.file}`,import.meta.url));
