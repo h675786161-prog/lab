@@ -262,7 +262,9 @@ route_flags.harbor_core_stolen=true ⇒ cores.harbor必须严格为字符串"sto
     core_purification:'explicit_user_action_only',
     day_transition:'explicit_sleep_only',
     choice_mode:'three_story_plus_contextual_skip_and_free_input',
-    continuous_scene_skip:false
+    continuous_scene_skip:false,
+    dispatch_priority:['forced','first_loop_mainline','selected_companion','region','free_random'],
+    ending_resolution_order:['route_closure','forced_plot_result','ending_eligibility','ending_priority','performance']
   };
 }
 
@@ -794,6 +796,44 @@ cg_system至少含enabled/mode/album_enabled/responsive_enabled/shown；当前mo
   card.data.post_history_instructions=String(card.data.post_history_instructions||'');
   if(!card.data.post_history_instructions.includes('最终日结局结算｜最高优先级隐藏执行')){
     card.data.post_history_instructions += endingSettlementRule;
+  }
+  card.post_history_instructions=card.data.post_history_instructions;
+
+  const dispatchPriorityRule=`
+【剧情调度唯一优先级｜最高优先级隐藏执行】
+每轮生成前先扫描“当前已经满足触发条件且尚未完成”的候选剧情，只执行当前最高优先级的一类；低级候选不得插队、抢镜或与高级剧情并行展开。
+1. 【强制剧情】已经触发且必须连续结算的固定剧情、即时危险、战斗/追逐中的连续场景、硬截止到点后的既定后果。此级最高，必须先完整结算；角色支线、区域事件、自由活动都不能打断。
+2. 【首轮关键主线】仅loop=1时生效。当天/当前阶段已有未完成的首轮关键主线时，在其自然收束前优先继续该主线；首轮尤其不得为了“丰富互动”擅自插入与主线无关的角色个人剧情、地区闲逛或随机事件。此级不能覆盖第1级。
+3. 【玩家明确选择的同行神器使】前两级均无待执行内容时，若玩家本轮明确选择某神器使同行，且该神器使有当前条件已满足、尚未完成的角色剧情，则优先触发该角色剧情。玩家只是提到某人、通讯或路过不等于选择同行。此级绝不能覆盖第1/2级。
+4. 【当前地区剧情】前三档均无待执行内容时，执行玩家所在/前往地区已经满足条件的区域剧情或地区角色剧情。
+5. 【自由活动/随机事件】只有前四档都没有待执行内容时才可生成。不得用随机事件拖延硬截止、首轮关键主线或已经选定的同行角色剧情。
+- 同级冲突只按以下顺序裁定：明确截止时间更近者 → 已经开始且需要连续演完的场景 → 玩家本轮明确意图。不得自创隐藏权重。
+- “优先”指本轮实际演出的剧情焦点，不等于把低级事件永久删除；未失效的低级候选可留到后续重新扫描。
+- 选项也必须服从同一优先级：高优先级剧情尚在进行时，不得用低优先级选项诱导玩家跳出当前必演内容。
+`;
+  appendOnce(e04,'剧情调度唯一优先级｜最高优先级隐藏执行',dispatchPriorityRule);
+  appendOnce(e91,'剧情调度唯一优先级｜最高优先级隐藏执行',dispatchPriorityRule);
+  card.data.post_history_instructions=String(card.data.post_history_instructions||'');
+  if(!card.data.post_history_instructions.includes('剧情调度唯一优先级｜最高优先级隐藏执行')){
+    card.data.post_history_instructions += dispatchPriorityRule;
+  }
+  card.post_history_instructions=card.data.post_history_instructions;
+
+  const endingResolutionOrderRule=`
+【线路与结局结算唯一顺序｜最高优先级隐藏执行】
+涉及线路关闭、第三天固定后果或最终结局时，严格按以下顺序结算，后一步不得反向覆盖前一步：
+线路关闭条件 → 强制剧情结果 → 结局资格条件 → 结局优先级 → 演出/CG。
+- 先结算已经到点的线路关闭条件，例如安线第4天→第3天硬截止；关闭后不得靠后补条件倒签开放。
+- 再结算当前必须发生的固定剧情结果，例如不具安线资格却明确追安时的第三天固定追安失败；这类剧情后果不是结局，不得跳过后果直接做最终结局判定。
+- 只有前两步完成后，才检查当前线路实际具备哪些正式结局资格；route='ann'与普通线各走自己的资格规则。
+- 资格确定后才应用该线路内部的结局优先级。普通线严格执行“牺牲的意义 → 箱庭风景 → 终结”的既有条件顺序；安线按其最终玩家选择结算，不受普通线黑核阈值改判。
+- 最后才写结局正文、CG、terminal与meta.endings。演出层不得反过来创造新结局、重开已关闭线路或修改已经确定的结局名称。
+`;
+  appendOnce(e17,'线路与结局结算唯一顺序｜最高优先级隐藏执行',endingResolutionOrderRule);
+  appendOnce(e18,'线路与结局结算唯一顺序｜最高优先级隐藏执行',endingResolutionOrderRule);
+  appendOnce(e91,'线路与结局结算唯一顺序｜最高优先级隐藏执行',endingResolutionOrderRule);
+  if(!card.data.post_history_instructions.includes('线路与结局结算唯一顺序｜最高优先级隐藏执行')){
+    card.data.post_history_instructions += endingResolutionOrderRule;
   }
   card.post_history_instructions=card.data.post_history_instructions;
 
