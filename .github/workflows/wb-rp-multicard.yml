@@ -1,0 +1,47 @@
+name: World Backstage multi-card Youzi RP memory
+on:
+  push:
+    branches: [test/wb-memory-continuity-two-cards]
+    paths:
+      - '.lab/wb-rp-multicard.mjs'
+      - '.lab/wb-rp-multicard-cases.json'
+      - '.github/workflows/wb-rp-multicard.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-rp:
+    strategy:
+      fail-fast: false
+      matrix:
+        case: [frieren, ashley, island]
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/checkout@v4
+        with:
+          repository: h675786161-prog/world-backstage
+          ref: 5a0311b2809dbd8d60f0f740dd4b3f353a03ae3c
+          path: wb-candidate
+      - uses: actions/checkout@v4
+        with:
+          repository: h675786161-prog/world-backstage
+          ref: 9adafde433c13e20cde88e3ac7c712855969a430
+          path: wb-baseline
+      - name: Play independent RP at no more than 5 RPM per card
+        env:
+          LAB_MODEL_KEY: ${{ secrets.YOUZI }}
+          LAB_MODEL_BASE_URL: https://cofi.date/v1
+          LAB_MODEL_ID: agnes-3.0-flash
+          LAB_RP_CASE: ${{ matrix.case }}
+        run: node .lab/wb-rp-multicard.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wb-multicard-${{ matrix.case }}
+          path: bench-evidence/wb-multicard-${{ matrix.case }}/
+          if-no-files-found: warn

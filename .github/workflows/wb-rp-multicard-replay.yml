@@ -1,0 +1,51 @@
+name: World Backstage multi-card fixed RP replay
+on:
+  push:
+    branches: [test/wb-memory-continuity-two-cards]
+    paths:
+      - '.lab/wb-rp-multicard-replay.mjs'
+      - '.github/workflows/wb-rp-multicard-replay.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    strategy:
+      fail-fast: false
+      matrix:
+        case: [frieren, ashley, island]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/checkout@v4
+        with:
+          repository: h675786161-prog/world-backstage
+          ref: 3ac99a4d1e9dc6aefd3b8a67d4382eab7a245771
+          path: wb-candidate
+      - uses: actions/checkout@v4
+        with:
+          repository: h675786161-prog/world-backstage
+          ref: 9adafde433c13e20cde88e3ac7c712855969a430
+          path: wb-baseline
+      - name: Download independent RP archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download 36170512702 -R h675786161-prog/lab -n wb-multicard-${{ matrix.case }} -D bench-evidence/wb-multicard-source
+      - name: Rebuild memory and replay at no more than 5 RPM per card
+        env:
+          LAB_MODEL_KEY: ${{ secrets.YOUZI }}
+          LAB_MODEL_BASE_URL: https://cofi.date/v1
+          LAB_MODEL_ID: agnes-3.0-flash
+          LAB_RP_CASE: ${{ matrix.case }}
+        run: node .lab/wb-rp-multicard-replay.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wb-multicard-replay-${{ matrix.case }}
+          path: bench-evidence/wb-multicard-replay-${{ matrix.case }}/
+          if-no-files-found: warn

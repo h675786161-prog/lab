@@ -1,0 +1,38 @@
+name: World Backstage GG live RP memory
+# GG API quota is shared; run model benchmarks only when explicitly requested.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-rp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/checkout@v4
+        with:
+          repository: h675786161-prog/world-backstage
+          ref: 5f6863058f1caef7c565ef738a5d9a2468b31d2a
+          path: wb-candidate
+      - uses: actions/checkout@v4
+        with:
+          repository: h675786161-prog/world-backstage
+          ref: 9adafde433c13e20cde88e3ac7c712855969a430
+          path: wb-baseline
+      - name: Play 60 GG RP rounds and index model-written memory
+        env:
+          LAB_MODEL_KEY: ${{ secrets.GG }}
+          LAB_MODEL_BASE_URL: https://gcli.ggchan.dev
+          LAB_MODEL_ID: gemini-2.5-flash-lite
+          LAB_RP_ROUNDS: 60
+        run: node .lab/wb-rp-live.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wb-gg-live-rp
+          path: bench-evidence/wb-live-rp/
+          if-no-files-found: warn

@@ -1,0 +1,41 @@
+name: World Backstage Youzi archived RP replay
+on:
+  push:
+    branches: [test/wb-memory-continuity-two-cards]
+    paths:
+      - '.lab/wb-rp-youzi-replay.mjs'
+      - '.github/workflows/wb-rp-youzi-replay.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/checkout@v4
+        with:
+          repository: h675786161-prog/world-backstage
+          ref: c251d0230129045224c7ecb07216d9aab3748c72
+          path: wb-candidate
+      - name: Download fixed Youzi 60-round archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download 36166138268 -R h675786161-prog/lab -n wb-youzi-live-rp -D bench-evidence/wb-youzi-source
+      - name: Replay latest memory prompt with Youzi at no more than 15 RPM
+        env:
+          LAB_MODEL_KEY: ${{ secrets.YOUZI }}
+          LAB_MODEL_BASE_URL: https://cofi.date/v1
+          LAB_MODEL_ID: agnes-3.0-flash
+        run: node .lab/wb-rp-youzi-replay.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wb-youzi-replay
+          path: bench-evidence/wb-youzi-replay/
+          if-no-files-found: warn

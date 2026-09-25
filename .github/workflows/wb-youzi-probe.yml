@@ -1,0 +1,90 @@
+name: Youzi model probe
+on:
+  push:
+    branches: [test/wb-memory-continuity-two-cards]
+    paths:
+      - '.github/workflows/wb-youzi-probe.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check Youzi authentication and minimal chat
+        env:
+          YOUZI_KEY: ${{ secrets.YOUZI }}
+        run: |
+          mkdir -p bench-evidence/wb-youzi-probe
+          node --input-type=module <<'JS'
+          import fs from 'node:fs/promises';
+          const key = process.env.YOUZI_KEY;
+          if (!key) throw new Error('Existing YOUZI secret is missing');
+          const rows = [];
+          async function request(url, body) {
+            const response = await fetch(url, {
+              method: body ? 'POST' : 'GET',
+              headers: { Authorization: 'Bearer ' + key, Accept: 'application/json',
+                'User-Agent': 'SillyTavern/1.18.0',
+                ...(body ? { 'Content-Type': 'application/json' } : {}) },
+              body: body ? JSON.stringify(body) : undefined,
+              signal: AbortSignal.timeout(45_000),
+            });
+            const raw = await response.text();
+            let data;
+            try { data = JSON.parse(raw); } catch { data = {}; }
+            return { status: response.status, contentType: response.headers.get('content-type'),
+              code: data.error?.code || data.code || '',
+              message: String(data.error?.message || data.message || '').slice(0, 180),
+              htmlMarker: /cloudflare|access denied|just a moment|error 403/i.test(raw),
+              htmlExcerpt: response.headers.get('content-type')?.includes('text/html')
+                ? raw.replace(/<[^>]*>/g, ' ').replace(/\\s+/g, ' ').slice(0, 220) : '',
+              modelIds: (Array.isArray(data.data) ? data.data : Array.isArray(data.models) ? data.models : [])
+                .map(item => typeof item === 'string' ? item : item.id || item.name || item.model)
+                .filter(Boolean).slice(0, 300),
+              replied: Boolean(data.choices?.[0]?.message?.content),
+              finishReason: data.choices?.[0]?.finish_reason || '',
+              contentLength: String(data.choices?.[0]?.message?.content || '').length,
+              reasoningLength: String(data.choices?.[0]?.message?.reasoning_content || '').length };
+          }
+          const fixtures = JSON.parse(await fs.readFile('.lab/wb-memory-fixtures.json', 'utf8'));
+          const card = fixtures.cards.find(item => item.name === '圣堂上的黑羽');
+          const system = [`角色卡：${JSON.stringify(card.context)}`,
+            ...fixtures.preset.rules.map(rule => rule.content),
+            '你扮演伊莱恩及其他 NPC。只写 NPC 的言行、外部场景的变化；玩家的动作、语言和内心留给玩家。',
+            '承接上一轮的现场，不跳过玩家正在做的事情。每轮自然回复 100 到 220 字，避免机械重述设定。',
+          ].join('\\n\\n').replaceAll('{{getvar::LQ_AGENCY}}', 'NO_PROXY');
+          const prompt = '我跨进圣堂时踢歪了蓝色门垫。先扶好墙边烛台，再拾起掉在地上的白色信封。抬头看向伊莱恩。';
+          for (const model of ['agnes-3.0-flash', 'step-3.5-flash', 'grok-chat-fast', '[NV]GLM-5.3-flash']) {
+            for (let attempt = 0; attempt < 4; attempt++) {
+              await new Promise(resolve => setTimeout(resolve, 4_500));
+              try {
+                const result = await request('https://cofi.date/v1/chat/completions',
+                  { model, messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
+                    max_tokens: 950, temperature: 0.65, stream: false });
+                rows.push({ host: 'https://cofi.date/v1', kind: 'full-rp', model,
+                  attempt: attempt + 1, ...result });
+                if (result.replied || (result.status !== 403 && result.status !== 429)) break;
+              } catch (error) {
+                rows.push({ host: 'https://cofi.date/v1', kind: 'full-rp', model,
+                  attempt: attempt + 1, error: String(error).slice(0, 180) });
+              }
+            }
+          }
+          await fs.writeFile('bench-evidence/wb-youzi-probe/models.json', JSON.stringify(rows, null, 2));
+          for (const row of rows) console.log(JSON.stringify({ host: row.host, kind: row.kind,
+            model: row.model, status: row.status, code: row.code, replied: row.replied,
+            modelCount: row.modelIds?.length, contentLength: row.contentLength,
+            reasoningLength: row.reasoningLength, finishReason: row.finishReason, error: row.error }));
+          JS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wb-youzi-models
+          path: bench-evidence/wb-youzi-probe/
+          if-no-files-found: warn

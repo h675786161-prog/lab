@@ -1,0 +1,37 @@
+name: World Backstage memory model comparison
+# GG API quota is shared; run model benchmarks only when explicitly requested.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/checkout@v4
+        with:
+          repository: h675786161-prog/world-backstage
+          ref: 891d5575ad66803cf9440ab10b8dc220d9d8e597
+          path: wb-candidate
+      - uses: actions/checkout@v4
+        with:
+          repository: h675786161-prog/world-backstage
+          ref: 9adafde433c13e20cde88e3ac7c712855969a430
+          path: wb-baseline
+      - name: Compare archived recall with the configured LAB model
+        env:
+          LAB_MODEL_KEY: ${{ secrets.GG }}
+          LAB_MODEL_BASE_URL: https://gcli.ggchan.dev
+          LAB_MODEL_ID: gemini-2.5-flash-lite
+        run: node .lab/wb-memory-live.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wb-memory-model-comparison
+          path: bench-evidence/wb-memory/
+          if-no-files-found: warn
