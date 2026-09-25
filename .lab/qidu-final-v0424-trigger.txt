@@ -1,2 +1,2 @@
-run=47
-reason=full final gate for exact 95ac0a6d candidate after Static Package #10 PASS, targeted First Chimera #5 PASS, and targeted Eternal Ending #17 PASS
+run=48
+reason=full final gate for exact 97b2a002 candidate after Static Package #11 PASS, both Ann ending CG targeted PASS, and targeted Final Settlement #4 PASS
