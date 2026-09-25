@@ -1,2 +1,2 @@
-run=1
-reason=verify ordinary-decision fixture without active forced opening still yields 3 story choices plus 1 slack choice
+run=2
+reason=reconfirm output shell on candidate after ending-literal prompt cleanup
