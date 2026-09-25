@@ -49,15 +49,19 @@ jobs:
                 .filter(Boolean).slice(0, 300),
               replied: Boolean(data.choices?.[0]?.message?.content) };
           }
-          for (let attempt = 0; attempt < 7; attempt++) {
-            if (attempt) await new Promise(resolve => setTimeout(resolve, 4_500));
-            try {
-              const result = await request('https://cofi.date/v1/models');
-              rows.push({ host: 'https://cofi.date/v1', kind: 'models', attempt: attempt + 1, ...result });
-              if (result.status === 200 && result.modelIds.length) break;
-            } catch (error) {
-              rows.push({ host: 'https://cofi.date/v1', kind: 'models',
-                attempt: attempt + 1, error: String(error).slice(0, 180) });
+          for (const model of ['[OR]deepseek-v4-flash-0731', '[NV]deepseek-v4.1-flash']) {
+            for (let attempt = 0; attempt < 5; attempt++) {
+              await new Promise(resolve => setTimeout(resolve, 4_500));
+              try {
+                const result = await request('https://cofi.date/v1/chat/completions',
+                  { model, messages: [{ role: 'user', content: '只答：好' }], max_tokens: 60,
+                    temperature: 0.1, stream: false });
+                rows.push({ host: 'https://cofi.date/v1', kind: 'chat', model, attempt: attempt + 1, ...result });
+                if (result.replied || (result.status !== 403 && result.status !== 429)) break;
+              } catch (error) {
+                rows.push({ host: 'https://cofi.date/v1', kind: 'chat', model,
+                  attempt: attempt + 1, error: String(error).slice(0, 180) });
+              }
             }
           }
           await fs.writeFile('bench-evidence/wb-youzi-probe/models.json', JSON.stringify(rows, null, 2));
