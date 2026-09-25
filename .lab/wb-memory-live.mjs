@@ -75,7 +75,8 @@ try {
             '我又看了看墙上的钟。',
             '钟表正常走动，走廊里没有新的人进来。',
         ].map((content, id) => ({ id, role: id % 2 ? 'assistant' : 'user', content }));
-        let archive = await fs.readFile(`.lab/wb-memory-${scene.id}-archive.json`, 'utf8')
+        let archive = process.env.LAB_REBUILD_ARCHIVE === scene.id ? null
+            : await fs.readFile(`.lab/wb-memory-${scene.id}-archive.json`, 'utf8')
             .then(JSON.parse)
             .catch(error => { if (error.code === 'ENOENT') return null; throw error; });
         for (let attempt = 0; !archive?.complete && attempt < 2; attempt++) {
