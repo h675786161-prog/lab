@@ -1,2 +1,2 @@
-run=6
-reason=retest all canonical ending settlement after removing malformed ending-name prompt priming
+run=7
+reason=retest all canonical endings on exact 1e648885 dispatch-priority candidate, including route-close > forced-result > eligibility > priority > performance order
