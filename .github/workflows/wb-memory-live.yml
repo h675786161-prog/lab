@@ -32,7 +32,6 @@ jobs:
           LAB_MODEL_KEY: ${{ secrets.GG }}
           LAB_MODEL_BASE_URL: https://gcli.ggchan.dev
           LAB_MODEL_ID: gemini-2.5-flash-lite
-          LAB_REBUILD_ARCHIVE: she
         run: node .lab/wb-memory-live.mjs
       - uses: actions/upload-artifact@v4
         if: always()

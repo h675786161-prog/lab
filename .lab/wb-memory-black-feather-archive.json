@@ -1,22 +1,22 @@
 {
-  "source": "LAB Actions 36118199340, she-archive.json; gemini-2.5-flash-lite",
+  "source": "LAB Actions 36118199340, black-feather-archive.json; gemini-2.5-flash-lite",
   "complete": true,
   "parsed": {
     "memory_digest": {
-      "text": "玩家与许宁在医院建立联系。双方曾就铜钥匙的保管达成协议，后经玩家调整，铜钥匙已转交至林医生手中，许宁不再持有。双方约定于周五下午三点在医院走廊会面，届时玩家将以“两短一长”的敲门节奏作为信号。目前玩家与许宁正处于医院走廊，等待期间环境平静，窗外持续降雨，墙上钟表正常运行。",
+      "text": "玩家与伊莱恩在圣堂建立了一系列秘密约定。双方曾就银书签的保管权进行过交接，最终该物品由玩家转交给守门人苏姨保管。目前双方约定于周六上午十点在圣堂会面，届时玩家将以“三短一长”的节奏敲门。伊莱恩已确认该约定仅限于双方知晓。目前两人正处于圣堂走廊内等待，环境安静，窗外下雨，钟表正常运行。",
       "through_message_id": 13
     },
     "turn_summaries": [
       {
         "id": "summary_l0_0",
         "source_message_id": 0,
-        "title": "抵达医院",
-        "summary": "玩家抵达医院，在推正门时因手滑碰倒了雨伞。",
+        "title": "进入圣堂",
+        "summary": "玩家进入圣堂，在跨越门槛时踢歪了门垫。",
         "people": [
           "玩家"
         ],
         "locations": [
-          "医院正门"
+          "圣堂"
         ],
         "tags": [
           "动作"
@@ -25,30 +25,29 @@
       {
         "id": "summary_l0_1",
         "source_message_id": 1,
-        "title": "许宁的回应",
-        "summary": "许宁先向玩家道歉，随后递出纸巾，并邀请玩家进入。",
+        "title": "伊莱恩的迎接",
+        "summary": "伊莱恩先扶正烛台，再弯腰捡起信封，随后示意玩家进入。",
         "people": [
-          "许宁",
-          "玩家"
+          "伊莱恩"
         ],
         "locations": [
-          "医院正门"
+          "圣堂"
         ],
         "tags": [
-          "互动"
+          "动作"
         ]
       },
       {
         "id": "summary_l0_2",
         "source_message_id": 2,
-        "title": "暂存钥匙",
-        "summary": "玩家将铜钥匙交给许宁暂存，并约定取回时的暗号为“白鹭七号”。",
+        "title": "暂存银书签",
+        "summary": "玩家将银书签交给伊莱恩暂存，并约定取回时的暗号为“晚钟九号”。",
         "people": [
           "玩家",
-          "许宁"
+          "伊莱恩"
         ],
         "locations": [
-          "医院"
+          "圣堂"
         ],
         "tags": [
           "物品",
@@ -59,29 +58,29 @@
         "id": "summary_l0_3",
         "source_message_id": 3,
         "title": "确认暗号",
-        "summary": "许宁点头，确认已记住“白鹭七号”这一暗号。",
+        "summary": "伊莱恩点头，确认已记住暗号“晚钟九号”。",
         "people": [
-          "许宁"
+          "伊莱恩"
         ],
         "locations": [
-          "医院"
+          "圣堂"
         ],
         "tags": [
-          "确认"
+          "约定"
         ]
       },
       {
         "id": "summary_l0_4",
         "source_message_id": 4,
         "title": "变更保管人",
-        "summary": "玩家从许宁处取回铜钥匙，随后将其转交给林医生，并指定由林医生保管。",
+        "summary": "玩家从伊莱恩处取回银书签，随后将其转交给守门人苏姨保管。",
         "people": [
           "玩家",
-          "许宁",
-          "林医生"
+          "伊莱恩",
+          "苏姨"
         ],
         "locations": [
-          "医院"
+          "圣堂"
         ],
         "tags": [
           "物品"
@@ -90,15 +89,14 @@
       {
         "id": "summary_l0_5",
         "source_message_id": 5,
-        "title": "见证转交",
-        "summary": "许宁见证了铜钥匙从玩家手中转交给林医生的过程，确认自己不再持有该物品。",
+        "title": "确认转交",
+        "summary": "伊莱恩见证了银书签转交给苏姨的过程，确认自己不再持有该物品。",
         "people": [
-          "许宁",
-          "玩家",
-          "林医生"
+          "伊莱恩",
+          "苏姨"
         ],
         "locations": [
-          "医院"
+          "圣堂"
         ],
         "tags": [
           "物品"
@@ -108,13 +106,13 @@
         "id": "summary_l0_6",
         "source_message_id": 6,
         "title": "约定会面",
-        "summary": "双方约定周五下午三点在医院走廊见面，玩家届时将以两短一长的节奏敲门。",
+        "summary": "玩家与伊莱恩约定周六上午十点在圣堂见面，届时玩家将以三短一长的节奏敲门。",
         "people": [
           "玩家",
-          "许宁"
+          "伊莱恩"
         ],
         "locations": [
-          "医院走廊"
+          "圣堂"
         ],
         "tags": [
           "约定"
@@ -124,12 +122,12 @@
         "id": "summary_l0_7",
         "source_message_id": 7,
         "title": "保密约定",
-        "summary": "许宁答应了会面约定，并确认未向他人透露此事。",
+        "summary": "伊莱恩答应会面约定，并确认该信息未向第三方透露。",
         "people": [
-          "许宁"
+          "伊莱恩"
         ],
         "locations": [
-          "医院走廊"
+          "圣堂"
         ],
         "tags": [
           "约定"
@@ -138,13 +136,13 @@
       {
         "id": "summary_l0_8",
         "source_message_id": 8,
-        "title": "观察环境",
-        "summary": "玩家向走廊深处移动几步，随后停下观察窗外。",
+        "title": "观察窗外",
+        "summary": "玩家向走廊深处移动，随后停下观察窗外。",
         "people": [
           "玩家"
         ],
         "locations": [
-          "医院走廊"
+          "圣堂走廊"
         ],
         "tags": [
           "动作"
@@ -153,13 +151,13 @@
       {
         "id": "summary_l0_9",
         "source_message_id": 9,
-        "title": "等待中",
-        "summary": "许宁留在走廊内，窗外雨势未停。",
+        "title": "雨中等待",
+        "summary": "伊莱恩留在走廊内，窗外正下着雨。",
         "people": [
-          "许宁"
+          "伊莱恩"
         ],
         "locations": [
-          "医院走廊"
+          "圣堂走廊"
         ],
         "tags": [
           "环境"
@@ -169,13 +167,13 @@
         "id": "summary_l0_10",
         "source_message_id": 10,
         "title": "下达指令",
-        "summary": "玩家要求许宁在当前位置等待一会儿。",
+        "summary": "玩家要求伊莱恩先在原地等候。",
         "people": [
           "玩家",
-          "许宁"
+          "伊莱恩"
         ],
         "locations": [
-          "医院走廊"
+          "圣堂走廊"
         ],
         "tags": [
           "指令"
@@ -185,12 +183,12 @@
         "id": "summary_l0_11",
         "source_message_id": 11,
         "title": "安静等候",
-        "summary": "许宁保持安静，在走廊内等候，未开启新话题。",
+        "summary": "伊莱恩保持安静，在走廊内等候，未开启新话题。",
         "people": [
-          "许宁"
+          "伊莱恩"
         ],
         "locations": [
-          "医院走廊"
+          "圣堂走廊"
         ],
         "tags": [
           "动作"
@@ -199,13 +197,13 @@
       {
         "id": "summary_l0_12",
         "source_message_id": 12,
-        "title": "查看时间",
-        "summary": "玩家查看墙上的钟表。",
+        "title": "查看钟表",
+        "summary": "玩家查看墙上的钟。",
         "people": [
           "玩家"
         ],
         "locations": [
-          "医院走廊"
+          "圣堂走廊"
         ],
         "tags": [
           "动作"
@@ -214,11 +212,11 @@
       {
         "id": "summary_l0_13",
         "source_message_id": 13,
-        "title": "环境状态",
+        "title": "环境确认",
         "summary": "钟表正常走动，走廊内无他人进入。",
         "people": [],
         "locations": [
-          "医院走廊"
+          "圣堂走廊"
         ],
         "tags": [
           "环境"
@@ -228,43 +226,38 @@
     "chapter_summary": null,
     "facts_upsert": [
       {
-        "key": "物品:铜钥匙:保管人",
-        "subject": "铜钥匙",
+        "key": "物品:银书签:保管人",
+        "subject": "银书签",
         "predicate": "保管人",
-        "value": "林医生",
+        "value": "苏姨",
         "source_message_id": 4,
-        "source_excerpt": "我从你这里拿回铜钥匙，交给林医生。以后由林医生保管。"
+        "source_excerpt": "我从你这里拿回银书签，交给守门人苏姨。以后由守门人苏姨保管。"
       },
       {
         "key": "约定:会面时间",
         "subject": "会面",
         "predicate": "时间",
-        "value": "周五下午三点",
+        "value": "周六上午十点",
         "source_message_id": 6,
-        "source_excerpt": "我们约好周五下午三点在这里见面。"
+        "source_excerpt": "我们约好周六上午十点在这里见面。"
       },
       {
         "key": "约定:敲门暗号",
         "subject": "敲门",
         "predicate": "节奏",
-        "value": "两短一长",
+        "value": "三短一长",
         "source_message_id": 6,
-        "source_excerpt": "到时我会敲门，节奏是两短一长。"
+        "source_excerpt": "到时我会敲门，节奏是三短一长。"
       }
     ],
-    "facts_invalidate": [
-      {
-        "key": "物品:铜钥匙:保管人",
-        "reason": "保管人已由许宁变更为林医生。"
-      }
-    ],
+    "facts_invalidate": [],
     "clues_upsert": [
       {
         "id": "clue_001",
-        "title": "周五会面",
-        "text": "玩家与许宁约定周五下午三点在医院走廊会面，并使用特定敲门节奏。",
+        "title": "周六会面",
+        "text": "玩家与伊莱恩约定周六上午十点在圣堂以特定节奏敲门会面。",
         "source_message_id": 6,
-        "source_excerpt": "我们约好周五下午三点在这里见面。到时我会敲门，节奏是两短一长。",
+        "source_excerpt": "我们约好周六上午十点在这里见面。到时我会敲门，节奏是三短一长。",
         "status": "open"
       }
     ],
