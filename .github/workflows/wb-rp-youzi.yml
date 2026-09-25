@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
 jobs:
   live-rp:
     runs-on: ubuntu-latest
@@ -27,12 +28,17 @@ jobs:
           repository: h675786161-prog/world-backstage
           ref: 9adafde433c13e20cde88e3ac7c712855969a430
           path: wb-baseline
+      - name: Restore previous RP checkpoint
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download 36145474299 -R h675786161-prog/lab -n wb-youzi-live-rp -D bench-evidence/wb-youzi-resume
       - name: Play Youzi RP and model-write memory at no more than 15 RPM
         env:
           LAB_MODEL_KEY: ${{ secrets.YOUZI }}
           LAB_MODEL_BASE_URL: https://cofi.date/v1
           LAB_MODEL_ID: agnes-3.0-flash
           LAB_RP_ROUNDS: 60
+          LAB_RP_RESUME_PATH: bench-evidence/wb-youzi-resume/progress.json
         run: node .lab/wb-rp-youzi.mjs
       - uses: actions/upload-artifact@v4
         if: always()

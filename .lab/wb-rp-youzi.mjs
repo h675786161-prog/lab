@@ -22,13 +22,25 @@ async function ask(messages, maxTokens = 1200, temperature = 0.55) {
     for (let retry = 0; retry < 10; retry++) {
         const delay = Math.max(0, lastRequest + 4_500 - Date.now());
         if (delay) await new Promise(resolve => setTimeout(resolve, delay));
-        const response = await fetch(chatUrl, {
+        let response;
+        try {
+            response = await fetch(chatUrl, {
             method: 'POST', signal: AbortSignal.timeout(170_000),
             headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json',
                 'User-Agent': 'SillyTavern/1.18.0' },
             body: JSON.stringify({ model, messages, max_tokens: maxTokens, temperature,
                 stream: false }),
-        });
+            });
+        } catch (error) {
+            lastRequest = Date.now();
+            requests++;
+            if (retry < 9 && (error.name === 'TimeoutError' || error.name === 'AbortError'
+                || error.cause?.code === 'UND_ERR_CONNECT_TIMEOUT')) {
+                await new Promise(resolve => setTimeout(resolve, 20_000));
+                continue;
+            }
+            throw error;
+        }
         lastRequest = Date.now();
         requests++;
         const raw = await response.text();
@@ -46,7 +58,7 @@ async function ask(messages, maxTokens = 1200, temperature = 0.55) {
                 continue;
             }
         }
-        if ([500, 502, 503, 504].includes(response.status) && retry < 9
+        if ([500, 502, 503, 504, 520, 522, 524].includes(response.status) && retry < 9
             && data.error?.code !== 'model_not_found') {
             await new Promise(resolve => setTimeout(resolve, 15_000));
             continue;
@@ -141,6 +153,24 @@ if (beats.length !== 60) throw new Error(`Expected 60 scripted user turns; got $
 let chat = [];
 let state = core.createInitialState();
 const audit = [];
+const resumePath = process.env.LAB_RP_RESUME_PATH;
+if (resumePath) {
+    const prior = JSON.parse(await fs.readFile(resumePath, 'utf8'));
+    if (prior.model !== model || !Array.isArray(prior.chat) || prior.chat.length % 2
+        || prior.chat.length > limit * 2 || !prior.state?.storyMemory || !Array.isArray(prior.audit)) {
+        throw new Error('Invalid or incompatible RP checkpoint');
+    }
+    if (prior.chat.some((item, i) => item.id !== i || item.role !== (i % 2 ? 'assistant' : 'user')
+        || (i % 2 === 0 && item.content !== beats[i / 2]))) {
+        throw new Error('RP checkpoint does not match the scripted turns');
+    }
+    chat = prior.chat;
+    state = prior.state;
+    audit.push(...prior.audit);
+    requests = prior.requests || 0;
+    challenges = prior.challenges || 0;
+    console.log(`Resuming RP at round ${chat.length / 2}/${limit}; indexed through ${state.storyMemory.indexedThroughMessageId}`);
+}
 async function save() {
     await fs.writeFile(`${out}/progress.json`, JSON.stringify({ model, round: chat.length / 2,
         chat, state, audit, requests, challenges }, null, 2));
@@ -180,7 +210,11 @@ async function indexPending() {
 }
 
 try {
-    for (let round = 0; round < limit; round++) {
+    if (chat.length && state.storyMemory.indexedThroughMessageId < chat.length - 1) {
+        await indexPending();
+        console.log(`Recovered pending archive through floor ${chat.length - 1}`);
+    }
+    for (let round = chat.length / 2; round < limit; round++) {
         const user = { id: chat.length, role: 'user', content: beats[round] };
         chat.push(user);
         const injection = core.buildInjectionPackage(state, settings, user.content).text;
