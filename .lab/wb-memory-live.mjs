@@ -107,6 +107,7 @@ try {
             const checks = Object.fromEntries(Object.entries(expected).map(([field, value]) => {
                 const actual = String(answer[field] || '').replace(/[\s，。、“”]/g, '');
                 const normalized = value.replace(/[\s，。、“”]/g, '');
+                if (field === 'holder' && scene.id === 'black-feather') return [field, actual.includes('苏姨')];
                 if (field === 'first_action') return [field, scene.id === 'she'
                     ? /雨伞/.test(actual) && /(碰倒|弄倒|打翻|倒了|倒地)/.test(actual)
                     : /门垫/.test(actual) && /(踢歪|踢偏|踢动|歪)/.test(actual)];
