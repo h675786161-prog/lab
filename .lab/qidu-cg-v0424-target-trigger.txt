@@ -1,2 +1,2 @@
-run=20
-reason=target sacrifice_female plus journey and eternal after removing malformed ending-name examples from prompt
+run=21
+reason=retest sacrifice_female plus journey and eternal CG/state atomicity on exact 1e648885 dispatch-priority candidate
