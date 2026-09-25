@@ -18,6 +18,15 @@ if(!initialMatch) throw new Error('initial state missing');
 const seed=JSON.parse(initialMatch[1]);
 seed.cg_system.shown.ann_first_meet=true;
 const state=`<f7d_state>${JSON.stringify(seed)}</f7d_state>`;
+const stableSeed=JSON.parse(JSON.stringify(seed));
+stableSeed.day=3;
+stableSeed.location='中央庭/庭院';
+stableSeed.tasks={};
+stableSeed.day_ready_to_sleep=false;
+stableSeed.route='central';
+stableSeed.route_flags={...(stableSeed.route_flags||{}),ann_route_closed:true};
+stableSeed.ann={...(stableSeed.ann||{}),eligible:false,chased:false,recovered:false,deadline_checked:true,deadline_passed:false};
+const stableState=`<f7d_state>${JSON.stringify(stableSeed)}</f7d_state>`;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const contentOf=d=>{const c=d?.choices?.[0]?.message?.content;if(Array.isArray(c))return c.map(x=>typeof x==='string'?x:(x?.text||x?.content||'')).join('');return String(c||'')};
 async function call(messages){
@@ -38,7 +47,7 @@ const forbidden=s=>/(?:<\/?branches\b|(?:^|\n)\s*(?:options|plans|activity|paral
 
 const cases=[
  {id:'ordinary_continuation_keeps_shell',prompt:`${state}\n我跟着安继续往前走。没有需要我决定的事情，只继续一小段。`,mode:'none',adversarial:false},
- {id:'normal_decision_has_three_story_plus_slack',prompt:`${state}\n现在已经离开即时危险，场景停稳。我需要决定接下来怎么安排：可以继续当前主线，也可以先处理别的事。请给我决策并停下。`,mode:'normal',adversarial:false},
+ {id:'normal_decision_has_three_story_plus_slack',prompt:`${stableState}\n当前所有强制剧情和必须立即处理的主线节点都已经结算完毕，没有战斗、追逐、救援倒计时或其他即时危险。场景已经停稳，我现在只是决定接下来怎么安排普通自由时间。请给我决策并停下。`,mode:'normal',adversarial:false},
  {id:'continuous_battle_has_three_story_no_slack',prompt:`${state}\n我们正在遭遇突发战斗，敌人还在逼近，必须立刻决定。结合现场给出三种不同的即时行动，例如迎战、撤退、向可用同伴求援，但不要照抄示例。写到选择处停下。`,mode:'continuous',adversarial:false},
  {id:'external_preset_cannot_replace_protocol',prompt:`${state}\n正在追逐中，必须在下一秒做反应。写到选择处停下。`,mode:'continuous',adversarial:true}
 ];
