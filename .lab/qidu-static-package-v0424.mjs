@@ -105,6 +105,8 @@ expect(!txt.includes('安靠门'),'no-door-death-route');
 const chaseFailureRules=[e14,e17,e18,phi].join('\n');
 expect(!CANONICAL_ENDINGS.some(x=>String(x).includes('追安失败'))&&/追安失败[\s\S]{0,500}(?:不得|永远不)写入meta\.endings/.test(chaseFailureRules),'failed-chase-not-recorded-as-ending');
 expect(combinedRules.includes('安线结局精确字面量')&&combinedRules.includes('输出仍严格为["永恒的终焉"]')&&combinedRules.includes('cg_ending_eternal_end'),'ann-ending-exact-literal-lock');
+expect(phi.includes('剧情调度唯一优先级｜最高优先级隐藏执行')&&phi.includes('1. 【强制剧情】')&&phi.includes('2. 【首轮关键主线】')&&phi.includes('3. 【玩家明确选择的同行神器使】')&&phi.includes('4. 【当前地区剧情】')&&phi.includes('5. 【自由活动/随机事件】'),'dispatch-priority-rule');
+expect(phi.includes('线路与结局结算唯一顺序｜最高优先级隐藏执行')&&phi.includes('线路关闭条件 → 强制剧情结果 → 结局资格条件 → 结局优先级 → 演出/CG'),'ending-resolution-order-rule');
 
 const initialMatch=String(card.data?.first_mes||'').match(/<f7d_state>([\s\S]*?)<\/f7d_state>/i);
 expect(Boolean(initialMatch),'initial-state');
@@ -123,7 +125,7 @@ expect(initial.cg_system?.mode==='direct_only'&&initial.cg_system?.album_enabled
 expect(initial.cg_system?.shown?.ann_first_meet===true,'initial-ann-cg-shown');
 expect(/<f7d_cg\s+key=["']cg_ann_first_meet["']\s*>\s*<\/f7d_cg>/i.test(String(card.data?.first_mes||'')),'opening-ann-cg');
 
-for(const marker of ['结构壳稳定性｜最高优先级隐藏执行','第一活骸五事实闭包｜最高优先级隐藏执行','最终日结局结算｜最高优先级隐藏执行','正式结局集合｜唯一名单｜最高优先级隐藏执行','最终状态字面量锁｜提交前最后检查']){
+for(const marker of ['结构壳稳定性｜最高优先级隐藏执行','第一活骸五事实闭包｜最高优先级隐藏执行','最终日结局结算｜最高优先级隐藏执行','正式结局集合｜唯一名单｜最高优先级隐藏执行','最终状态字面量锁｜提交前最后检查','剧情调度唯一优先级｜最高优先级隐藏执行','线路与结局结算唯一顺序｜最高优先级隐藏执行']){
   expect(phi.includes(marker),`phi:${marker}`);
 }
 
@@ -140,6 +142,8 @@ expect(qf.region_liberation==='auto_on_story_completion','liberation-meta');
 expect(qf.core_purification==='explicit_user_action_only','core-meta');
 expect(qf.day_transition==='explicit_sleep_only','sleep-meta');
 expect(qf.choice_mode==='three_story_plus_contextual_skip_and_free_input'&&qf.continuous_scene_skip===false,'choice-meta');
+expect(JSON.stringify(qf.dispatch_priority)===JSON.stringify(['forced','first_loop_mainline','selected_companion','region','free_random']),'dispatch-priority-meta');
+expect(JSON.stringify(qf.ending_resolution_order)===JSON.stringify(['route_closure','forced_plot_result','ending_eligibility','ending_priority','performance']),'ending-resolution-order-meta');
 
 expect(!entries.some(e=>/(?:第\s*[一二三四五六123456]\s*次?巡查|[1-6]\s*\/\s*6\s*[：:]|【(?:六|6)\s*巡查】|(?:六|6)\s*次巡查|(?:六|6)\s*巡查)/.test(String(e.name||'')+'\n'+String(e.content||''))),'counted-region-wording');
 expect(!entries.some(e=>/携带蛋糕巡查中央城区1次|巡查东方古街1次找到阿岚|再巡查海湾侧城1次|巡查研究所1次取得深海潜艇图纸|最后巡查港湾区进入深海位置/.test(String(e.content||''))),'residual-counted-actions');
