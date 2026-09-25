@@ -98,6 +98,7 @@ expect(combinedRules.includes('安线黑核完全可选'),'ann-core-optional');
 expect(phi.includes('态度句必须以“我”的经历、选择、担忧为中心')&&phi.includes('威胁是毁灭性的')&&phi.includes('不得改写成“神器使/活骸/他们”作为主语的普遍结论'),'first-chimera-subjective-rationale-lock');
 expect(phi.includes('当时还不知道活骸化这个词/概念/含义')&&phi.includes('亲眼看着/目睹')&&phi.includes('万分之一/千分之一/百分之一')&&phi.includes('只允许世界书已锚定的“巨大痛苦”'),'first-chimera-residual-inference-lock');
 expect(phi.includes('代价往往/通常/总是无法挽回')&&phi.includes('这里的理由只能落回安托涅瓦个人')&&phi.includes('不能把一次事故概括成群体规律'),'first-chimera-no-hedged-universal-lock');
+expect(phi.includes('安线结局CG原子提交｜最高优先级隐藏执行')&&phi.includes('<f7d_cg key="cg_ending_journey"></f7d_cg>')&&phi.includes('<f7d_cg key="cg_ending_eternal_end"></f7d_cg>')&&phi.includes('黑核数量、黑核是否stolen、普通线阈值、玩家性别都不能取消这两张安线固定结局CG'),'ann-ending-cg-atomic-lock');
 expect(!txt.includes('安靠门'),'no-door-death-route');
 const chaseFailureRules=[e14,e17,e18,phi].join('\n');
 expect(!CANONICAL_ENDINGS.some(x=>String(x).includes('追安失败'))&&/追安失败[\s\S]{0,500}(?:不得|永远不)写入meta\.endings/.test(chaseFailureRules),'failed-chase-not-recorded-as-ending');
