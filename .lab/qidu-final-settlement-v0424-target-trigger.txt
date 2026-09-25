@@ -1,2 +1,2 @@
-run=4
-reason=retest all canonical ending settlement after alternating missing Ann ending CG tags in Final Gate #47
+run=5
+reason=retest canonical ending settlement on immutable ending-name candidate after Final Gate #48 sacrifice_female drift
