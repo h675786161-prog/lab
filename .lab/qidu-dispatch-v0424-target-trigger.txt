@@ -1,0 +1,2 @@
+run=1
+reason=verify forced > first-loop mainline > selected companion > region > free/random and ending resolution order
