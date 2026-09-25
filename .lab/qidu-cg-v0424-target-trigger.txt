@@ -1,2 +1,2 @@
-run=19
-reason=target sacrifice_female plus journey and eternal exact ending state and CG atomicity on immutable-literal candidate
+run=20
+reason=target sacrifice_female plus journey and eternal after removing malformed ending-name examples from prompt
