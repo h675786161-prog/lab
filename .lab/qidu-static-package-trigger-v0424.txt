@@ -1,2 +1,2 @@
-run=12
-reason=validate immutable canonical ending literal lock after sacrifice_female drift in Final Gate #48
+run=13
+reason=validate exact ending-name preservation without malformed code-switch examples in prompt
