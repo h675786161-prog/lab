@@ -81,4 +81,20 @@ try{
   });
   console.log('MVU command acceptance',JSON.stringify(parsed));
   if(parsed.day!==7||parsed.location!=='中央庭'||parsed.core!=='unknown'||!parsed.guard?.ready||parsed.guard.calls<2)throw Error(`MVU command acceptance failed ${JSON.stringify(parsed)}`);
+  const ui=await page.evaluate(async()=>{
+    const st=await import('/script.js');const regex=await import('/scripts/extensions/regex/engine.js');
+    const character=st.characters[st.this_chid];regex.allowScopedScripts(character);
+    const html=st.messageFormatting('<UpdateVariable>_.set("clock_minutes",480,560);//4/6 purified</UpdateVariable>街上有人向你招手。<f7d_choices><f7d_choice>走近询问</f7d_choice><f7d_choice>先看看四周</f7d_choice></f7d_choices>',character.name,false,false,123456,{},false);
+    regex.disallowScopedScripts(character);
+    const holder=document.createElement('div');holder.innerHTML=html;
+    return{hidden:!holder.textContent.includes('clock_minutes')&&!holder.textContent.includes('4/6')&&!holder.textContent.includes('purified'),
+      choices:holder.querySelectorAll('[data-f7d-choice="1"]').length,
+      polished:!!holder.querySelector('[data-f7d-choice-grid="1"]')};
+  });
+  console.log('UI rendering',JSON.stringify(ui));
+  if(!ui.hidden||ui.choices!==2||!ui.polished)throw Error(`Hidden state or choice UI failed ${JSON.stringify(ui)}`);
+  await fs.mkdir(process.env.LAB_EVIDENCE_DIR||'release-evidence',{recursive:true});
+  await page.screenshot({path:`${process.env.LAB_EVIDENCE_DIR||'release-evidence'}/qidu-v0426-mobile.png`,fullPage:true});
+  await page.setViewportSize({width:1280,height:800});
+  await page.screenshot({path:`${process.env.LAB_EVIDENCE_DIR||'release-evidence'}/qidu-v0426-desktop.png`,fullPage:true});
 }finally{await browser.close()}
