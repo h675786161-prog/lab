@@ -51,8 +51,8 @@ function guardSource(){return String.raw`(() => {
       if(invalid)commands.splice(i,1);
     }
   }
-  waitGlobalInitialized('Mvu').then(()=>{if(active)eventOn(window.Mvu.events.COMMAND_PARSED,protect)}).catch(e=>console.warn('[qidu/mvu]',e));
-  window.addEventListener('pagehide',()=>{active=false;try{eventRemoveListener?.(Mvu.events.COMMAND_PARSED,protect)}catch{}},{once:true});
+  waitGlobalInitialized('Mvu').then(()=>{const mvu=window.parent?.Mvu||window.Mvu;if(active&&mvu)eventOn(mvu.events.COMMAND_PARSED,protect)}).catch(e=>console.warn('[qidu/mvu]',e));
+  window.addEventListener('pagehide',()=>{active=false;try{const mvu=window.parent?.Mvu||window.Mvu;eventRemoveListener?.(mvu.events.COMMAND_PARSED,protect)}catch{}},{once:true});
 })();`}
 
 export function addMvuCot(input){

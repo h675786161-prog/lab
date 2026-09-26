@@ -17,6 +17,7 @@ const errors=[];
 try{
   const page=await browser.newPage({viewport:{width:390,height:844}});
   page.on('pageerror',error=>errors.push(error.message));
+  page.on('console',msg=>{if(/MVU|qidu|script|脚本|error/i.test(msg.text()))errors.push(`[console:${msg.type()}] ${msg.text().slice(0,350)}`)});
   await page.goto(base,{waitUntil:'domcontentloaded',timeout:60000});await page.waitForTimeout(1800);
   await page.evaluate(()=>{
     const save=[...document.querySelectorAll('button,.menu_button')].find(x=>/^(Save|保存)$/.test(String(x.textContent||'').trim()));
@@ -60,10 +61,11 @@ try{
     const helperFrame=frames.map(f=>f.contentWindow).filter(Boolean);
     const found=helperFrame.map((w,i)=>({i,mvu:Boolean(w.Mvu),helper:Boolean(w.TavernHelper),chatVar:typeof w.TavernHelper?.getVariables==='function'?w.TavernHelper.getVariables({type:'message',message_id:0})?.stat_data?.day:null}));
     const st=await import('/script.js');
-    return{frames:found,parentMvu:Boolean(window.Mvu),helper:Boolean(window.TavernHelper),toggles:[...document.querySelectorAll('#tavern_helper input[id$="-script-enable-toggle"]')].map(x=>({id:x.id,checked:x.checked})),chat:st.chat?.map(x=>({mes:String(x.mes).slice(0,80),is_user:x.is_user})).slice(0,3),version:st.characters?.[st.this_chid]?.data?.character_version};
+    let scriptTrees=null;try{scriptTrees=window.TavernHelper?.getScriptTrees?.({type:'character'})?.map(x=>({name:x.name,id:x.id,enabled:x.enabled,type:x.type}))}catch(e){scriptTrees=String(e)}
+    return{frames:found,parentMvu:Boolean(window.Mvu),parentDay:window.Mvu?.getMvuData({type:'message',message_id:0})?.stat_data?.day??null,helper:Boolean(window.TavernHelper),bridge:Boolean(window.__F7D_CARD_CHOICE_BRIDGE_V0424__),scriptTrees,toggles:[...document.querySelectorAll('#tavern_helper input[id$="-script-enable-toggle"]')].map(x=>({id:x.id,checked:x.checked})),chat:st.chat?.map(x=>({mes:String(x.mes).slice(0,80),is_user:x.is_user})).slice(0,3),version:st.characters?.[st.this_chid]?.data?.character_version};
   });
-  const loaded=diag.frames.some(f=>f.mvu);
-  const initialized=diag.frames.some(f=>f.chatVar===7);
+  const loaded=diag.parentMvu||diag.frames.some(f=>f.mvu);
+  const initialized=diag.parentDay===7||diag.frames.some(f=>f.chatVar===7);
   console.log(JSON.stringify({version:VERSION,selected,toggle,diag,errors},null,2));
   if(!loaded||!initialized)throw Error(`MVU not initialized in real ST: ${JSON.stringify({loaded,initialized,diag,errors})}`);
 }finally{await browser.close()}

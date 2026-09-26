@@ -1,1 +1,1 @@
-Recheck v0.4.25 MVU with Tavern Helper character scripts enabled, 2026-09-26.
+Diagnose MVU script start and recheck real ST init, 2026-09-26.
