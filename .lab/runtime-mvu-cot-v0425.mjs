@@ -106,5 +106,14 @@ try{
   await page.screenshot({path:`${process.env.LAB_EVIDENCE_DIR||'release-evidence'}/qidu-v0426-desktop.png`,fullPage:true});
   await page.setViewportSize({width:390,height:844});
   await page.waitForTimeout(400);
+  const mobileLayout=await page.evaluate(()=>{
+    const grid=document.querySelector('[data-f7d-choice-grid="1"]');
+    const rect=grid?.getBoundingClientRect();
+    const top=rect&&document.elementFromPoint(rect.left+rect.width/2,rect.top+35);
+    const info=e=>e&&({tag:e.tagName,id:e.id,classes:String(e.className).slice(0,100)});
+    return{grid:rect&&{x:rect.x,y:rect.y,width:rect.width,height:rect.height},display:grid&&getComputedStyle(grid).display,
+      background:grid&&getComputedStyle(grid).backgroundColor,top:info(top),bodyChildren:document.body.children.length};
+  });
+  console.log('Mobile visual layout',JSON.stringify(mobileLayout));
   await page.screenshot({path:`${process.env.LAB_EVIDENCE_DIR||'release-evidence'}/qidu-v0426-mobile.png`,fullPage:true});
 }finally{await browser.close()}
