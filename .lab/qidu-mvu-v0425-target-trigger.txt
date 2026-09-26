@@ -1,1 +1,1 @@
-Bind guarded updates against the parent MVU event bus and validate real parsing, 2026-09-26.
+Normalize quoted MVU command path before validating irreversible transitions, 2026-09-26.

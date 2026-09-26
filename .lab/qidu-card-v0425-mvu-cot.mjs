@@ -36,7 +36,7 @@ function guardSource(){return String.raw`(() => {
     const prior=variables.stat_data||{};if(prior.schema!=='f7d_textloop_0.4')return;
     const user=latestPlayer();
     for(let i=commands.length-1;i>=0;i--){
-      const cmd=commands[i],path=String(cmd.args?.[0]||''),old=val(get(prior,path)),next=parse(cmd.args?.at(-1));
+      const cmd=commands[i],path=String(cmd.args?.[0]||'').trim().replace(/^['"]|['"]$/g,''),old=val(get(prior,path)),next=parse(cmd.args?.at(-1));
       host.__F7D_MVU_GUARD__.lastPath=path;
       let invalid=!path||path.includes('$')||path==='schema'||path==='node_used'||path.includes('.patrol')||path==='known'&&cmd.type!=='set';
       if(['regions','cores','tasks','ann','route_flags','hiro','battle_flags','intel_flags','npc_intel','relationships','cg_system','meta','player_profile'].includes(path))invalid=true;

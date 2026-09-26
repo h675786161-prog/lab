@@ -34,6 +34,7 @@ await new Promise(r=>setTimeout(r,0));assert.ok(listener);
 const stat={...greeting,regions:{...greeting.regions,school:{liberated:true,build_steps:[]}},cores:{...greeting.cores,school:'available'}};
 function filter(path,next,text){user=text;const commands=[{type:'set',args:[path,JSON.stringify(next)]}];listener({stat_data:stat},commands,'');return commands.length;}
 assert.equal(filter('cores.school','purified','查看黑核'),0);
+assert.equal(filter('"cores.school"','purified','查看黑核'),0);
 assert.equal(filter('cores.school','purified','现在净化黑核'),1);
 assert.equal(filter('cores.school','stolen','现在净化黑核'),1);
 stat.cores.school='stolen';assert.equal(filter('cores.school','available','夺回黑核'),0);
