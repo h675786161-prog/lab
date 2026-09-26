@@ -28,6 +28,9 @@ try{
     const st=await import('/script.js');const ext=await import('/scripts/extensions.js');await st.getCharacters();
     const idx=st.characters.findIndex(x=>x?.data?.name===name&&x?.data?.character_version===version);
     if(idx<0)return{found:false};
+    const wi=await import('/scripts/world-info.js');
+    window.$('#import_character_info').data('chid',idx);
+    await wi.importEmbeddedWorldInfo(true);
     const avatar=st.characters[idx].avatar;
     const settings=ext.extension_settings.tavern_helper ||= {};
     const scripts=settings.script ||= {};
@@ -42,6 +45,7 @@ try{
     const st=await import('/script.js');await st.getCharacters();const idx=st.characters.findIndex(x=>x?.data?.name===name&&x?.data?.character_version===version);
     st.setCharacterId(idx);
     if(st.chat.length===0)st.chat.push({name,mes:st.characters[idx].data.first_mes,is_user:false,is_system:false,send_date:new Date().toISOString()});
+    document.querySelector('#chat > .welcomePanel')?.remove();
     void st.eventSource.emit(st.event_types.SETTINGS_UPDATED);void st.eventSource.emit(st.event_types.CHAT_CHANGED,'qidu-mvu-cot-check');
     return{idx,chatSize:st.chat?.length||0,embeddedScripts:st.characters[idx].data.extensions?.tavern_helper?.scripts?.map(x=>({id:x.id,name:x.name,enabled:x.enabled}))};
   },{name:card.data.name,version:VERSION});
@@ -68,4 +72,12 @@ try{
   const initialized=diag.parentDay===7||diag.frames.some(f=>f.chatVar===7);
   console.log(JSON.stringify({version:VERSION,ready,selected,toggle,diag,errors},null,2));
   if(!loaded||!initialized)throw Error(`MVU not initialized in real ST: ${JSON.stringify({loaded,initialized,diag,errors})}`);
+  const parsed=await page.evaluate(async()=>{
+    const old=window.Mvu.getMvuData({type:'message',message_id:0});
+    const loc=await window.Mvu.parseMessage('<UpdateVariable>_.set("location","未知/苏醒中","中央庭");//首次确认地点</UpdateVariable>',old);
+    const blocked=await window.Mvu.parseMessage('<UpdateVariable>_.set("cores.school","unknown","purified");//无玩家指令</UpdateVariable>',old);
+    return{day:old.stat_data.day,location:loc.stat_data.location,core:blocked.stat_data.cores.school};
+  });
+  console.log('MVU command acceptance',JSON.stringify(parsed));
+  if(parsed.day!==7||parsed.location!=='中央庭'||parsed.core!=='unknown')throw Error(`MVU command acceptance failed ${JSON.stringify(parsed)}`);
 }finally{await browser.close()}

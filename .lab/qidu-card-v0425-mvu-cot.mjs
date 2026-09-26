@@ -74,7 +74,7 @@ export function addMvuCot(input){
 任务：完成苏醒后的引导</f7d_terminal>
 <UpdateVariable></UpdateVariable>`;
   card.description=d.description;card.scenario=d.scenario;card.mes_example=d.mes_example;
-  d.creator_notes+=' 本测试版在 SillyTavern 中需启用 Tavern Helper 3.4.17 或更新版；卡内嵌入固定版本 MVU。旧聊天请保留原卡存档，新版建议新开聊天。';
+  d.creator_notes+=' 本测试版在 SillyTavern 中需先通过角色“更多→导入卡内世界书”导入并关联世界书，再启用 Tavern Helper 3.4.17 或更新版的角色脚本；卡内嵌入固定版本 MVU。旧聊天请保留原卡存档，新版建议新开聊天。';
   card.creator_notes=d.creator_notes;
 
   const e01=by(card,'01｜');

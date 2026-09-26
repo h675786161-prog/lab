@@ -1,1 +1,1 @@
-Verify corrected Tavern Helper script metadata and MVU startup, 2026-09-26.
+Import embedded card lore before MVU bootstrap and test command parsing, 2026-09-26.
