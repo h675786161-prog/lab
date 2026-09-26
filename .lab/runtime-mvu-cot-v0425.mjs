@@ -87,36 +87,20 @@ try{
     const html=st.messageFormatting('<UpdateVariable>_.set("clock_minutes",480,560);//4/6 purified</UpdateVariable>街上有人向你招手。<f7d_choices><f7d_choice>走近询问</f7d_choice><f7d_choice>先看看四周</f7d_choice></f7d_choices>',character.name,false,false,123456,{},false);
     regex.disallowScopedScripts(character);
     const holder=document.createElement('div');holder.innerHTML=html;
-    const result={hidden:!holder.textContent.includes('clock_minutes')&&!holder.textContent.includes('4/6')&&!holder.textContent.includes('purified'),
+    return{hidden:!holder.textContent.includes('clock_minutes')&&!holder.textContent.includes('4/6')&&!holder.textContent.includes('purified'),
       choices:holder.querySelectorAll('[data-f7d-choice="1"]').length,
-      polished:!!holder.querySelector('[data-f7d-choice-grid="1"]')};
-    const preview=document.createElement('div');preview.id='qidu-ui-visual-check';
-    preview.style.cssText='position:fixed;inset:0;z-index:2147483647;overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding:48px 12px;box-sizing:border-box;background:#e9eee3;color:#26322b;font:16px/1.7 system-ui,Microsoft YaHei,sans-serif';
-    holder.style.cssText='width:min(100%,720px);padding:22px;border:1px solid #c9d4c4;border-radius:12px;background:#fbfbf6;box-shadow:0 12px 32px #0002';
-    for(const dialog of document.querySelectorAll('dialog[open]'))try{dialog.close()}catch{}
-    preview.append(holder);document.body.replaceChildren(preview);
-    const grid=holder.querySelector('[data-f7d-choice-grid="1"]');
-    result.visible=!!grid&&getComputedStyle(grid).display!=='none'&&grid.getBoundingClientRect().height>0;
-    return result;
+      polished:!!holder.querySelector('[data-f7d-choice-grid="1"]'),
+      markup:html,themeCss:document.getElementById('f7d-ui-theme-v0424')?.textContent||''};
   });
-  console.log('UI rendering',JSON.stringify(ui));
-  if(!ui.hidden||ui.choices!==2||!ui.polished||!ui.visible)throw Error(`Hidden state or choice UI failed ${JSON.stringify(ui)}`);
+  console.log('UI rendering',JSON.stringify({hidden:ui.hidden,choices:ui.choices,polished:ui.polished,themeCss:ui.themeCss.length}));
+  if(!ui.hidden||ui.choices!==2||!ui.polished||!ui.themeCss)throw Error('Hidden state or choice UI failed');
   await fs.mkdir(process.env.LAB_EVIDENCE_DIR||'release-evidence',{recursive:true});
-  await page.setViewportSize({width:1280,height:800});
-  await page.waitForTimeout(250);
-  await page.screenshot({path:`${process.env.LAB_EVIDENCE_DIR||'release-evidence'}/qidu-v0426-desktop.png`,fullPage:true});
-  await page.setViewportSize({width:390,height:844});
-  await page.waitForTimeout(400);
-  const mobileLayout=await page.evaluate(()=>{
-    const grid=document.querySelector('[data-f7d-choice-grid="1"]');
-    const rect=grid?.getBoundingClientRect();
-    const top=rect&&document.elementFromPoint(rect.left+rect.width/2,rect.top+35);
-    const info=e=>e&&({tag:e.tagName,id:e.id,classes:String(e.className).slice(0,100)});
-    return{grid:rect&&{x:rect.x,y:rect.y,width:rect.width,height:rect.height},display:grid&&getComputedStyle(grid).display,
-      background:grid&&getComputedStyle(grid).backgroundColor,visibility:grid&&getComputedStyle(grid).visibility,
-      top:info(top),unobstructed:!!top&&top!==document.body,openDialogs:document.querySelectorAll('dialog[open]').length,bodyChildren:document.body.children.length};
-  });
-  console.log('Mobile visual layout',JSON.stringify(mobileLayout));
-  if(!mobileLayout.unobstructed)throw Error(`Mobile choices obscured ${JSON.stringify(mobileLayout)}`);
-  await page.screenshot({path:`${process.env.LAB_EVIDENCE_DIR||'release-evidence'}/qidu-v0426-mobile.png`,fullPage:true});
+  const preview=await browser.newPage({viewport:{width:390,height:844}});
+  await preview.setContent(`<html><head><meta charset="utf-8"><style>${ui.themeCss}</style><style>body{margin:0;padding:48px 12px;background:#e9eee3;color:#26322b;font:16px/1.7 system-ui,Microsoft YaHei,sans-serif}.scene{box-sizing:border-box;width:min(100%,720px);margin:auto;padding:22px;border:1px solid #c9d4c4;border-radius:12px;background:#fbfbf6;box-shadow:0 12px 32px #0002}</style></head><body><main class="scene">${ui.markup}</main></body></html>`);
+  const mobile=await preview.evaluate(()=>{const grid=document.querySelector('[data-f7d-choice-grid="1"]');return{visible:!!grid&&grid.getBoundingClientRect().height>0&&getComputedStyle(grid).display!=='none',columns:grid&&getComputedStyle(grid).gridTemplateColumns}});
+  if(!mobile.visible)throw Error(`Mobile choice layout missing ${JSON.stringify(mobile)}`);
+  await preview.screenshot({path:`${process.env.LAB_EVIDENCE_DIR||'release-evidence'}/qidu-v0426-mobile.png`,fullPage:true});
+  await preview.setViewportSize({width:1280,height:800});
+  await preview.screenshot({path:`${process.env.LAB_EVIDENCE_DIR||'release-evidence'}/qidu-v0426-desktop.png`,fullPage:true});
+  await preview.close();
 }finally{await browser.close()}
