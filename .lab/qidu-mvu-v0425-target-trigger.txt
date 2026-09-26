@@ -1,1 +1,1 @@
-Import embedded card lore before MVU bootstrap and test command parsing, 2026-09-26.
+Bind guarded updates against the parent MVU event bus and validate real parsing, 2026-09-26.

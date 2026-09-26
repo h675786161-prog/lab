@@ -19,7 +19,9 @@ function guardSource(){return String.raw`(() => {
   const eventOn=helper.eventOn||window.eventOn;
   const eventRemoveListener=helper.eventRemoveListener||window.eventRemoveListener;
   const waitGlobalInitialized=helper.waitGlobalInitialized||window.waitGlobalInitialized;
-  if(!eventOn||!waitGlobalInitialized)return;
+  const host=window.parent||window;
+  host.__F7D_MVU_GUARD__={ready:false,calls:0};
+  if(!eventOn){host.__F7D_MVU_GUARD__.error='eventOn unavailable';return}
   let active=true;
   const get=(s,path)=>path.split('.').reduce((o,k)=>o?.[k],s);
   const val=x=>Array.isArray(x)&&x.length===2&&typeof x[1]==='string'&&!Array.isArray(x[0])?x[0]:x;
@@ -30,10 +32,12 @@ function guardSource(){return String.raw`(() => {
   };
   const endpoints=new Set(['终结','箱庭风景','牺牲的意义','永恒的终焉','两个人的旅途']);
   function protect(variables,commands,message){
+    host.__F7D_MVU_GUARD__.calls++;
     const prior=variables.stat_data||{};if(prior.schema!=='f7d_textloop_0.4')return;
     const user=latestPlayer();
     for(let i=commands.length-1;i>=0;i--){
       const cmd=commands[i],path=String(cmd.args?.[0]||''),old=val(get(prior,path)),next=parse(cmd.args?.at(-1));
+      host.__F7D_MVU_GUARD__.lastPath=path;
       let invalid=!path||path.includes('$')||path==='schema'||path==='node_used'||path.includes('.patrol')||path==='known'&&cmd.type!=='set';
       if(['regions','cores','tasks','ann','route_flags','hiro','battle_flags','intel_flags','npc_intel','relationships','cg_system','meta','player_profile'].includes(path))invalid=true;
       if(path==='day')invalid||=cmd.type!=='set'||!Number.isInteger(next)||next!==old-1||old<=1||!/(睡|休息到明天|结束今天|跳过今天)/.test(user);
@@ -51,7 +55,10 @@ function guardSource(){return String.raw`(() => {
       if(invalid)commands.splice(i,1);
     }
   }
-  waitGlobalInitialized('Mvu').then(()=>{const mvu=window.parent?.Mvu||window.Mvu;if(active&&mvu)eventOn(mvu.events.COMMAND_PARSED,protect)}).catch(e=>console.warn('[qidu/mvu]',e));
+  const bind=()=>{const mvu=host.Mvu||window.Mvu;if(!active||!mvu||host.__F7D_MVU_GUARD__.ready)return;
+    eventOn(mvu.events.COMMAND_PARSED,protect);host.__F7D_MVU_GUARD__.ready=true};
+  bind();
+  if(!host.__F7D_MVU_GUARD__.ready){eventOn('global_Mvu_initialized',bind);if(waitGlobalInitialized)waitGlobalInitialized('Mvu').then(bind).catch(e=>console.warn('[qidu/mvu]',e))}
   window.addEventListener('pagehide',()=>{active=false;try{const mvu=window.parent?.Mvu||window.Mvu;eventRemoveListener?.(mvu.events.COMMAND_PARSED,protect)}catch{}},{once:true});
 })();`}
 

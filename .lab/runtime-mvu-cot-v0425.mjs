@@ -76,8 +76,8 @@ try{
     const old=window.Mvu.getMvuData({type:'message',message_id:0});
     const loc=await window.Mvu.parseMessage('<UpdateVariable>_.set("location","未知/苏醒中","中央庭");//首次确认地点</UpdateVariable>',old);
     const blocked=await window.Mvu.parseMessage('<UpdateVariable>_.set("cores.school","unknown","purified");//无玩家指令</UpdateVariable>',old);
-    return{day:old.stat_data.day,location:loc.stat_data.location,core:blocked.stat_data.cores.school};
+    return{day:old.stat_data.day,location:loc.stat_data.location,core:blocked.stat_data.cores.school,guard:window.__F7D_MVU_GUARD__};
   });
   console.log('MVU command acceptance',JSON.stringify(parsed));
-  if(parsed.day!==7||parsed.location!=='中央庭'||parsed.core!=='unknown')throw Error(`MVU command acceptance failed ${JSON.stringify(parsed)}`);
+  if(parsed.day!==7||parsed.location!=='中央庭'||parsed.core!=='unknown'||!parsed.guard?.ready||parsed.guard.calls<2)throw Error(`MVU command acceptance failed ${JSON.stringify(parsed)}`);
 }finally{await browser.close()}
