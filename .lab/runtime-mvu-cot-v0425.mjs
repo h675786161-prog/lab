@@ -94,12 +94,17 @@ try{
     preview.style.cssText='position:fixed;inset:0;z-index:2147483647;overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding:48px 12px;box-sizing:border-box;background:#e9eee3;color:#26322b;font:16px/1.7 system-ui,Microsoft YaHei,sans-serif';
     holder.style.cssText='width:min(100%,720px);padding:22px;border:1px solid #c9d4c4;border-radius:12px;background:#fbfbf6;box-shadow:0 12px 32px #0002';
     preview.append(holder);document.body.replaceChildren(preview);
+    const grid=holder.querySelector('[data-f7d-choice-grid="1"]');
+    result.visible=!!grid&&getComputedStyle(grid).display!=='none'&&grid.getBoundingClientRect().height>0;
     return result;
   });
   console.log('UI rendering',JSON.stringify(ui));
-  if(!ui.hidden||ui.choices!==2||!ui.polished)throw Error(`Hidden state or choice UI failed ${JSON.stringify(ui)}`);
+  if(!ui.hidden||ui.choices!==2||!ui.polished||!ui.visible)throw Error(`Hidden state or choice UI failed ${JSON.stringify(ui)}`);
   await fs.mkdir(process.env.LAB_EVIDENCE_DIR||'release-evidence',{recursive:true});
-  await page.screenshot({path:`${process.env.LAB_EVIDENCE_DIR||'release-evidence'}/qidu-v0426-mobile.png`,fullPage:true});
   await page.setViewportSize({width:1280,height:800});
+  await page.waitForTimeout(250);
   await page.screenshot({path:`${process.env.LAB_EVIDENCE_DIR||'release-evidence'}/qidu-v0426-desktop.png`,fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+  await page.waitForTimeout(400);
+  await page.screenshot({path:`${process.env.LAB_EVIDENCE_DIR||'release-evidence'}/qidu-v0426-mobile.png`,fullPage:true});
 }finally{await browser.close()}
