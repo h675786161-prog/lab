@@ -111,8 +111,9 @@ MVU 读取 stat_data 为唯一存档；不要输出<f7d_state>或重写完整JSO
   insert(card,UPDATE,`MVU只处理回复末尾的 <UpdateVariable>。先理解当前 <status_current_variable>{{get_message_variable::stat_data}}</status_current_variable>，然后按正文真实演出的事件逐项 _.set('路径',旧值,新值);//原因。仅写变化路径。不要写完整快照；旧值与现值保持一致。玩家未输入时选项不是行动。`);
 
   const scripts=d.extensions.tavern_helper.scripts;
-  scripts.push({type:'script',enabled:true,name:'七都｜MVU变量框架（固定版本）',id:'qidu-v0425-mvu',content:`import 'https://gcore.jsdelivr.net/gh/MagicalAstrogy/MagVarUpdate@${MVU_COMMIT}/artifact/bundle.js'`,info:'需要 Tavern Helper 3.4.17+；网络需能访问 gcore.jsdelivr.net',button:{enabled:false},data:{},export_with:true});
-  scripts.push({type:'script',enabled:true,name:'七都｜MVU不可逆结算守卫',id:'qidu-v0425-mvu-guard',content:guardSource(),info:'在 MVU 解析命令后过滤越权的关键状态更新',button:{enabled:false},data:{},export_with:true});
+  const scriptBase=scripts[0];
+  scripts.push({...scriptBase,name:'七都｜MVU变量框架（固定版本）',id:'qidu-v0425-mvu',content:`import 'https://gcore.jsdelivr.net/gh/MagicalAstrogy/MagVarUpdate@${MVU_COMMIT}/artifact/bundle.js'`,info:'需要 Tavern Helper 3.4.17+；网络需能访问 gcore.jsdelivr.net'});
+  scripts.push({...scriptBase,name:'七都｜MVU不可逆结算守卫',id:'qidu-v0425-mvu-guard',content:guardSource(),info:'在 MVU 解析命令后过滤越权的关键状态更新'});
   for(const [label,tag] of [['MVU初始化', 'initvar'],['MVU差分','UpdateVariable']]){
     const re=`/<${tag}>[\\s\\S]*?(?:<\\/${tag}>|$)/gi`;
     d.extensions.regex_scripts.unshift(regex(`七都｜${label}提示词隐藏`,re,false,true));

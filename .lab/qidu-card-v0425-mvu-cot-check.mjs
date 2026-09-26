@@ -22,6 +22,8 @@ assert.equal(/12个行动节点|6次巡查|<f7d_state>/.test(d.description+d.sce
 assert.equal(d.extensions.tavern_helper.scripts.some(x=>x.content.includes(`@${MVU_COMMIT}/artifact/bundle.js`)),true);
 
 const scripts=d.extensions.tavern_helper.scripts;
+assert.equal(typeof scripts[1].export_with,'object');
+assert.ok(Array.isArray(scripts[1].button.buttons));
 const guard=scripts.find(x=>x.id==='qidu-v0425-mvu-guard').content;
 let listener=null,user='';
 const mock={

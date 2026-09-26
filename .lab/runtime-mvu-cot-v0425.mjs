@@ -35,7 +35,7 @@ try{
     enabled.global=true;enabled.characters ||= [];if(!enabled.characters.includes(avatar))enabled.characters.push(avatar);
     const popuped=scripts.popuped ||= {presets:[],characters:[]};
     popuped.characters ||= [];if(!popuped.characters.includes(avatar))popuped.characters.push(avatar);
-    await st.saveSettings();return{found:true,avatar};
+    await st.saveSettings();return{found:true,avatar,embeddedScripts:st.characters[idx].data.extensions?.tavern_helper?.scripts?.map(x=>({id:x.id,name:x.name,enabled:x.enabled}))};
   },{name:card.data.name,version:VERSION});if(!ready.found)throw Error(`card missing ${JSON.stringify(ready)}`);
   await page.reload({waitUntil:'domcontentloaded',timeout:60000});await page.waitForTimeout(1600);
   const selected=await page.evaluate(async({name,version})=>{
@@ -43,7 +43,7 @@ try{
     st.setCharacterId(idx);
     if(st.chat.length===0)st.chat.push({name,mes:st.characters[idx].data.first_mes,is_user:false,is_system:false,send_date:new Date().toISOString()});
     void st.eventSource.emit(st.event_types.SETTINGS_UPDATED);void st.eventSource.emit(st.event_types.CHAT_CHANGED,'qidu-mvu-cot-check');
-    return{idx,chatSize:st.chat?.length||0};
+    return{idx,chatSize:st.chat?.length||0,embeddedScripts:st.characters[idx].data.extensions?.tavern_helper?.scripts?.map(x=>({id:x.id,name:x.name,enabled:x.enabled}))};
   },{name:card.data.name,version:VERSION});
   let toggle;
   for(let i=0;i<60;i++){
@@ -66,6 +66,6 @@ try{
   });
   const loaded=diag.parentMvu||diag.frames.some(f=>f.mvu);
   const initialized=diag.parentDay===7||diag.frames.some(f=>f.chatVar===7);
-  console.log(JSON.stringify({version:VERSION,selected,toggle,diag,errors},null,2));
+  console.log(JSON.stringify({version:VERSION,ready,selected,toggle,diag,errors},null,2));
   if(!loaded||!initialized)throw Error(`MVU not initialized in real ST: ${JSON.stringify({loaded,initialized,diag,errors})}`);
 }finally{await browser.close()}
