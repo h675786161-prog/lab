@@ -1,2 +1,1 @@
-run=19
-reason=rerun exact 1e648885 candidate with CJK fonts so Chinese browser screenshots can be visually reviewed
+2026-09-26 desktop streaming UI fix 1: partial state, terminal lifecycle, CG dimensions

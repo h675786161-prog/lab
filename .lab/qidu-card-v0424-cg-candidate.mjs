@@ -1,3 +1,4 @@
+import { fixStreamingUi } from './qidu-streaming-ui-fix.mjs';
 import fs from 'node:fs/promises';
 import crypto from 'node:crypto';
 import { loadQiduReleaseCandidate as loadBaseCandidate, entryMap as baseEntryMap } from './qidu-card-v0423-release-candidate.mjs';
@@ -954,6 +955,7 @@ cg_system至少含enabled/mode/album_enabled/responsive_enabled/shown；当前mo
     cg_asset_mode:'embedded-images'
   };
 
+  fixStreamingUi(card);
   assertReleasePrivacy(card);
   const raw=Buffer.from(JSON.stringify(card),'utf8');
   const compactSha256=crypto.createHash('sha256').update(raw).digest('hex');
