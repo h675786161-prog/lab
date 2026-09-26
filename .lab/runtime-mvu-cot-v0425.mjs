@@ -93,7 +93,7 @@ try{
     const preview=document.createElement('div');preview.id='qidu-ui-visual-check';
     preview.style.cssText='position:fixed;inset:0;z-index:2147483647;overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding:48px 12px;box-sizing:border-box;background:#e9eee3;color:#26322b;font:16px/1.7 system-ui,Microsoft YaHei,sans-serif';
     holder.style.cssText='width:min(100%,720px);padding:22px;border:1px solid #c9d4c4;border-radius:12px;background:#fbfbf6;box-shadow:0 12px 32px #0002';
-    preview.append(holder);document.body.append(preview);
+    preview.append(holder);document.body.replaceChildren(preview);
     return result;
   });
   console.log('UI rendering',JSON.stringify(ui));
