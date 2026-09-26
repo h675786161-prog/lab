@@ -87,9 +87,14 @@ try{
     const html=st.messageFormatting('<UpdateVariable>_.set("clock_minutes",480,560);//4/6 purified</UpdateVariable>街上有人向你招手。<f7d_choices><f7d_choice>走近询问</f7d_choice><f7d_choice>先看看四周</f7d_choice></f7d_choices>',character.name,false,false,123456,{},false);
     regex.disallowScopedScripts(character);
     const holder=document.createElement('div');holder.innerHTML=html;
-    return{hidden:!holder.textContent.includes('clock_minutes')&&!holder.textContent.includes('4/6')&&!holder.textContent.includes('purified'),
+    const result={hidden:!holder.textContent.includes('clock_minutes')&&!holder.textContent.includes('4/6')&&!holder.textContent.includes('purified'),
       choices:holder.querySelectorAll('[data-f7d-choice="1"]').length,
       polished:!!holder.querySelector('[data-f7d-choice-grid="1"]')};
+    const preview=document.createElement('div');preview.id='qidu-ui-visual-check';
+    preview.style.cssText='position:fixed;inset:0;z-index:2147483647;overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding:48px 12px;box-sizing:border-box;background:#e9eee3;color:#26322b;font:16px/1.7 system-ui,Microsoft YaHei,sans-serif';
+    holder.style.cssText='width:min(100%,720px);padding:22px;border:1px solid #c9d4c4;border-radius:12px;background:#fbfbf6;box-shadow:0 12px 32px #0002';
+    preview.append(holder);document.body.append(preview);
+    return result;
   });
   console.log('UI rendering',JSON.stringify(ui));
   if(!ui.hidden||ui.choices!==2||!ui.polished)throw Error(`Hidden state or choice UI failed ${JSON.stringify(ui)}`);
