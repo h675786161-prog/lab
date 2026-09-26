@@ -18,6 +18,7 @@ assert.equal(greeting.npc_intel.$meta.extensible,true);
 assert.equal(greeting.node_used,undefined);
 assert.equal(d.post_history_instructions.includes('f7d_state>最终状态'),false);
 assert.equal(d.post_history_instructions.includes('{{get_message_variable::stat_data}}'),true);
+assert.equal(/12个行动节点|6次巡查|<f7d_state>/.test(d.description+d.scenario+d.mes_example),false);
 assert.equal(d.extensions.tavern_helper.scripts.some(x=>x.content.includes(`@${MVU_COMMIT}/artifact/bundle.js`)),true);
 
 const scripts=d.extensions.tavern_helper.scripts;

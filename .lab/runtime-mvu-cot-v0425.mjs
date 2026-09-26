@@ -44,16 +44,26 @@ try{
     void st.eventSource.emit(st.event_types.SETTINGS_UPDATED);void st.eventSource.emit(st.event_types.CHAT_CHANGED,'qidu-mvu-cot-check');
     return{idx,chatSize:st.chat?.length||0};
   },{name:card.data.name,version:VERSION});
-  await page.waitForTimeout(4000);
+  let toggle;
+  for(let i=0;i<60;i++){
+    toggle=await page.evaluate(()=>{
+      const t=[...document.querySelectorAll('#tavern_helper input[id$="-script-enable-toggle"]')];
+      const chosen=t.find(x=>/角色|character/i.test(x.id))||t[1];
+      if(chosen&&!chosen.checked)chosen.click();
+      return{found:Boolean(chosen),checked:Boolean(chosen?.checked),toggles:t.map(x=>({id:x.id,checked:x.checked})),frames:document.querySelectorAll('iframe').length};
+    });
+    if(toggle.checked)break;await page.waitForTimeout(250);
+  }
+  await page.waitForTimeout(5000);
   const diag=await page.evaluate(async()=>{
     const frames=[...document.querySelectorAll('iframe')];
     const helperFrame=frames.map(f=>f.contentWindow).filter(Boolean);
     const found=helperFrame.map((w,i)=>({i,mvu:Boolean(w.Mvu),helper:Boolean(w.TavernHelper),chatVar:typeof w.TavernHelper?.getVariables==='function'?w.TavernHelper.getVariables({type:'message',message_id:0})?.stat_data?.day:null}));
     const st=await import('/script.js');
-    return{frames:found,chat:st.chat?.map(x=>({mes:String(x.mes).slice(0,80),is_user:x.is_user})).slice(0,3),version:st.characters?.[st.this_chid]?.data?.character_version};
+    return{frames:found,parentMvu:Boolean(window.Mvu),helper:Boolean(window.TavernHelper),toggles:[...document.querySelectorAll('#tavern_helper input[id$="-script-enable-toggle"]')].map(x=>({id:x.id,checked:x.checked})),chat:st.chat?.map(x=>({mes:String(x.mes).slice(0,80),is_user:x.is_user})).slice(0,3),version:st.characters?.[st.this_chid]?.data?.character_version};
   });
   const loaded=diag.frames.some(f=>f.mvu);
   const initialized=diag.frames.some(f=>f.chatVar===7);
-  console.log(JSON.stringify({version:VERSION,selected,diag,errors},null,2));
+  console.log(JSON.stringify({version:VERSION,selected,toggle,diag,errors},null,2));
   if(!loaded||!initialized)throw Error(`MVU not initialized in real ST: ${JSON.stringify({loaded,initialized,diag,errors})}`);
 }finally{await browser.close()}

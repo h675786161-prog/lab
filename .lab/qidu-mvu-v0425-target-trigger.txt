@@ -1,1 +1,1 @@
-Run isolated real SillyTavern + Tavern Helper + MVU integration for v0.4.25.
+Recheck v0.4.25 MVU with Tavern Helper character scripts enabled, 2026-09-26.

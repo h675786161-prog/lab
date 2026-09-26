@@ -64,9 +64,24 @@ export function addMvuCot(input){
   for(const field of ['tasks','relationships','npc_intel'])initial[field].$meta={extensible:true};
   d.first_mes=d.first_mes.replace(match[0],`<initvar>${JSON.stringify(initial)}</initvar>`);
   card.first_mes=d.first_mes;
+  d.description=d.description.replace('在七天倒计时与每天12个行动节点内','在七天倒计时与自然推进的剧情里').replace('区域六巡查','区域主线');
+  d.scenario='七天倒计时文本游戏。区域剧情按已发生的调查、人物互动和冲突推进；区域解放与黑核净化分开结算。玩家明确睡到次日或主动跳日时先结算期限，再推进日期。希罗等NPC也会在镜头外行动，但玩家未获知的事实不能通过旁白或小剧场泄露。';
+  d.mes_example=`<START>
+{{user}}: 我先看看战术终端，不做别的。
+{{char}}: 安站在一旁，没有催促你。
+<f7d_terminal>【战术终端】第7天｜剧情推进中
+当前位置：中央庭
+任务：完成苏醒后的引导</f7d_terminal>
+<UpdateVariable></UpdateVariable>`;
+  card.description=d.description;card.scenario=d.scenario;card.mes_example=d.mes_example;
+  d.creator_notes+=' 本测试版在 SillyTavern 中需启用 Tavern Helper 3.4.17 或更新版；卡内嵌入固定版本 MVU。旧聊天请保留原卡存档，新版建议新开聊天。';
+  card.creator_notes=d.creator_notes;
 
   const e01=by(card,'01｜');
   e01.content=`【七日状态机】以最近消息 stat_data 为当前轮回状态；每轮仅结算本轮发生的真实事件。重Roll不重复结算，查看终端与 OOC 不推进。只在玩家明确睡到明天/跳日时按期限先结算，再 day-1；day=1不自动变成day=0。区域主线按已演出因果自然收束，不设节点或巡查数字门槛。区域解放与黑核净化各自独立，后者须玩家明确执行并满足所在区域专属条件。`;
+  const e03=by(card,'03｜');
+  e03.content=e03.content.replace(/区域通常需要累计完整区域主线解放。首次巡查强调[^\n]+第6次解决区域核心危机并解放。区域解放不等于黑核净化。黑核若有额外条件，必须另行完成。/,'区域主线通过灾情调查、人物关系、证据与关键冲突自然收束，收束后结算解放；不同区域不能套用固定巡查次数。区域解放不等于黑核净化，额外条件须另行满足。');
+  by(card,'32｜').content+='\n【蜂蜜蛋糕证据边界】蛋糕是丽的偏好与相关人物互动线索。角色可以据反应继续调查；未锚定的“蛋糕导电、蜂蜜形成符文/线路、甜点自动定位或净化黑核”等机制不得凭空制造。找到黑核与执行净化都要实际演出，后者由玩家明确选择。';
   by(card,'04｜').content=`【输出协议｜MVU】剧情正文 → 首次触发时的<f7d_cg key="CG_ID"></f7d_cg> → <f7d_terminal>客观可见战术状态</f7d_terminal> → 如确需玩家决策则输出<f7d_choices>内2～4个自然行动<f7d_choice> → 最后输出隐藏的<UpdateVariable>差分命令。没有状态变化也输出空的<UpdateVariable></UpdateVariable>。
 MVU 读取 stat_data 为唯一存档；不要输出<f7d_state>或重写完整JSON。终端逐字段读取 stat_data，未证实的黑核仍为unknown。选项只供点击参考，玩家可自由输入，选项生成本身不改变变量。`; 
   by(card,'91｜').name='91｜MVU状态路径与结算约束';
