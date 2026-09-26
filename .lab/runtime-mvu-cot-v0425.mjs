@@ -93,6 +93,7 @@ try{
     const preview=document.createElement('div');preview.id='qidu-ui-visual-check';
     preview.style.cssText='position:fixed;inset:0;z-index:2147483647;overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding:48px 12px;box-sizing:border-box;background:#e9eee3;color:#26322b;font:16px/1.7 system-ui,Microsoft YaHei,sans-serif';
     holder.style.cssText='width:min(100%,720px);padding:22px;border:1px solid #c9d4c4;border-radius:12px;background:#fbfbf6;box-shadow:0 12px 32px #0002';
+    for(const dialog of document.querySelectorAll('dialog[open]'))try{dialog.close()}catch{}
     preview.append(holder);document.body.replaceChildren(preview);
     const grid=holder.querySelector('[data-f7d-choice-grid="1"]');
     result.visible=!!grid&&getComputedStyle(grid).display!=='none'&&grid.getBoundingClientRect().height>0;
@@ -112,8 +113,10 @@ try{
     const top=rect&&document.elementFromPoint(rect.left+rect.width/2,rect.top+35);
     const info=e=>e&&({tag:e.tagName,id:e.id,classes:String(e.className).slice(0,100)});
     return{grid:rect&&{x:rect.x,y:rect.y,width:rect.width,height:rect.height},display:grid&&getComputedStyle(grid).display,
-      background:grid&&getComputedStyle(grid).backgroundColor,top:info(top),bodyChildren:document.body.children.length};
+      background:grid&&getComputedStyle(grid).backgroundColor,visibility:grid&&getComputedStyle(grid).visibility,
+      top:info(top),unobstructed:!!top&&top!==document.body,openDialogs:document.querySelectorAll('dialog[open]').length,bodyChildren:document.body.children.length};
   });
   console.log('Mobile visual layout',JSON.stringify(mobileLayout));
+  if(!mobileLayout.unobstructed)throw Error(`Mobile choices obscured ${JSON.stringify(mobileLayout)}`);
   await page.screenshot({path:`${process.env.LAB_EVIDENCE_DIR||'release-evidence'}/qidu-v0426-mobile.png`,fullPage:true});
 }finally{await browser.close()}
