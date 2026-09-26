@@ -5,6 +5,10 @@ on:
     branches: ['feature/qidu-card-v0411-lab']
     paths:
       - '.lab/qidu-mvu-v0425-target-trigger.txt'
+      - '.lab/qidu-card-v0426-repair.mjs'
+      - '.lab/qidu-card-v0426-check.mjs'
+      - '.lab/runtime-mvu-cot-v0425.mjs'
+      - 'fixtures/qidu-card/plot-repairs-v0426.json'
 
 permissions:
   contents: read
@@ -27,6 +31,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      - name: Check repaired MVU story and variable rules
+        run: node .lab/qidu-card-v0426-check.mjs
       - name: Clone exact SillyTavern runtime
         run: |
           set -euo pipefail

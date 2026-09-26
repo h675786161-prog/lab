@@ -1,10 +1,11 @@
 import fs from 'node:fs/promises';
 import {loadQiduReleaseCandidate} from './qidu-card-v0424-cg-candidate.mjs';
-import {addMvuCot,VERSION} from './qidu-card-v0425-mvu-cot.mjs';
+import {addMvuCot} from './qidu-card-v0425-mvu-cot.mjs';
+import {repairQiduCard,VERSION} from './qidu-card-v0426-repair.mjs';
 
 const base=process.env.LAB_ST_URL||'http://127.0.0.1:8000';
 const {card:previous}=await loadQiduReleaseCandidate(process.env.GITHUB_WORKSPACE||process.cwd(),{skipHashCheck:true});
-const card=addMvuCot(previous);
+const card=repairQiduCard(addMvuCot(previous));
 const script=card.data.extensions.tavern_helper.scripts.find(x=>x.id==='qidu-v0425-mvu');
 if(process.env.LAB_MVU_LOCAL==='1')script.content="import '/scripts/extensions/third-party/qidu-mvu/bundle.js'";
 const raw=JSON.stringify(card);
