@@ -128,6 +128,10 @@ try{
     if(buttons<2)throw Error(`Story choice buttons missing ${sample.name}: ${JSON.stringify(check)}`);
     const visibleText=await item.innerText();
     if(/\boptions:|<branches>|<details>/.test(visibleText))throw Error(`Preset syntax leaked into story ${sample.name}`);
+    await page.evaluate(()=>{
+      for(const dialog of document.querySelectorAll('dialog[open]'))try{dialog.close()}catch{}
+      for(const toast of document.querySelectorAll('.toast-container,.toast-message,.toastify,.toastr'))toast.remove();
+    });
     await item.screenshot({path:`${process.env.LAB_EVIDENCE_DIR||'release-evidence'}/qidu-v0427-story-${sample.name}.png`});
     if(sample.name==='day7-daymoon'){
       await page.evaluate(()=>{for(const dialog of document.querySelectorAll('dialog[open]'))try{dialog.close()}catch{}});
