@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {loadQiduReleaseCandidate} from './qidu-card-v0424-cg-candidate.mjs';
+import {addMvuCot} from './qidu-card-v0425-mvu-cot.mjs';
+import {repairQiduCard} from './qidu-card-v0426-repair.mjs';
+import {addPresetChoiceCompatibility} from './qidu-card-preset-compat-v0427.mjs';
+import {addMorningClockHud} from './qidu-card-morning-hud-v0428.mjs';
+import {limitCountdownNarration} from './qidu-card-countdown-v0429.mjs';
+import {guardRegionAndShortTalk} from './qidu-card-region-time-guard-v0430.mjs';
+import {preserveUnchosenActions,VERSION} from './qidu-card-choice-continuity-v0431.mjs';
+const {card:base}=await loadQiduReleaseCandidate(process.cwd(),{skipHashCheck:true});
+const d=preserveUnchosenActions(guardRegionAndShortTalk(limitCountdownNarration(addMorningClockHud(addPresetChoiceCompatibility(repairQiduCard(addMvuCot(base))))))).data;
+assert.equal(d.character_version,VERSION);
+for(const id of [4,31,32,91])assert.match(d.character_book.entries.find(e=>e.id===id).content,/上轮选项不可代选/);
+assert.match(d.post_history_instructions,/不能在本轮开头写成已经打完或救完/);
+console.log('PASS v0431: unselected actions are not precommitted by prompt');

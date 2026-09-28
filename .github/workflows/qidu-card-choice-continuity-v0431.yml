@@ -1,0 +1,30 @@
+name: Qidu v0431 Unchosen Battle Model
+on:
+  push:
+    branches: ['feature/qidu-card-v0411-lab']
+    paths:
+      - '.lab/qidu-card-choice-continuity-v0431.mjs'
+      - '.lab/qidu-card-choice-continuity-v0431-check.mjs'
+      - '.lab/qidu-card-choice-continuity-v0431-model.mjs'
+      - '.github/workflows/qidu-card-choice-continuity-v0431.yml'
+permissions:
+  contents: read
+jobs:
+  model-and-rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      MODEL_API_KEY: ${{ secrets.GG }}
+      MODEL_API_BASE: https://gcli.ggchan.dev/v1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check choice continuity
+        run: node .lab/qidu-card-choice-continuity-v0431-check.mjs
+      - name: Generate noncombat reply after declining battle
+        run: node .lab/qidu-card-choice-continuity-v0431-model.mjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-v0431-unchosen-battle
+          path: release-evidence/
+          if-no-files-found: warn
