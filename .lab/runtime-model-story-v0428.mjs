@@ -9,8 +9,14 @@ const {card:base}=await loadQiduReleaseCandidate(process.env.GITHUB_WORKSPACE||p
 const card=addMorningClockHud(addPresetChoiceCompatibility(repairQiduCard(addMvuCot(base))));
 const key=process.env.MODEL_API_KEY||'';
 if(!key)throw Error('Model API key missing');
-const endpoint=(process.env.MODEL_API_BASE||'https://youzi.today/v1')+'/chat/completions';
-const model=process.env.RELEASE_MODEL||'gemini-3-flash-preview';
+const apiBase=process.env.MODEL_API_BASE||'https://claudeapi.cc.cd/v1';
+const endpoint=apiBase+'/chat/completions';
+const listed=await fetch(apiBase+'/models',{headers:{Authorization:`Bearer ${key}`}});
+if(!listed.ok)throw Error(`Model list HTTP ${listed.status}`);
+const modelList=await listed.json();const ids=(modelList.data||modelList.models||[]).map(x=>typeof x==='string'?x:x.id||x.name).filter(Boolean);
+const requested=process.env.RELEASE_MODEL||'gemini-3-flash-preview';
+const model=ids.includes(requested)?requested:ids.find(x=>/gemini.*flash/i.test(x))||ids.find(x=>/glm.*flash/i.test(x))||ids.find(x=>/deepseek.*flash/i.test(x));
+if(!model)throw Error('No suitable available model in authenticated model list');
 const entries=card.data.character_book.entries;
 const related=entries.filter(e=>e.constant||[4,10,11,14,15,91].includes(e.id)).map(e=>e.content).join('\n\n');
 const system=[card.data.personality,card.data.scenario,related,card.data.post_history_instructions,card.data.extensions.depth_prompt?.prompt,'你正在实际扮演这张角色卡。继续上文叙事，严格执行原卡的时间、晨间和选项规则。不要解释测试；让剧情自然展开。'].filter(Boolean).join('\n\n');
