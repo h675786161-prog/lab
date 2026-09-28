@@ -9,7 +9,7 @@ const {card:base}=await loadQiduReleaseCandidate(process.env.GITHUB_WORKSPACE||p
 const card=addMorningClockHud(addPresetChoiceCompatibility(repairQiduCard(addMvuCot(base))));
 const key=process.env.MODEL_API_KEY||'';
 if(!key)throw Error('Model API key missing');
-const apiBase=process.env.MODEL_API_BASE||'https://claudeapi.cc.cd/v1';
+const apiBase=process.env.MODEL_API_BASE||'https://gcli.ggchan.dev/v1';
 const endpoint=apiBase+'/chat/completions';
 const listed=await fetch(apiBase+'/models',{headers:{Authorization:`Bearer ${key}`}});
 if(!listed.ok)throw Error(`Model list HTTP ${listed.status}`);
