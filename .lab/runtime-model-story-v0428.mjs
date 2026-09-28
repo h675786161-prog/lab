@@ -84,6 +84,7 @@ try{
       history.push({role:'user',content:scenario.steps[index]});
       const generated=replay?.evidence?.find(x=>x.scene===scenario.id&&x.turn===index+1)?.raw||await generate(history);history.push({role:'assistant',content:generated});
       const record={scene:scenario.id,turn:index+1,prompt:scenario.steps[index],raw:generated};evidence.push(record);
+      const prose=generated.split(/<f7d_terminal\b|<f7d_choices\b|<UpdateVariable\b/i)[0];
       const result=await page.evaluate(async({story,name})=>{
         const st=await import('/script.js');const regex=await import('/scripts/extensions/regex/engine.js');
         await st.getCharacters();
@@ -92,11 +93,11 @@ try{
         regex.allowScopedScripts(char);
         const html=st.messageFormatting(story,char.name,false,false,Date.now(),{},false);
         regex.disallowScopedScripts(char);
-        const el=document.createElement('div');el.className='mes';el.setAttribute('mesid','990');el.setAttribute('data-f7d-model-scene',name);el.style.cssText='box-sizing:border-box;max-width:650px;margin:20px auto;padding:18px;background:#fbfaf2;color:#26352c;border:1px solid #d3dccd;border-radius:11px;font:15px/1.8 system-ui,Microsoft YaHei,sans-serif';
+        const el=document.createElement('div');el.className='mes';el.setAttribute('mesid','990');el.setAttribute('data-f7d-model-scene',name);el.style.cssText='box-sizing:border-box;width:390px;max-width:100%;height:auto;max-height:none;overflow:visible;margin:0 auto;padding:20px;background:#fbfaf2;color:#26352c;border:1px solid #d3dccd;border-radius:11px;font:15px/1.8 system-ui,Microsoft YaHei,sans-serif;position:relative;z-index:2147483647';
         el.innerHTML='<div class="mes_text"></div>';el.querySelector('.mes_text').innerHTML=html;
-        document.querySelector('#chat')?.appendChild(el);
+        document.body.appendChild(el);
         return{choices:el.querySelectorAll('[data-f7d-choice="1"]').length,textLength:el.innerText.length};
-      },{story:generated,name:scenario.id+'-'+(index+1)});
+      },{story:prose,name:scenario.id+'-'+(index+1)});
       await page.waitForTimeout(450);
       await page.evaluate(()=>{for(const d of document.querySelectorAll('dialog[open]'))try{d.close()}catch{}for(const n of document.querySelectorAll('.toast-container,.toast-message,.toastify,.toastr'))n.remove()});
       const selector=`[data-f7d-model-scene="${scenario.id}-${index+1}"]`;
