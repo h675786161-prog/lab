@@ -64,13 +64,14 @@ try{
     const st=await import('/script.js');const wi=await import('/scripts/world-info.js');const ext=await import('/scripts/extensions.js');
     await st.getCharacters();
     const id=st.characters.findIndex(x=>x?.data?.character_version===version);if(id<0)throw Error('Card import not found');
-    window.$('#import_character_info').data('chid',id);await wi.importEmbeddedWorldInfo(true);
+    st.setCharacterId(id);
+    window.$('#import_character_info').data('chid',id);
+    try{await wi.importEmbeddedWorldInfo(true)}catch(e){console.warn('Worldbook import in screenshot session:',String(e))}
     const avatar=st.characters[id].avatar,settings=ext.extension_settings.tavern_helper ||= {},scripts=settings.script ||= {};
     const enabled=scripts.enabled ||= {global:true,presets:[],characters:[]};enabled.global=true;enabled.characters ||= [];
     if(!enabled.characters.includes(avatar))enabled.characters.push(avatar);
     const popuped=scripts.popuped ||= {presets:[],characters:[]};popuped.characters ||= [];
     if(!popuped.characters.includes(avatar))popuped.characters.push(avatar);
-    st.setCharacterId(id);
     if(st.chat.length===0)st.chat.push({name:st.characters[id].name,mes:st.characters[id].data.first_mes,is_user:false,is_system:false,send_date:new Date().toISOString()});
     document.querySelector('#chat > .welcomePanel')?.remove();
     await st.saveSettings();void st.eventSource.emit(st.event_types.SETTINGS_UPDATED);void st.eventSource.emit(st.event_types.CHAT_CHANGED,'qidu-region-story-v0429');
