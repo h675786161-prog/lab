@@ -48,7 +48,8 @@ export function addMorningClockHud(input){
   if(!bridge)throw Error('choice bridge missing');
   bridge.content=bridge.content.replace('  const classifyChoices=()=>{',`  let lastKnownStatus=null;
   const ensureStatusHud=()=>{
-    const chat=context()?.chat;
+    const host=window.parent||window;
+    const chat=host.SillyTavern?.getContext?.()?.chat;
     if(!Array.isArray(chat)||!chat.length)return;
     const mvu=host.Mvu||window.Mvu;
     let state=null;
