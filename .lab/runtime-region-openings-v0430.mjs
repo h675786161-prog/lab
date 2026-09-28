@@ -86,8 +86,18 @@ try{
     if(enabled)break;await page.waitForTimeout(250);
   }
   await page.waitForTimeout(3200);
-  const mvuReady=await page.evaluate(()=>Boolean(window.Mvu?.parseMessage&&window.__F7D_MVU_GUARD__?.ready));
-  if(!mvuReady)throw Error('Actual ST MVU guard not ready');
+  let mvuReady=false;
+  for(let attempt=0;attempt<40;attempt++){
+    mvuReady=await page.evaluate(()=>Boolean(window.Mvu?.parseMessage&&window.__F7D_MVU_GUARD__?.ready));
+    if(mvuReady)break;await page.waitForTimeout(250);
+  }
+  if(!mvuReady){
+    const diagnosis=await page.evaluate(async()=>{
+      const st=await import('/script.js');
+      return{parentMvu:Boolean(window.Mvu),guard:window.__F7D_MVU_GUARD__,frames:[...document.querySelectorAll('iframe')].map(f=>({mvu:Boolean(f.contentWindow?.Mvu),guard:f.contentWindow?.__F7D_MVU_GUARD__})),toggles:[...document.querySelectorAll('#tavern_helper input[id$="-script-enable-toggle"]')].map(x=>({id:x.id,checked:x.checked})),version:st.characters?.[st.this_chid]?.data?.character_version};
+    });
+    throw Error('Actual ST MVU guard not ready '+JSON.stringify(diagnosis));
+  }
   const evidence=[];
   for(const scenario of cases){
     const history=[{role:'assistant',content:scenario.seed}];
