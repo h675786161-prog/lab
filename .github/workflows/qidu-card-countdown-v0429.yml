@@ -1,0 +1,30 @@
+name: Qidu v0429 Countdown Narration Model
+on:
+  push:
+    branches: ['feature/qidu-card-v0411-lab']
+    paths:
+      - '.lab/qidu-card-countdown-v0429.mjs'
+      - '.lab/qidu-card-countdown-v0429-check.mjs'
+      - '.lab/qidu-card-countdown-v0429-model.mjs'
+      - '.github/workflows/qidu-card-countdown-v0429.yml'
+permissions:
+  contents: read
+jobs:
+  model-and-rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      MODEL_API_KEY: ${{ secrets.GG }}
+      MODEL_API_BASE: https://gcli.ggchan.dev/v1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check card state and countdown instructions
+        run: node .lab/qidu-card-countdown-v0429-check.mjs
+      - name: Generate ordinary post-opening conversation
+        run: node .lab/qidu-card-countdown-v0429-model.mjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-v0429-countdown-model
+          path: release-evidence/
+          if-no-files-found: warn

@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import {loadQiduReleaseCandidate} from './qidu-card-v0424-cg-candidate.mjs';
+import {addMvuCot} from './qidu-card-v0425-mvu-cot.mjs';
+import {repairQiduCard} from './qidu-card-v0426-repair.mjs';
+import {addPresetChoiceCompatibility} from './qidu-card-preset-compat-v0427.mjs';
+import {addMorningClockHud} from './qidu-card-morning-hud-v0428.mjs';
+import {limitCountdownNarration,VERSION} from './qidu-card-countdown-v0429.mjs';
+
+const {card:base}=await loadQiduReleaseCandidate(process.cwd(),{skipHashCheck:true});
+const d=limitCountdownNarration(addMorningClockHud(addPresetChoiceCompatibility(repairQiduCard(addMvuCot(base))))).data;
+const first=d.first_mes.split('</initvar>')[1];
+const state=JSON.parse(d.first_mes.match(/<initvar>(.*?)<\/initvar>/s)[1]);
+assert.equal(d.character_version,VERSION);
+assert.equal((first.match(/数字[“"]7[”"]/g)||[]).length,1);
+assert.equal(state.intel_flags.countdown_initial_mentions,1);
+assert.equal(state.intel_flags.countdown_last_narrated_day,7);
+assert.deepEqual(state,JSON.parse(d.character_book.entries.find(e=>e.name.startsWith('[InitVar]')).content));
+assert.match(d.character_book.entries.find(e=>e.id===10).content,/不因镜头转移、交谈、巡查、战斗或普通行动重述/);
+assert.match(d.post_history_instructions,/仅倒计时真实减少或其他数值变化时/);
+console.log('PASS v0429: opening shows countdown once, state records last display, later scenes require actual change');
