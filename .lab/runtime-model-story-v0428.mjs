@@ -8,14 +8,15 @@ import {addMorningClockHud} from './qidu-card-morning-hud-v0428.mjs';
 const {card:base}=await loadQiduReleaseCandidate(process.env.GITHUB_WORKSPACE||process.cwd(),{skipHashCheck:true});
 const card=addMorningClockHud(addPresetChoiceCompatibility(repairQiduCard(addMvuCot(base))));
 const key=process.env.MODEL_API_KEY||'';
-if(!key)throw Error('Model API key missing');
+const replay=process.env.LAB_REPLAY_JSON?JSON.parse(await fs.readFile(process.env.LAB_REPLAY_JSON,'utf8')):null;
+if(!key&&!replay)throw Error('Model API key missing');
 const apiBase=process.env.MODEL_API_BASE||'https://gcli.ggchan.dev/v1';
 const endpoint=apiBase+'/chat/completions';
-const listed=await fetch(apiBase+'/models',{headers:{Authorization:`Bearer ${key}`}});
-if(!listed.ok)throw Error(`Model list HTTP ${listed.status}`);
-const modelList=await listed.json();const ids=(modelList.data||modelList.models||[]).map(x=>typeof x==='string'?x:x.id||x.name).filter(Boolean);
+const listed=replay?null:await fetch(apiBase+'/models',{headers:{Authorization:`Bearer ${key}`}});
+if(listed&&!listed.ok)throw Error(`Model list HTTP ${listed.status}`);
+const modelList=listed?await listed.json():{};const ids=(modelList.data||modelList.models||[]).map(x=>typeof x==='string'?x:x.id||x.name).filter(Boolean);
 const requested=process.env.RELEASE_MODEL||'gemini-3-flash-preview';
-const model=ids.includes(requested)?requested:ids.find(x=>/gemini.*flash/i.test(x))||ids.find(x=>/glm.*flash/i.test(x))||ids.find(x=>/deepseek.*flash/i.test(x));
+const model=replay?.model|| (ids.includes(requested)?requested:ids.find(x=>/gemini.*flash/i.test(x))||ids.find(x=>/glm.*flash/i.test(x))||ids.find(x=>/deepseek.*flash/i.test(x)));
 if(!model)throw Error('No suitable available model in authenticated model list');
 const entries=card.data.character_book.entries;
 const related=entries.filter(e=>e.constant||[4,10,11,14,15,91].includes(e.id)).map(e=>e.content).join('\n\n');
@@ -48,17 +49,45 @@ const browser=await chromium.launch({headless:true,executablePath:process.env.LA
 try{
   const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
   await page.goto(baseUrl,{waitUntil:'domcontentloaded',timeout:60000});
+  await page.evaluate(()=>{
+    const save=[...document.querySelectorAll('button,.menu_button')].find(x=>/^(Save|保存)$/.test(String(x.textContent||'').trim()));
+    if(/Your Persona|Persona Name|你的角色设定|人设名称/.test(document.body.innerText||''))save?.click();
+    for(const d of document.querySelectorAll('dialog[open]'))try{d.close()}catch{}
+  });
+  await page.evaluate(async()=>{
+    const st=await import('/script.js');const wi=await import('/scripts/world-info.js');const ext=await import('/scripts/extensions.js');
+    await st.getCharacters();
+    const id=st.characters.findIndex(x=>x?.data?.character_version==='0.4.28-morning-clock-hud');if(id<0)throw Error('Card import not found');
+    window.$('#import_character_info').data('chid',id);await wi.importEmbeddedWorldInfo(true);
+    const avatar=st.characters[id].avatar,settings=ext.extension_settings.tavern_helper ||= {},scripts=settings.script ||= {};
+    const enabled=scripts.enabled ||= {global:true,presets:[],characters:[]};enabled.global=true;enabled.characters ||= [];
+    if(!enabled.characters.includes(avatar))enabled.characters.push(avatar);
+    const popuped=scripts.popuped ||= {presets:[],characters:[]};popuped.characters ||= [];
+    if(!popuped.characters.includes(avatar))popuped.characters.push(avatar);
+    st.setCharacterId(id);
+    if(st.chat.length===0)st.chat.push({name:st.characters[id].name,mes:st.characters[id].data.first_mes,is_user:false,is_system:false,send_date:new Date().toISOString()});
+    document.querySelector('#chat > .welcomePanel')?.remove();
+    await st.saveSettings();void st.eventSource.emit(st.event_types.SETTINGS_UPDATED);void st.eventSource.emit(st.event_types.CHAT_CHANGED,'qidu-model-story-v0428');
+  });
+  for(let i=0;i<50;i++){
+    const enabled=await page.evaluate(()=>{
+      const t=[...document.querySelectorAll('#tavern_helper input[id$="-script-enable-toggle"]')];
+      const x=t.find(y=>/角色|character/i.test(y.id))||t[1];if(x&&!x.checked)x.click();return Boolean(x?.checked)
+    });
+    if(enabled)break;await page.waitForTimeout(250);
+  }
+  await page.waitForTimeout(3200);
   const evidence=[];
   for(const scenario of cases){
     const history=[{role:'assistant',content:scenario.seed}];
     for(let index=0;index<scenario.steps.length;index++){
       history.push({role:'user',content:scenario.steps[index]});
-      const generated=await generate(history);history.push({role:'assistant',content:generated});
+      const generated=replay?.evidence?.find(x=>x.scene===scenario.id&&x.turn===index+1)?.raw||await generate(history);history.push({role:'assistant',content:generated});
       const record={scene:scenario.id,turn:index+1,prompt:scenario.steps[index],raw:generated};evidence.push(record);
       const result=await page.evaluate(async({story,name})=>{
         const st=await import('/script.js');const regex=await import('/scripts/extensions/regex/engine.js');
         await st.getCharacters();
-        const char=st.characters?.find(x=>x?.data?.character_version==='0.4.28-morning-clock-hud');
+        const char=st.characters?.[st.this_chid];
         if(!char)throw Error('Card not imported in ST');
         regex.allowScopedScripts(char);
         const html=st.messageFormatting(story,char.name,false,false,Date.now(),{},false);
@@ -69,6 +98,7 @@ try{
         return{choices:el.querySelectorAll('[data-f7d-choice="1"]').length,textLength:el.innerText.length};
       },{story:generated,name:scenario.id+'-'+(index+1)});
       await page.waitForTimeout(450);
+      await page.evaluate(()=>{for(const d of document.querySelectorAll('dialog[open]'))try{d.close()}catch{}for(const n of document.querySelectorAll('.toast-container,.toast-message,.toastify,.toastr'))n.remove()});
       const selector=`[data-f7d-model-scene="${scenario.id}-${index+1}"]`;
       await page.locator(selector).screenshot({path:`${outDir}/${scenario.id}-${index+1}.png`,style:'dialog,[class*="toast"]{visibility:hidden!important}'});
       console.log(JSON.stringify({scene:scenario.id,turn:index+1,generatedChars:generated.length,...result}));

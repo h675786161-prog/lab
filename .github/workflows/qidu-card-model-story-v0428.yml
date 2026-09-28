@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: qidu-v0428-model-story-${{ github.ref }}
@@ -105,9 +106,18 @@ jobs:
           git -C "$MVU_DIR" checkout --detach 183d8ade3b9a3369e824a55cb13b4ddf91aada50
           test -s "$MVU_DIR/artifact/bundle.js"
           cp "$MVU_DIR/artifact/bundle.js" "$MVU_DIR/bundle.js"
+      - name: Download actual model output for display replay
+        uses: actions/download-artifact@v4
+        with:
+          name: qidu-v0428-model-story-real-st
+          run-id: 36445684113
+          github-token: ${{ github.token }}
+          repository: h675786161-prog/lab
+          path: replay-evidence
       - name: Generate model story and render in real ST
         env:
           LAB_MVU_LOCAL: "1"
+          LAB_REPLAY_JSON: replay-evidence/model-story.json
         run: node .lab/runtime-model-story-v0428.mjs
       - name: Stop isolated runtime
         if: always()
