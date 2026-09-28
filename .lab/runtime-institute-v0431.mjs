@@ -27,12 +27,12 @@ const related=entries.filter(e=>e.constant||[4,10,11,12,31,32,33,41,42,46,47,49,
 const system=[card.data.personality,card.data.scenario,related,card.data.post_history_instructions,card.data.extensions.depth_prompt?.prompt,'你正在实际扮演这张角色卡。继续上文叙事，严格执行原卡的时间、晨间和选项规则。不要解释测试；让剧情自然展开。'].filter(Boolean).join('\n\n');
 const init=card.data.first_mes.match(/<initvar>([\s\S]*?)<\/initvar>/);
 const ready=JSON.parse(init[1]);
-ready.day=5;ready.clock_minutes=800;ready.location='中央庭';
+ready.day=4;ready.clock_minutes=480;ready.location='中央庭';
 ready.tasks.DAY7_OPENING.status='completed';ready.tasks.SCHOOL_RESCUE.status='completed';ready.tasks.SECOND_REGION.status='completed';
 ready.cores.court='purified';ready.cores.school='available';ready.regions.school.liberated=true;ready.regions.east.liberated=true;
-ready.route_flags.first_second_region='east';ready.morning_flags.day5_monologue=true;ready.morning_flags.day5_split=true;
+ready.route_flags.first_second_region='east';ready.morning_flags.day5_monologue=true;ready.morning_flags.day5_split=true;ready.morning_flags.day4_monologue=true;ready.morning_flags.day4_speech=true;
 ready.known=['安','安托涅瓦','希罗','珈儿','泰丝拉','晏华','雯梓'];
-const seed='<initvar>'+JSON.stringify(ready)+'</initvar>\n第五天晨间已完整结束。指挥使今天此前已完成四次自由行动，眼下约13:20，已从中央庭收到研究所求援，珈儿随行。研究所尚未进入，羽弥、穆娅、达格和鬼生的事件均未发生。接下来只按指挥使每次明确选择逐段推进；不要预先替指挥使行动。';
+const seed='<initvar>'+JSON.stringify(ready)+'</initvar>\n第五天晨间及四次自由行动已经在昨日完成，研究所求援已开放。今天是第四天08:00，固定晨间剧情已经完整结束，指挥使从中央庭带珈儿前往研究所。研究所尚未进入，羽弥、穆娅、达格和鬼生的事件均未发生。接下来只按指挥使每次明确选择逐段推进；不要预先替指挥使行动。';
 const cases=[
   {id:'institute',seed,steps:[
     '我带珈儿进入研究所，先确认入口与第一处危险，不擅自深入。',
@@ -121,14 +121,14 @@ try{
     let state=structuredClone(ready);
     for(let index=0;index<scenario.steps.length;index++){
       history.push({role:'user',content:scenario.steps[index]});
-      const generated=replay?.evidence?.find(x=>x.scene===scenario.id&&x.turn===index+1)?.raw||await generate(history,state);history.push({role:'assistant',content:generated});
+      const generated=replay?.evidence?.find(x=>x.scene===scenario.id&&x.turn===index+1)?.raw||await generate(history,state);// Accepted state is authoritative; retain prose without rejected or adjusted variable proposals.
       const committed=await page.evaluate(async({raw,input,prior})=>{
         const st=await import('/script.js');st.chat.push({name:'指挥使',mes:input,is_user:true,is_system:false,send_date:new Date().toISOString()});
         const previous=window.Mvu.getMvuData({type:'message',message_id:0});previous.stat_data=prior;
         const next=await window.Mvu.parseMessage(raw,previous);
         return{day:next.stat_data.day,clock:next.stat_data.clock_minutes,location:next.stat_data.location,institute:next.stat_data.regions.institute.liberated,core:next.stat_data.cores.institute,stat_data:next.stat_data};
       },{raw:generated,input:scenario.steps[index],prior:state});
-      const before=state;state=committed.stat_data;
+      const before=state;state=committed.stat_data;history.push({role:'assistant',content:generated.replace(/<UpdateVariable>[\s\S]*?<\/UpdateVariable>/g,'')});
       if(index<7&&committed.institute)throw Error(`Research institute liberated before device confrontation at turn ${index+1}`);
       if(index<8&&committed.core==='purified')throw Error(`Research institute core purified before player's explicit action at turn ${index+1}`);
       const record={scene:scenario.id,turn:index+1,prompt:scenario.steps[index],raw:generated,accepted:{day:committed.day,clock:committed.clock,location:committed.location,institute:committed.institute,core:committed.core}};evidence.push(record);
