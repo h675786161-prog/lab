@@ -130,6 +130,7 @@ try{
     if(/\boptions:|<branches>|<details>/.test(visibleText))throw Error(`Preset syntax leaked into story ${sample.name}`);
     await item.screenshot({path:`${process.env.LAB_EVIDENCE_DIR||'release-evidence'}/qidu-v0427-story-${sample.name}.png`});
     if(sample.name==='day7-daymoon'){
+      await page.evaluate(()=>{for(const dialog of document.querySelectorAll('dialog[open]'))try{dialog.close()}catch{}});
       await item.locator('[data-f7d-choice="1"]').first().click();
       const composer=await page.locator('#send_textarea').inputValue();
       if(!composer.includes('草莓糖'))throw Error(`Preset option did not fill composer: ${composer}`);
