@@ -9,6 +9,7 @@ import {guardRegionAndShortTalk,VERSION} from './qidu-card-region-time-guard-v04
 
 const {card:base}=await loadQiduReleaseCandidate(process.env.GITHUB_WORKSPACE||process.cwd(),{skipHashCheck:true});
 const card=guardRegionAndShortTalk(limitCountdownNarration(addMorningClockHud(addPresetChoiceCompatibility(repairQiduCard(addMvuCot(base))))));
+if(process.env.LAB_MVU_LOCAL==='1')card.data.extensions.tavern_helper.scripts.find(x=>x.id==='qidu-v0425-mvu').content="import '/scripts/extensions/third-party/qidu-mvu/bundle.js'";
 const key=process.env.MODEL_API_KEY||'';
 const replay=process.env.LAB_REPLAY_JSON?JSON.parse(await fs.readFile(process.env.LAB_REPLAY_JSON,'utf8')):null;
 if(!key&&!replay)throw Error('Model API key missing');
@@ -77,6 +78,15 @@ try{
     if(st.chat.length===0)st.chat.push({name:st.characters[id].name,mes:st.characters[id].data.first_mes,is_user:false,is_system:false,send_date:new Date().toISOString()});
     document.querySelector('#chat > .welcomePanel')?.remove();
     await st.saveSettings();void st.eventSource.emit(st.event_types.SETTINGS_UPDATED);void st.eventSource.emit(st.event_types.CHAT_CHANGED,'qidu-region-story-v0430');
+  },VERSION);
+  await page.reload({waitUntil:'domcontentloaded',timeout:60000});await page.waitForTimeout(1600);
+  await page.evaluate(async version=>{
+    const st=await import('/script.js');await st.getCharacters();
+    const id=st.characters.findIndex(x=>x?.data?.character_version===version);if(id<0)throw Error('Card missing after reload');
+    st.setCharacterId(id);
+    if(st.chat.length===0)st.chat.push({name:st.characters[id].name,mes:st.characters[id].data.first_mes,is_user:false,is_system:false,send_date:new Date().toISOString()});
+    document.querySelector('#chat > .welcomePanel')?.remove();
+    void st.eventSource.emit(st.event_types.SETTINGS_UPDATED);void st.eventSource.emit(st.event_types.CHAT_CHANGED,'qidu-region-model-v0430');
   },VERSION);
   for(let i=0;i<50;i++){
     const enabled=await page.evaluate(()=>{
