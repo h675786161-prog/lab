@@ -132,7 +132,7 @@ try{
       for(const dialog of document.querySelectorAll('dialog[open]'))try{dialog.close()}catch{}
       for(const toast of document.querySelectorAll('.toast-container,.toast-message,.toastify,.toastr'))toast.remove();
     });
-    await item.screenshot({path:`${process.env.LAB_EVIDENCE_DIR||'release-evidence'}/qidu-v0427-story-${sample.name}.png`});
+    await item.screenshot({path:`${process.env.LAB_EVIDENCE_DIR||'release-evidence'}/qidu-v0427-story-${sample.name}.png`,style:'dialog,[class*="toast"],[id*="toast"]{visibility:hidden!important;opacity:0!important;pointer-events:none!important}'});
     if(sample.name==='day7-daymoon'){
       await page.evaluate(()=>{for(const dialog of document.querySelectorAll('dialog[open]'))try{dialog.close()}catch{}});
       await item.locator('[data-f7d-choice="1"]').first().click();
