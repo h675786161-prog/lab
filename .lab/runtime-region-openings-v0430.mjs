@@ -57,7 +57,7 @@ const {chromium}=await import(process.env.LAB_PLAYWRIGHT_CORE_ENTRY);
 const browser=await chromium.launch({headless:true,executablePath:process.env.LAB_CHROME,args:['--no-sandbox','--disable-dev-shm-usage']});
 try{
   const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
-  await page.goto(baseUrl,{waitUntil:'domcontentloaded',timeout:60000});
+  await page.goto(baseUrl,{waitUntil:'domcontentloaded',timeout:60000});await page.waitForTimeout(1800);
   await page.evaluate(()=>{
     const save=[...document.querySelectorAll('button,.menu_button')].find(x=>/^(Save|保存)$/.test(String(x.textContent||'').trim()));
     if(/Your Persona|Persona Name|你的角色设定|人设名称/.test(document.body.innerText||''))save?.click();
@@ -67,17 +67,14 @@ try{
     const st=await import('/script.js');const wi=await import('/scripts/world-info.js');const ext=await import('/scripts/extensions.js');
     await st.getCharacters();
     const id=st.characters.findIndex(x=>x?.data?.character_version===version);if(id<0)throw Error('Card import not found');
-    st.setCharacterId(id);
     window.$('#import_character_info').data('chid',id);
-    try{await wi.importEmbeddedWorldInfo(true)}catch(e){console.warn('Worldbook import in screenshot session:',String(e))}
+    await wi.importEmbeddedWorldInfo(true);
     const avatar=st.characters[id].avatar,settings=ext.extension_settings.tavern_helper ||= {},scripts=settings.script ||= {};
     const enabled=scripts.enabled ||= {global:true,presets:[],characters:[]};enabled.global=true;enabled.characters ||= [];
     if(!enabled.characters.includes(avatar))enabled.characters.push(avatar);
     const popuped=scripts.popuped ||= {presets:[],characters:[]};popuped.characters ||= [];
     if(!popuped.characters.includes(avatar))popuped.characters.push(avatar);
-    if(st.chat.length===0)st.chat.push({name:st.characters[id].name,mes:st.characters[id].data.first_mes,is_user:false,is_system:false,send_date:new Date().toISOString()});
-    document.querySelector('#chat > .welcomePanel')?.remove();
-    await st.saveSettings();void st.eventSource.emit(st.event_types.SETTINGS_UPDATED);void st.eventSource.emit(st.event_types.CHAT_CHANGED,'qidu-region-story-v0430');
+    await st.saveSettings();
   },VERSION);
   await page.reload({waitUntil:'domcontentloaded',timeout:60000});await page.waitForTimeout(1600);
   await page.evaluate(async version=>{
@@ -95,7 +92,7 @@ try{
     });
     if(enabled)break;await page.waitForTimeout(250);
   }
-  await page.waitForTimeout(3200);
+  await page.waitForTimeout(5000);
   let mvuReady=false;
   for(let attempt=0;attempt<40;attempt++){
     mvuReady=await page.evaluate(()=>Boolean(window.Mvu?.parseMessage&&window.__F7D_MVU_GUARD__?.ready));
