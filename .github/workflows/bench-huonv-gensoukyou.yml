@@ -1,0 +1,39 @@
+name: Bench Huo Nü on Gensoukyou
+
+on:
+  push:
+    branches: [feature/huonv-card-real2]
+    paths:
+      - '.lab/bench-huonv-gensoukyou.mjs'
+      - '.github/workflows/bench-huonv-gensoukyou.yml'
+      - 'cards/huonv/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: huonv-gensoukyou-rpm-safe
+  cancel-in-progress: false
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      HUANXIANG: ${{ secrets.HUANXIANG }}
+      CARD_PATH: cards/huonv/霍女_玲七_v1.0.0.json
+      LAB_OUT: bench-evidence/huonv-gensoukyou
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run RPM-safe behavior benchmark
+        run: node .lab/bench-huonv-gensoukyou.mjs
+
+      - name: Upload behavior evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-huonv-gensoukyou
+          path: bench-evidence/huonv-gensoukyou/
+          if-no-files-found: warn
