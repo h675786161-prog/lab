@@ -33,11 +33,11 @@ const updateErrors=[];
 function applyUpdates(raw){
  const block=raw.match(/<UpdateVariable>([\s\S]*?)<\/UpdateVariable>/i)?.[1]||'';
  for(const line of block.split('\n')){
-  const m=line.match(/^\s*_\.set\(\s*(['"])(.*?)\1\s*,\s*(.*?)\)\s*;?\s*$/);
+  const m=line.match(/^\s*_\.set\(\s*(['"])(.*?)\1\s*,\s*(.*?)\)\s*;?/);
   if(!m)continue;
   const parts=m[3].split(/,(?=\s*(?:[\[{"'\d-]|true|false|null))/);
   let value;
-  try{value=JSON.parse((parts.length>1?parts.at(-1):parts[0]).trim().replace(/^'([\s\S]*)'$/,'"$1"'))}catch(e){updateErrors.push({path:m[2],line,error:String(e)});continue}
+  try{value=JSON.parse((parts.length>1?parts.at(-1):parts[0]).trim().replace(/'/g,'"'))}catch(e){updateErrors.push({path:m[2],line,error:String(e)});continue}
   setPath(state,m[2],value);
  }
 }
@@ -51,7 +51,7 @@ for(let i=0;i<actions.length;i++){
   messages.push({role:'user',content:prompt});
   let response=null,error='';
   for(let attempt=0;attempt<3;attempt++){
-    try{const r=await fetch(`${process.env.MODEL_API_BASE.replace(/\/$/,'')}/chat/completions`,{method:'POST',headers:{Authorization:`Bearer ${process.env.MODEL_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({model:process.env.RELEASE_MODEL,temperature:0.45,max_tokens:2600,messages})});const body=await r.text();if(!r.ok)throw Error(`${r.status} ${body.slice(0,250)}`);response=JSON.parse(body);break}catch(e){error=String(e);await new Promise(r=>setTimeout(r,5000))}
+    try{const r=await fetch(`${process.env.MODEL_API_BASE.replace(/\/$/,'')}/chat/completions`,{method:'POST',headers:{Authorization:`Bearer ${process.env.MODEL_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({model:process.env.RELEASE_MODEL,temperature:0.45,max_tokens:4500,messages})});const body=await r.text();if(!r.ok)throw Error(`${r.status} ${body.slice(0,250)}`);response=JSON.parse(body);break}catch(e){error=String(e);await new Promise(r=>setTimeout(r,5000))}
   }
   if(!response){results.push({turn:i+1,prompt:actions[i],error});break}
   const c=response.choices?.[0]?.message?.content;
@@ -59,7 +59,7 @@ for(let i=0;i<actions.length;i++){
   results.push({turn:i+1,prompt:actions[i],raw,visible:clean(raw),stateBefore:JSON.parse(prompt.match(/<status_current_variable>(.*?)<\/status_current_variable>/s)[1])});
   messages.push({role:'assistant',content:raw});applyUpdates(raw);
   
-  await new Promise(r=>setTimeout(r,15000));
+  await new Promise(r=>setTimeout(r,7000));
 }
 }
 await fs.writeFile(path.join(out,'model-story.json'),JSON.stringify({model:process.env.RELEASE_MODEL,provider:process.env.BEHAVIOR_PROVIDER_SELECTED,cardVersion:card.data.character_version,results,finalState:state,updateErrors},null,2));
