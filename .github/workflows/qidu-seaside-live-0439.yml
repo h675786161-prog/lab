@@ -5,6 +5,7 @@ on:
     branches: ['feature/qidu-seaside-v0439-live-20260929']
     paths:
       - '.github/workflows/qidu-seaside-live-0439.yml'
+      - '.lab/qidu-select-live-provider-v0424.py'
 
 permissions:
   contents: read
