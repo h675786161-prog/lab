@@ -32,7 +32,10 @@ function applyUpdates(raw){for(const m of raw.matchAll(/_\.set\(\s*['"]([^'"]+)[
   // The model may omit a delta in a long turn; record only what was explicitly returned.
 }
 function clean(s){return s.replace(/<UpdateVariable>[\s\S]*?<\/UpdateVariable>/gi,'').replace(/<f7d_choices>[\s\S]*?<\/f7d_choices>/gi,'').replace(/<branches>[\s\S]*?<\/branches>/gi,'').trim()}
-const results=[];
+const cached=path.join(root,'.lab/fixtures/qidu-seaside-v0439/cached-story.json');
+const cache=await fs.readFile(cached,'utf8').then(JSON.parse).catch(()=>null);
+const results=cache?.results??[];
+if(!cache){
 for(let i=0;i<actions.length;i++){
   const prompt=`<status_current_variable>${JSON.stringify(state)}</status_current_variable>\n${actions[i]}`;
   messages.push({role:'user',content:prompt});
@@ -48,12 +51,16 @@ for(let i=0;i<actions.length;i++){
   if(/阿岚/.test(clean(raw))&&/和服|般若|面具/.test(clean(raw)))break;
   await new Promise(r=>setTimeout(r,15000));
 }
+}
 await fs.writeFile(path.join(out,'model-story.json'),JSON.stringify({model:process.env.RELEASE_MODEL,provider:process.env.BEHAVIOR_PROVIDER_SELECTED,cardVersion:card.data.character_version,results,finalState:state},null,2));
 const form=new FormData();form.set('file_type','json');form.set('avatar',new Blob([JSON.stringify(card)],{type:'application/json'}),'qidu-v0439.json');
 const imported=await fetch('http://127.0.0.1:8000/api/characters/import',{method:'POST',body:form});if(!imported.ok)throw Error(`ST import ${imported.status}: ${(await imported.text()).slice(0,250)}`);
 const {chromium}=await import(process.env.LAB_PLAYWRIGHT_CORE_ENTRY);
 const browser=await chromium.launch({headless:true,executablePath:process.env.LAB_CHROME,args:['--no-sandbox','--disable-dev-shm-usage']});
 try{const page=await browser.newPage({viewport:{width:390,height:844}});await page.goto('http://127.0.0.1:8000/',{waitUntil:'domcontentloaded',timeout:60000});await page.waitForTimeout(2200);
+  await page.evaluate(()=>{const save=[...document.querySelectorAll('button,.menu_button,[role="button"]')].find(x=>/^(?:Save|保存)$/i.test(x.textContent.trim()));save?.click();for(const d of document.querySelectorAll('dialog[open]'))try{d.close()}catch{}});
+  await page.waitForTimeout(600);
+  await page.evaluate(async({name,version})=>{const st=await import('/script.js');await st.getCharacters();const i=st.characters.findIndex(x=>(x?.data?.name||x?.name)===name&&x?.data?.character_version===version);if(i>=0)st.setCharacterId(i);},{name:card.data.name,version:card.data.character_version});
   for(let i=0;i<results.length;i++){
     if(!results[i].raw)continue;
     await page.evaluate(async({raw,n})=>{const st=await import('/script.js');const ctx=window.SillyTavern?.getContext();if(!ctx)return;const id=ctx.chat.length;ctx.chat.push({name:'七都',is_user:false,is_system:false,mes:raw});const node=document.createElement('div');node.className='mes';node.setAttribute('mesid',String(id));const body=document.createElement('div');body.className='mes_text';body.innerHTML=st.messageFormatting(raw,'七都',false,false,id,{},false);node.append(body);document.querySelector('#chat')?.append(node);},{raw:results[i].raw,n:i});
