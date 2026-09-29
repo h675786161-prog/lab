@@ -1,0 +1,1131 @@
+{
+  "model": "gemini-3-flash-preview",
+  "provider": "GG",
+  "cardVersion": "0.4.39",
+  "results": [
+    {
+      "turn": 1,
+      "prompt": "第4天晨间固定剧情已经结束。我带珈儿从中央庭前往海湾侧城，先确认灾情和可撤离的居民。按卡推进区域主线，正文不要写节点或状态。",
+      "raw": "海湾侧城的风里带着一股咸湿而微苦的沙尘味道。\n\n这里曾经是交界都市最繁华的沿海观光与商业区，高耸的摩天轮、错落的露天咖啡座和绵延的沙滩曾是市民们最爱的去处。然而如今，黑门的裂缝在不远处的空中静静盘旋，将天空染成压抑的暗紫色。海浪拍打着废弃的防波堤，发出沉闷的声响，街道两旁华丽的广告牌大多已经断电，只剩下半挂在墙上的金属框架在风中吱呀作响。\n\n“指挥使，这边的商铺已经全部排查过了，没有发现幸存者的迹象。”\n\n珈儿快步走到你身边。她那一头标志性的粉色长马尾在海风中微微扬起，额前的碎发下，一双明亮的眼睛里写满了认真。她身上穿着那套黑色的JK制服，腰间稳稳地佩戴着太刀，右手自然地搭在刀柄上。虽然在日常生活中她偶尔会显得有些天然和笨拙，但一旦进入任务状态，这位年轻女高中生剑士的眼神便会变得无比锐利。\n\n你和她沿着主干道继续向城区深处走去。沿途的地面上散落着不少凌乱的脚印和被遗弃的行李，显然这里的居民在灾难爆发时撤离得十分仓促。\n\n“不过，这里的幻力波动感觉有些奇怪……”珈儿微微皱起眉头，按着刀柄的手指紧了紧，“和高校学园或者中央城区那种狂暴、混乱的感觉不太一样。这里的空气……怎么说呢，总觉得有些黏糊糊的，甚至让我有点分不清海浪的声音到底是从哪个方向传来的。”\n\n正如珈儿所说，海湾侧城的异常并不止于表面的废墟。当你试图用终端定位周围的建筑时，屏幕上的指南针偶尔会发生无规则的偏转。远处的摩天轮在雾气中若隐若现，轮廓甚至产生了一丝不自然的重叠与扭曲，仿佛有一层无形的薄纱覆盖在这片区域之上。\n\n就在这时，前方废弃的购物中心方向隐约传来了一声重物落地的闷响，伴随着几声尖锐的异界怪物嘶鸣。\n\n珈儿瞬间警惕起来，腰间的太刀“铮”的一声微微出鞘，露出一截冰冷的锋刃。\n\n“指挥使，前面有动静！我们过去看看吧，说不定还有没来得及撤离的市民被困在里面！”\n\n<UpdateVariable>\n_.set('cores.harbor', 'lost');//第4天晨间结算，因希罗情报不足，港湾区黑核被夺走\n_.set('hiro.handled', [\"DAY4_HARBOR\"]);//标记第4天港湾黑核结算已执行\n_.set('clock_minutes', 560');//从中央庭前往海湾侧城并进行初步调查，消耗80分钟\n_.set('location', '海湾侧城');//当前位置更新为海湾侧城\n</UpdateVariable>\n\n<f7d_choices>\n  <f7d_choice intent=\"深入购物中心，搜寻可能被困的居民并清理怪物\">立刻前往购物中心方向，协助珈儿清理怪物并搜寻幸存者</f7d_choice>\n  <f7d_choice intent=\"在周边警戒，先观察环境异常的源头\">让珈儿保持戒备，先在购物中心外围观察，确认是否存在空间扭曲的源头</f7d_choice>\n</f7d_choices>",
+      "visible": "海湾侧城的风里带着一股咸湿而微苦的沙尘味道。\n\n这里曾经是交界都市最繁华的沿海观光与商业区，高耸的摩天轮、错落的露天咖啡座和绵延的沙滩曾是市民们最爱的去处。然而如今，黑门的裂缝在不远处的空中静静盘旋，将天空染成压抑的暗紫色。海浪拍打着废弃的防波堤，发出沉闷的声响，街道两旁华丽的广告牌大多已经断电，只剩下半挂在墙上的金属框架在风中吱呀作响。\n\n“指挥使，这边的商铺已经全部排查过了，没有发现幸存者的迹象。”\n\n珈儿快步走到你身边。她那一头标志性的粉色长马尾在海风中微微扬起，额前的碎发下，一双明亮的眼睛里写满了认真。她身上穿着那套黑色的JK制服，腰间稳稳地佩戴着太刀，右手自然地搭在刀柄上。虽然在日常生活中她偶尔会显得有些天然和笨拙，但一旦进入任务状态，这位年轻女高中生剑士的眼神便会变得无比锐利。\n\n你和她沿着主干道继续向城区深处走去。沿途的地面上散落着不少凌乱的脚印和被遗弃的行李，显然这里的居民在灾难爆发时撤离得十分仓促。\n\n“不过，这里的幻力波动感觉有些奇怪……”珈儿微微皱起眉头，按着刀柄的手指紧了紧，“和高校学园或者中央城区那种狂暴、混乱的感觉不太一样。这里的空气……怎么说呢，总觉得有些黏糊糊的，甚至让我有点分不清海浪的声音到底是从哪个方向传来的。”\n\n正如珈儿所说，海湾侧城的异常并不止于表面的废墟。当你试图用终端定位周围的建筑时，屏幕上的指南针偶尔会发生无规则的偏转。远处的摩天轮在雾气中若隐若现，轮廓甚至产生了一丝不自然的重叠与扭曲，仿佛有一层无形的薄纱覆盖在这片区域之上。\n\n就在这时，前方废弃的购物中心方向隐约传来了一声重物落地的闷响，伴随着几声尖锐的异界怪物嘶鸣。\n\n珈儿瞬间警惕起来，腰间的太刀“铮”的一声微微出鞘，露出一截冰冷的锋刃。\n\n“指挥使，前面有动静！我们过去看看吧，说不定还有没来得及撤离的市民被困在里面！”",
+      "stateBefore": {
+        "schema": "f7d_textloop_0.4",
+        "loop": 1,
+        "day": 4,
+        "route": "central",
+        "location": "中央庭",
+        "regions": {
+          "court": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "school": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "east": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "central": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "institute": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "seaside": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "old": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "harbor": {
+            "liberated": false,
+            "build_steps": []
+          }
+        },
+        "cores": {
+          "court": "purified",
+          "school": "purified",
+          "east": "unknown",
+          "central": "unknown",
+          "institute": "unknown",
+          "seaside": "unknown",
+          "old": "unknown",
+          "harbor": "unknown"
+        },
+        "tasks": {
+          "DAY7_OPENING": {
+            "status": "active",
+            "deadline": "第7天开场固定剧情结束",
+            "objective": "完成苏醒、中央庭引导与希罗初始剧情"
+          },
+          "SCHOOL_RESCUE": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放高校学园"
+          },
+          "SECOND_REGION": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放东方古街或中央城区其中一个"
+          },
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "known": [
+          "安",
+          "安托涅瓦",
+          "晏华",
+          "珈儿",
+          "希罗",
+          "雯梓",
+          "赛斯",
+          "羽弥"
+        ],
+        "relationships": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "ann": {
+          "affection": 0,
+          "core_events": [],
+          "camera": false,
+          "eligible": false,
+          "chased": null,
+          "recovered": false,
+          "deadline_checked": false,
+          "deadline_passed": null
+        },
+        "hiro": {
+          "intel": 0,
+          "handled": []
+        },
+        "route_flags": {
+          "first_second_region": null,
+          "oldstreet_delayed": false,
+          "wenzi_injured": false,
+          "wenzi_joined": false,
+          "ann_route_closed": false,
+          "harbor_core_stolen": false
+        },
+        "antoneva_choice": null,
+        "artifact_view": null,
+        "ann_release": null,
+        "battle_flags": {
+          "final_battle": null,
+          "active_corpse_final": null,
+          "sybilla_condition_obtained": false,
+          "sybilla_rescued": null
+        },
+        "meta": {
+          "cg": [],
+          "endings": []
+        },
+        "intel_flags": {
+          "countdown_visible_to_user": true,
+          "countdown_meaning_known": false,
+          "countdown_reported_to": [],
+          "city_blackgate_history_known": false,
+          "central_court_basics_known": false,
+          "hiro_founder_known": false,
+          "hiro_prior_commander_known": false,
+          "chimera_exists_known": false,
+          "hiro_chimera_research_known": false,
+          "antoneva_chimera_policy_known": false,
+          "first_chimera_incident_known": false,
+          "zero_identity_known": false,
+          "ann_origin_known": false,
+          "loop_truth_known": false,
+          "countdown_initial_mentions": 1,
+          "countdown_last_narrated_day": 7
+        },
+        "npc_intel": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "day_ready_to_sleep": false,
+        "player_profile": {
+          "gender": "unknown"
+        },
+        "cg_system": {
+          "enabled": true,
+          "mode": "direct_only",
+          "album_enabled": false,
+          "responsive_enabled": true,
+          "shown": {
+            "ann_first_meet": true,
+            "antoneva_first_meet": false,
+            "ending_journey": false,
+            "ending_eternal_end": false,
+            "ending_sacrifice_male": false,
+            "ending_sacrifice_female": false,
+            "ending_final_male": false,
+            "ending_final_female": false,
+            "ending_box_male": false,
+            "ending_box_female": false
+          }
+        },
+        "clock_minutes": 480,
+        "morning_flags": {
+          "day6_monologue": true,
+          "day6_saiham": true,
+          "day6_seth": true,
+          "day5_monologue": true,
+          "day5_split": true,
+          "day4_monologue": true,
+          "day4_speech": true,
+          "day3_monologue": false,
+          "day3_ann_departure": false,
+          "day2_monologue": false
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "prompt": "我先帮助眼前的居民撤离，并询问他们亲眼见过的异常，不预设原因。",
+      "raw": "你和珈儿迅速冲进废弃的购物中心。\n\n中庭的钢架结构半塌下来，几只黑漆漆的异界怪物正围在一处倾倒的自动扶梯旁，尖锐的爪子不断抓挠着变形的金属板，里面隐约传来人类惊恐的哭喊声。\n\n“交给我吧，指挥使！”\n\n珈儿低喝一声，身形如离弦之箭般射出。她那一头粉色长马尾在空中划过一道亮丽的弧线，黑色的JK裙摆随风飞扬。伴随着一声清脆的拔刀音，灵剑·布都御魂瞬间出鞘，冷冽的剑光在昏暗的商场中庭里骤然爆开。\n\n她的剑术极其扎实，没有多余的虚招，每一次挥砍都精准地切断怪物的关节与要害。几只怪物甚至来不及发出哀鸣，便在布都御魂的锋芒下化作黑雾消散。\n\n“安全了，请出来吧！”珈儿收刀入鞘，伸手将躲在扶梯废墟下的几名居民拉了出来。\n\n那是两名商场的工作人员和一位附近的居民。他们脸色苍白，浑身发抖，看到你和珈儿身上的中央庭标志后，才终于松了一口气，瘫坐在地上大口喘气。\n\n你上前安抚他们的情绪，并护送他们向商场外相对安全的撤离点移动。在路上，你向他们询问起这片区域最近发生的异常情况。\n\n“异常……到处都是异常！”一个年纪稍长的商铺老板抹着冷汗，惊魂未定地说道，“前天，我明明亲眼看着隔壁开花店的张姐坐上了撤离的客车，车子都开出城区了。可是昨天晚上，我居然看到她穿着那身红裙子，还在海滩边的栈道上散步……”\n\n“您确定没看错吗？”珈儿忍不住问道。\n\n“绝对没看错！我当时还喊了她一声，她转过头来对我笑。可是等我揉了揉眼睛想走过去，她整个人就突然散成了一团白雾，什么都没剩下。”老板咽了口唾沫，声音颤抖，“还有，这商场里的路也不对劲。我们明明是往大门方向跑的，可跑着跑着，一抬头居然又回到了中庭……就像是鬼打墙一样！”\n\n另一名年轻的店员也战战兢兢地补充：“对，而且有时候能听到海浪声就在耳边，明明我们当时是在地下仓库里。这地方的空气也越来越怪，总觉得吸进去的雾气甜丝丝的，让人脑子发沉，分不清是做梦还是醒着……”\n\n将这几名居民安全送至海湾侧城外围的撤离点后，你和珈儿站在街口，看着前方被浓雾渐渐笼罩的街区。居民们亲眼所见的“重现的熟人”、“循环的道路”以及“不合常理的幻听”，无一不在昭示着这片区域的现实规则正在被某种力量悄然侵蚀。\n\n“分不清做梦还是醒着吗……”珈儿握紧了刀柄，神色凝重地看着你，“指挥使，看来我们要更加小心了。接下来的路，我们该往哪里探索？”\n\n<UpdateVariable>\n_.set('cores.harbor', 'lost');//修正并确认港湾黑核已被夺走\n_.set('hiro.handled', [\"DAY4_HARBOR\"]);//确认第4天晨间结算已执行\n_.set('clock_minutes', 640');//修正并推进时间：08:00(480) -> 前往海湾(560) -> 救援并询问(640)\n_.set('location', '海湾侧城');//修正当前位置\n</UpdateVariable>\n\n<f7d_choices>\n  <f7d_choice intent=\"前往居民提到的海滩栈道调查\">前往海滩栈道，调查居民目击到“已撤离熟人”的诡异地点</f7d_choice>\n  <f7d_choice intent=\"深入商业街，寻找空间循环的规律\">深入雾气更浓的商业街腹地，尝试破解道路循环、空间错乱的规律</f7d_choice>\n</f7d_choices>",
+      "visible": "你和珈儿迅速冲进废弃的购物中心。\n\n中庭的钢架结构半塌下来，几只黑漆漆的异界怪物正围在一处倾倒的自动扶梯旁，尖锐的爪子不断抓挠着变形的金属板，里面隐约传来人类惊恐的哭喊声。\n\n“交给我吧，指挥使！”\n\n珈儿低喝一声，身形如离弦之箭般射出。她那一头粉色长马尾在空中划过一道亮丽的弧线，黑色的JK裙摆随风飞扬。伴随着一声清脆的拔刀音，灵剑·布都御魂瞬间出鞘，冷冽的剑光在昏暗的商场中庭里骤然爆开。\n\n她的剑术极其扎实，没有多余的虚招，每一次挥砍都精准地切断怪物的关节与要害。几只怪物甚至来不及发出哀鸣，便在布都御魂的锋芒下化作黑雾消散。\n\n“安全了，请出来吧！”珈儿收刀入鞘，伸手将躲在扶梯废墟下的几名居民拉了出来。\n\n那是两名商场的工作人员和一位附近的居民。他们脸色苍白，浑身发抖，看到你和珈儿身上的中央庭标志后，才终于松了一口气，瘫坐在地上大口喘气。\n\n你上前安抚他们的情绪，并护送他们向商场外相对安全的撤离点移动。在路上，你向他们询问起这片区域最近发生的异常情况。\n\n“异常……到处都是异常！”一个年纪稍长的商铺老板抹着冷汗，惊魂未定地说道，“前天，我明明亲眼看着隔壁开花店的张姐坐上了撤离的客车，车子都开出城区了。可是昨天晚上，我居然看到她穿着那身红裙子，还在海滩边的栈道上散步……”\n\n“您确定没看错吗？”珈儿忍不住问道。\n\n“绝对没看错！我当时还喊了她一声，她转过头来对我笑。可是等我揉了揉眼睛想走过去，她整个人就突然散成了一团白雾，什么都没剩下。”老板咽了口唾沫，声音颤抖，“还有，这商场里的路也不对劲。我们明明是往大门方向跑的，可跑着跑着，一抬头居然又回到了中庭……就像是鬼打墙一样！”\n\n另一名年轻的店员也战战兢兢地补充：“对，而且有时候能听到海浪声就在耳边，明明我们当时是在地下仓库里。这地方的空气也越来越怪，总觉得吸进去的雾气甜丝丝的，让人脑子发沉，分不清是做梦还是醒着……”\n\n将这几名居民安全送至海湾侧城外围的撤离点后，你和珈儿站在街口，看着前方被浓雾渐渐笼罩的街区。居民们亲眼所见的“重现的熟人”、“循环的道路”以及“不合常理的幻听”，无一不在昭示着这片区域的现实规则正在被某种力量悄然侵蚀。\n\n“分不清做梦还是醒着吗……”珈儿握紧了刀柄，神色凝重地看着你，“指挥使，看来我们要更加小心了。接下来的路，我们该往哪里探索？”",
+      "stateBefore": {
+        "schema": "f7d_textloop_0.4",
+        "loop": 1,
+        "day": 4,
+        "route": "central",
+        "location": "中央庭",
+        "regions": {
+          "court": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "school": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "east": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "central": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "institute": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "seaside": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "old": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "harbor": {
+            "liberated": false,
+            "build_steps": []
+          }
+        },
+        "cores": {
+          "court": "purified",
+          "school": "purified",
+          "east": "unknown",
+          "central": "unknown",
+          "institute": "unknown",
+          "seaside": "unknown",
+          "old": "unknown",
+          "harbor": [
+            "DAY4_HARBOR"
+          ]
+        },
+        "tasks": {
+          "DAY7_OPENING": {
+            "status": "active",
+            "deadline": "第7天开场固定剧情结束",
+            "objective": "完成苏醒、中央庭引导与希罗初始剧情"
+          },
+          "SCHOOL_RESCUE": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放高校学园"
+          },
+          "SECOND_REGION": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放东方古街或中央城区其中一个"
+          },
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "known": [
+          "安",
+          "安托涅瓦",
+          "晏华",
+          "珈儿",
+          "希罗",
+          "雯梓",
+          "赛斯",
+          "羽弥"
+        ],
+        "relationships": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "ann": {
+          "affection": 0,
+          "core_events": [],
+          "camera": false,
+          "eligible": false,
+          "chased": null,
+          "recovered": false,
+          "deadline_checked": false,
+          "deadline_passed": null
+        },
+        "hiro": {
+          "intel": 0,
+          "handled": []
+        },
+        "route_flags": {
+          "first_second_region": null,
+          "oldstreet_delayed": false,
+          "wenzi_injured": false,
+          "wenzi_joined": false,
+          "ann_route_closed": false,
+          "harbor_core_stolen": false
+        },
+        "antoneva_choice": null,
+        "artifact_view": null,
+        "ann_release": null,
+        "battle_flags": {
+          "final_battle": null,
+          "active_corpse_final": null,
+          "sybilla_condition_obtained": false,
+          "sybilla_rescued": null
+        },
+        "meta": {
+          "cg": [],
+          "endings": []
+        },
+        "intel_flags": {
+          "countdown_visible_to_user": true,
+          "countdown_meaning_known": false,
+          "countdown_reported_to": [],
+          "city_blackgate_history_known": false,
+          "central_court_basics_known": false,
+          "hiro_founder_known": false,
+          "hiro_prior_commander_known": false,
+          "chimera_exists_known": false,
+          "hiro_chimera_research_known": false,
+          "antoneva_chimera_policy_known": false,
+          "first_chimera_incident_known": false,
+          "zero_identity_known": false,
+          "ann_origin_known": false,
+          "loop_truth_known": false,
+          "countdown_initial_mentions": 1,
+          "countdown_last_narrated_day": 7
+        },
+        "npc_intel": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "day_ready_to_sleep": false,
+        "player_profile": {
+          "gender": "unknown"
+        },
+        "cg_system": {
+          "enabled": true,
+          "mode": "direct_only",
+          "album_enabled": false,
+          "responsive_enabled": true,
+          "shown": {
+            "ann_first_meet": true,
+            "antoneva_first_meet": false,
+            "ending_journey": false,
+            "ending_eternal_end": false,
+            "ending_sacrifice_male": false,
+            "ending_sacrifice_female": false,
+            "ending_final_male": false,
+            "ending_final_female": false,
+            "ending_box_male": false,
+            "ending_box_female": false
+          }
+        },
+        "clock_minutes": "海湾侧城",
+        "morning_flags": {
+          "day6_monologue": true,
+          "day6_saiham": true,
+          "day6_seth": true,
+          "day5_monologue": true,
+          "day5_split": true,
+          "day4_monologue": true,
+          "day4_speech": true,
+          "day3_monologue": false,
+          "day3_ann_departure": false,
+          "day2_monologue": false
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "prompt": "我与珈儿沿可通行的沿海商街深入，调查异常，优先保护现场的人。",
+      "raw": "你和珈儿沿着沿海商街一侧的步行道向深处走去。\n\n这里的雾气比刚才更加浓郁，海风吹过，霓虹灯招牌在半空中发出令人牙酸的吱呀声。原本宽敞的街道在雾气中显得有些狭窄，两侧的橱窗里，那些塑料模特在忽明忽暗的光线里仿佛在微微转动眼珠。\n\n“指挥使，你看那里！”珈儿突然低声示意，同时按住了刀柄。\n\n在前方不远处，一个穿着普通外套的年轻男子正摇摇晃晃地走在街道中央。他双眼无神，脸上带着一种奇异而满足的微笑，仿佛正梦游般一步步走向一处已经断裂、下方就是汹涌海潮的观海平台。\n\n而在他身后的阴影里，几只异界怪物的轮廓正在雾气中缓缓凝聚，它们无声地张开爪牙，正准备扑向这个毫无防备的猎物。\n\n“危险！”\n\n珈儿低喝一声，身形瞬间暴起。粉色的长马尾在半空中拉出一道凌厉的轨迹，灵剑·布都御魂在黑夜中划出一道雪白的弧光。她没有直接去斩杀怪物，而是先一步掠到那名男子身前，一把抓住他的肩膀将他向后拽去。\n\n几乎在同一时间，怪物的利爪擦着男子的衣角掠过，重重地拍击在地面上，激起一片碎石。\n\n“清醒一点！”珈儿一边将男子护在身后，一边挥刀迎向扑上来的怪物。\n\n然而，这次的战斗显得有些诡异。那些怪物在雾气中仿佛拥有重影，珈儿的刀锋明明切过了它们的身体，却只斩碎了一片虚幻的黑雾，而真正的实体却从另一个刁钻的角度无声袭来。\n\n“怎么回事……这些怪物是假的吗？不对，有实体！”珈儿在密集的攻势中微微喘息，凭借着扎实的剑术直觉，她猛地旋身，布都御魂在空中划出一个完美的圆弧，终于将一只试图偷袭的怪物拦腰斩断。\n\n就在战斗陷入胶着时，一阵不合时宜的清脆铃音突然在雾气深处响起。\n\n那声音空灵而悠扬，仿佛带着某种古老的气息。伴随着铃音，几片粉红色的樱花瓣竟然凭空在咸湿的海风中飘落，掠过珈儿的刀锋。在浓雾的尽头，你隐约看到一个华丽的和服衣角一闪而逝，那身影纤细，脸上似乎戴着一面狰狞而精致的般若面具。\n\n随着那身影的消失，周围怪物的重影瞬间消散，珈儿抓住机会，连续几记精准的斩击将剩下的怪物彻底消灭。\n\n“呼……刚才那是……”珈儿收刀入鞘，有些疑惑地看着空气中渐渐消散的樱花瓣，“海湾侧城这个季节，怎么会有樱花？而且那个戴面具的人……”\n\n被救下的男子此时终于软瘫在地上，双眼渐渐恢复了焦距。他惊恐地看着周围的废墟，大口喘着粗气：“我……我刚才不是在家里吗？我明明看到了一座非常漂亮的日式庭院，里面开满了樱花，还有一个特别好看的女孩子在朝我招手……”\n\n他所描述的画面，与这片废旧、阴冷的沿海商街完全格格不入。\n\n<UpdateVariable>\n_.set('clock_minutes', 720);//行动耗时80分钟，时间推进至20:00\n_.set('location', '海湾侧城');//确认当前位置\n</UpdateVariable>\n\n<f7d_choices>\n  <f7d_choice intent=\"追查刚才出现的面具身影与樱花线索\">循着樱花飘落和铃音响起的方向，追查那个戴着般若面具的神秘身影</f7d_choice>\n  <f7d_choice intent=\"优先护送恍惚的居民撤离\">先将这名神志不清的居民护送到外围的安全营地，确保他的安全</f7d_choice>\n</f7d_choices>",
+      "visible": "你和珈儿沿着沿海商街一侧的步行道向深处走去。\n\n这里的雾气比刚才更加浓郁，海风吹过，霓虹灯招牌在半空中发出令人牙酸的吱呀声。原本宽敞的街道在雾气中显得有些狭窄，两侧的橱窗里，那些塑料模特在忽明忽暗的光线里仿佛在微微转动眼珠。\n\n“指挥使，你看那里！”珈儿突然低声示意，同时按住了刀柄。\n\n在前方不远处，一个穿着普通外套的年轻男子正摇摇晃晃地走在街道中央。他双眼无神，脸上带着一种奇异而满足的微笑，仿佛正梦游般一步步走向一处已经断裂、下方就是汹涌海潮的观海平台。\n\n而在他身后的阴影里，几只异界怪物的轮廓正在雾气中缓缓凝聚，它们无声地张开爪牙，正准备扑向这个毫无防备的猎物。\n\n“危险！”\n\n珈儿低喝一声，身形瞬间暴起。粉色的长马尾在半空中拉出一道凌厉的轨迹，灵剑·布都御魂在黑夜中划出一道雪白的弧光。她没有直接去斩杀怪物，而是先一步掠到那名男子身前，一把抓住他的肩膀将他向后拽去。\n\n几乎在同一时间，怪物的利爪擦着男子的衣角掠过，重重地拍击在地面上，激起一片碎石。\n\n“清醒一点！”珈儿一边将男子护在身后，一边挥刀迎向扑上来的怪物。\n\n然而，这次的战斗显得有些诡异。那些怪物在雾气中仿佛拥有重影，珈儿的刀锋明明切过了它们的身体，却只斩碎了一片虚幻的黑雾，而真正的实体却从另一个刁钻的角度无声袭来。\n\n“怎么回事……这些怪物是假的吗？不对，有实体！”珈儿在密集的攻势中微微喘息，凭借着扎实的剑术直觉，她猛地旋身，布都御魂在空中划出一个完美的圆弧，终于将一只试图偷袭的怪物拦腰斩断。\n\n就在战斗陷入胶着时，一阵不合时宜的清脆铃音突然在雾气深处响起。\n\n那声音空灵而悠扬，仿佛带着某种古老的气息。伴随着铃音，几片粉红色的樱花瓣竟然凭空在咸湿的海风中飘落，掠过珈儿的刀锋。在浓雾的尽头，你隐约看到一个华丽的和服衣角一闪而逝，那身影纤细，脸上似乎戴着一面狰狞而精致的般若面具。\n\n随着那身影的消失，周围怪物的重影瞬间消散，珈儿抓住机会，连续几记精准的斩击将剩下的怪物彻底消灭。\n\n“呼……刚才那是……”珈儿收刀入鞘，有些疑惑地看着空气中渐渐消散的樱花瓣，“海湾侧城这个季节，怎么会有樱花？而且那个戴面具的人……”\n\n被救下的男子此时终于软瘫在地上，双眼渐渐恢复了焦距。他惊恐地看着周围的废墟，大口喘着粗气：“我……我刚才不是在家里吗？我明明看到了一座非常漂亮的日式庭院，里面开满了樱花，还有一个特别好看的女孩子在朝我招手……”\n\n他所描述的画面，与这片废旧、阴冷的沿海商街完全格格不入。",
+      "stateBefore": {
+        "schema": "f7d_textloop_0.4",
+        "loop": 1,
+        "day": 4,
+        "route": "central",
+        "location": "中央庭",
+        "regions": {
+          "court": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "school": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "east": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "central": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "institute": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "seaside": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "old": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "harbor": {
+            "liberated": false,
+            "build_steps": []
+          }
+        },
+        "cores": {
+          "court": "purified",
+          "school": "purified",
+          "east": "unknown",
+          "central": "unknown",
+          "institute": "unknown",
+          "seaside": "unknown",
+          "old": "unknown",
+          "harbor": [
+            "DAY4_HARBOR"
+          ]
+        },
+        "tasks": {
+          "DAY7_OPENING": {
+            "status": "active",
+            "deadline": "第7天开场固定剧情结束",
+            "objective": "完成苏醒、中央庭引导与希罗初始剧情"
+          },
+          "SCHOOL_RESCUE": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放高校学园"
+          },
+          "SECOND_REGION": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放东方古街或中央城区其中一个"
+          },
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "known": [
+          "安",
+          "安托涅瓦",
+          "晏华",
+          "珈儿",
+          "希罗",
+          "雯梓",
+          "赛斯",
+          "羽弥"
+        ],
+        "relationships": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "ann": {
+          "affection": 0,
+          "core_events": [],
+          "camera": false,
+          "eligible": false,
+          "chased": null,
+          "recovered": false,
+          "deadline_checked": false,
+          "deadline_passed": null
+        },
+        "hiro": {
+          "intel": 0,
+          "handled": []
+        },
+        "route_flags": {
+          "first_second_region": null,
+          "oldstreet_delayed": false,
+          "wenzi_injured": false,
+          "wenzi_joined": false,
+          "ann_route_closed": false,
+          "harbor_core_stolen": false
+        },
+        "antoneva_choice": null,
+        "artifact_view": null,
+        "ann_release": null,
+        "battle_flags": {
+          "final_battle": null,
+          "active_corpse_final": null,
+          "sybilla_condition_obtained": false,
+          "sybilla_rescued": null
+        },
+        "meta": {
+          "cg": [],
+          "endings": []
+        },
+        "intel_flags": {
+          "countdown_visible_to_user": true,
+          "countdown_meaning_known": false,
+          "countdown_reported_to": [],
+          "city_blackgate_history_known": false,
+          "central_court_basics_known": false,
+          "hiro_founder_known": false,
+          "hiro_prior_commander_known": false,
+          "chimera_exists_known": false,
+          "hiro_chimera_research_known": false,
+          "antoneva_chimera_policy_known": false,
+          "first_chimera_incident_known": false,
+          "zero_identity_known": false,
+          "ann_origin_known": false,
+          "loop_truth_known": false,
+          "countdown_initial_mentions": 1,
+          "countdown_last_narrated_day": 7
+        },
+        "npc_intel": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "day_ready_to_sleep": false,
+        "player_profile": {
+          "gender": "unknown"
+        },
+        "cg_system": {
+          "enabled": true,
+          "mode": "direct_only",
+          "album_enabled": false,
+          "responsive_enabled": true,
+          "shown": {
+            "ann_first_meet": true,
+            "antoneva_first_meet": false,
+            "ending_journey": false,
+            "ending_eternal_end": false,
+            "ending_sacrifice_male": false,
+            "ending_sacrifice_female": false,
+            "ending_final_male": false,
+            "ending_final_female": false,
+            "ending_box_male": false,
+            "ending_box_female": false
+          }
+        },
+        "clock_minutes": "海湾侧城",
+        "morning_flags": {
+          "day6_monologue": true,
+          "day6_saiham": true,
+          "day6_seth": true,
+          "day5_monologue": true,
+          "day5_split": true,
+          "day4_monologue": true,
+          "day4_speech": true,
+          "day3_monologue": false,
+          "day3_ann_departure": false,
+          "day2_monologue": false
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "prompt": "我检查能区分真实道路与异常景象的线索，同时寻找仍被困的人。",
+      "raw": "你决定不再盲目追击那个来历不明的面具身影，而是冷静下来，寻找能够破解这片幻境、区分虚实的方法。\n\n“要区分真的道路和幻觉吗……”珈儿收起刀，思索着揉了揉头发，“如果是剑术修行的话，师父以前说过，眼睛会欺骗你，但风的声音、脚下地面的震动，还有刀锋划过空气时的阻力是不会骗人的。”\n\n你赞同了珈儿的直觉。在这片被浓雾笼罩的商街中，你开始引导她注意那些物理规律上的“不协调”。\n\n很快，你们在一处十字路口发现了端倪。前方不远处有一家看起来极其干净、温暖的冰淇淋店，橱窗里亮着温馨的暖黄色灯光，甚至能隐约看到里面有几个坐在一起喝饮料的顾客。在死寂阴冷的海湾侧城中，这幅画面显得无比诱人。\n\n然而，你拉住了准备上前的珈儿，指向地面。\n商街刚刚下过一场带着海沙的冷雨，地面上满是积水和泥泞。然而，那家冰淇淋店门前的台阶却干燥得不正常，甚至连一丝沙尘都没有。更诡异的是，当你低下头看向路面大片积水的倒影时——倒影里的那个位置，根本没有亮着灯的温馨小店，只有一具冰冷、坍塌了大半的钢筋混凝土废墟。\n\n“倒影里才是真实的场景！”珈儿惊讶地低呼。\n\n“救命……有没有人啊……”\n就在这时，一阵微弱的呼救声从那家“温馨小店”的方向传来。但声音并不是从亮着灯的店门里传出的，而是来自积水倒影中、那片废墟钢筋交错的缝隙深处。\n\n“真的有人被困在废墟下面，但幻境把废墟伪装成了完好的商店，想让我们走错方向！”珈儿瞬间明白了过来。\n\n她闭上双眼，不再去看那亮堂堂的店面，而是凭借着呼救声的方位和脚下泥泞地面的触感，一步步走向那片在视觉中空无一物、但在倒影里却是废墟的地方。\n\n“就是这里了！”\n珈儿猛地睁开眼，手中的灵剑·布都御魂骤然出鞘，刀锋带着凌厉的幻力，狠狠地斩向身前看似空旷的空气。\n\n“咔嚓——”\n伴随着一声宛如玻璃破碎的脆响，眼前的温馨小店、温暖的灯光如同被撕裂的画卷般瞬间粉碎。真实的场景显露出来：一处半塌陷的商铺废墟，几根沉重的钢筋死死卡住了地下通道的入口，里面正缩着一家三口，满脸惊恐。\n\n“别怕，我们是中央庭的神器使！”\n珈儿一剑斩断卡住入口的钢筋，配合你合力将废墟下的幸存者一一拉了出来。\n\n这家人在黑暗的地下被困了许久，此时终于得救，激动得热泪盈眶。通过这次救援，你和珈儿不仅救下了被困的市民，更掌握了利用“积水倒影”和“物理不协调感”来识破这片区域幻境的关键线索。\n\n<UpdateVariable>\n_.set('clock_minutes', 800);//行动耗时80分钟，时间推进至21:20\n_.set('location', '海湾侧城');//确认当前位置\n</UpdateVariable>\n\n<f7d_choices>\n  <f7d_choice intent=\"利用新掌握的方法，继续深入海湾侧城核心区\">利用“倒影对照法”避开幻境陷阱，继续向海湾侧城更深处的异界黑门方向推进</f7d_choice>\n  <f7d_choice intent=\"先将这家人护送回外围安全区\">考虑到夜色已深且幻境重重，先将这家人安全护送至外围营地，再做下一步打算</f7d_choice>\n</f7d_choices>",
+      "visible": "你决定不再盲目追击那个来历不明的面具身影，而是冷静下来，寻找能够破解这片幻境、区分虚实的方法。\n\n“要区分真的道路和幻觉吗……”珈儿收起刀，思索着揉了揉头发，“如果是剑术修行的话，师父以前说过，眼睛会欺骗你，但风的声音、脚下地面的震动，还有刀锋划过空气时的阻力是不会骗人的。”\n\n你赞同了珈儿的直觉。在这片被浓雾笼罩的商街中，你开始引导她注意那些物理规律上的“不协调”。\n\n很快，你们在一处十字路口发现了端倪。前方不远处有一家看起来极其干净、温暖的冰淇淋店，橱窗里亮着温馨的暖黄色灯光，甚至能隐约看到里面有几个坐在一起喝饮料的顾客。在死寂阴冷的海湾侧城中，这幅画面显得无比诱人。\n\n然而，你拉住了准备上前的珈儿，指向地面。\n商街刚刚下过一场带着海沙的冷雨，地面上满是积水和泥泞。然而，那家冰淇淋店门前的台阶却干燥得不正常，甚至连一丝沙尘都没有。更诡异的是，当你低下头看向路面大片积水的倒影时——倒影里的那个位置，根本没有亮着灯的温馨小店，只有一具冰冷、坍塌了大半的钢筋混凝土废墟。\n\n“倒影里才是真实的场景！”珈儿惊讶地低呼。\n\n“救命……有没有人啊……”\n就在这时，一阵微弱的呼救声从那家“温馨小店”的方向传来。但声音并不是从亮着灯的店门里传出的，而是来自积水倒影中、那片废墟钢筋交错的缝隙深处。\n\n“真的有人被困在废墟下面，但幻境把废墟伪装成了完好的商店，想让我们走错方向！”珈儿瞬间明白了过来。\n\n她闭上双眼，不再去看那亮堂堂的店面，而是凭借着呼救声的方位和脚下泥泞地面的触感，一步步走向那片在视觉中空无一物、但在倒影里却是废墟的地方。\n\n“就是这里了！”\n珈儿猛地睁开眼，手中的灵剑·布都御魂骤然出鞘，刀锋带着凌厉的幻力，狠狠地斩向身前看似空旷的空气。\n\n“咔嚓——”\n伴随着一声宛如玻璃破碎的脆响，眼前的温馨小店、温暖的灯光如同被撕裂的画卷般瞬间粉碎。真实的场景显露出来：一处半塌陷的商铺废墟，几根沉重的钢筋死死卡住了地下通道的入口，里面正缩着一家三口，满脸惊恐。\n\n“别怕，我们是中央庭的神器使！”\n珈儿一剑斩断卡住入口的钢筋，配合你合力将废墟下的幸存者一一拉了出来。\n\n这家人在黑暗的地下被困了许久，此时终于得救，激动得热泪盈眶。通过这次救援，你和珈儿不仅救下了被困的市民，更掌握了利用“积水倒影”和“物理不协调感”来识破这片区域幻境的关键线索。",
+      "stateBefore": {
+        "schema": "f7d_textloop_0.4",
+        "loop": 1,
+        "day": 4,
+        "route": "central",
+        "location": "中央庭",
+        "regions": {
+          "court": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "school": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "east": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "central": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "institute": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "seaside": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "old": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "harbor": {
+            "liberated": false,
+            "build_steps": []
+          }
+        },
+        "cores": {
+          "court": "purified",
+          "school": "purified",
+          "east": "unknown",
+          "central": "unknown",
+          "institute": "unknown",
+          "seaside": "unknown",
+          "old": "unknown",
+          "harbor": [
+            "DAY4_HARBOR"
+          ]
+        },
+        "tasks": {
+          "DAY7_OPENING": {
+            "status": "active",
+            "deadline": "第7天开场固定剧情结束",
+            "objective": "完成苏醒、中央庭引导与希罗初始剧情"
+          },
+          "SCHOOL_RESCUE": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放高校学园"
+          },
+          "SECOND_REGION": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放东方古街或中央城区其中一个"
+          },
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "known": [
+          "安",
+          "安托涅瓦",
+          "晏华",
+          "珈儿",
+          "希罗",
+          "雯梓",
+          "赛斯",
+          "羽弥"
+        ],
+        "relationships": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "ann": {
+          "affection": 0,
+          "core_events": [],
+          "camera": false,
+          "eligible": false,
+          "chased": null,
+          "recovered": false,
+          "deadline_checked": false,
+          "deadline_passed": null
+        },
+        "hiro": {
+          "intel": 0,
+          "handled": []
+        },
+        "route_flags": {
+          "first_second_region": null,
+          "oldstreet_delayed": false,
+          "wenzi_injured": false,
+          "wenzi_joined": false,
+          "ann_route_closed": false,
+          "harbor_core_stolen": false
+        },
+        "antoneva_choice": null,
+        "artifact_view": null,
+        "ann_release": null,
+        "battle_flags": {
+          "final_battle": null,
+          "active_corpse_final": null,
+          "sybilla_condition_obtained": false,
+          "sybilla_rescued": null
+        },
+        "meta": {
+          "cg": [],
+          "endings": []
+        },
+        "intel_flags": {
+          "countdown_visible_to_user": true,
+          "countdown_meaning_known": false,
+          "countdown_reported_to": [],
+          "city_blackgate_history_known": false,
+          "central_court_basics_known": false,
+          "hiro_founder_known": false,
+          "hiro_prior_commander_known": false,
+          "chimera_exists_known": false,
+          "hiro_chimera_research_known": false,
+          "antoneva_chimera_policy_known": false,
+          "first_chimera_incident_known": false,
+          "zero_identity_known": false,
+          "ann_origin_known": false,
+          "loop_truth_known": false,
+          "countdown_initial_mentions": 1,
+          "countdown_last_narrated_day": 7
+        },
+        "npc_intel": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "day_ready_to_sleep": false,
+        "player_profile": {
+          "gender": "unknown"
+        },
+        "cg_system": {
+          "enabled": true,
+          "mode": "direct_only",
+          "album_enabled": false,
+          "responsive_enabled": true,
+          "shown": {
+            "ann_first_meet": true,
+            "antoneva_first_meet": false,
+            "ending_journey": false,
+            "ending_eternal_end": false,
+            "ending_sacrifice_male": false,
+            "ending_sacrifice_female": false,
+            "ending_final_male": false,
+            "ending_final_female": false,
+            "ending_box_male": false,
+            "ending_box_female": false
+          }
+        },
+        "clock_minutes": "海湾侧城",
+        "morning_flags": {
+          "day6_monologue": true,
+          "day6_saiham": true,
+          "day6_seth": true,
+          "day5_monologue": true,
+          "day5_split": true,
+          "day4_monologue": true,
+          "day4_speech": true,
+          "day3_monologue": false,
+          "day3_ann_departure": false,
+          "day2_monologue": false
+        }
+      }
+    },
+    {
+      "turn": 5,
+      "prompt": "继续推进当前区域危机。我让珈儿保护居民，自己留意幻境边界和造成它的人。",
+      "raw": "“指挥使，你放心观察，这几位市民就交给我来保护！”\n\n珈儿将那一家三口护在身后，神色警惕地环视四周。她手中的布都御魂斜斜指向地面，粉色的长马尾在夜风中微微晃动，浑身散发着可靠的剑士气场。有她在后方压阵，那些在雾气中蠢蠢欲动的怪物一时间也不敢轻易上前。\n\n你点了点头，将注意力集中在周围的环境上。\n\n顺着地面积水的倒影，你一步步走向那虚幻与真实的交界处。在你的视觉中，前方是一条铺满粉色樱花瓣的雅致石板路；但在脚下的积水倒影里，那却是一条布满断壁残骸、钢筋裸露的危险废墟。\n\n当你走到那条“樱花路”的边缘时，空气中突然泛起了一圈圈肉眼可见的涟漪。你伸出手，指尖触碰到了虚空中一层冰冷、粘稠的无形屏障——这就是幻境的边界。\n\n“叮铃……”\n\n清脆的铃音再度毫无征兆地在耳畔响起。\n\n“真是无礼。竟然用积水这种污秽之物，来窥探孤精心布置的‘庭院’。”\n\n一个带着几分稚嫩、却又刻意拿捏着高贵腔调的声音从雾气深处传来。\n\n只见前方的虚幻樱花树下，雾气缓缓散开。一个身形娇小、穿着极其华丽的和服式衣装的身影静静地站在那里。他留着一头外层黑发、内层红发的精致妹妹头，脸上原本戴着一面狰狞的般若面具，此时他伸手将面具摘下，露出一张漂亮得近乎妖异、甚至让月色都显得有些黯淡的精致面孔。\n\n“哇……好漂亮的女孩子……”后方的珈儿下意识地低呼了一声，但随即又有些困惑地歪了歪头，“不对，好像哪里怪怪的？”\n\n听到珈儿的嘀咕，那名华服少年好看的眉毛瞬间竖了起来，白皙的脸上浮现出一抹羞恼的红晕，孩子气地顿了顿足：\n\n“愚蠢！睁大你们的眼睛看清楚，孤乃是男子！是拥有高贵血统的王储！别把孤和那些平庸的女子混为一谈！”\n\n他骄傲地扬起下巴，将手中的般若面具抱在怀里，用那双明亮而带着敌意的眼睛瞪着你：\n\n“孤的名字是阿岚。这片干净、美丽的‘樱之庭院’是孤用般若面具的力量维持的。外面的世界早就被那些黑漆漆的怪物弄得破烂不堪、丑陋至极，孤只是让那些迷路的人在孤的庭院里得到安宁，你们凭什么来破坏它？”\n\n虽然语气听起来像个任性、被惯坏的小王子，但他身上隐隐散发出的幻力波动却极其强大，甚至连周围的空间都在随着他的情绪起伏而微微颤动。\n\n<UpdateVariable>\n_.set('clock_minutes', 880);//行动耗时80分钟，时间推进至22:40\n_.set('known', [\"安\",\"安托涅瓦\",\"晏华\",\"珈儿\",\"希罗\",\"雯梓\",\"赛斯\",\"羽弥\",\"阿岚\"]);//正式确认阿岚身份，加入known\n</UpdateVariable>\n\n<f7d_choices>\n  <f7d_choice intent=\"试图说服阿岚，指出幻境无法代替现实\">耐心地向阿岚解释，虚假的幻境无法真正保护人类，逃避现实只会带来更大的危险</f7d_choice>\n  <f7d_choice intent=\"质问阿岚是否知道黑门的危害\">严肃地质问他，知不知道这种大范围的幻境正在侵蚀海湾侧城的现实规则，甚至会引来更多怪物</f7d_choice>\n</f7d_choices>",
+      "visible": "“指挥使，你放心观察，这几位市民就交给我来保护！”\n\n珈儿将那一家三口护在身后，神色警惕地环视四周。她手中的布都御魂斜斜指向地面，粉色的长马尾在夜风中微微晃动，浑身散发着可靠的剑士气场。有她在后方压阵，那些在雾气中蠢蠢欲动的怪物一时间也不敢轻易上前。\n\n你点了点头，将注意力集中在周围的环境上。\n\n顺着地面积水的倒影，你一步步走向那虚幻与真实的交界处。在你的视觉中，前方是一条铺满粉色樱花瓣的雅致石板路；但在脚下的积水倒影里，那却是一条布满断壁残骸、钢筋裸露的危险废墟。\n\n当你走到那条“樱花路”的边缘时，空气中突然泛起了一圈圈肉眼可见的涟漪。你伸出手，指尖触碰到了虚空中一层冰冷、粘稠的无形屏障——这就是幻境的边界。\n\n“叮铃……”\n\n清脆的铃音再度毫无征兆地在耳畔响起。\n\n“真是无礼。竟然用积水这种污秽之物，来窥探孤精心布置的‘庭院’。”\n\n一个带着几分稚嫩、却又刻意拿捏着高贵腔调的声音从雾气深处传来。\n\n只见前方的虚幻樱花树下，雾气缓缓散开。一个身形娇小、穿着极其华丽的和服式衣装的身影静静地站在那里。他留着一头外层黑发、内层红发的精致妹妹头，脸上原本戴着一面狰狞的般若面具，此时他伸手将面具摘下，露出一张漂亮得近乎妖异、甚至让月色都显得有些黯淡的精致面孔。\n\n“哇……好漂亮的女孩子……”后方的珈儿下意识地低呼了一声，但随即又有些困惑地歪了歪头，“不对，好像哪里怪怪的？”\n\n听到珈儿的嘀咕，那名华服少年好看的眉毛瞬间竖了起来，白皙的脸上浮现出一抹羞恼的红晕，孩子气地顿了顿足：\n\n“愚蠢！睁大你们的眼睛看清楚，孤乃是男子！是拥有高贵血统的王储！别把孤和那些平庸的女子混为一谈！”\n\n他骄傲地扬起下巴，将手中的般若面具抱在怀里，用那双明亮而带着敌意的眼睛瞪着你：\n\n“孤的名字是阿岚。这片干净、美丽的‘樱之庭院’是孤用般若面具的力量维持的。外面的世界早就被那些黑漆漆的怪物弄得破烂不堪、丑陋至极，孤只是让那些迷路的人在孤的庭院里得到安宁，你们凭什么来破坏它？”\n\n虽然语气听起来像个任性、被惯坏的小王子，但他身上隐隐散发出的幻力波动却极其强大，甚至连周围的空间都在随着他的情绪起伏而微微颤动。",
+      "stateBefore": {
+        "schema": "f7d_textloop_0.4",
+        "loop": 1,
+        "day": 4,
+        "route": "central",
+        "location": "中央庭",
+        "regions": {
+          "court": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "school": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "east": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "central": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "institute": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "seaside": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "old": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "harbor": {
+            "liberated": false,
+            "build_steps": []
+          }
+        },
+        "cores": {
+          "court": "purified",
+          "school": "purified",
+          "east": "unknown",
+          "central": "unknown",
+          "institute": "unknown",
+          "seaside": "unknown",
+          "old": "unknown",
+          "harbor": [
+            "DAY4_HARBOR"
+          ]
+        },
+        "tasks": {
+          "DAY7_OPENING": {
+            "status": "active",
+            "deadline": "第7天开场固定剧情结束",
+            "objective": "完成苏醒、中央庭引导与希罗初始剧情"
+          },
+          "SCHOOL_RESCUE": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放高校学园"
+          },
+          "SECOND_REGION": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放东方古街或中央城区其中一个"
+          },
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "known": [
+          "安",
+          "安托涅瓦",
+          "晏华",
+          "珈儿",
+          "希罗",
+          "雯梓",
+          "赛斯",
+          "羽弥"
+        ],
+        "relationships": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "ann": {
+          "affection": 0,
+          "core_events": [],
+          "camera": false,
+          "eligible": false,
+          "chased": null,
+          "recovered": false,
+          "deadline_checked": false,
+          "deadline_passed": null
+        },
+        "hiro": {
+          "intel": 0,
+          "handled": []
+        },
+        "route_flags": {
+          "first_second_region": null,
+          "oldstreet_delayed": false,
+          "wenzi_injured": false,
+          "wenzi_joined": false,
+          "ann_route_closed": false,
+          "harbor_core_stolen": false
+        },
+        "antoneva_choice": null,
+        "artifact_view": null,
+        "ann_release": null,
+        "battle_flags": {
+          "final_battle": null,
+          "active_corpse_final": null,
+          "sybilla_condition_obtained": false,
+          "sybilla_rescued": null
+        },
+        "meta": {
+          "cg": [],
+          "endings": []
+        },
+        "intel_flags": {
+          "countdown_visible_to_user": true,
+          "countdown_meaning_known": false,
+          "countdown_reported_to": [],
+          "city_blackgate_history_known": false,
+          "central_court_basics_known": false,
+          "hiro_founder_known": false,
+          "hiro_prior_commander_known": false,
+          "chimera_exists_known": false,
+          "hiro_chimera_research_known": false,
+          "antoneva_chimera_policy_known": false,
+          "first_chimera_incident_known": false,
+          "zero_identity_known": false,
+          "ann_origin_known": false,
+          "loop_truth_known": false,
+          "countdown_initial_mentions": 1,
+          "countdown_last_narrated_day": 7
+        },
+        "npc_intel": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "day_ready_to_sleep": false,
+        "player_profile": {
+          "gender": "unknown"
+        },
+        "cg_system": {
+          "enabled": true,
+          "mode": "direct_only",
+          "album_enabled": false,
+          "responsive_enabled": true,
+          "shown": {
+            "ann_first_meet": true,
+            "antoneva_first_meet": false,
+            "ending_journey": false,
+            "ending_eternal_end": false,
+            "ending_sacrifice_male": false,
+            "ending_sacrifice_female": false,
+            "ending_final_male": false,
+            "ending_final_female": false,
+            "ending_box_male": false,
+            "ending_box_female": false
+          }
+        },
+        "clock_minutes": "海湾侧城",
+        "morning_flags": {
+          "day6_monologue": true,
+          "day6_saiham": true,
+          "day6_seth": true,
+          "day5_monologue": true,
+          "day5_split": true,
+          "day4_monologue": true,
+          "day4_speech": true,
+          "day3_monologue": false,
+          "day3_ann_departure": false,
+          "day2_monologue": false
+        }
+      }
+    }
+  ],
+  "finalState": {
+    "schema": "f7d_textloop_0.4",
+    "loop": 1,
+    "day": 4,
+    "route": "central",
+    "location": "中央庭",
+    "regions": {
+      "court": {
+        "liberated": true,
+        "build_steps": []
+      },
+      "school": {
+        "liberated": true,
+        "build_steps": []
+      },
+      "east": {
+        "liberated": true,
+        "build_steps": []
+      },
+      "central": {
+        "liberated": true,
+        "build_steps": []
+      },
+      "institute": {
+        "liberated": true,
+        "build_steps": []
+      },
+      "seaside": {
+        "liberated": false,
+        "build_steps": []
+      },
+      "old": {
+        "liberated": false,
+        "build_steps": []
+      },
+      "harbor": {
+        "liberated": false,
+        "build_steps": []
+      }
+    },
+    "cores": {
+      "court": "purified",
+      "school": "purified",
+      "east": "unknown",
+      "central": "unknown",
+      "institute": "unknown",
+      "seaside": "unknown",
+      "old": "unknown",
+      "harbor": [
+        "DAY4_HARBOR"
+      ]
+    },
+    "tasks": {
+      "DAY7_OPENING": {
+        "status": "active",
+        "deadline": "第7天开场固定剧情结束",
+        "objective": "完成苏醒、中央庭引导与希罗初始剧情"
+      },
+      "SCHOOL_RESCUE": {
+        "status": "pending",
+        "deadline": "第6天结束前",
+        "objective": "解放高校学园"
+      },
+      "SECOND_REGION": {
+        "status": "pending",
+        "deadline": "第6天结束前",
+        "objective": "解放东方古街或中央城区其中一个"
+      },
+      "$meta": {
+        "extensible": true
+      }
+    },
+    "known": [
+      "安",
+      "安托涅瓦",
+      "晏华",
+      "珈儿",
+      "希罗",
+      "雯梓",
+      "赛斯",
+      "羽弥"
+    ],
+    "relationships": {
+      "$meta": {
+        "extensible": true
+      }
+    },
+    "ann": {
+      "affection": 0,
+      "core_events": [],
+      "camera": false,
+      "eligible": false,
+      "chased": null,
+      "recovered": false,
+      "deadline_checked": false,
+      "deadline_passed": null
+    },
+    "hiro": {
+      "intel": 0,
+      "handled": []
+    },
+    "route_flags": {
+      "first_second_region": null,
+      "oldstreet_delayed": false,
+      "wenzi_injured": false,
+      "wenzi_joined": false,
+      "ann_route_closed": false,
+      "harbor_core_stolen": false
+    },
+    "antoneva_choice": null,
+    "artifact_view": null,
+    "ann_release": null,
+    "battle_flags": {
+      "final_battle": null,
+      "active_corpse_final": null,
+      "sybilla_condition_obtained": false,
+      "sybilla_rescued": null
+    },
+    "meta": {
+      "cg": [],
+      "endings": []
+    },
+    "intel_flags": {
+      "countdown_visible_to_user": true,
+      "countdown_meaning_known": false,
+      "countdown_reported_to": [],
+      "city_blackgate_history_known": false,
+      "central_court_basics_known": false,
+      "hiro_founder_known": false,
+      "hiro_prior_commander_known": false,
+      "chimera_exists_known": false,
+      "hiro_chimera_research_known": false,
+      "antoneva_chimera_policy_known": false,
+      "first_chimera_incident_known": false,
+      "zero_identity_known": false,
+      "ann_origin_known": false,
+      "loop_truth_known": false,
+      "countdown_initial_mentions": 1,
+      "countdown_last_narrated_day": 7
+    },
+    "npc_intel": {
+      "$meta": {
+        "extensible": true
+      }
+    },
+    "day_ready_to_sleep": false,
+    "player_profile": {
+      "gender": "unknown"
+    },
+    "cg_system": {
+      "enabled": true,
+      "mode": "direct_only",
+      "album_enabled": false,
+      "responsive_enabled": true,
+      "shown": {
+        "ann_first_meet": true,
+        "antoneva_first_meet": false,
+        "ending_journey": false,
+        "ending_eternal_end": false,
+        "ending_sacrifice_male": false,
+        "ending_sacrifice_female": false,
+        "ending_final_male": false,
+        "ending_final_female": false,
+        "ending_box_male": false,
+        "ending_box_female": false
+      }
+    },
+    "clock_minutes": [
+      "安",
+      "安托涅瓦",
+      "晏华",
+      "珈儿",
+      "希罗",
+      "雯梓",
+      "赛斯",
+      "羽弥",
+      "阿岚"
+    ],
+    "morning_flags": {
+      "day6_monologue": true,
+      "day6_saiham": true,
+      "day6_seth": true,
+      "day5_monologue": true,
+      "day5_split": true,
+      "day4_monologue": true,
+      "day4_speech": true,
+      "day3_monologue": false,
+      "day3_ann_departure": false,
+      "day2_monologue": false
+    }
+  }
+}
