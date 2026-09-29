@@ -60,11 +60,12 @@ const browser=await chromium.launch({headless:true,executablePath:process.env.LA
 try{const page=await browser.newPage({viewport:{width:390,height:844}});await page.goto('http://127.0.0.1:8000/',{waitUntil:'domcontentloaded',timeout:60000});await page.waitForTimeout(2200);
   await page.evaluate(()=>{const save=[...document.querySelectorAll('button,.menu_button,[role="button"]')].find(x=>/^(?:Save|保存)$/i.test(x.textContent.trim()));save?.click();for(const d of document.querySelectorAll('dialog[open]'))try{d.close()}catch{}});
   await page.waitForTimeout(600);
+  await page.evaluate(()=>{for(const el of document.querySelectorAll('dialog,.popup,.modal,[role="dialog"]')){if(/Welcome to SillyTavern|Your Persona|Persona Name/.test(el.textContent||''))el.remove()}});
   await page.evaluate(async({name,version})=>{const st=await import('/script.js');await st.getCharacters();const i=st.characters.findIndex(x=>(x?.data?.name||x?.name)===name&&x?.data?.character_version===version);if(i>=0)st.setCharacterId(i);},{name:card.data.name,version:card.data.character_version});
   for(let i=0;i<results.length;i++){
     if(!results[i].raw)continue;
-    await page.evaluate(async({raw,n})=>{const st=await import('/script.js');const ctx=window.SillyTavern?.getContext();if(!ctx)return;const id=ctx.chat.length;ctx.chat.push({name:'七都',is_user:false,is_system:false,mes:raw});const node=document.createElement('div');node.className='mes';node.setAttribute('mesid',String(id));const body=document.createElement('div');body.className='mes_text';body.innerHTML=st.messageFormatting(raw,'七都',false,false,id,{},false);node.append(body);document.querySelector('#chat')?.append(node);},{raw:results[i].raw,n:i});
-    await page.waitForTimeout(200);await page.screenshot({path:path.join(out,`seaside-${String(i+1).padStart(2,'0')}.png`),fullPage:true});
+    await page.evaluate(async({raw,n})=>{const st=await import('/script.js');const ctx=window.SillyTavern?.getContext();if(!ctx)return;document.querySelector('#chat')?.replaceChildren();const id=ctx.chat.length;ctx.chat.push({name:'七都',is_user:false,is_system:false,mes:raw});const node=document.createElement('div');node.className='mes';node.setAttribute('mesid',String(id));node.style.cssText='width:370px;min-height:100px;padding:16px;background:#252525;color:#e8e8e8';const body=document.createElement('div');body.className='mes_text';body.innerHTML=st.messageFormatting(raw,'七都',false,false,id,{},false);node.append(body);document.querySelector('#chat')?.append(node);},{raw:results[i].raw,n:i});
+    await page.waitForTimeout(250);await page.locator('#chat .mes').last().screenshot({path:path.join(out,`seaside-${String(i+1).padStart(2,'0')}.png`),animations:'disabled'});
   }
   await fs.writeFile(path.join(out,'render-check.json'),JSON.stringify({imported:true,rendered:results.filter(x=>x.raw).length},null,2));
 }finally{await browser.close()}
