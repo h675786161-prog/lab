@@ -1,0 +1,64 @@
+name: Qidu v0440 Harbor Pair Live
+
+on:
+  push:
+    branches: ['feature/qidu-harbor-v0440-live-20260929']
+    paths:
+      - '.github/workflows/qidu-harbor-live-0439.yml'
+      - '.lab/qidu-select-live-provider-v0424.py'
+      - '.lab/fixtures/qidu-harbor-v0440/live.mjs'
+
+permissions:
+  contents: read
+
+jobs:
+  harbor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      GG_KEY: ${{ secrets.GG }}
+      YOUZI_KEY: ${{ secrets.YOUZI }}
+      PIAOMIAO_KEY: ${{ secrets.PIAOMIAO }}
+      MODEL_API_KEY: ${{ secrets.GG }}
+      MODEL_API_BASE: https://gcli.ggchan.dev/v1
+      RELEASE_MODEL: gemini-3-flash-preview
+      LAB_EVIDENCE_DIR: ${{ github.workspace }}/harbor-pair-evidence
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode exact card
+        run: base64 -d .lab/fixtures/qidu-harbor-v0440/card.json.gz.b64 | gzip -d > .lab/fixtures/qidu-harbor-v0440/card.json
+      - name: Select working model provider
+        run: python .lab/qidu-select-live-provider-v0424.py
+      - name: Start isolated SillyTavern
+        run: |
+          git clone --filter=blob:none --depth=1 https://github.com/SillyTavern/SillyTavern.git /tmp/qidu-st
+          cd /tmp/qidu-st
+          npm ci
+          nohup node server.js --listen --port 8000 --disableCsrf > "$GITHUB_WORKSPACE/st.log" 2>&1 &
+          for i in $(seq 1 90); do
+            if curl -fsS --max-time 2 http://127.0.0.1:8000/ >/dev/null 2>&1; then exit 0; fi
+            sleep 1
+          done
+          cat "$GITHUB_WORKSPACE/st.log"
+          exit 1
+      - name: Prepare browser and Chinese fonts
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends fonts-noto-cjk
+          mkdir -p /tmp/qidu-browser
+          cd /tmp/qidu-browser
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          echo "LAB_PLAYWRIGHT_CORE_ENTRY=file:///tmp/qidu-browser/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
+          echo "LAB_CHROME=$(command -v google-chrome || command -v chromium)" >> "$GITHUB_ENV"
+      - name: Generate sequential harbor story and render in real Tavern
+        run: node .lab/fixtures/qidu-harbor-v0440/live.mjs
+      - name: Upload raw replies and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qidu-v0440-harbor-live
+          path: |
+            harbor-pair-evidence/
+            st.log
+          if-no-files-found: warn
