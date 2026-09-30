@@ -1,0 +1,78 @@
+{
+  "deliveryRevision": "1.0.1",
+  "interfaceVersion": 1,
+  "mvuSchema": "f7d_textloop_0.4",
+  "files": {
+    "CONTRACT.md": {
+      "sha256": "ee67f196fc297f39b3556a7c993f752c1166c8cdd1820b5cf675baa113ab2443",
+      "bytes": 9020
+    },
+    "INSTALL.md": {
+      "sha256": "65fe8092d03c5999b6393404dd301c2eb9d09e33345b9055d685e4b6ed0fb9a4",
+      "bytes": 3009
+    },
+    "QA.md": {
+      "sha256": "559be38379e1405fbf00061cc78095402d74aacd0911d399fac9a48db042892d",
+      "bytes": 3704
+    },
+    "Qidu-v0.4.41-terminal-v1.json": {
+      "sha256": "f5960e062eadfb3d57528dce928730aff3c479a2dd02d4c3b8cc7ad192ac05da",
+      "bytes": 1638677
+    },
+    "card-only-smoke.mjs": {
+      "sha256": "3e6b21dca96f74772edd90825abcf7c1d22fff4f37af25ee19cab7576eb0e71b",
+      "bytes": 20635
+    },
+    "card-provider.js": {
+      "sha256": "10abfee69049953e65d68a1e756e89e7af5b7038092b926b22f1def03b60c420",
+      "bytes": 10998
+    },
+    "evidence-with-wb/run.log": {
+      "sha256": "0cd98cb2de1dea63f49ee6f6ab510adb55753db3980a7206c3a08cbc0efbf128",
+      "bytes": 2067
+    },
+    "evidence-with-wb/实机验收记录.json": {
+      "sha256": "2e26004f7b19097d2a327efc54144b6bade3d0280381ea0d2ca28c899880e6aa",
+      "bytes": 4457
+    },
+    "evidence-with-wb/真实提交快照-脱敏.json": {
+      "sha256": "78b8dc5143f0fcec5a0c2018b6489c6590c510c3299f89d19c819104db92fdc7",
+      "bytes": 2612
+    },
+    "evidence-without-wb/run.log": {
+      "sha256": "9f634e799da23c3a381614b0a63a7d31d5d126400843c6d3fa51cab3749d5b7a",
+      "bytes": 1862
+    },
+    "evidence-without-wb/实机验收记录.json": {
+      "sha256": "006a0b02fa49c27578ce18d1571b5610af34131a06211845bd3de3e4f564ee6b",
+      "bytes": 4071
+    },
+    "evidence-without-wb/真实提交快照-脱敏.json": {
+      "sha256": "78b8dc5143f0fcec5a0c2018b6489c6590c510c3299f89d19c819104db92fdc7",
+      "bytes": 2612
+    },
+    "historical-24-classification.json": {
+      "sha256": "e40d8ca71dc2e40dc9c9a036484b7403899ab0d2bb3a45d1d6f77ee4a710ecc5",
+      "bytes": 2696
+    },
+    "model-live-blocked.json": {
+      "sha256": "a2dab5304e465b0f81579a3eed5a4e0c53872b2192cb091abe1b04d73d530188",
+      "bytes": 363
+    },
+    "mvu-commit-hook.js": {
+      "sha256": "639aa0dbcc2eea3e1ac27ce462a7f7ac5cabb8fb8e151387b8059800ae23fd5e",
+      "bytes": 2982
+    },
+    "qa-infrastructure.json": {
+      "sha256": "1b3875a5e84fc9aea2c586c3628dbb02377ffe66d75a8c195e4aed8d9db9a7ff",
+      "bytes": 518
+    }
+  },
+  "dependencies": {
+    "SillyTavern": "8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8",
+    "TavernHelper": "519599bc68247d8e759cc844a983f8f5252941a8",
+    "MVU": "183d8ade3b9a3369e824a55cb13b4ddf91aada50",
+    "WorldBackstage": "f9babfa0ee0bd3003d3529fd171b83103cfee4c1",
+    "MVUArtifactSha256": "43e38e31c3f86734cdd38c6047d22e871a043abbc2af9116ee2c54438462db6a"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "run": 36654854951,
+  "head": "0da531d685ea8f47cdf5b47365c6703bbe8477d6",
+  "jobs": [
+    {
+      "id": 109696871787,
+      "name": "realism-qa",
+      "conclusion": "failure",
+      "steps": [],
+      "runner_name": "",
+      "runner_id": 0,
+      "started_at": "2026-09-30T01:23:10Z",
+      "completed_at": "2026-09-30T01:23:12Z"
+    }
+  ],
+  "rootCause": "未确认。任务零步骤；日志下载 BlobNotFound；check-run annotations 端点被当前连接拒绝。不得猜测为账单或 runner 故障。"
+}
