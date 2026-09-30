@@ -2,9 +2,9 @@ name: Qidu v0440 Harbor Pair Live
 
 on:
   push:
-    branches: ['feature/qidu-harbor-v0440-live-20260929']
+    branches: ['feature/qidu-harbor-v0440-pair-live-20260930']
     paths:
-      - '.github/workflows/qidu-harbor-live-0439.yml'
+      - '.github/workflows/qidu-harbor-pair-live-0440.yml'
       - '.lab/qidu-select-live-provider-v0424.py'
       - '.lab/fixtures/qidu-harbor-v0440/live.mjs'
 
