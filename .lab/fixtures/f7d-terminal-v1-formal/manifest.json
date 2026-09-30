@@ -12,8 +12,8 @@
       "bytes": 3009
     },
     "QA.md": {
-      "sha256": "559be38379e1405fbf00061cc78095402d74aacd0911d399fac9a48db042892d",
-      "bytes": 3704
+      "sha256": "3adab33246ac4d1bce0ac19f3557f1c4be16e266cbfe8787976c4465a2bd91aa",
+      "bytes": 3962
     },
     "Qidu-v0.4.41-terminal-v1.json": {
       "sha256": "f5960e062eadfb3d57528dce928730aff3c479a2dd02d4c3b8cc7ad192ac05da",
@@ -56,8 +56,8 @@
       "bytes": 2696
     },
     "model-live-blocked.json": {
-      "sha256": "a2dab5304e465b0f81579a3eed5a4e0c53872b2192cb091abe1b04d73d530188",
-      "bytes": 363
+      "sha256": "0ff7cad4a901b2091a030e89da27390a9c0ec8710ee0f47310c4e9612d8e70fa",
+      "bytes": 510
     },
     "mvu-commit-hook.js": {
       "sha256": "639aa0dbcc2eea3e1ac27ce462a7f7ac5cabb8fb8e151387b8059800ae23fd5e",
