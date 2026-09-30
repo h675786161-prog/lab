@@ -1,0 +1,106 @@
+{
+  "说明": "真实酒馆、原生酒馆助手消息变量；使用明确标注的验收输入，不是模型剧情自然产生的数据",
+  "来源字段": {
+    "schema": "f7d_textloop_0.4",
+    "loop": 1,
+    "day": 7,
+    "clock_minutes": 480,
+    "location": "中央庭",
+    "tasks": {
+      "DAY7_OPENING": {
+        "status": "active",
+        "deadline": "第7天开场固定剧情结束",
+        "objective": "完成苏醒、中央庭引导与希罗初始剧情",
+        "known": false,
+        "deadline_known": false
+      },
+      "SCHOOL_RESCUE": {
+        "status": "pending",
+        "deadline": "第6天结束前",
+        "objective": "解放高校学园",
+        "known": false,
+        "deadline_known": false
+      },
+      "SECOND_REGION": {
+        "status": "pending",
+        "deadline": "第6天结束前",
+        "objective": "解放东方古街或中央城区其中一个",
+        "known": false,
+        "deadline_known": false
+      },
+      "$meta": {
+        "extensible": true
+      }
+    },
+    "known": [],
+    "terminal": {
+      "contacts": {
+        "$meta": {
+          "extensible": true
+        }
+      },
+      "city": [],
+      "journal": []
+    },
+    "meta": {
+      "cg": [],
+      "endings": []
+    },
+    "cg_system": {
+      "enabled": true,
+      "mode": "direct_only",
+      "album_enabled": true,
+      "responsive_enabled": true,
+      "shown": {
+        "ann_first_meet": true,
+        "antoneva_first_meet": false,
+        "ending_journey": false,
+        "ending_eternal_end": false,
+        "ending_sacrifice_male": false,
+        "ending_sacrifice_female": false,
+        "ending_final_male": false,
+        "ending_final_female": false,
+        "ending_box_male": false,
+        "ending_box_female": false
+      }
+    }
+  },
+  "version": 1,
+  "status": "ready",
+  "reason": "",
+  "snapshot": {
+    "schema": "f7d-terminal-v1",
+    "scope": {
+      "chatId": "已脱敏聊天",
+      "branchId": "已脱敏分支",
+      "loop": 1
+    },
+    "revision": "已脱敏修订",
+    "header": {
+      "dayLabel": "第7天",
+      "timeLabel": "08:00",
+      "location": "中央庭"
+    },
+    "tasks": [],
+    "contacts": [],
+    "city": [],
+    "journal": [],
+    "album": {
+      "enabled": true,
+      "warning": null,
+      "items": [
+        {
+          "id": "ann_first_meet",
+          "title": "安·病房初见",
+          "assetKey": "ann_first_meet"
+        },
+        {
+          "id": "antoneva_first_meet",
+          "title": "安托涅瓦·初见",
+          "assetKey": "antoneva_first_meet"
+        }
+      ]
+    }
+  },
+  "error": null
+}
