@@ -3,6 +3,9 @@ on:
   push:
     branches: [feature/qidu-day-gate-20261002]
     paths: ['.github/workflows/qidu-gemini-live.yml', '.lab/fixtures/qidu-day-gate/native-live.mjs']
+concurrency:
+  group: qidu-gemini-native
+  cancel-in-progress: true
 permissions:
   contents: write
 jobs:
@@ -37,12 +40,13 @@ jobs:
           GG_KEY: ${{ secrets.GG }}
         run: |
           python - <<'PY'
-          import os,json,urllib.request
+          import os,json,urllib.request,http.cookiejar
           key=os.environ.get('GG_KEY')
           if not key:raise RuntimeError('GG secret missing')
-          with urllib.request.urlopen('http://127.0.0.1:8000/csrf-token') as r: token=json.load(r)['token']
+          opener=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
+          with opener.open('http://127.0.0.1:8000/csrf-token') as r: token=json.load(r)['token']
           req=urllib.request.Request('http://127.0.0.1:8000/api/secrets/write',data=json.dumps({'key':'api_key_custom','value':key,'label':'GG live test'}).encode(),headers={'Content-Type':'application/json','X-CSRF-Token':token})
-          with urllib.request.urlopen(req) as r:
+          with opener.open(req) as r:
            if r.status!=200:raise RuntimeError('local secret configuration failed')
           print('Existing GG key configured without disclosure')
           PY
