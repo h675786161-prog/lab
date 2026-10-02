@@ -28,7 +28,7 @@ try{
  await page.locator('#API-status-top').click();
  await page.evaluate(scripts=>{TavernHelper.replaceScriptTrees([],{type:'character'});TavernHelper.replaceScriptTrees(scripts,{type:'global'});},card.data.extensions.tavern_helper.scripts);
  await checkpoint('waiting real scripts');await page.waitForFunction(()=>window.Mvu&&window.f7dDayGate&&window.f7dTacticalTerminal,{timeout:90000});
- await page.evaluate(()=>{const c=SillyTavern.getContext();window.__gates=[];c.eventSource.on(c.eventTypes.WORLDINFO_ENTRIES_LOADED,p=>{__gates.push(Object.fromEntries(['globalLore','characterLore','chatLore','personaLore'].map(k=>[k,(p[k]||[]).filter(e=>String(e.comment).includes('F7D_GATE')).map(e=>({id:e.uid,comment:e.comment}))])));});});
+ await page.evaluate(()=>{const c=SillyTavern.getContext();c.extensionSettings.world_backstage.worldAutoEnabled=false;c.extensionSettings.world_backstage.publicOpinionAutoEnabled=false;window.__commitDiagnostics=[];const b=window.__f7dCommitBridge,valid=b.valid;b.valid=t=>{const ok=valid(t);if(!ok){const now=b.capture();__commitDiagnostics.push({epochMatch:t?.epoch===now.epoch,chatMatch:t?.chatId===now.chatId,signatureMatch:t?.signature===now.signature,oldSignature:t?.signature,newSignature:now.signature});}return ok;};window.__gates=[];c.eventSource.on(c.eventTypes.WORLDINFO_ENTRIES_LOADED,p=>{__gates.push(Object.fromEntries(['globalLore','characterLore','chatLore','personaLore'].map(k=>[k,(p[k]||[]).filter(e=>String(e.comment).includes('F7D_GATE')).map(e=>({id:e.uid,comment:e.comment}))])));});});
  const cases=[
  {id:'day6',day:6,intel:0,scene:'第七天已完成高校救援和东方古街解放。你昨夜回中央庭休息，现在尚未醒来。',inputs:['继续到我醒来，遇到需要我回应时停下。','我先观察异常并和安一同阻挡，不贸然接近。','我问希罗这到底是什么，赛哈姆怎么了？','我不答应替你保密。先看着你带走她，之后我要把亲眼所见告诉安托涅瓦。']},
  {id:'split-intel4',day:5,intel:4,scene:'第六天已经结束。希罗昨日已带走赛哈姆，你亲眼见到并把事情告诉了安托涅瓦。你已获得四份互不重复的有效希罗情报，晏华知道这些材料。现在是次日清晨，尚未醒来。',inputs:['继续到我醒来，遇到需要我回应时停下。','我随安来到会议室，先听他们说。','我拒绝希罗的邀请，留在中央庭。请承接眼前的现场。']},
@@ -45,10 +45,10 @@ try{
    await checkpoint('generating '+scene.id+' '+(i+1));
    await limit(evalNative(async()=>{const st=await import('/script.js');st.setOnlineStatus('Connected');await st.Generate('normal');}),180000,'native generation '+scene.id+' '+(i+1));
    await page.waitForTimeout(2000);await waitIdle();
-   const data=await page.evaluate(()=>{const c=SillyTavern.getContext();const n=c.chat.length-1;return {text:c.chat[n]?.mes,is_user:c.chat[n]?.is_user,variables:Mvu.getMvuData({type:'message',message_id:n}),gates:window.__gates.at(-1),terminal:window.f7dTacticalTerminal?.getSnapshot?.()};});
+   const data=await page.evaluate(()=>{const c=SillyTavern.getContext();const n=c.chat.length-1;return {text:c.chat[n]?.mes,is_user:c.chat[n]?.is_user,variables:Mvu.getMvuData({type:'message',message_id:n}),gates:window.__gates.at(-1),book:SillyTavern.getContext().characters[SillyTavern.getContext().characterId]?.data?.extensions?.world,terminal:window.f7dTacticalTerminal?.getSnapshot?.()};});
    if(requests.length===start)throw Error('No native model request was sent');
    if(data.is_user||!data.text)throw Error('no native assistant reply');
-   rounds.push({case:scene.id,round:i+1,user:scene.inputs[i],before,after:data.variables?.stat_data,text:data.text,gates:data.gates,terminal:data.terminal,requests:requests.slice(start).map(r=>({model:r.model,source:r.source,message_count:r.message_count,chars:r.chars}))});
+   rounds.push({case:scene.id,round:i+1,user:scene.inputs[i],before,after:data.variables?.stat_data,text:data.text,gates:data.gates,terminal:data.terminal,rawVariables:data.variables,commitDiagnostics:await page.evaluate(()=>window.__commitDiagnostics),requests:requests.slice(start).map(r=>({model:r.model,source:r.source,message_count:r.message_count,chars:r.chars}))});
    await page.screenshot({path:out+'/'+scene.id+'-'+(i+1)+'.jpg',type:'jpeg',quality:90,fullPage:true});
    await checkpoint('completed '+scene.id+' '+(i+1));
    await fs.writeFile(out+'/native-live.json',JSON.stringify({model:'gemini-3-flash-preview',rounds,errors},null,2));
