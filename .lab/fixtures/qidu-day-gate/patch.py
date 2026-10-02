@@ -59,20 +59,20 @@ def cut(ident,start,end=None):
  out=text[a:b];by[ident]['content']=text[:a]+text[b:];return out
 secret(cut(40,'身份揭晓后机械描写硬限制：','【前期信息权限】'),{'flag':'intel_flags.ann_origin_known'})
 cut(40,'【前期信息权限】')
-by[40]['content']=re.sub(r'性别/称谓硬锚：[^\\n]*','性别/称谓硬锚：女性，第三人称使用“她”。',by[40]['content'])
+by[40]['content']=re.sub(r'性别/称谓硬锚：[^\n]*','性别/称谓硬锚：女性，第三人称使用“她”。',by[40]['content'])
 by[40]['content']=by[40]['content'].replace('身份真相揭露前后都保持自然少女外观。','保持自然少女外观。')
-by[40]['content']+='\\n信息权限：只知道公开历史与实际被告知的事情，未揭露的秘密不主动提及。'
+by[40]['content']+='\n信息权限：只知道公开历史与实际被告知的事情，未揭露的秘密不主动提及。'
 history=cut(41,'【第一活骸事故精确披露】')
-history=re.sub(r'[^\\n]*零[^\\n]*','- 本段不披露未经确认的身份。',history)
+history=re.sub(r'[^\n]*零[^\n]*','- 本段不披露未经确认的身份。',history)
 secret(history,{'day':6})
 secret(history,{'flag':'intel_flags.first_chimera_incident_known'})
 cut(41,'对活骸问题')
 by[41]['content']=by[41]['content'].replace('因过去严重异化/战斗损伤失去正常步行能力。','常坐轮椅。')
-by[41]['content']+='\\n黑门多年前已经存在，半年前才把灾害压制到交界都市。她看不到你的悬浮倒计时，对其含义没有已确认的知识。'
+by[41]['content']+='\n黑门多年前已经存在，半年前才把灾害压制到交界都市。她看不到你的悬浮倒计时，对其含义没有已确认的知识。'
 by[43]['content']=by[43]['content'].replace('前中央庭核心人物','中央庭建立者与核心人物')
 cut(43,'【指挥使身份与信息权限】')
-by[43]['content']+='\\n希罗是资深指挥使，也是你到来前中央庭主要的指挥使。当前是否代表中央庭依据实际发生的事件判断，不能提前自称前成员。'
-by[10]['content']+='\\n初见希罗时，他以资深前辈身份自然确认新任指挥使，并递来一颗草莓糖；是否接下由你决定。'
+by[43]['content']+='\n希罗是资深指挥使，也是你到来前中央庭主要的指挥使。当前是否代表中央庭依据实际发生的事件判断，不能提前自称前成员。'
+by[10]['content']+='\n初见希罗时，他以资深前辈身份自然确认新任指挥使，并递来一颗草莓糖；是否接下由你决定。'
 secret('希罗正式离开中央庭后不再代表中央庭行动，但仍有指挥使能力身份；此前不能预演分裂。',{'flag':'morning_flags.day5_split'})
 secret(cut(44,'【活骸知识边界】','【高校剧情阶段二姓名来源顺序】'),{'flag':'intel_flags.chimera_exists_known'})
 secret(cut(44,'【珈儿来源追问必须直接否认】'),{'flag':'intel_flags.chimera_exists_known'})
