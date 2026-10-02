@@ -51,3 +51,5 @@ scripts.insert(0,{'type':'script','enabled':True,'id':str(uuid.uuid4()),'name':'
 report={'base':src.name,'version':data['character_version'],'gated':{str(e['id']):e['comment'] for e in entries if e['comment'].startswith('[F7D_GATE:')},'reveals':reveals,'scripts':[{'name':s['name'],'enabled':s.get('enabled')} for s in scripts]}
 (root/'revision-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
 print(json.dumps(report,ensure_ascii=False))
+
+(root/'lore-audit.json').write_text(json.dumps({str(e['id']):e['content'] for e in entries},ensure_ascii=False,indent=2))
