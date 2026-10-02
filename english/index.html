@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f6efff">
+<title>懒人英语语言包</title>
+<link rel="manifest" href="./manifest.json">
+<style>
+:root{
+  --bg:#f8f5fb; --card:#ffffff; --ink:#2d2734; --muted:#7a7181;
+  --accent:#9a78d1; --accent2:#e7dcf8; --ok:#dff4e8; --bad:#fde7ea;
+  --shadow:0 12px 35px rgba(70,48,95,.10);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:
+  radial-gradient(circle at 10% 0%,#f0e6ff 0,transparent 34%),
+  radial-gradient(circle at 100% 20%,#eaf4ff 0,transparent 30%),var(--bg);
+  color:var(--ink);font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+}
+.wrap{max-width:640px;margin:0 auto;padding:18px 16px 90px}
+.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}
+h1{font-size:24px;margin:0}.sub{color:var(--muted);font-size:13px;margin-top:4px}
+.badge{background:#fff;border:1px solid #eee6f7;padding:8px 11px;border-radius:999px;font-size:12px;white-space:nowrap}
+.tabs{display:flex;gap:8px;overflow:auto;padding:4px 0 12px}
+.tab{border:0;background:#fff;color:var(--muted);padding:9px 13px;border-radius:999px;box-shadow:0 4px 12px rgba(60,40,80,.06);white-space:nowrap}
+.tab.active{background:var(--accent);color:white}
+.card{background:rgba(255,255,255,.94);border:1px solid #eee8f4;border-radius:26px;padding:22px;box-shadow:var(--shadow);min-height:380px;display:flex;flex-direction:column}
+.kicker{font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.08em}
+.en{font-size:31px;line-height:1.18;margin:20px 0 10px;font-weight:750}
+.zh{font-size:16px;color:var(--muted);min-height:24px;filter:blur(7px);user-select:none;transition:.2s}
+.zh.show{filter:none}
+.replyBox{margin-top:24px;padding:16px;background:#f7f2fc;border-radius:18px;display:none}
+.replyBox.show{display:block}
+.replyEn{font-size:20px;font-weight:700;line-height:1.3}
+.replyZh{font-size:14px;color:var(--muted);margin-top:6px}
+.practice{margin-top:18px;padding:15px;background:#fbf9fd;border:1px solid #eee7f4;border-radius:20px}
+.practiceHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.practiceTitle{font-size:14px;font-weight:750}
+.modeSwitch{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.stagePill{padding:6px 8px;border-radius:999px;background:#f1ebf7;color:var(--muted);font-size:11px;font-weight:700}
+.stagePill.active{background:var(--accent);color:#fff}
+.stagePill.done{background:#e6f4eb;color:#44705a}
+.daily{margin:0 0 12px;background:rgba(255,255,255,.9);border:1px solid #eee8f4;border-radius:18px;padding:12px 14px;box-shadow:0 6px 20px rgba(70,48,95,.06)}
+.dailyTop{display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:13px}
+.dailyTop b{font-size:14px}
+.dailyBar{height:8px;background:#eee8f4;border-radius:999px;margin-top:9px;overflow:hidden}
+.dailyFill{height:100%;width:0;background:linear-gradient(90deg,#9a78d1,#b99de0);border-radius:inherit;transition:.25s}
+.paperWrap{position:relative;height:190px;border-radius:16px;overflow:hidden;background:
+  repeating-linear-gradient(to bottom,#fff 0,#fff 43px,#eee8f3 44px,#fff 45px);
+  border:1px solid #ece4f1;touch-action:none}
+.traceText{position:absolute;inset:18px;display:flex;align-items:flex-start;justify-content:center;text-align:center;
+  color:rgba(154,120,209,.20);font:700 28px/1.45 "Comic Sans MS","Bradley Hand",cursive;pointer-events:none;user-select:none}
+.traceText.hidden{display:none}
+#writeCanvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.practiceHint{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.45}
+.practiceTools{display:flex;gap:8px;margin-top:10px}
+.practiceTools .btn{flex:1;padding:10px 8px;font-size:13px}
+.dictationMask #en{filter:blur(11px);user-select:none}
+.spacer{flex:1}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+button{font:inherit}
+.btn{border:0;border-radius:16px;padding:13px 12px;background:#f2edf7;color:var(--ink);font-weight:650}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.ok{background:var(--ok)}
+.btn.bad{background:var(--bad)}
+.row{display:flex;gap:10px;margin-top:10px}
+.row .btn{flex:1}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:14px}
+.stat{background:#fff;border:1px solid #eee8f4;border-radius:16px;padding:12px;text-align:center}
+.stat b{display:block;font-size:18px}.stat span{color:var(--muted);font-size:12px}
+.tip{margin-top:14px;color:var(--muted);font-size:13px;line-height:1.6;padding:0 4px}
+.bottom{position:fixed;left:0;right:0;bottom:0;background:rgba(248,245,251,.85);backdrop-filter:blur(16px);border-top:1px solid #eee7f3}
+.bottom .inner{max-width:640px;margin:auto;padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;gap:10px}
+.bottom .btn{flex:1}
+.small{font-size:12px;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%) translateY(12px);opacity:0;background:#2f2835;color:white;padding:9px 13px;border-radius:999px;font-size:13px;transition:.2s;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>懒人英语语言包 🚬</h1>
+      <div class="sub">不背表，不考试。每天点几下，活着就算学习。</div>
+    </div>
+    <div class="badge" id="streak">🔥 0 天</div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="daily">
+    <div class="dailyTop">
+      <b>今天只求手熟 ✍️</b>
+      <span id="dailyText">0 / 5 句</span>
+    </div>
+    <div class="dailyBar"><div class="dailyFill" id="dailyFill"></div></div>
+  </div>
+
+  <section class="card">
+    <div class="kicker" id="cat">今日一条</div>
+    <div class="en" id="en">Loading...</div>
+    <div class="zh" id="zh">加载中</div>
+
+    <div class="replyBox" id="replyBox">
+      <div class="small">顺手学个回复</div>
+      <div class="replyEn" id="replyEn"></div>
+      <div class="replyZh" id="replyZh"></div>
+    </div>
+
+    <div class="practice" id="practice">
+      <div class="practiceHead">
+        <div class="practiceTitle">✍️ 烂笔头区</div>
+        <div class="modeSwitch" id="stagePills">
+          <span class="stagePill active">1 描</span>
+          <span class="stagePill">2 抄</span>
+          <span class="stagePill">3 补</span>
+          <span class="stagePill">4 默</span>
+        </div>
+      </div>
+      <div class="paperWrap" id="paperWrap">
+        <div class="traceText" id="traceText"></div>
+        <canvas id="writeCanvas"></canvas>
+      </div>
+      <div class="practiceHint" id="practiceHint">照着淡字描一遍。写得丑没关系，肌肉记忆不挑字体。</div>
+      <div class="practiceTools">
+        <button class="btn" id="clearCanvas">🧽 擦掉</button>
+        <button class="btn" id="practiceSpeak">🔊 再听一遍</button>
+        <button class="btn" id="revealAnswer">👀 看答案</button>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="actions">
+      <button class="btn" id="speak">🔊 听一下</button>
+      <button class="btn" id="showZh">👀 看中文</button>
+    </div>
+    <div class="row">
+      <button class="btn" id="showReply">💬 看回复</button>
+      <button class="btn primary" id="next">下一条 →</button>
+    </div>
+  </section>
+
+  <div class="stats">
+    <div class="stat"><b id="seen">0</b><span>手写次数</span></div>
+    <div class="stat"><b id="known">0</b><span>今天手熟</span></div>
+    <div class="stat"><b id="review">0</b><span>待复习</span></div>
+  </div>
+
+  <div class="tip">玩法：一条句子只做四遍：描一遍、抄一遍、补空一遍、最后默一遍。写完就点下面的大按钮，网站自己往后走。卡住就偷看答案，不扣分，不审判。目标只是让手先记住，脑子爱什么时候跟上什么时候跟上。</div>
+</div>
+
+<div class="bottom">
+  <div class="inner">
+    <button class="btn bad" id="forget">🧠 卡住了</button>
+    <button class="btn ok" id="know">✍️ 写完这一遍 →</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA = [{"en":"Where are you from?","zh":"你来自哪里？","reply":"Somewhere with Wi-Fi.","reply_zh":"一个有 Wi-Fi 的地方。","cat":"社交"},{"en":"Are you a man or a woman?","zh":"你是男还是女？","reply":"Human, last time I checked.","reply_zh":"据我上次确认，是个人。","cat":"社交"},{"en":"What do you do?","zh":"你做什么的？","reply":"Mostly trying to stay alive.","reply_zh":"主要努力活着。","cat":"社交"},{"en":"How old are you?","zh":"你多大？","reply":"Old enough to know better.","reply_zh":"大到应该懂事了。","cat":"社交"},{"en":"Can we be friends?","zh":"我们能做朋友吗？","reply":"That depends on your next sentence.","reply_zh":"看你下一句说什么。","cat":"社交"},{"en":"Why are you so quiet?","zh":"你怎么这么安静？","reply":"I’m buffering.","reply_zh":"我在加载。","cat":"社交"},{"en":"What are you thinking about?","zh":"你在想什么？","reply":"Nothing productive.","reply_zh":"反正不是什么有生产力的事。","cat":"社交"},{"en":"Do you have WhatsApp?","zh":"你有 WhatsApp 吗？","reply":"I have boundaries.","reply_zh":"我有边界感。","cat":"社交"},{"en":"Can I see your photo?","zh":"能看你的照片吗？","reply":"That feature is currently unavailable.","reply_zh":"该功能当前不可用。","cat":"社交"},{"en":"Why are you like this?","zh":"你怎么这样？","reply":"Years of practice.","reply_zh":"多年练习的成果。","cat":"社交"},{"en":"It works on my machine.","zh":"在我电脑上明明能跑。","reply":"Famous last words.","reply_zh":"经典临终遗言。","cat":"互联网"},{"en":"I broke it.","zh":"我把它搞坏了。","reply":"That means you’re learning.","reply_zh":"说明你正在学习。","cat":"互联网"},{"en":"Try restarting it.","zh":"试试重启。","reply":"The ancient ritual.","reply_zh":"古老仪式。","cat":"互联网"},{"en":"This update changed everything.","zh":"这个更新把一切都改了。","reply":"Naturally.","reply_zh":"那当然。","cat":"互联网"},{"en":"The API is down.","zh":"API 挂了。","reply":"So is my motivation.","reply_zh":"我的动力也挂了。","cat":"互联网"},{"en":"It’s probably a cache issue.","zh":"大概是缓存问题。","reply":"It’s always the cache until it isn’t.","reply_zh":"在不是缓存之前，一切都是缓存。","cat":"互联网"},{"en":"Can you reproduce the bug?","zh":"你能复现这个 bug 吗？","reply":"Unfortunately, yes.","reply_zh":"很不幸，可以。","cat":"互联网"},{"en":"I pushed a fix.","zh":"我推了个修复。","reply":"May the tests be merciful.","reply_zh":"愿测试手下留情。","cat":"互联网"},{"en":"The docs are outdated.","zh":"文档过时了。","reply":"A timeless tradition.","reply_zh":"历史悠久的传统。","cat":"互联网"},{"en":"Let me check the logs.","zh":"我看看日志。","reply":"Into the abyss we go.","reply_zh":"走，去深渊里看看。","cat":"互联网"},{"en":"I’m tired.","zh":"我累了。","reply":"Same, spiritually.","reply_zh":"精神上同感。","cat":"日常"},{"en":"I need coffee.","zh":"我需要咖啡。","reply":"I need a system reboot.","reply_zh":"我需要系统重启。","cat":"日常"},{"en":"What do you want to eat?","zh":"你想吃什么？","reply":"Something I don’t have to cook.","reply_zh":"只要不用我做。","cat":"日常"},{"en":"Are you busy?","zh":"你忙吗？","reply":"Emotionally, yes.","reply_zh":"精神上挺忙的。","cat":"日常"},{"en":"I forgot.","zh":"我忘了。","reply":"My brain declined the request.","reply_zh":"我的脑子拒绝了这个请求。","cat":"日常"},{"en":"I’ll do it later.","zh":"我晚点做。","reply":"A dangerous sentence.","reply_zh":"一句危险的话。","cat":"日常"},{"en":"I’m almost there.","zh":"我快到了。","reply":"Define “almost.”","reply_zh":"先定义一下“快”。","cat":"日常"},{"en":"I can’t sleep.","zh":"我睡不着。","reply":"My brain chose overtime.","reply_zh":"我的脑子选择加班。","cat":"日常"},{"en":"What happened?","zh":"发生什么了？","reply":"A series of poor decisions.","reply_zh":"一连串糟糕的决定。","cat":"日常"},{"en":"Are you okay?","zh":"你还好吗？","reply":"Operational enough.","reply_zh":"勉强还能运行。","cat":"日常"},{"en":"Could you explain that again?","zh":"你能再解释一遍吗？","reply":"Preferably with fewer mysteries.","reply_zh":"最好少一点谜语。","cat":"实用"},{"en":"Give me a moment.","zh":"给我一点时间。","reply":"My brain is loading.","reply_zh":"我的脑子正在加载。","cat":"实用"},{"en":"I’m not sure I understand.","zh":"我不确定我理解了。","reply":"Could you give me an example?","reply_zh":"可以举个例子吗？","cat":"实用"},{"en":"That works for me.","zh":"我可以。","reply":"Let’s do that.","reply_zh":"那就这么办。","cat":"实用"},{"en":"I’ll get back to you.","zh":"我之后回复你。","reply":"I’ll check and reply later.","reply_zh":"我确认后晚点回复。","cat":"实用"},{"en":"No worries.","zh":"没事。","reply":"Take your time.","reply_zh":"慢慢来。","cat":"实用"},{"en":"I’d rather not.","zh":"我不太想。","reply":"Thanks for understanding.","reply_zh":"谢谢理解。","cat":"实用"},{"en":"That’s not what I meant.","zh":"我不是那个意思。","reply":"Let me rephrase.","reply_zh":"我换个说法。","cat":"实用"},{"en":"I need more context.","zh":"我需要更多上下文。","reply":"What happened before this?","reply_zh":"这之前发生了什么？","cat":"实用"},{"en":"I don’t know yet.","zh":"我还不知道。","reply":"I’m still figuring it out.","reply_zh":"我还在想。","cat":"实用"}];
+let state = JSON.parse(localStorage.getItem('lazyEnglishState')||'{}');
+state.seen = state.seen||{};
+state.known = state.known||{};
+state.review = state.review||{};
+state.streak = state.streak||{last:null,count:0};
+state.writes = state.writes||{};
+state.cycles = state.cycles||{};
+state.dailyDone = state.dailyDone||{};
+let filter = '全部', current = null, practiceStage = 0;
+
+const $ = s => document.querySelector(s);
+function save(){ localStorage.setItem('lazyEnglishState',JSON.stringify(state)); updateStats(); }
+function dayKey(){ return new Date().toLocaleDateString('sv-SE'); }
+function touchStreak(){
+  const today = dayKey();
+  if(state.streak.last===today) return;
+  const d=new Date(); d.setDate(d.getDate()-1);
+  const y=d.toLocaleDateString('sv-SE');
+  state.streak.count = state.streak.last===y ? state.streak.count+1 : 1;
+  state.streak.last = today; save();
+}
+function list(){
+  if(filter==='待复习'){
+    const ids = Object.keys(state.review).filter(k=>state.review[k]);
+    const arr = ids.map(i=>DATA[+i]).filter(Boolean);
+    return arr.length ? arr : DATA;
+  }
+  return filter==='全部' ? DATA : DATA.filter(x=>x.cat===filter);
+}
+function indexOfObj(obj){ return DATA.indexOf(obj); }
+function weightedPick(arr){
+  const weighted=arr.map(item=>{
+    const i=indexOfObj(item);
+    const cycles=state.cycles[i]||0;
+    const review=state.review[i]?4:1;
+    return {item,w:review*(1/(cycles+1))};
+  });
+  const total=weighted.reduce((s,x)=>s+x.w,0);
+  let r=Math.random()*total;
+  for(const x of weighted){ r-=x.w; if(r<=0) return x.item; }
+  return weighted[weighted.length-1].item;
+}
+function pick(){
+  const arr=list();
+  current=weightedPick(arr);
+  practiceStage=0;
+  const idx=indexOfObj(current);
+  state.seen[idx]=true; save(); touchStreak();
+  $('#cat').textContent=current.cat+' · 四遍手熟';
+  $('#en').textContent=current.en;
+  $('#zh').textContent=current.zh;
+  $('#zh').classList.remove('show');
+  $('#replyBox').classList.remove('show');
+  $('#replyEn').textContent=current.reply;
+  $('#replyZh').textContent=current.reply_zh;
+  updatePractice();
+  clearWriting();
+}
+function updateStats(){
+  const totalWrites=Object.values(state.writes).reduce((a,b)=>a+(Number(b)||0),0);
+  const today=dayKey();
+  const done=state.dailyDone[today]||{};
+  const doneCount=Object.values(done).filter(Boolean).length;
+  $('#seen').textContent=totalWrites;
+  $('#known').textContent=doneCount;
+  $('#review').textContent=Object.values(state.review).filter(Boolean).length;
+  $('#streak').textContent='🔥 '+(state.streak.count||0)+' 天';
+  $('#dailyText').textContent=Math.min(doneCount,5)+' / 5 句';
+  $('#dailyFill').style.width=Math.min(100,(doneCount/5)*100)+'%';
+}
+function toast(t){
+  const e=$('#toast'); e.textContent=t; e.classList.add('show');
+  setTimeout(()=>e.classList.remove('show'),900);
+}
+function speak(){
+  if(!current) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(current.en);
+  u.lang='en-US'; u.rate=.88; speechSynthesis.speak(u);
+}
+
+const canvas=$('#writeCanvas');
+const ctx=canvas.getContext('2d');
+let drawing=false, lastX=0, lastY=0;
+
+function resizeCanvas(){
+  const rect=canvas.getBoundingClientRect();
+  const dpr=Math.max(1,window.devicePixelRatio||1);
+  const old=document.createElement('canvas');
+  old.width=canvas.width; old.height=canvas.height;
+  if(canvas.width&&canvas.height) old.getContext('2d').drawImage(canvas,0,0);
+  canvas.width=Math.round(rect.width*dpr);
+  canvas.height=Math.round(rect.height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.lineCap='round'; ctx.lineJoin='round'; ctx.lineWidth=3;
+  ctx.strokeStyle='#5f5270';
+}
+function point(e){
+  const r=canvas.getBoundingClientRect();
+  return {x:e.clientX-r.left,y:e.clientY-r.top};
+}
+canvas.addEventListener('pointerdown',e=>{
+  drawing=true; canvas.setPointerCapture(e.pointerId);
+  const p=point(e); lastX=p.x; lastY=p.y;
+});
+canvas.addEventListener('pointermove',e=>{
+  if(!drawing) return;
+  const p=point(e);
+  ctx.beginPath(); ctx.moveTo(lastX,lastY); ctx.lineTo(p.x,p.y); ctx.stroke();
+  lastX=p.x; lastY=p.y;
+});
+function stopDraw(){ drawing=false; }
+canvas.addEventListener('pointerup',stopDraw);
+canvas.addEventListener('pointercancel',stopDraw);
+canvas.addEventListener('pointerleave',e=>{ if(e.pointerType==='mouse') stopDraw(); });
+
+function clearWriting(){
+  if(!canvas.width) return;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+function cloze(text){
+  let n=0;
+  return text.split(/(\s+)/).map(part=>{
+    if(/^\s+$/.test(part)) return part;
+    const m=part.match(/^([A-Za-z’']+)([^A-Za-z’']*)$/);
+    if(!m) return part;
+    n++;
+    const word=m[1];
+    if(word.length<4 || n%2===1) return part;
+    return word[0]+'＿'.repeat(Math.min(6,Math.max(2,word.length-2)))+m[2];
+  }).join('');
+}
+function updatePractice(){
+  if(!current) return;
+  const pills=[...document.querySelectorAll('.stagePill')];
+  pills.forEach((p,i)=>{
+    p.classList.toggle('active',i===practiceStage);
+    p.classList.toggle('done',i<practiceStage);
+  });
+  const card=document.querySelector('.card');
+  card.classList.remove('dictationMask');
+  $('#traceText').classList.add('hidden');
+  $('#zh').classList.remove('show');
+  $('#en').textContent=current.en;
+  $('#revealAnswer').textContent='👀 偷看答案';
+
+  if(practiceStage===0){
+    $('#traceText').classList.remove('hidden');
+    $('#traceText').textContent=current.en;
+    $('#practiceHint').textContent='第 1 遍：沿着淡字描。先让手认识它，脑子可以摸鱼。';
+  }else if(practiceStage===1){
+    $('#practiceHint').textContent='第 2 遍：看着上面的原句，自己抄一遍。';
+  }else if(practiceStage===2){
+    $('#en').textContent=cloze(current.en);
+    $('#practiceHint').textContent='第 3 遍：有些词被挖掉了，想不起来就偷看，别硬扛。';
+  }else{
+    card.classList.add('dictationMask');
+    $('#zh').classList.add('show');
+    $('#practiceHint').textContent='第 4 遍：只看中文，或者听一遍，凭记忆写完整句。';
+    setTimeout(speak,180);
+  }
+}
+window.addEventListener('resize',()=>setTimeout(resizeCanvas,80));
+setTimeout(resizeCanvas,50);
+const cats=['全部','社交','互联网','日常','实用','待复习'];
+const tabs=$('#tabs');
+cats.forEach(c=>{
+  const b=document.createElement('button'); b.className='tab'+(c==='全部'?' active':''); b.textContent=c;
+  b.onclick=()=>{ filter=c; [...tabs.children].forEach(x=>x.classList.remove('active')); b.classList.add('active'); pick(); };
+  tabs.appendChild(b);
+});
+$('#speak').onclick=speak;
+$('#practiceSpeak').onclick=speak;
+$('#clearCanvas').onclick=clearWriting;
+$('#revealAnswer').onclick=()=>{
+  if(!current) return;
+  const card=document.querySelector('.card');
+  const oldText=$('#en').textContent;
+  card.classList.remove('dictationMask');
+  $('#en').textContent=current.en;
+  $('#zh').classList.add('show');
+  toast('给你偷看 2.4 秒 👀');
+  setTimeout(()=>{
+    if(practiceStage===2) $('#en').textContent=cloze(current.en);
+    else $('#en').textContent=current.en;
+    if(practiceStage===3) card.classList.add('dictationMask');
+  },2400);
+};
+$('#showZh').onclick=()=>$('#zh').classList.toggle('show');
+$('#showReply').onclick=()=>$('#replyBox').classList.toggle('show');
+$('#next').onclick=pick;
+$('#know').onclick=()=>{
+  if(!current) return;
+  const i=indexOfObj(current);
+  state.writes[i]=(state.writes[i]||0)+1;
+  state.review[i]=false;
+  save();
+  if(practiceStage<3){
+    practiceStage++;
+    clearWriting();
+    updatePractice();
+    toast('这一遍算数 ✍️');
+  }else{
+    state.cycles[i]=(state.cycles[i]||0)+1;
+    state.known[i]=true;
+    const today=dayKey();
+    state.dailyDone[today]=state.dailyDone[today]||{};
+    state.dailyDone[today][i]=true;
+    save();
+    toast('今天先手熟了 ✓');
+    setTimeout(pick,300);
+  }
+};
+$('#forget').onclick=()=>{
+  if(!current) return;
+  const i=indexOfObj(current);
+  state.review[i]=true;
+  state.known[i]=false;
+  save();
+  const card=document.querySelector('.card');
+  card.classList.remove('dictationMask');
+  $('#en').textContent=current.en;
+  $('#zh').classList.add('show');
+  toast('卡住就看，没什么可丢人的');
+};
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+updateStats(); pick();
+</script>
+</body>
+</html>
