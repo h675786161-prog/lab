@@ -45,6 +45,46 @@ for field in ['system_prompt','post_history_instructions','scenario','personalit
 for e in entries:
  if e['id']<10 and e['id']!=4:
   e['content']='\n'.join(l for l in e['content'].splitlines() if not re.search(r'第[一二三四五六1-6]天.*(?:希罗|安托涅瓦|离开|分裂|活骸|黑核|结局)',l))
+
+# 将人物档案中的后续事实一并移出常驻上下文。
+def secret(text,rule):
+ if not text.strip():return
+ n={'id':max(z['id'] for z in entries)+1,'keys':[],'secondary_keys':[],'comment':'已开放剧情事实','content':text,'enabled':False,'constant':False,'insertion_order':100,'position':'before_char','extensions':{}}
+ gate(n,rule);entries.append(n);reveals.append(n['id'])
+def cut(ident,start,end=None):
+ text=by[ident]['content'];a=text.find(start)
+ if a<0:return ''
+ b=text.find(end,a) if end else len(text)
+ if b<0:b=len(text)
+ out=text[a:b];by[ident]['content']=text[:a]+text[b:];return out
+secret(cut(40,'身份揭晓后机械描写硬限制：','【前期信息权限】'),{'flag':'intel_flags.ann_origin_known'})
+cut(40,'【前期信息权限】')
+by[40]['content']=re.sub(r'性别/称谓硬锚：[^\\n]*','性别/称谓硬锚：女性，第三人称使用“她”。',by[40]['content'])
+by[40]['content']=by[40]['content'].replace('身份真相揭露前后都保持自然少女外观。','保持自然少女外观。')
+by[40]['content']+='\\n信息权限：只知道公开历史与实际被告知的事情，未揭露的秘密不主动提及。'
+history=cut(41,'【第一活骸事故精确披露】')
+history=re.sub(r'[^\\n]*零[^\\n]*','- 本段不披露未经确认的身份。',history)
+secret(history,{'day':6})
+secret(history,{'flag':'intel_flags.first_chimera_incident_known'})
+cut(41,'对活骸问题')
+by[41]['content']=by[41]['content'].replace('因过去严重异化/战斗损伤失去正常步行能力。','常坐轮椅。')
+by[41]['content']+='\\n黑门多年前已经存在，半年前才把灾害压制到交界都市。她看不到你的悬浮倒计时，对其含义没有已确认的知识。'
+by[43]['content']=by[43]['content'].replace('前中央庭核心人物','中央庭建立者与核心人物')
+cut(43,'【指挥使身份与信息权限】')
+by[43]['content']+='\\n希罗是资深指挥使，也是你到来前中央庭主要的指挥使。当前是否代表中央庭依据实际发生的事件判断，不能提前自称前成员。'
+by[10]['content']+='\\n初见希罗时，他以资深前辈身份自然确认新任指挥使，并递来一颗草莓糖；是否接下由你决定。'
+secret('希罗正式离开中央庭后不再代表中央庭行动，但仍有指挥使能力身份；此前不能预演分裂。',{'flag':'morning_flags.day5_split'})
+secret(cut(44,'【活骸知识边界】','【高校剧情阶段二姓名来源顺序】'),{'flag':'intel_flags.chimera_exists_known'})
+secret(cut(44,'【珈儿来源追问必须直接否认】'),{'flag':'intel_flags.chimera_exists_known'})
+secret(cut(45,'让·塔克死亡后的事实边界：'),{'unlock':5})
+gate(by[45],{'unlock':5})
+cut(64,'第6天固定活骸事件中','不能把她写成')
+by[64]['content']=by[64]['content'].replace('活骸化前后外观变化必须随剧情发生。','外观变化必须随当前实际发生的剧情。')
+block=cut(32,'【第6天赛斯必演】','【地区结算】')
+secret(block,{'day':6})
+for ident in [30,66]:
+ by[ident]['content']=by[ident]['content'].replace('活骸风险','幻力失控风险')
+
 scripts=data['extensions']['tavern_helper']['scripts']
 scripts.insert(0,{'type':'script','enabled':True,'id':str(uuid.uuid4()),'name':'七都日程加载','content':(root/'day-gate.js').read_text(),'info':'','button':{'enabled':False,'buttons':[]},'data':{}})
 (root/'Qidu-v0.4.42-day-gate.json').write_text(json.dumps(card,ensure_ascii=False,indent=2)+'\n')
