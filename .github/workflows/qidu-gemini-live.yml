@@ -1,43 +1,72 @@
-name: Qidu Gemini live preflight
+name: Qidu Gemini native live
 on:
   push:
     branches: [feature/qidu-day-gate-20261002]
-    paths: ['.github/workflows/qidu-gemini-live.yml']
+    paths: ['.github/workflows/qidu-gemini-live.yml', '.lab/fixtures/qidu-day-gate/native-live.mjs']
 permissions:
   contents: write
 jobs:
-  probe:
+  native-live:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
-      - name: Verify requested provider and model
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare exact lab runtime
+        run: |
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git /tmp/qidu-native
+          git -C /tmp/qidu-native fetch origin 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8 --depth=1
+          git -C /tmp/qidu-native checkout --detach FETCH_HEAD
+          cd /tmp/qidu-native
+          npm ci --no-audit --no-fund
+          mkdir -p public/scripts/extensions/third-party
+          git clone https://github.com/N0VI028/JS-Slash-Runner.git public/scripts/extensions/third-party/JS-Slash-Runner
+          git -C public/scripts/extensions/third-party/JS-Slash-Runner checkout 519599bc68247d8e759cc844a983f8f5252941a8
+          git clone https://github.com/h675786161-prog/world-backstage.git public/scripts/extensions/third-party/world-backstage-test
+          git -C public/scripts/extensions/third-party/world-backstage-test checkout f9babfa0ee0bd3003d3529fd171b83103cfee4c1
+          curl -fsSL https://raw.githubusercontent.com/MagicalAstrogy/MagVarUpdate/183d8ade3b9a3369e824a55cb13b4ddf91aada50/artifact/bundle.js -o public/f7d-mvu.js
+          nohup node server.js --port 8000 > /tmp/qidu-native-server.log 2>&1 &
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:8000/ >/dev/null; then break; fi
+            sleep 1
+          done
+      - name: Configure existing GG key in isolated server
         env:
           GG_KEY: ${{ secrets.GG }}
         run: |
-          mkdir -p .lab/fixtures/qidu-day-gate/live
           python - <<'PY'
-          import os,json,urllib.request,urllib.error
-          from pathlib import Path
-          out=Path('.lab/fixtures/qidu-day-gate/live/preflight.json')
-          result={'site':'https://gcli.ggchan.dev','requested':'Gemini 3 flash'}
-          key=os.environ.get('GG_KEY','')
-          if not key: result['status']='missing_secret'
-          else:
-           try:
-            req=urllib.request.Request('https://gcli.ggchan.dev/v1/models',headers={'Authorization':'Bearer '+key,'Accept':'application/json'})
-            with urllib.request.urlopen(req,timeout=40) as r: data=json.load(r)
-            ids=[x.get('id',x.get('name','')) for x in data.get('data',[])]
-            result.update(status='ok',models=ids,candidates=[x for x in ids if 'gemini' in x.lower() and '3' in x and 'flash' in x.lower()])
-           except urllib.error.HTTPError as e:result.update(status='http_error',http_status=e.code)
-           except Exception as e:result.update(status='error',error_type=type(e).__name__)
-          out.write_text(json.dumps(result,ensure_ascii=False,indent=2))
-          print(json.dumps(result,ensure_ascii=False))
+          import os,json,urllib.request
+          key=os.environ.get('GG_KEY')
+          if not key:raise RuntimeError('GG secret missing')
+          with urllib.request.urlopen('http://127.0.0.1:8000/csrf-token') as r: token=json.load(r)['token']
+          req=urllib.request.Request('http://127.0.0.1:8000/api/secrets/write',data=json.dumps({'key':'api_key_custom','value':key,'label':'GG live test'}).encode(),headers={'Content-Type':'application/json','X-CSRF-Token':token})
+          with urllib.request.urlopen(req) as r:
+           if r.status!=200:raise RuntimeError('local secret configuration failed')
+          print('Existing GG key configured without disclosure')
           PY
-      - name: Save safe preflight report
+      - name: Prepare browser test dependency
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Generate through native SillyTavern and record committed state
+        run: node .lab/fixtures/qidu-day-gate/native-live.mjs
+      - name: Save safe test summary
+        if: always()
         run: |
           git config user.name github-actions
           git config user.email github-actions@users.noreply.github.com
-          git add .lab/fixtures/qidu-day-gate/live/preflight.json
-          git commit -m "Record requested Gemini provider availability" || true
-          git push
+          if [ -f .lab/fixtures/qidu-day-gate/live/native-live.json ]; then
+            git add .lab/fixtures/qidu-day-gate/live/native-live.json
+            git commit -m "Save native Gemini story and MVU evidence" || true
+            git push
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qidu-gemini-native-live
+          path: |
+            .lab/fixtures/qidu-day-gate/live/*.json
+            .lab/fixtures/qidu-day-gate/live/*.jpg
+          if-no-files-found: warn
