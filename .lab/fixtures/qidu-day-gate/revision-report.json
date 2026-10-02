@@ -18,12 +18,29 @@
     "34": "[F7D_GATE:{\"unlock\":4}] 34｜海湾侧城：六巡查、阿岚幻境与黑核",
     "35": "[F7D_GATE:{\"unlock\":3}] 35｜旧城区：六巡查、艾露比/瞬/薇拉与黑核",
     "36": "[F7D_GATE:{\"unlock\":4}] 36｜港湾区：六巡查、幽桐/濑由衣与深海黑核",
+    "45": "[F7D_GATE:{\"unlock\":5}] 45｜羽弥",
     "64": "[F7D_GATE:{\"saiham\":true}] 64｜赛哈姆",
     "90": "[F7D_GATE:{\"unlock\":7}] 90｜安的三次核心剧情登记",
-    "95": "[F7D_GATE:{\"flag\":\"intel_flags.ann_origin_known\"}] 人物已揭露事实"
+    "95": "[F7D_GATE:{\"flag\":\"intel_flags.ann_origin_known\"}] 人物已揭露事实",
+    "96": "[F7D_GATE:{\"flag\":\"intel_flags.ann_origin_known\"}] 已开放剧情事实",
+    "97": "[F7D_GATE:{\"day\":6}] 已开放剧情事实",
+    "98": "[F7D_GATE:{\"flag\":\"intel_flags.first_chimera_incident_known\"}] 已开放剧情事实",
+    "99": "[F7D_GATE:{\"flag\":\"morning_flags.day5_split\"}] 已开放剧情事实",
+    "100": "[F7D_GATE:{\"flag\":\"intel_flags.chimera_exists_known\"}] 已开放剧情事实",
+    "101": "[F7D_GATE:{\"flag\":\"intel_flags.chimera_exists_known\"}] 已开放剧情事实",
+    "102": "[F7D_GATE:{\"unlock\":5}] 已开放剧情事实",
+    "103": "[F7D_GATE:{\"day\":6}] 已开放剧情事实"
   },
   "reveals": [
-    95
+    95,
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103
   ],
   "scripts": [
     {
