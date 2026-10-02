@@ -1,0 +1,57 @@
+{
+  "checks": [
+    {
+      "day": 7,
+      "dayEntries": [
+        10
+      ],
+      "saiham": true
+    },
+    {
+      "day": 6,
+      "dayEntries": [
+        11
+      ],
+      "saiham": true
+    },
+    {
+      "day": 5,
+      "dayEntries": [
+        12
+      ],
+      "saiham": false
+    },
+    {
+      "day": 4,
+      "dayEntries": [
+        13
+      ],
+      "saiham": false
+    },
+    {
+      "day": 3,
+      "dayEntries": [
+        14
+      ],
+      "saiham": false
+    },
+    {
+      "day": 2,
+      "dayEntries": [
+        15
+      ],
+      "saiham": false
+    },
+    {
+      "day": 1,
+      "dayEntries": [
+        16,
+        17
+      ],
+      "saiham": false
+    }
+  ],
+  "noState": "passed",
+  "rollback": "passed",
+  "unload": "passed"
+}
