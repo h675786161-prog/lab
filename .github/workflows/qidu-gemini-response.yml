@@ -1,0 +1,39 @@
+name: GG selected model response diagnostic
+on:
+  push:
+    branches: [feature/qidu-day-gate-20261002]
+    paths: ['.github/workflows/qidu-gemini-response.yml']
+permissions:
+  contents: write
+jobs:
+  response:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check selected model response with tiny prompt
+        env:
+          GG_KEY: ${{ secrets.GG }}
+        run: |
+          python - <<'PY'
+          import os,json,time,urllib.request,urllib.error
+          from pathlib import Path
+          result={'model':'gemini-3-flash-preview','site':'https://gcli.ggchan.dev'}
+          t=time.monotonic()
+          try:
+           req=urllib.request.Request('https://gcli.ggchan.dev/v1/chat/completions',data=json.dumps({'model':result['model'],'messages':[{'role':'user','content':'只回复数字37。'}],'max_tokens':256,'stream':False}).encode(),headers={'Authorization':'Bearer '+os.environ['GG_KEY'],'Content-Type':'application/json'})
+           with urllib.request.urlopen(req,timeout=65) as r:data=json.load(r)
+           result.update(status='ok',response=data.get('choices',[{}])[0].get('message',{}).get('content',''))
+          except urllib.error.HTTPError as e:result.update(status='http_error',http_status=e.code)
+          except Exception as e:result.update(status='error',error_type=type(e).__name__)
+          result['elapsed_seconds']=round(time.monotonic()-t,2)
+          p=Path('.lab/fixtures/qidu-day-gate/live/response-probe.json');p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(result,ensure_ascii=False,indent=2))
+          print(json.dumps(result,ensure_ascii=False))
+          PY
+      - name: Save safe response diagnostic
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add .lab/fixtures/qidu-day-gate/live/response-probe.json
+          git commit -m "Record selected model response timing" || true
+          git push
