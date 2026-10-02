@@ -1,4 +1,4 @@
-const CACHE='lazy-english-v5';
+const CACHE='lazy-english-v6';
 const ASSETS=['./','./index.html','./manifest.json'];
 
 self.addEventListener('install',event=>{
