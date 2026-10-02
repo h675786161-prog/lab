@@ -12,7 +12,7 @@ page.setDefaultTimeout(30000);
 const rounds=[],requests=[],errors=[];
 page.on('pageerror',e=>errors.push(e.message.slice(0,500)));
 page.on('request',r=>{if(r.url().endsWith('/api/backends/chat-completions/generate')){try{const d=r.postDataJSON();requests.push({model:d.model,source:d.chat_completion_source,message_count:d.messages?.length,chars:JSON.stringify(d.messages).length,messages:d.messages});void fs.writeFile(out+'/native-prompts.json',JSON.stringify(requests,null,2));}catch{}}});
-let failure;
+let failure;const pending=new Set();page.on('request',r=>{if(r.url().endsWith('/api/backends/chat-completions/generate'))pending.add(r);});for(const event of ['requestfinished','requestfailed'])page.on(event,r=>pending.delete(r));const waitIdle=async()=>{const deadline=Date.now()+180000;while(pending.size){if(Date.now()>deadline)throw Error('native background requests timeout');await page.waitForTimeout(500);}await page.waitForTimeout(1000);};
 let lastPhase;const checkpoint=async phase=>{lastPhase=phase;return fs.writeFile(out+'/checkpoint.json',JSON.stringify({phase,rounds:rounds.length,requests:requests.map(r=>({model:r.model,chars:r.chars})),errors},null,2));};
 const limit=(promise,ms,label)=>Promise.race([promise,new Promise((_,reject)=>{const t=setTimeout(()=>reject(Error(label+' timeout')),ms);t.unref();})]);
 const evalNative=page.evaluate.bind(page);page.evaluate=(...args)=>limit(evalNative(...args),60000,'native page operation');
@@ -37,14 +37,14 @@ try{
  await checkpoint('scripts ready');for(const scene of cases){
   await checkpoint('seed '+scene.id);
   const state=structuredClone(init);Object.assign(state,{day:scene.day,clock_minutes:480,location:'中央庭寝室',known:['安','安托涅瓦','晏华','希罗','珈儿','泰丝拉','赛哈姆']});state.regions.school.liberated=true;state.regions.east.liberated=true;state.cores.court='purified';state.hiro.intel=scene.intel;state.route_flags.first_second_region='east';state.tasks.DAY7_OPENING.status='completed';state.morning_flags.day6_monologue=scene.day<6;state.morning_flags.day6_saiham=scene.day<6;state.intel_flags.chimera_exists_known=scene.day<6;state.intel_flags.hiro_chimera_research_known=scene.day<6;
-  await page.evaluate(async({state,scene})=>{const st=await import('/script.js');await st.clearChat();st.updateChatMetadata({},true);st.characters[st.this_chid].chat='native-'+state.day+'-'+state.hiro.intel;st.chat.splice(0,st.chat.length,{name:st.name2,is_user:false,is_system:false,mes:scene,swipe_id:0,variables:{0:{stat_data:state}}});await st.printMessages();const frame=[...document.querySelectorAll('iframe')].find(f=>f.contentWindow?.__f7dCommitHook)?.contentWindow;if(!frame)throw Error('missing real MVU iframe');await frame.replaceVariables({stat_data:state},{type:'message',message_id:0});await st.eventSource.emit(st.event_types?.CHAT_CHANGED||'chat_id_changed',st.getCurrentChatId?.());}, {state,scene:scene.scene});
+  await page.evaluate(async({state,scene})=>{const st=await import('/script.js');await st.clearChat();st.updateChatMetadata({},true);st.characters[st.this_chid].chat='native-'+state.day+'-'+state.hiro.intel;st.chat.splice(0,st.chat.length,{name:st.name2,is_user:false,is_system:false,mes:scene,swipe_id:0,variables:{0:{stat_data:state}}});await st.printMessages();const frame=[...document.querySelectorAll('iframe')].find(f=>f.contentWindow?.__f7dCommitHook)?.contentWindow;if(!frame)throw Error('missing real MVU iframe');await st.eventSource.emit(st.event_types?.CHAT_CHANGED||'chat_id_changed',st.getCurrentChatId?.());const data=Mvu.getMvuData({type:'message',message_id:0});if(!data.schema)throw Error('MVU did not initialize schema');data.stat_data=state;data.display_data=structuredClone(state);data.delta_data={};await frame.replaceVariables(data,{type:'message',message_id:0});if(Mvu.getMvuData({type:'message',message_id:0}).stat_data.day!==state.day)throw Error('fixture state was not committed');}, {state,scene:scene.scene});
   for(let i=0;i<scene.inputs.length;i++){
    const before=await page.evaluate(()=>{const c=SillyTavern.getContext();return Mvu.getMvuData({type:'message',message_id:c.chat.length-1}).stat_data;});
    const start=requests.length;
    await page.locator('#send_textarea').fill(scene.inputs[i]);
    await checkpoint('generating '+scene.id+' '+(i+1));
-   await limit(page.evaluate(async()=>{const st=await import('/script.js');st.setOnlineStatus('Connected');await st.Generate('normal');}),180000,'native generation '+scene.id+' '+(i+1));
-   await page.waitForTimeout(2000);
+   await limit(evalNative(async()=>{const st=await import('/script.js');st.setOnlineStatus('Connected');await st.Generate('normal');}),180000,'native generation '+scene.id+' '+(i+1));
+   await page.waitForTimeout(2000);await waitIdle();
    const data=await page.evaluate(()=>{const c=SillyTavern.getContext();const n=c.chat.length-1;return {text:c.chat[n]?.mes,is_user:c.chat[n]?.is_user,variables:Mvu.getMvuData({type:'message',message_id:n}),gates:window.__gates.at(-1),terminal:window.f7dTacticalTerminal?.getSnapshot?.()};});
    if(requests.length===start)throw Error('No native model request was sent');
    if(data.is_user||!data.text)throw Error('no native assistant reply');
