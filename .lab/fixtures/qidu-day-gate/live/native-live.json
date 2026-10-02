@@ -1,10 +1,230 @@
 {
   "model": "gemini-3-flash-preview",
   "native": true,
-  "rounds": [],
+  "rounds": [
+    {
+      "case": "day6",
+      "round": 1,
+      "user": "继续到我醒来，遇到需要我回应时停下。",
+      "before": {
+        "schema": "f7d_textloop_0.4",
+        "loop": 1,
+        "day": 7,
+        "route": "central",
+        "location": "未知/苏醒中",
+        "regions": {
+          "court": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "school": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "east": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "central": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "institute": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "seaside": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "old": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "harbor": {
+            "liberated": false,
+            "build_steps": []
+          }
+        },
+        "cores": {
+          "court": "unknown",
+          "school": "unknown",
+          "east": "unknown",
+          "central": "unknown",
+          "institute": "unknown",
+          "seaside": "unknown",
+          "old": "unknown",
+          "harbor": "unknown"
+        },
+        "tasks": {
+          "DAY7_OPENING": {
+            "status": "active",
+            "deadline": "第7天开场固定剧情结束",
+            "objective": "完成苏醒、中央庭引导与希罗初始剧情",
+            "known": false,
+            "deadline_known": false
+          },
+          "SCHOOL_RESCUE": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放高校学园",
+            "known": false,
+            "deadline_known": false
+          },
+          "SECOND_REGION": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放东方古街或中央城区其中一个",
+            "known": false,
+            "deadline_known": false
+          },
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "known": [],
+        "relationships": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "ann": {
+          "affection": 0,
+          "core_events": [],
+          "camera": false,
+          "eligible": false,
+          "chased": null,
+          "recovered": false,
+          "deadline_checked": false,
+          "deadline_passed": null
+        },
+        "hiro": {
+          "intel": 0,
+          "handled": []
+        },
+        "route_flags": {
+          "first_second_region": null,
+          "oldstreet_delayed": false,
+          "wenzi_injured": false,
+          "wenzi_joined": false,
+          "ann_route_closed": false,
+          "harbor_core_stolen": false
+        },
+        "antoneva_choice": null,
+        "artifact_view": null,
+        "ann_release": null,
+        "battle_flags": {
+          "final_battle": null,
+          "active_corpse_final": null,
+          "sybilla_condition_obtained": false,
+          "sybilla_rescued": null
+        },
+        "meta": {
+          "cg": [],
+          "endings": []
+        },
+        "intel_flags": {
+          "countdown_visible_to_user": true,
+          "countdown_meaning_known": false,
+          "countdown_reported_to": [],
+          "city_blackgate_history_known": false,
+          "central_court_basics_known": false,
+          "hiro_founder_known": false,
+          "hiro_prior_commander_known": false,
+          "chimera_exists_known": false,
+          "hiro_chimera_research_known": false,
+          "antoneva_chimera_policy_known": false,
+          "first_chimera_incident_known": false,
+          "zero_identity_known": false,
+          "ann_origin_known": false,
+          "loop_truth_known": false,
+          "countdown_initial_mentions": 1,
+          "countdown_last_narrated_day": 7
+        },
+        "npc_intel": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "day_ready_to_sleep": false,
+        "player_profile": {
+          "gender": "unknown"
+        },
+        "cg_system": {
+          "enabled": true,
+          "mode": "direct_only",
+          "album_enabled": true,
+          "responsive_enabled": true,
+          "shown": {
+            "ann_first_meet": true,
+            "antoneva_first_meet": false,
+            "ending_journey": false,
+            "ending_eternal_end": false,
+            "ending_sacrifice_male": false,
+            "ending_sacrifice_female": false,
+            "ending_final_male": false,
+            "ending_final_female": false,
+            "ending_box_male": false,
+            "ending_box_female": false
+          }
+        },
+        "clock_minutes": 480,
+        "morning_flags": {
+          "day6_monologue": false,
+          "day6_saiham": false,
+          "day6_seth": false,
+          "day5_monologue": false,
+          "day5_split": false,
+          "day4_monologue": false,
+          "day4_speech": false,
+          "day3_monologue": false,
+          "day3_ann_departure": false,
+          "day2_monologue": false
+        },
+        "terminal": {
+          "contacts": {
+            "$meta": {
+              "extensible": true
+            }
+          },
+          "city": [],
+          "journal": []
+        }
+      },
+      "text": "在虚无的黑暗中，一个空灵而模糊的声音在脑海深处微微回荡。那声音仿佛隔着厚重的冰层，辨不清男女，也听不出情绪，只是遥远地低语着什么。\n\n渐渐地，意识像是在重力作用下重新沉入躯壳，眼皮沉重得如同灌了铅。冰冷而清新的空气涌入鼻腔，伴随着淡淡的消毒水味。你极其缓慢地睁开双眼，视野里最初只有一片模糊而刺目的白色，随后，这片白色逐渐凝聚成干净整洁的医务室天花板。\n\n在半空中，似乎有一个猩红色的数字“7”在若隐若现地悬浮着，散发着微弱的光芒。但当你想要凝神去细看时，那个数字又仿佛只是视觉残留的错觉，逐渐淡化在光影里。\n\n“……啊，你醒了！”\n\n一声略带惊喜的轻呼从床边传来。\n\n视野逐渐清晰，映入眼帘的是一名正微微弯下腰、关切地注视着你的少女。她有着一头干净利落的灰色短发，耳梢旁别着精致的白色发饰；身上穿着一件剪裁一丝不苟的黑白相间女仆装，裙摆上缀着素雅的蕾丝。她那双澄澈的眼眸里原本写满了担忧，此时看到你睁开眼睛，终于如释重负般地亮了起来。\n\n“感觉怎么样？有没有哪里不舒服？头还会痛吗？”她温和地询问着，声音轻快而富有活力，同时伸出戴着白色手套的手，贴心地替你调整了一下枕头的高度，“我叫安，是这里的……嗯，负责照顾你的女仆。请先不要勉强乱动，躺着休息一下吧。”\n\n面对这个完全陌生的环境，以及自称为“安”的女仆少女，你的意识依然残留着些许刚苏醒的空白。\n\n<f7d_cg key=\"cg_ann_first_meet\"></f7d_cg>\n\n<f7d_choices>\n<f7d_choice>“这里是……哪里？”</f7d_choice>\n<f7d_choice>摇了摇有些发胀的脑袋，试着坐起身来</f7d_choice>\n<f7d_choice>警惕地看着眼前的女仆，“你是谁？”</f7d_choice>\n</f7d_choices>\n\n<f7d_terminal>\n[任务提示]\n当前目标：【DAY7_OPENING】完成苏醒、中央庭引导与希罗初始剧情（进行中）\n</f7d_terminal>\n\n<UpdateVariable>\n_.set('location', '未知/苏醒中', '中央庭/医疗室');\n_.set('tasks.DAY7_OPENING.known', false, true);\n</UpdateVariable>\n\n<StatusPlaceHolderImpl/>",
+      "gates": {
+        "globalLore": [],
+        "characterLore": [],
+        "chatLore": [],
+        "personaLore": []
+      },
+      "terminal": {
+        "version": 1,
+        "status": "empty",
+        "reason": "等待回复变量提交",
+        "snapshot": null,
+        "error": null
+      },
+      "requests": [
+        {
+          "model": "gemini-3-flash-preview",
+          "source": "custom",
+          "message_count": 13,
+          "chars": 30536
+        },
+        {
+          "model": "gemini-3-flash-preview",
+          "source": "custom",
+          "message_count": 2,
+          "chars": 19527
+        }
+      ]
+    }
+  ],
   "errors": [],
   "failure": {
-    "message": "native page operation timeout",
-    "stack": "Error: native page operation timeout\n    at Timeout._onTimeout (file:///home/runner/work/lab/lab/.lab/fixtures/qidu-day-gate/native-live.mjs:17:110)\n    at listOnTimeout (node:internal/timers:585:17)\n    at process.processTimers (node:internal/timers:521:7)"
+    "message": "page.evaluate: Clicked stop button",
+    "phase": "generating day6 2",
+    "stack": "page.evaluate: Clicked stop button\n    at page.evaluate (/home/runner/work/lab/lab/.lab/fixtures/qidu-day-gate/native-live.mjs:18:74)\n    at /home/runner/work/lab/lab/.lab/fixtures/qidu-day-gate/native-live.mjs:46:21"
   }
 }
