@@ -38,6 +38,24 @@ h1{font-size:24px;margin:0}.sub{color:var(--muted);font-size:13px;margin-top:4px
 .goalMetric{background:#fff;border-radius:13px;padding:10px 11px;border:1px solid #eee8f4}
 .goalMetric b{display:block;font-size:15px}.goalMetric span{font-size:11px;color:var(--muted)}
 .goalDisclaimer{font-size:11px;color:var(--muted);line-height:1.5;margin-top:9px}
+.examBox{margin-top:12px;background:#fff;border:1px solid #ece5f2;border-radius:15px;padding:12px}
+.examHead{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.examHead b{font-size:14px}.examSync{font-size:10px;color:var(--muted)}
+.examNext{margin-top:9px;font-size:13px;line-height:1.5}
+.examNext strong{font-size:18px;color:var(--accent)}
+.examDates{display:flex;gap:7px;overflow:auto;padding:9px 0 2px}
+.examDate{border:1px solid #e8e0ee;background:#faf8fc;border-radius:12px;padding:8px 9px;white-space:nowrap;font-size:11px;color:var(--ink)}
+.examDate.active{background:#eee5fa;border-color:#cdb8e7;color:#5f4778;font-weight:800}
+.examActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+.examActions .btn{padding:9px 10px;font-size:12px;flex:1;min-width:120px}
+.examMeta{font-size:11px;color:var(--muted);line-height:1.55;margin-top:8px}
+.trainingBox{display:none;margin-top:12px;background:#fff;border:1px solid #e8e0ee;border-radius:15px;padding:12px}
+.trainingBox.show{display:block}
+.trainingGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+.trainBtn{border:1px solid #ebe4f0;background:#faf8fc;border-radius:13px;padding:10px;text-align:left;color:var(--ink)}
+.trainBtn b{display:block;font-size:12px}.trainBtn span{display:block;font-size:10px;color:var(--muted);margin-top:3px;line-height:1.35}
+.trainOutput{display:none;margin-top:10px;background:#f8f4fc;border-radius:13px;padding:11px;white-space:pre-wrap;font-size:12px;line-height:1.65}
+.trainOutput.show{display:block}
 .panel{display:none;background:rgba(255,255,255,.96);border:1px solid #eee8f4;border-radius:20px;padding:15px;margin:0 0 12px;box-shadow:var(--shadow)}
 .panel.show{display:block}
 .panel h3{font-size:15px;margin:0 0 10px}
@@ -160,6 +178,36 @@ button{font:inherit}
         <div class="goalMetric"><b id="goalStreak">0 天</b><span>连续学习</span></div>
       </div>
       <div class="goalDisclaimer">这是你的学习进度条，不是官方 CEFR 能力估分。真要判断等级，最后还得靠对应考试或完整模拟题。人类可以虚荣，但统计口径不能胡来。</div>
+
+      <div class="examBox">
+        <div class="examHead">
+          <b>📅 报考雷达</b>
+          <span class="examSync" id="examSync">正在读取官方日期…</span>
+        </div>
+        <div class="examNext" id="examNext">加载中</div>
+        <div class="examDates" id="examDates"></div>
+        <div class="examActions">
+          <button class="btn" id="chooseExam">🎯 设为目标场次</button>
+          <button class="btn" id="calendarExam">🗓 导入日历提醒</button>
+          <button class="btn primary" id="registerExam">✅ 我已经报名</button>
+        </div>
+        <div class="examMeta" id="examMeta">报名截止通常由授权考试中心决定，不能拿全球考试日历硬猜。</div>
+      </div>
+
+      <div class="trainingBox" id="trainingBox">
+        <div class="examHead">
+          <b>🔥 已报名 · 考试特训</b>
+          <span class="examSync" id="examCountdown"></span>
+        </div>
+        <div class="trainingGrid">
+          <button class="trainBtn" data-train="use"><b>Reading & Use of English</b><span>词块、完形、构词、句型转换</span></button>
+          <button class="trainBtn" data-train="writing"><b>Writing</b><span>限时审题、结构和表达</span></button>
+          <button class="trainBtn" data-train="listening"><b>Listening</b><span>听辨态度、细节和信息</span></button>
+          <button class="trainBtn" data-train="speaking"><b>Speaking</b><span>1 分钟长答、比较和协作</span></button>
+        </div>
+        <div class="trainOutput" id="trainOutput"></div>
+        <div class="examMeta">C1 Advanced 当前官方结构是 4 个部分：Reading & Use of English 90 分钟、Writing 90 分钟、Listening 约 40 分钟、Speaking 通常两人约 15 分钟。特训会优先按你选的目标等级生成。</div>
+      </div>
     </div>
   </div>
 
@@ -373,6 +421,9 @@ function speak(){
 const API_KEY_NAME='lazyEnglishApiSettings';
 const CHUNK_KEY_NAME='lazyEnglishChunks';
 const GOAL_KEY_NAME='lazyEnglishExamGoal';
+const EXAM_PLAN_KEY='lazyEnglishExamPlan';
+let examDatesData=null;
+let selectedExamDate=null;
 let lastAiContext='';
 
 function loadApi(){
@@ -460,6 +511,8 @@ function getGoal(){return localStorage.getItem(GOAL_KEY_NAME)||'C1'}
 function setGoal(goal){
   localStorage.setItem(GOAL_KEY_NAME,goal);
   renderGoal();
+  selectedExamDate=null;
+  renderExamPlanner();
   toast('目标切到 '+goal+' 了 🏆');
 }
 function renderGoal(){
@@ -499,6 +552,93 @@ function renderGoal(){
   $('#goalStreak').textContent=streak+' 天';
   $('#goalToggle').textContent='🏆 '+goal;
   document.querySelectorAll('.goalStage').forEach(b=>b.classList.toggle('active',b.dataset.goal===goal));
+}
+function loadExamPlan(){try{return JSON.parse(localStorage.getItem(EXAM_PLAN_KEY)||'{}')}catch{return {}}}
+function saveExamPlan(plan){localStorage.setItem(EXAM_PLAN_KEY,JSON.stringify(plan)); renderExamPlanner();}
+function dateLabel(iso){
+  const d=new Date(iso+'T00:00:00');
+  return d.toLocaleDateString('zh-CN',{year:'numeric',month:'short',day:'numeric',weekday:'short'});
+}
+function daysUntil(iso){
+  const today=new Date(); today.setHours(0,0,0,0);
+  const d=new Date(iso+'T00:00:00');
+  return Math.ceil((d-today)/86400000);
+}
+async function loadExamDates(){
+  try{
+    const res=await fetch('./exam-dates.json',{cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    examDatesData=await res.json();
+    renderExamPlanner();
+  }catch(e){
+    $('#examSync').textContent='日期读取失败';
+    $('#examNext').textContent='官方日期暂时没拉到，先别拿空气报名。';
+  }
+}
+function renderExamPlanner(){
+  const goal=getGoal();
+  const plan=loadExamPlan();
+  const dates=examDatesData?.exams?.[goal]?.dates||[];
+  const today=new Date(); today.setHours(0,0,0,0);
+  const future=dates.filter(x=>new Date(x+'T00:00:00')>=today);
+  if(!selectedExamDate || !future.includes(selectedExamDate)) selectedExamDate=plan.targetDate&&future.includes(plan.targetDate)?plan.targetDate:(future[0]||null);
+  $('#examSync').textContent=examDatesData?.updatedAt?('官方表同步 '+examDatesData.updatedAt):'等官方日期';
+  const next=selectedExamDate;
+  if(next){
+    const n=daysUntil(next);
+    $('#examNext').innerHTML='当前候选：<strong>'+escapeHtml(dateLabel(next))+'</strong><br>'+ (n===0?'就是今天。':('还有 '+n+' 天。')) ;
+  }else{
+    $('#examNext').textContent='暂时没有找到未来纸笔考试日期。数字考试需向当地考试中心确认。';
+  }
+  $('#examDates').innerHTML=future.slice(0,8).map(x=>'<button class="examDate '+(x===selectedExamDate?'active':'')+'" data-date="'+x+'">'+escapeHtml(dateLabel(x))+'</button>').join('');
+  document.querySelectorAll('.examDate').forEach(b=>b.onclick=()=>{selectedExamDate=b.dataset.date;renderExamPlanner();});
+  const target=plan.targetDate||'';
+  const registered=!!plan.registered;
+  $('#registerExam').textContent=registered?'↩ 取消“已报名”':'✅ 我已经报名';
+  $('#trainingBox').classList.toggle('show',registered);
+  if(registered&&target){
+    const left=daysUntil(target);
+    $('#examCountdown').textContent=left>0?('距考试 '+left+' 天'):(left===0?'今天考试':'考试已过');
+  }else $('#examCountdown').textContent='';
+  const centre=plan.centre?(' · 考点：'+plan.centre):'';
+  $('#examMeta').textContent=target
+    ? '目标场次：'+dateLabel(target)+centre+'。报名截止和口试日期仍需以你选择的授权考试中心通知为准。'
+    : '报名截止通常由授权考试中心决定，不能拿全球考试日历硬猜。';
+}
+function makeExamICS(){
+  const plan=loadExamPlan();
+  const date=plan.targetDate||selectedExamDate;
+  if(!date){toast('先选一个考试日期');return;}
+  const d=new Date(date+'T00:00:00');
+  const end=new Date(d); end.setDate(end.getDate()+1);
+  const fmt=x=>x.getFullYear()+String(x.getMonth()+1).padStart(2,'0')+String(x.getDate()).padStart(2,'0');
+  const remind=new Date(d); remind.setDate(remind.getDate()-45);
+  const goal=getGoal();
+  const body=[
+    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Lazy English//Exam Plan//CN',
+    'BEGIN:VEVENT','UID:lazy-english-exam-'+date+'@local','DTSTART;VALUE=DATE:'+fmt(d),'DTEND;VALUE=DATE:'+fmt(end),
+    'SUMMARY:Cambridge '+goal+' 考试目标日','DESCRIPTION:请以授权考试中心最终通知为准。','BEGIN:VALARM','TRIGGER:-P45D','ACTION:DISPLAY','DESCRIPTION:该确认 Cambridge '+goal+' 报名和考点安排了','END:VALARM','END:VEVENT','END:VCALENDAR'
+  ].join('\r\n');
+  const blob=new Blob([body],{type:'text/calendar;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='cambridge-'+goal+'-'+date+'.ics'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function trainingPrompt(kind){
+  const goal=getGoal(), plan=loadExamPlan();
+  const left=plan.targetDate?daysUntil(plan.targetDate):null;
+  const common='目标考试：Cambridge '+goal+'。'+(left!==null?'距离目标考试约 '+left+' 天。':'')+' 用户喜欢拆逻辑和反复手写，不喜欢机械背词。';
+  if(kind==='use') return common+' 生成一组今天的 Reading & Use of English 特训：优先词块、搭配、构词或句型转换，共5题。先只给题目，最后单独给答案与为什么。难度匹配目标等级。';
+  if(kind==='writing') return common+' 生成一个今天的写作特训。给真实考试风格题目、审题拆解、可手写的5分钟提纲框架、3个高价值表达。不要直接代写完整作文。';
+  if(kind==='listening') return common+' 生成一个可用浏览器朗读做听力的短训练：先给一段80到120词英文材料，再给3道理解题与答案。材料要自然，重点练态度、目的或细节。';
+  return common+' 生成一个今天的口语特训：包含30秒热身问题、1分钟个人长答题、一个比较/推测任务，并给自然表达词块。不要给完整背诵稿。';
+}
+async function runTraining(kind){
+  $('#trainOutput').classList.add('show');
+  $('#trainOutput').textContent='正在生成今日特训……';
+  try{
+    const out=await callAI(trainingPrompt(kind),{temperature:0.5});
+    $('#trainOutput').textContent=out;
+  }catch(e){$('#trainOutput').textContent='特训生成失败：'+(e?.message||e);}
 }
 function storeChunks(items){
   const box=loadChunks();
@@ -642,8 +782,22 @@ cats.forEach(c=>{
   b.onclick=()=>{ filter=c; [...tabs.children].forEach(x=>x.classList.remove('active')); b.classList.add('active'); pick(); };
   tabs.appendChild(b);
 });
-$('#goalToggle').onclick=()=>{ $('#goalPanel').classList.toggle('show'); renderGoal(); };
+$('#goalToggle').onclick=()=>{ $('#goalPanel').classList.toggle('show'); renderGoal(); renderExamPlanner(); };
 document.querySelectorAll('.goalStage').forEach(b=>b.onclick=()=>setGoal(b.dataset.goal));
+$('#chooseExam').onclick=()=>{
+  if(!selectedExamDate){toast('先点一个考试日期');return;}
+  const p=loadExamPlan(); p.goal=getGoal(); p.targetDate=selectedExamDate; saveExamPlan(p); toast('目标场次记住了 🎯');
+};
+$('#calendarExam').onclick=makeExamICS;
+$('#registerExam').onclick=()=>{
+  const p=loadExamPlan();
+  if(!p.targetDate && selectedExamDate){p.targetDate=selectedExamDate;p.goal=getGoal();}
+  if(!p.targetDate){toast('先选目标场次');return;}
+  p.registered=!p.registered;
+  saveExamPlan(p);
+  toast(p.registered?'进入考试特训模式 🔥':'已取消报名状态');
+};
+document.querySelectorAll('.trainBtn').forEach(b=>b.onclick=()=>runTraining(b.dataset.train));
 $('#apiToggle').onclick=()=>$('#apiPanel').classList.toggle('show');
 $('#chunkToggle').onclick=()=>{ $('#chunkPanel').classList.toggle('show'); renderChunks(); };
 $('#saveApi').onclick=saveApiSettings;
@@ -723,7 +877,7 @@ $('#forget').onclick=()=>{
   toast('卡住就看，没什么可丢人的');
 };
 if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
-updateStats(); pick(); refreshApiUI(); renderChunks(); renderGoal();
+updateStats(); pick(); refreshApiUI(); renderChunks(); renderGoal(); loadExamDates();
 </script>
 </body>
 </html>
