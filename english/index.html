@@ -23,6 +23,22 @@ body{
 .top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}
 h1{font-size:24px;margin:0}.sub{color:var(--muted);font-size:13px;margin-top:4px}
 .badge{background:#fff;border:1px solid #eee6f7;padding:8px 11px;border-radius:999px;font-size:12px;white-space:nowrap}
+.topActions{display:flex;gap:7px;align-items:center}
+.iconBtn{border:1px solid #eee6f7;background:#fff;color:var(--ink);padding:8px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.panel{display:none;background:rgba(255,255,255,.96);border:1px solid #eee8f4;border-radius:20px;padding:15px;margin:0 0 12px;box-shadow:var(--shadow)}
+.panel.show{display:block}
+.panel h3{font-size:15px;margin:0 0 10px}
+.field{margin-top:10px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+.field input{width:100%;border:1px solid #e7dfed;background:#fff;border-radius:13px;padding:11px 12px;font:inherit;color:var(--ink);outline:none}
+.field input:focus{border-color:#b99de0;box-shadow:0 0 0 3px #f0e8fa}
+.fieldRow{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.settingNote{font-size:11px;color:var(--muted);line-height:1.55;margin-top:8px}
+.statusDot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#c7becd;margin-right:6px}
+.statusDot.ok{background:#62a97d}
+.chunkList{display:grid;gap:8px;max-height:330px;overflow:auto}
+.chunkItem{padding:11px 12px;background:#f8f4fc;border-radius:14px}
+.chunkItem b{display:block;font-size:15px}.chunkItem span{display:block;font-size:12px;color:var(--muted);margin-top:3px;line-height:1.45}
+.emptyBox{font-size:12px;color:var(--muted);padding:8px 2px}
 .tabs{display:flex;gap:8px;overflow:auto;padding:4px 0 12px}
 .tab{border:0;background:#fff;color:var(--muted);padding:9px 13px;border-radius:999px;box-shadow:0 4px 12px rgba(60,40,80,.06);white-space:nowrap}
 .tab.active{background:var(--accent);color:white}
@@ -35,6 +51,19 @@ h1{font-size:24px;margin:0}.sub{color:var(--muted);font-size:13px;margin-top:4px
 .replyBox.show{display:block}
 .replyEn{font-size:20px;font-weight:700;line-height:1.3}
 .replyZh{font-size:14px;color:var(--muted);margin-top:6px}
+.aiBox{margin-top:16px;padding:14px;background:#f8f4fc;border:1px solid #ece4f3;border-radius:18px}
+.aiHead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}
+.aiTitle{font-size:14px;font-weight:800}
+.aiStatus{font-size:11px;color:var(--muted)}
+.aiTools{display:flex;gap:7px;flex-wrap:wrap}
+.aiTool{border:0;background:#fff;color:#5e4b71;padding:8px 10px;border-radius:999px;font-size:12px;font-weight:750;box-shadow:0 2px 8px rgba(70,48,95,.06)}
+.aiTool:disabled{opacity:.55}
+.aiResult{display:none;margin-top:11px;background:#fff;border-radius:14px;padding:12px 13px;white-space:pre-wrap;font-size:13px;line-height:1.68;color:#403747}
+.aiResult.show{display:block}
+.followup{display:none;gap:7px;margin-top:9px}
+.followup.show{display:flex}
+.followup input{min-width:0;flex:1;border:1px solid #e7dfed;border-radius:12px;padding:9px 10px;font:inherit}
+.followup button{border:0;background:var(--accent);color:#fff;border-radius:12px;padding:9px 12px;font-weight:700}
 .practice{margin-top:18px;padding:15px;background:#fbf9fd;border:1px solid #eee7f4;border-radius:20px}
 .practiceHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
 .practiceTitle{font-size:14px;font-weight:750}
@@ -86,7 +115,41 @@ button{font:inherit}
       <h1>懒人英语语言包 🚬</h1>
       <div class="sub">不背表，不考试。每天点几下，活着就算学习。</div>
     </div>
-    <div class="badge" id="streak">🔥 0 天</div>
+    <div class="topActions">
+      <button class="iconBtn" id="chunkToggle">📦 零件箱</button>
+      <button class="iconBtn" id="apiToggle">⚙ API</button>
+      <div class="badge" id="streak">🔥 0 天</div>
+    </div>
+  </div>
+
+  <div class="panel" id="apiPanel">
+    <h3><span class="statusDot" id="apiDot"></span>外接 API</h3>
+    <div class="field">
+      <label>Base URL（OpenAI 兼容，例如 https://xxx/v1）</label>
+      <input id="apiBase" placeholder="https://example.com/v1" autocomplete="off">
+    </div>
+    <div class="fieldRow">
+      <div class="field">
+        <label>API Key</label>
+        <input id="apiKey" type="password" placeholder="sk-..." autocomplete="off">
+      </div>
+      <div class="field">
+        <label>模型名</label>
+        <input id="apiModel" placeholder="gpt-4o-mini" autocomplete="off">
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn primary" id="saveApi">💾 保存到本机</button>
+      <button class="btn" id="testApi">🧪 测试</button>
+      <button class="btn bad" id="clearApi">清除</button>
+    </div>
+    <div class="settingNote">配置只保存在当前浏览器的 localStorage，不会写进 GitHub 仓库。网页会直接请求你填的接口，所以公益站需要允许浏览器跨域访问（CORS）。</div>
+  </div>
+
+  <div class="panel" id="chunkPanel">
+    <h3>📦 语言零件箱</h3>
+    <div class="chunkList" id="chunkList"></div>
+    <div class="settingNote">这里收的是你真正遇到过的词块，不是把整本词典塞进脑子里折磨自己。</div>
   </div>
 
   <div class="tabs" id="tabs"></div>
@@ -108,6 +171,24 @@ button{font:inherit}
       <div class="small">顺手学个回复</div>
       <div class="replyEn" id="replyEn"></div>
       <div class="replyZh" id="replyZh"></div>
+    </div>
+
+    <div class="aiBox">
+      <div class="aiHead">
+        <div class="aiTitle">🧩 拆开看看</div>
+        <div class="aiStatus" id="aiStatus">配置 API 后可用</div>
+      </div>
+      <div class="aiTools">
+        <button class="aiTool" data-ai="logic">为什么这样说</button>
+        <button class="aiTool" data-ai="chunks">词块积累</button>
+        <button class="aiTool" data-ai="feel">语感一下</button>
+        <button class="aiTool" data-ai="variants">换几个说法</button>
+      </div>
+      <div class="aiResult" id="aiResult"></div>
+      <div class="followup" id="followup">
+        <input id="followupInput" placeholder="继续追问：为什么这里不能换成……">
+        <button id="followupSend">追问</button>
+      </div>
     </div>
 
     <div class="practice" id="practice">
@@ -218,6 +299,9 @@ function pick(){
   $('#replyBox').classList.remove('show');
   $('#replyEn').textContent=current.reply;
   $('#replyZh').textContent=current.reply_zh;
+  $('#aiResult').classList.remove('show');
+  $('#aiResult').textContent='';
+  $('#followup').classList.remove('show');
   updatePractice();
   clearWriting();
 }
@@ -242,6 +326,142 @@ function speak(){
   speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(current.en);
   u.lang='en-US'; u.rate=.88; speechSynthesis.speak(u);
+}
+
+const API_KEY_NAME='lazyEnglishApiSettings';
+const CHUNK_KEY_NAME='lazyEnglishChunks';
+let lastAiContext='';
+
+function loadApi(){
+  try{return JSON.parse(localStorage.getItem(API_KEY_NAME)||'{}')}catch{return {}}
+}
+function saveApiSettings(){
+  const cfg={
+    base:$('#apiBase').value.trim(),
+    key:$('#apiKey').value.trim(),
+    model:$('#apiModel').value.trim()
+  };
+  if(!cfg.base || !cfg.model){ toast('Base URL 和模型名还没填'); return false; }
+  localStorage.setItem(API_KEY_NAME,JSON.stringify(cfg));
+  refreshApiUI();
+  toast('API 配置记住了 💾');
+  return true;
+}
+function refreshApiUI(){
+  const cfg=loadApi();
+  $('#apiBase').value=cfg.base||'';
+  $('#apiKey').value=cfg.key||'';
+  $('#apiModel').value=cfg.model||'';
+  const ready=!!(cfg.base&&cfg.model);
+  $('#apiDot').classList.toggle('ok',ready);
+  $('#aiStatus').textContent=ready?'API 已连接配置':'配置 API 后可用';
+}
+function apiEndpoint(base){
+  let b=(base||'').trim().replace(/\/+$/,'');
+  if(/\/chat\/completions$/i.test(b)) return b;
+  return b+'/chat/completions';
+}
+function readContent(msg){
+  const c=msg?.content;
+  if(typeof c==='string') return c;
+  if(Array.isArray(c)) return c.map(x=>typeof x==='string'?x:(x?.text||'')).join('');
+  return '';
+}
+async function callAI(userPrompt, opts={}){
+  const cfg=loadApi();
+  if(!cfg.base||!cfg.model){
+    $('#apiPanel').classList.add('show');
+    throw new Error('先把 API 地址和模型名填一下');
+  }
+  const headers={'Content-Type':'application/json'};
+  if(cfg.key) headers['Authorization']='Bearer '+cfg.key;
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),45000);
+  try{
+    const res=await fetch(apiEndpoint(cfg.base),{
+      method:'POST',headers,signal:controller.signal,
+      body:JSON.stringify({
+        model:cfg.model,
+        temperature:opts.temperature??0.45,
+        messages:[
+          {role:'system',content:'你是中文母语者的英语学习助手。解释要短、清楚、重逻辑和语感，不要堆术语。优先讲词块、语序、时态背后的意义和自然表达。用户喜欢拆底层逻辑，但讨厌机械背单词。'},
+          {role:'user',content:userPrompt}
+        ]
+      })
+    });
+    if(!res.ok){
+      const t=await res.text().catch(()=> '');
+      throw new Error('接口 '+res.status+'：'+t.slice(0,180));
+    }
+    const data=await res.json();
+    const text=readContent(data?.choices?.[0]?.message);
+    if(!text) throw new Error('接口有返回，但没找到文本内容');
+    return text;
+  } finally { clearTimeout(timer); }
+}
+function aiPrompt(mode){
+  const s=current?.en||'', z=current?.zh||'';
+  const common='当前句子：'+s+'\n中文：'+z+'\n';
+  if(mode==='logic') return common+'请解释“为什么英语要这样说”。按：①整句骨架 ②关键语序/词形为什么这样 ③换一种说法会发生什么 ④一个好记的逻辑钩子。控制在350字以内。';
+  if(mode==='feel') return common+'做语感训练：给2组“自然 vs 别扭/错误”的极近对比，解释听起来为什么不同；再给一句判断小题，最后附答案。不要长篇语法课。';
+  if(mode==='variants') return common+'给4个非常接近、现实中能用的变体。每个写英文、中文和一句语气差别。尽量复用原句结构，让人能靠对比长语感。';
+  return common+'提取1到4个最值得积累的英语词块，不要孤立单词。只返回严格 JSON，不要代码块：{"overview":"一句总览","chunks":[{"text":"词块","meaning":"中文","why":"为什么值得记","example":"短例句","exampleZh":"例句中文"}]}';
+}
+function extractJson(s){
+  const a=s.indexOf('{'), b=s.lastIndexOf('}');
+  if(a<0||b<a) return null;
+  try{return JSON.parse(s.slice(a,b+1))}catch{return null}
+}
+function loadChunks(){try{return JSON.parse(localStorage.getItem(CHUNK_KEY_NAME)||'{}')}catch{return {}}}
+function storeChunks(items){
+  const box=loadChunks();
+  for(const x of items||[]){
+    const text=(x.text||'').trim(); if(!text) continue;
+    const k=text.toLowerCase();
+    const old=box[k]||{text,seen:0};
+    box[k]={...old,...x,text,seen:(old.seen||0)+1,lastSeen:dayKey(),source:current?.en||old.source||''};
+  }
+  localStorage.setItem(CHUNK_KEY_NAME,JSON.stringify(box));
+  renderChunks();
+}
+function renderChunks(){
+  const box=Object.values(loadChunks()).sort((a,b)=>(b.seen||0)-(a.seen||0));
+  const el=$('#chunkList');
+  if(!box.length){ el.innerHTML='<div class="emptyBox">还空着。点某句的「词块积累」，这里就会慢慢长东西。</div>'; return; }
+  el.innerHTML=box.map(x=>'<div class="chunkItem"><b>'+escapeHtml(x.text||'')+'</b><span>'+escapeHtml(x.meaning||'')+(x.seen?(' · 遇到 '+x.seen+' 次'):'')+'</span>'+(x.why?'<span>'+escapeHtml(x.why)+'</span>':'')+(x.example?'<span>例：'+escapeHtml(x.example)+(x.exampleZh?' · '+escapeHtml(x.exampleZh):'')+'</span>':'')+'</div>').join('');
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+
+async function runAI(mode, customPrompt){
+  if(!current) return;
+  const buttons=[...document.querySelectorAll('.aiTool')];
+  buttons.forEach(b=>b.disabled=true);
+  $('#aiStatus').textContent='AI 正在拆……';
+  $('#aiResult').classList.add('show');
+  $('#aiResult').textContent='正在想。公益站如果排队，先别怀疑人生。';
+  try{
+    const prompt=customPrompt || aiPrompt(mode);
+    lastAiContext=prompt;
+    const out=await callAI(prompt);
+    if(mode==='chunks' && !customPrompt){
+      const obj=extractJson(out);
+      if(obj?.chunks){
+        storeChunks(obj.chunks);
+        $('#aiResult').textContent=(obj.overview?obj.overview+'\n\n':'')+obj.chunks.map(x=>'• '+x.text+'：'+x.meaning+'\n  '+(x.why||'')+'\n  例：'+(x.example||'')+(x.exampleZh?'（'+x.exampleZh+'）':'')).join('\n\n');
+      }else{
+        $('#aiResult').textContent=out+'\n\n（这次接口没乖乖吐 JSON，所以没有自动塞进零件箱。）';
+      }
+    }else{
+      $('#aiResult').textContent=out;
+    }
+    $('#followup').classList.add('show');
+    $('#aiStatus').textContent='拆完了';
+  }catch(e){
+    $('#aiResult').textContent='没接上：'+(e?.message||e);
+    $('#aiStatus').textContent='连接失败';
+  }finally{
+    buttons.forEach(b=>b.disabled=false);
+  }
 }
 
 const canvas=$('#writeCanvas');
@@ -334,6 +554,30 @@ cats.forEach(c=>{
   b.onclick=()=>{ filter=c; [...tabs.children].forEach(x=>x.classList.remove('active')); b.classList.add('active'); pick(); };
   tabs.appendChild(b);
 });
+$('#apiToggle').onclick=()=>$('#apiPanel').classList.toggle('show');
+$('#chunkToggle').onclick=()=>{ $('#chunkPanel').classList.toggle('show'); renderChunks(); };
+$('#saveApi').onclick=saveApiSettings;
+$('#clearApi').onclick=()=>{ localStorage.removeItem(API_KEY_NAME); refreshApiUI(); toast('API 配置清掉了'); };
+$('#testApi').onclick=async()=>{
+  if(!saveApiSettings()) return;
+  $('#testApi').disabled=true; $('#testApi').textContent='测试中…';
+  try{
+    const out=await callAI('只回复“连接成功”。');
+    toast(out.slice(0,24)||'连接成功');
+  }catch(e){ toast('失败：'+(e?.message||e).slice(0,70)); }
+  finally{$('#testApi').disabled=false;$('#testApi').textContent='🧪 测试';}
+};
+document.querySelectorAll('.aiTool').forEach(b=>b.onclick=()=>runAI(b.dataset.ai));
+$('#followupSend').onclick=()=>{
+  const q=$('#followupInput').value.trim(); if(!q) return;
+  const prompt='当前句子：'+(current?.en||'')+'\n中文：'+(current?.zh||'')+'\n此前学习主题：'+lastAiContext+'\n用户追问：'+q+'\n请直接回答这个追问，重逻辑、给必要例子，简洁。';
+  $('#followupInput').value='';
+  runAI('logic',prompt);
+};
+$('#followupInput').addEventListener('keydown',e=>{if(e.key==='Enter') $('#followupSend').click();});
+refreshApiUI();
+renderChunks();
+
 $('#speak').onclick=speak;
 $('#practiceSpeak').onclick=speak;
 $('#clearCanvas').onclick=clearWriting;
@@ -389,7 +633,7 @@ $('#forget').onclick=()=>{
   toast('卡住就看，没什么可丢人的');
 };
 if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
-updateStats(); pick();
+updateStats(); pick(); refreshApiUI(); renderChunks();
 </script>
 </body>
 </html>
