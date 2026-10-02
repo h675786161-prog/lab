@@ -1,0 +1,10 @@
+{
+  "model": "gemini-3-flash-preview",
+  "native": true,
+  "rounds": [],
+  "errors": [],
+  "failure": {
+    "message": "locator.selectOption: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('#main_api')\n    - locator resolved to <select id=\"main_api\">…</select>\n  - attempting select option action\n    2 × waiting for element to be visible and enabled\n      - element is not visible\n    - retrying select option action\n    - waiting 20ms\n    2 × waiting for element to be visible and enabled\n      - element is not visible\n    - retrying select option action\n      - waiting 100ms\n    59 × waiting for element to be visible and enabled\n       - element is not visible\n     - retrying select option action\n       - waiting 500ms\n",
+    "stack": "locator.selectOption: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('#main_api')\n    - locator resolved to <select id=\"main_api\">…</select>\n  - attempting select option action\n    2 × waiting for element to be visible and enabled\n      - element is not visible\n    - retrying select option action\n    - waiting 20ms\n    2 × waiting for element to be visible and enabled\n      - element is not visible\n    - retrying select option action\n      - waiting 100ms\n    59 × waiting for element to be visible and enabled\n       - element is not visible\n     - retrying select option action\n       - waiting 500ms\n\n    at /home/runner/work/lab/lab/.lab/fixtures/qidu-day-gate/native-live.mjs:23:79"
+  }
+}
