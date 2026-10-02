@@ -1,0 +1,10 @@
+{
+  "name": "懒人英语语言包",
+  "short_name": "懒人英语",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8f5fb",
+  "theme_color": "#f6efff",
+  "icons": []
+}
