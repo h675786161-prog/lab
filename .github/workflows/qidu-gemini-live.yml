@@ -1,0 +1,43 @@
+name: Qidu Gemini live preflight
+on:
+  push:
+    branches: [feature/qidu-day-gate-20261002]
+    paths: ['.github/workflows/qidu-gemini-live.yml']
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify requested provider and model
+        env:
+          GG_KEY: ${{ secrets.GG }}
+        run: |
+          mkdir -p .lab/fixtures/qidu-day-gate/live
+          python - <<'PY'
+          import os,json,urllib.request,urllib.error
+          from pathlib import Path
+          out=Path('.lab/fixtures/qidu-day-gate/live/preflight.json')
+          result={'site':'https://gcli.ggchan.dev','requested':'Gemini 3 flash'}
+          key=os.environ.get('GG_KEY','')
+          if not key: result['status']='missing_secret'
+          else:
+           try:
+            req=urllib.request.Request('https://gcli.ggchan.dev/v1/models',headers={'Authorization':'Bearer '+key,'Accept':'application/json'})
+            with urllib.request.urlopen(req,timeout=40) as r: data=json.load(r)
+            ids=[x.get('id',x.get('name','')) for x in data.get('data',[])]
+            result.update(status='ok',models=ids,candidates=[x for x in ids if 'gemini' in x.lower() and '3' in x and 'flash' in x.lower()])
+           except urllib.error.HTTPError as e:result.update(status='http_error',http_status=e.code)
+           except Exception as e:result.update(status='error',error_type=type(e).__name__)
+          out.write_text(json.dumps(result,ensure_ascii=False,indent=2))
+          print(json.dumps(result,ensure_ascii=False))
+          PY
+      - name: Save safe preflight report
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add .lab/fixtures/qidu-day-gate/live/preflight.json
+          git commit -m "Record requested Gemini provider availability" || true
+          git push
