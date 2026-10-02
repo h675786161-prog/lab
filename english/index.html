@@ -25,6 +25,19 @@ h1{font-size:24px;margin:0}.sub{color:var(--muted);font-size:13px;margin-top:4px
 .badge{background:#fff;border:1px solid #eee6f7;padding:8px 11px;border-radius:999px;font-size:12px;white-space:nowrap}
 .topActions{display:flex;gap:7px;align-items:center}
 .iconBtn{border:1px solid #eee6f7;background:#fff;color:var(--ink);padding:8px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.goalHero{padding:14px;border-radius:16px;background:linear-gradient(135deg,#f7f0ff,#eef6ff);border:1px solid #e9dff3}
+.goalTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.goalTitle{font-weight:850;font-size:16px}.goalSub{font-size:12px;color:var(--muted);margin-top:3px}
+.goalPercent{font-size:24px;font-weight:850;color:var(--accent)}
+.goalBar{height:10px;background:#fff;border-radius:999px;overflow:hidden;margin-top:12px;border:1px solid #ece5f2}
+.goalFill{height:100%;width:0;background:linear-gradient(90deg,#9a78d1,#7ea6d9);border-radius:inherit;transition:.25s}
+.goalStages{display:flex;gap:7px;overflow:auto;margin-top:12px;padding-bottom:2px}
+.goalStage{border:1px solid #e8e0ee;background:#fff;border-radius:999px;padding:8px 10px;font-size:12px;font-weight:750;color:var(--muted);white-space:nowrap}
+.goalStage.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.goalGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.goalMetric{background:#fff;border-radius:13px;padding:10px 11px;border:1px solid #eee8f4}
+.goalMetric b{display:block;font-size:15px}.goalMetric span{font-size:11px;color:var(--muted)}
+.goalDisclaimer{font-size:11px;color:var(--muted);line-height:1.5;margin-top:9px}
 .panel{display:none;background:rgba(255,255,255,.96);border:1px solid #eee8f4;border-radius:20px;padding:15px;margin:0 0 12px;box-shadow:var(--shadow)}
 .panel.show{display:block}
 .panel h3{font-size:15px;margin:0 0 10px}
@@ -116,9 +129,37 @@ button{font:inherit}
       <div class="sub">不背表，不考试。每天点几下，活着就算学习。</div>
     </div>
     <div class="topActions">
+      <button class="iconBtn" id="goalToggle">🏆 C1</button>
       <button class="iconBtn" id="chunkToggle">📦 零件箱</button>
       <button class="iconBtn" id="apiToggle">⚙ API</button>
       <div class="badge" id="streak">🔥 0 天</div>
+    </div>
+  </div>
+
+  <div class="panel" id="goalPanel">
+    <h3>🏆 考证装逼主线</h3>
+    <div class="goalHero">
+      <div class="goalTop">
+        <div>
+          <div class="goalTitle" id="goalTitle">C1 Advanced</div>
+          <div class="goalSub" id="goalSubtitle">目标：学到能优雅地只报证书名，不解释。</div>
+        </div>
+        <div class="goalPercent" id="goalPercent">0%</div>
+      </div>
+      <div class="goalBar"><div class="goalFill" id="goalFill"></div></div>
+      <div class="goalStages">
+        <button class="goalStage" data-goal="B1">B1</button>
+        <button class="goalStage" data-goal="B2">B2 First</button>
+        <button class="goalStage active" data-goal="C1">C1 Advanced</button>
+        <button class="goalStage" data-goal="C2">C2 Proficiency</button>
+      </div>
+      <div class="goalGrid">
+        <div class="goalMetric"><b id="goalWrites">0</b><span>累计手写</span></div>
+        <div class="goalMetric"><b id="goalChunks">0</b><span>词块积累</span></div>
+        <div class="goalMetric"><b id="goalCoverage">0%</b><span>当前题库覆盖</span></div>
+        <div class="goalMetric"><b id="goalStreak">0 天</b><span>连续学习</span></div>
+      </div>
+      <div class="goalDisclaimer">这是你的学习进度条，不是官方 CEFR 能力估分。真要判断等级，最后还得靠对应考试或完整模拟题。人类可以虚荣，但统计口径不能胡来。</div>
     </div>
   </div>
 
@@ -316,6 +357,7 @@ function updateStats(){
   $('#streak').textContent='🔥 '+(state.streak.count||0)+' 天';
   $('#dailyText').textContent=Math.min(doneCount,5)+' / 5 句';
   $('#dailyFill').style.width=Math.min(100,(doneCount/5)*100)+'%';
+  renderGoal();
 }
 function toast(t){
   const e=$('#toast'); e.textContent=t; e.classList.add('show');
@@ -330,6 +372,7 @@ function speak(){
 
 const API_KEY_NAME='lazyEnglishApiSettings';
 const CHUNK_KEY_NAME='lazyEnglishChunks';
+const GOAL_KEY_NAME='lazyEnglishExamGoal';
 let lastAiContext='';
 
 function loadApi(){
@@ -413,6 +456,50 @@ function extractJson(s){
   try{return JSON.parse(s.slice(a,b+1))}catch{return null}
 }
 function loadChunks(){try{return JSON.parse(localStorage.getItem(CHUNK_KEY_NAME)||'{}')}catch{return {}}}
+function getGoal(){return localStorage.getItem(GOAL_KEY_NAME)||'C1'}
+function setGoal(goal){
+  localStorage.setItem(GOAL_KEY_NAME,goal);
+  renderGoal();
+  toast('目标切到 '+goal+' 了 🏆');
+}
+function renderGoal(){
+  const goal=getGoal();
+  const names={B1:'B1 Preliminary',B2:'B2 First',C1:'C1 Advanced',C2:'C2 Proficiency'};
+  const copy={
+    B1:'先拿到一个像样的阶段结算。',
+    B2:'开始进入“英语确实能用”的装逼区。',
+    C1:'目标：学到能优雅地只报证书名，不解释。',
+    C2:'终局。证书名本身已经很会说话。'
+  };
+  const req={
+    B1:{writes:120,chunks:60,coverage:0.60,streak:14},
+    B2:{writes:260,chunks:120,coverage:0.80,streak:21},
+    C1:{writes:520,chunks:220,coverage:0.95,streak:30},
+    C2:{writes:900,chunks:360,coverage:1.00,streak:45}
+  }[goal];
+  const writes=Object.values(state.writes||{}).reduce((a,b)=>a+(Number(b)||0),0);
+  const chunks=Object.keys(loadChunks()).length;
+  const covered=Object.values(state.cycles||{}).filter(v=>(Number(v)||0)>0).length;
+  const coverage=DATA.length?covered/DATA.length:0;
+  const streak=state.streak?.count||0;
+  const parts=[
+    Math.min(1,writes/req.writes),
+    Math.min(1,chunks/req.chunks),
+    Math.min(1,coverage/req.coverage),
+    Math.min(1,streak/req.streak)
+  ];
+  const pct=Math.round(parts.reduce((a,b)=>a+b,0)/parts.length*100);
+  $('#goalTitle').textContent=names[goal];
+  $('#goalSubtitle').textContent=copy[goal];
+  $('#goalPercent').textContent=pct+'%';
+  $('#goalFill').style.width=pct+'%';
+  $('#goalWrites').textContent=writes;
+  $('#goalChunks').textContent=chunks;
+  $('#goalCoverage').textContent=Math.round(coverage*100)+'%';
+  $('#goalStreak').textContent=streak+' 天';
+  $('#goalToggle').textContent='🏆 '+goal;
+  document.querySelectorAll('.goalStage').forEach(b=>b.classList.toggle('active',b.dataset.goal===goal));
+}
 function storeChunks(items){
   const box=loadChunks();
   for(const x of items||[]){
@@ -423,6 +510,7 @@ function storeChunks(items){
   }
   localStorage.setItem(CHUNK_KEY_NAME,JSON.stringify(box));
   renderChunks();
+  renderGoal();
 }
 function renderChunks(){
   const box=Object.values(loadChunks()).sort((a,b)=>(b.seen||0)-(a.seen||0));
@@ -554,6 +642,8 @@ cats.forEach(c=>{
   b.onclick=()=>{ filter=c; [...tabs.children].forEach(x=>x.classList.remove('active')); b.classList.add('active'); pick(); };
   tabs.appendChild(b);
 });
+$('#goalToggle').onclick=()=>{ $('#goalPanel').classList.toggle('show'); renderGoal(); };
+document.querySelectorAll('.goalStage').forEach(b=>b.onclick=()=>setGoal(b.dataset.goal));
 $('#apiToggle').onclick=()=>$('#apiPanel').classList.toggle('show');
 $('#chunkToggle').onclick=()=>{ $('#chunkPanel').classList.toggle('show'); renderChunks(); };
 $('#saveApi').onclick=saveApiSettings;
@@ -633,7 +723,7 @@ $('#forget').onclick=()=>{
   toast('卡住就看，没什么可丢人的');
 };
 if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
-updateStats(); pick(); refreshApiUI(); renderChunks();
+updateStats(); pick(); refreshApiUI(); renderChunks(); renderGoal();
 </script>
 </body>
 </html>
