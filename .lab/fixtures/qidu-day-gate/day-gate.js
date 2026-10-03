@@ -5,7 +5,7 @@
  host[KEY]?.dispose?.();
  const ctx=()=>host.SillyTavern?.getContext?.();
  function rule(entry){const m=String(entry.comment||'').match(/\[F7D_GATE:(.*?)\]/);if(!m)return null;try{return JSON.parse(m[1])}catch{return {deny:true}}}
- function allow(entry,s){const r=rule(entry);if(!r)return true;if(!s||r.deny)return false;if(r.day!==undefined&&s.day!==r.day)return false;if(r.unlock!==undefined&&s.day>r.unlock)return false;if(r.route&&s.route!==r.route)return false;if(r.flag){let v=s;for(const k of r.flag.split('.'))v=v?.[k];if(v!==true)return false}if(r.saiham&&s.morning_flags?.day6_saiham===true)return false;return true}
+ function allow(entry,s){const r=rule(entry);if(!r)return true;if(!s||r.deny)return false;if(r.day!==undefined&&s.day!==r.day)return false;if(r.unlock!==undefined&&s.day>r.unlock)return false;if(r.route&&s.route!==r.route)return false;if(r.flag){let v=s;for(const k of r.flag.split('.'))v=v?.[k];if(v!==true)return false}if(r.saiham&&(s.day<6||s.morning_flags?.day6_saiham===true))return false;return true}
  function state(){
   const c=ctx();if(!c||!Array.isArray(c.chat))return null;
   for(let i=c.chat.length-1;i>=0;i--){
