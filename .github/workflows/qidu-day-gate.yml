@@ -3,6 +3,9 @@ on:
   push:
     branches: ['feature/qidu-day-gate-20261002']
     paths: ['.lab/fixtures/qidu-day-gate/patch.py','.lab/fixtures/qidu-day-gate/day-gate.js','.lab/fixtures/qidu-day-gate/test.mjs','.github/workflows/qidu-day-gate.yml']
+concurrency:
+  group: qidu-daily-gate-rebuild
+  cancel-in-progress: true
 permissions:
   contents: write
 jobs:
@@ -13,12 +16,13 @@ jobs:
       - run: python3 .lab/fixtures/qidu-day-gate/patch.py
       - run: node --check .lab/fixtures/qidu-day-gate/day-gate.js
       - run: node .lab/fixtures/qidu-day-gate/test.mjs
+      - run: node .lab/fixtures/qidu-day-gate/morning-regression-test.mjs
       - name: Save candidate on isolated branch
         run: |
           git config user.name "Codex"
           git config user.email "codex@users.noreply.github.com"
           git add .lab/fixtures/qidu-day-gate/lore-audit.json .lab/fixtures/qidu-day-gate/Qidu-v0.4.42-day-gate.json .lab/fixtures/qidu-day-gate/revision-report.json .lab/fixtures/qidu-day-gate/gate-tests.json
-          git commit -m "Save daily-gated candidate and validation evidence"
+          git diff --cached --quiet || git commit -m "Save daily-gated candidate and validation evidence"
           git push origin HEAD:feature/qidu-day-gate-20261002
       - uses: actions/upload-artifact@v4
         with:
