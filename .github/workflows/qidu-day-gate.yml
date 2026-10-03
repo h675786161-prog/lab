@@ -21,14 +21,14 @@ jobs:
         run: |
           git config user.name "Codex"
           git config user.email "codex@users.noreply.github.com"
-          git add .lab/fixtures/qidu-day-gate/lore-audit.json .lab/fixtures/qidu-day-gate/Qidu-v0.4.44-location-fact-sync.json .lab/fixtures/qidu-day-gate/revision-report.json .lab/fixtures/qidu-day-gate/gate-tests.json
+          git add .lab/fixtures/qidu-day-gate/lore-audit.json .lab/fixtures/qidu-day-gate/Qidu-v0.4.45-morning-lore-correct.json .lab/fixtures/qidu-day-gate/revision-report.json .lab/fixtures/qidu-day-gate/gate-tests.json
           git diff --cached --quiet || git commit -m "Save daily-gated candidate and validation evidence"
           git push origin HEAD:feature/qidu-day-gate-20261002
       - uses: actions/upload-artifact@v4
         with:
-          name: qidu-v0444-location-fact-sync
+          name: qidu-v0445-morning-lore-correct
           path: |
-            .lab/fixtures/qidu-day-gate/Qidu-v0.4.44-location-fact-sync.json
+            .lab/fixtures/qidu-day-gate/Qidu-v0.4.45-morning-lore-correct.json
             .lab/fixtures/qidu-day-gate/day-gate.js
             .lab/fixtures/qidu-day-gate/gate-tests.json
             .lab/fixtures/qidu-day-gate/revision-report.json

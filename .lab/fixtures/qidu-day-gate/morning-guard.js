@@ -27,11 +27,11 @@
     return texts.concat(current).join('\n');
   };
   const hasMorningVoice=text=>{
-    const dream=/(?:梦境|半梦半醒|梦中|意识(?:的)?深处|黑暗的深处|虚空|尚未醒|醒来之前|醒前|沉睡)/;
-    const voice=/(?:声音|低语|呢喃|自语|回响|轻叹)/;
+    const dream=/(?:梦境|半梦半醒|梦中|意识(?:的)?深处|意识[^。\n]{0,30}(?:重归|回到)[^。\n]{0,20}躯壳|黑暗(?:的深处)?|虚空|虚无|尚未醒|醒来之前|醒前|沉睡|睁开双眼前|现实感知之前)/;
+    const voice=/(?:声音|声响|低语|呢喃|自语|回响|轻叹)/;
     return text.split(/\n{2,}/).some((p,i,parts)=>dream.test(p)&&voice.test(p+' '+(parts[i+1]||'')))
       || /小神[\s\S]{0,100}(?:低语|自语|声音)/.test(text)
-      || /(?:低语|呢喃)[\s\S]{0,200}(?:苏醒|醒来|睁开)/.test(text);
+      || /(?:低语|呢喃)[\s\S]{0,200}(?:苏醒|醒来|睁开)/.test(text)\n      || /(?:意识|黑暗|虚无|睡梦|醒来)[\s\S]{0,260}(?:声音|声响|低语|呢喃)[\s\S]{0,420}(?:醒来|睁开|现实|天花板|晨光)/.test(text);
   };
   const hasSaihamDeparture=text=>{
     const visible=text.replace(/“[^”]*”|「[^」]*」|『[^』]*』|"[^"]*"/g,'');

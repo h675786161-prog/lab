@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
-const card=JSON.parse(fs.readFileSync(new URL('./Qidu-v0.4.44-location-fact-sync.json',import.meta.url),'utf8'));
+const card=JSON.parse(fs.readFileSync(new URL('./Qidu-v0.4.45-morning-lore-correct.json',import.meta.url),'utf8'));
 const source=card.data.extensions.tavern_helper.scripts.find(s=>s.name.includes('不可逆')).content;
 const dream='在半梦半醒的意识深处，一个空灵的声音回响着。\n\n“你又醒来了。”';
 const carry='希罗压制了赛哈姆的活骸化。部下抬着赛哈姆的担架离开了中央庭。';
@@ -26,4 +26,6 @@ assert(!run(6,dream,[],{},[{type:'set',args:['clock_minutes','480','560']}],'去
 assert(run(6,'你和安巡查了街区。',[],{day6_monologue:true,day6_saiham:true},[{type:'set',args:['clock_minutes','480','560']}],'我去巡查').some(c=>path(c)==='clock_minutes'));
 const moved=run(5,'你迅速起身来到中央庭的议事大厅，希罗正在那里等待。',[],{day5_monologue:true,day5_split:false},[],'继续');
 assert(moved.some(c=>path(c)==='location'&&c.args.at(-1)==='中央庭会议室'));
-console.log('location/fact-sync morning regression checks passed');
+const nativeVoice='黑暗与虚无仿佛没有边界。在意识重归躯壳的前一刻，耳畔浮起极轻微的虚幻声响。\n\n“……你……醒了吗……”\n\n那声音模糊不清，随即被现实的感知冲散。你睁开双眼。';
+assert(run(6,nativeVoice).some(c=>path(c)==='morning_flags.day6_monologue'));
+console.log('morning/location regression checks passed');
