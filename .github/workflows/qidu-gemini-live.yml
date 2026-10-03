@@ -64,7 +64,8 @@ jobs:
           if [ -f .lab/fixtures/qidu-day-gate/live/native-live.json ]; then
             git add .lab/fixtures/qidu-day-gate/live/native-live.json
             git commit -m "Save native Gemini story and MVU evidence" || true
-            git push
+            git pull --rebase origin feature/qidu-day-gate-20261002
+            git push origin HEAD:feature/qidu-day-gate-20261002
           fi
       - uses: actions/upload-artifact@v4
         if: always()
