@@ -1,6 +1,6 @@
 {
   "base": "Qidu-v0.4.41-terminal-v1.json",
-  "version": "0.4.42-day-gate",
+  "version": "0.4.43-decision-boundary",
   "gated": {
     "10": "[F7D_GATE:{\"day\":7}] 10｜第7天：苏醒与高校主线",
     "11": "[F7D_GATE:{\"day\":6}] 11｜第6天：赛哈姆活骸事件",
