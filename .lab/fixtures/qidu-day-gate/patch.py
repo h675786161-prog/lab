@@ -85,8 +85,22 @@ secret(block,{'day':6})
 for ident in [30,66]:
  by[ident]['content']=by[ident]['content'].replace('活骸风险','幻力失控风险')
 
+
+# 保留实机确认的修正；生成候选卡时同样应用，避免从旧底稿覆盖。
+by[1]['content']+='\n【正文边界】行动节点、剩余次数、已用时间、变量名、英文状态和巡查进度仅写变量并由界面展示，正文和人物台词不报这些计数。研究所开启前的4次自由行动只是解锁门槛，不是每日行动总数；全日仍为16小时、12个80分钟节点。'
+for ident in [10,11,12,13,14,15,16,17]:
+ by[ident]['content']+='\n【醒前声音称呼】这段声音只用“你”指代玩家，不称呼“指挥使”，不透露声音的身份。实际自语结束后必须登记本日monologue标记；已登记就不重复演。'
+by[11]['content']+='\n【跨轮登记】本日小神自语已经在前一回复演完时，本轮无需重复正文，可按既成事实补记day6_monologue。day6_saiham只在赛哈姆实际被抬走、离开中央庭后登记；希罗声称要带走、正在压制、担架仍在现场都不算结束。已演出的现场以既有回复为准，不在后续回复重演。变量命令只用_.set(路径,旧值,新值)，不传state对象。'
+by[12]['content']=by[12]['content'].replace('【研究所开启】第5天开始后，玩家先拥有4次自由主要行动。累计完成第4次后，研究所主线开放。','【研究所开启】第5天完成晨间固定剧情后，前4个主要行动为研究所解锁前的自由行动。完成第4个后研究所主线开放；这不是每日总行动数，之后还有当天剩余时间。正文只通过新的调查消息呈现开放事件，不报行动次数。')
+
 scripts=data['extensions']['tavern_helper']['scripts']
-scripts.insert(0,{'type':'script','enabled':True,'id':str(uuid.uuid4()),'name':'七都日程加载','content':(root/'day-gate.js').read_text(),'info':'','button':{'enabled':False,'buttons':[]},'data':{}})
+for script in scripts:
+ if 'const signature =' in script['content']:
+  script['content']=script['content'].replace("String(m.mes || '').replace(/<StatusPlaceHolderImpl\\/>/g, '')", "String(m.mes || '').replace(/<StatusPlaceHolderImpl\\/>/g, '').trimEnd()")
+ if '不可逆' in script['name']:
+  script['content']=(root/'morning-guard.js').read_text()
+
+scripts.insert(0,{'type':'script','enabled':True,'id':str(uuid.uuid5(uuid.NAMESPACE_URL,'f7d/day-gate/0.4.42')),'name':'七都日程加载','content':(root/'day-gate.js').read_text(),'info':'','button':{'enabled':False,'buttons':[]},'data':{}})
 (root/'Qidu-v0.4.42-day-gate.json').write_text(json.dumps(card,ensure_ascii=False,indent=2)+'\n')
 report={'base':src.name,'version':data['character_version'],'gated':{str(e['id']):e['comment'] for e in entries if e['comment'].startswith('[F7D_GATE:')},'reveals':reveals,'scripts':[{'name':s['name'],'enabled':s.get('enabled')} for s in scripts]}
 (root/'revision-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
