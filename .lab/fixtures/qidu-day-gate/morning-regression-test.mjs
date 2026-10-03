@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
-const card=JSON.parse(fs.readFileSync(new URL('./Qidu-v0.4.43-decision-boundary.json',import.meta.url),'utf8'));
+const card=JSON.parse(fs.readFileSync(new URL('./Qidu-v0.4.44-location-fact-sync.json',import.meta.url),'utf8'));
 const source=card.data.extensions.tavern_helper.scripts.find(s=>s.name.includes('不可逆')).content;
 const dream='在半梦半醒的意识深处，一个空灵的声音回响着。\n\n“你又醒来了。”';
 const carry='希罗压制了赛哈姆的活骸化。部下抬着赛哈姆的担架离开了中央庭。';
@@ -10,7 +10,7 @@ function run(day,text,history=[],flags={},commands=[],user='继续'){
  const host={SillyTavern:{getContext:()=>({chat})},Mvu:{events:{COMMAND_PARSED:'commands'}}};
  const context={parent:host,TavernHelper:{eventOn:(name,fn)=>{if(name==='commands')handler=fn;},eventRemoveListener:()=>{}},addEventListener:()=>{}};context.window=context;
  vm.runInNewContext(source,context);
- const prior={schema:'f7d_textloop_0.4',day,clock_minutes:480,morning_flags:{['day'+day+'_monologue']:false,day6_saiham:false,...flags}};
+ const prior={schema:'f7d_textloop_0.4',day,clock_minutes:480,location:'中央庭寝室',morning_flags:{['day'+day+'_monologue']:false,day6_saiham:false,...flags}};
  handler({stat_data:prior},commands,text);return commands;
 }
 const path=c=>c.args[0];
@@ -24,4 +24,6 @@ assert(run(5,'希罗与安托涅瓦争论后离开中央庭，安托涅瓦力竭
 assert(!run(6,'安递来温水。',[{is_user:false,mes:dream,variables:{0:{stat_data:{day:5}}}}]).some(c=>path(c)==='morning_flags.day6_monologue'));
 assert(!run(6,dream,[],{},[{type:'set',args:['clock_minutes','480','560']}],'去巡查').some(c=>path(c)==='clock_minutes'));
 assert(run(6,'你和安巡查了街区。',[],{day6_monologue:true,day6_saiham:true},[{type:'set',args:['clock_minutes','480','560']}],'我去巡查').some(c=>path(c)==='clock_minutes'));
-console.log('decision-boundary morning regression checks passed');
+const moved=run(5,'你迅速起身来到中央庭的议事大厅，希罗正在那里等待。',[],{day5_monologue:true,day5_split:false},[],'继续');
+assert(moved.some(c=>path(c)==='location'&&c.args.at(-1)==='中央庭会议室'));
+console.log('location/fact-sync morning regression checks passed');

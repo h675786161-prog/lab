@@ -3,7 +3,7 @@ from pathlib import Path
 root=Path('.lab/fixtures/qidu-day-gate')
 src=Path('.lab/fixtures/f7d-terminal-v1-formal/Qidu-v0.4.41-terminal-v1.json')
 card=json.loads(src.read_text())
-data=card['data'];data['character_version']='0.4.43-decision-boundary'
+data=card['data'];data['character_version']='0.4.44-location-fact-sync'
 entries=data['character_book']['entries'];by={e['id']:e for e in entries}
 def gate(e,r):
  e['comment']='[F7D_GATE:'+json.dumps(r,ensure_ascii=False,separators=(',',':'))+'] '+e.get('comment','')
@@ -97,6 +97,10 @@ by[12]['content']=by[12]['content'].replace('【研究所开启】第5天开始�
 by[12]['content']+='''【拉拢决定边界】希罗向{{user}}提出拉拢后必须等待玩家明确态度。“先听他们说”“先观察”“继续听争论”不是选择，希罗可以继续与安托涅瓦交锋或补充理由，但不能因此自行离开中央庭，安托涅瓦也不能提前进入分裂后的倒下结算，day5_split必须保持false。只有{{user}}明确拒绝、支持/认同、愿意合作，或明确选择保持沉默/不表态作为回应后，才继续演出希罗离开、安托涅瓦力竭与晏华接手，并在整段收束后登记day5_split。'''
 by[91]['content']+='''【未决选择与状态】任何等待{{user}}明确回应的决定都不是“已发生事件”。模型即使在正文中误写了后续结果，也不得据此提前提交晨间完成标记；优先保持未决状态，并在下一轮按玩家真实输入承接，不重复演已经明确发生过的同一离场/倒下片段。'''
 data['post_history_instructions']+='''7. 遇到直接要求{{user}}表态的邀请、保密、路线、同行或接受/拒绝事项时，把它当作硬停止点：本轮写到问题与可选行动即停。{{user}}说“先听/观察/追问/再看看”只补当前信息，不得自动执行同意、拒绝、沉默或后续离场；只有{{user}}明确给出态度后才结算由该态度触发的后果。'''
+by[91]['content']+='''【位置同步】location记录玩家当前实际所在场景，不等同于计时。短距离移动可以0分钟，但只要正文已经写明“你来到/进入/抵达”另一处地点，就必须在同一回复同步location；不能让正文人在会议室而存档仍停在寝室。'''
+by[11]['content']+='''【活骸事实边界】只把当前已演出、已揭露的活骸事实写成客观事实。若现有条目没有明确规定，不得新增“中央庭唯一处置预案”“必定就地抹除”“固定处刑条例”等制度细节；希罗可以表达自己的判断、警告或立场，但他的说法不自动等于中央庭客观制度。研究所能否救治、能做到什么程度也只能按当前已知信息表述，不能提前写成确定结论。'''
+by[12]['content']+='''【分裂争论事实边界】本日争论可引用此前已经发生的赛哈姆事件，但在未有实际证据或此前剧情明确建立之前，不得把“赛哈姆自愿接受改造/调适”“她主动要求实验”“某个具体B区、C区、D区被切断”“某份精确权限日志证明某事”写成既定事实。需要体现希罗与晏华的分歧时，用已知行为、立场和可核实异常，不凭空补造研究记录。'''
+data['post_history_instructions']+='''8. location随正文实际位移同步：0分钟移动也要改位置。人物争论只引用已建立事实；角色自己的判断、辩护与指控必须保持为角色说法，不得凭空升级为中央庭固定条例、赛哈姆自愿实验或不存在的研究所分区/权限记录。'''
 
 scripts=data['extensions']['tavern_helper']['scripts']
 for script in scripts:
@@ -106,7 +110,7 @@ for script in scripts:
   script['content']=(root/'morning-guard.js').read_text()
 
 scripts.insert(0,{'type':'script','enabled':True,'id':str(uuid.uuid5(uuid.NAMESPACE_URL,'f7d/day-gate/0.4.42')),'name':'七都日程加载','content':(root/'day-gate.js').read_text(),'info':'','button':{'enabled':False,'buttons':[]},'data':{}})
-(root/'Qidu-v0.4.43-decision-boundary.json').write_text(json.dumps(card,ensure_ascii=False,indent=2)+'\n')
+(root/'Qidu-v0.4.44-location-fact-sync.json').write_text(json.dumps(card,ensure_ascii=False,indent=2)+'\n')
 report={'base':src.name,'version':data['character_version'],'gated':{str(e['id']):e['comment'] for e in entries if e['comment'].startswith('[F7D_GATE:')},'reveals':reveals,'scripts':[{'name':s['name'],'enabled':s.get('enabled')} for s in scripts]}
 (root/'revision-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
 print(json.dumps(report,ensure_ascii=False))

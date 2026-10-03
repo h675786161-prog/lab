@@ -3,14 +3,14 @@ import fs from 'node:fs/promises';
 import {chromium} from 'playwright';
 const out='.lab/fixtures/qidu-day-gate/live';
 await fs.mkdir(out,{recursive:true});
-const card=JSON.parse(await fs.readFile('.lab/fixtures/qidu-day-gate/Qidu-v0.4.43-decision-boundary.json','utf8'));
+const card=JSON.parse(await fs.readFile('.lab/fixtures/qidu-day-gate/Qidu-v0.4.44-location-fact-sync.json','utf8'));
 for(const s of card.data.extensions.tavern_helper.scripts)s.content=s.content.replace(/https:\/\/gcore\.jsdelivr\.net\/gh\/MagicalAstrogy\/MagVarUpdate@[^']+/, '/f7d-mvu.js');
 for(const script of card.data.extensions.tavern_helper.scripts)if(script.content.includes("host[KEY]={version:1,allow,dispose}"))script.content=script.content.replace("host[KEY]={version:1,allow,dispose}","host[KEY]={version:1,allow,dispose,state}");
 const init=JSON.parse(card.data.character_book.entries.find(e=>e.comment.includes('[InitVar]')).content);
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 const page=await browser.newPage({viewport:{width:1080,height:2500}});
 page.setDefaultTimeout(30000);
-const rounds=[],requests=[],errors=[];const testedRevision='decision-boundary-v4';
+const rounds=[],requests=[],errors=[];const testedRevision='location-fact-sync-v5';
 page.on('pageerror',e=>errors.push(e.message.slice(0,500)));const runtimeLog=[];page.on('console',m=>{const t=m.text();if(/Set '|七都|变量|mag_|过期|MVU|script error/i.test(t))runtimeLog.push(t.slice(0,2000));});
 page.on('request',r=>{if(r.url().endsWith('/api/backends/chat-completions/generate')){try{const d=r.postDataJSON();requests.push({model:d.model,source:d.chat_completion_source,message_count:d.messages?.length,chars:JSON.stringify(d.messages).length,messages:d.messages});void fs.writeFile(out+'/native-prompts.json',JSON.stringify(requests,null,2));}catch{}}});
 let failure;const pending=new Set();page.on('request',r=>{if(r.url().endsWith('/api/backends/chat-completions/generate'))pending.add(r);});for(const event of ['requestfinished','requestfailed'])page.on(event,r=>pending.delete(r));const waitIdle=async()=>{const deadline=Date.now()+180000;while(pending.size){if(Date.now()>deadline)throw Error('native background requests timeout');await page.waitForTimeout(500);}await page.waitForTimeout(1000);};
@@ -53,6 +53,12 @@ try{
    if(data.is_user||!data.text)throw Error('no native assistant reply');if(data.variables?.stat_data?.day!==scene.day)throw Error('native MVU did not commit the expected day');if(data.terminal?.status!=='ready')throw Error('terminal is not ready after native MVU commit');
    rounds.push({case:scene.id,round:i+1,user:scene.inputs[i],before,after:data.variables?.stat_data,text:data.text,gates:data.gates,terminal:data.terminal,allGates:data.allGates,gateState:data.gateState,rawVariables:data.variables,commitDiagnostics:await page.evaluate(()=>window.__commitDiagnostics),requests:requests.slice(start).map(r=>({model:r.model,source:r.source,message_count:r.message_count,chars:r.chars}))});
    const after=data.variables?.stat_data;
+   const arrivedMeeting=/(?:你|你们)[^。\n]{0,100}(?:来到|进入|走进|抵达|赶到)[^。\n]{0,60}(?:会议室|议事大厅|议事厅)/.test(data.text);
+   if(arrivedMeeting&&after.location==='中央庭寝室')throw Error('prose moved to meeting room but location stayed in bedroom '+scene.id+' round '+(i+1));
+   if(scene.id==='day6'&&/(?:唯一的?处置预案|唯一的?处置条例|就地抹除|下场只有被彻底清除)/.test(data.text))throw Error('invented fixed Central Court chimera execution policy in '+scene.id+' round '+(i+1));
+   if(scene.id.startsWith('split-')&&/(?:赛哈姆|她)[^。\n]{0,90}(?:自己的意志|自愿(?:接受|参与|进行)|主动要求实验)/.test(data.text))throw Error('invented Saiham voluntary experiment fact '+scene.id+' round '+(i+1));
+   if(scene.id.startsWith('split-')&&/(?:研究所)?[BCDＢＣＤ][区區][^。\n]{0,80}(?:权限|通讯|协议|记录|切断)/.test(data.text))throw Error('invented precise lab sector record '+scene.id+' round '+(i+1));
+
    if(scene.id==='day6'){
      if(i<3&&after.morning_flags.day6_saiham!==false)throw Error('day6_saiham completed before secrecy decision round '+(i+1));
      if(i===3&&after.morning_flags.day6_saiham!==true)throw Error('day6_saiham did not complete after explicit decision; flag='+String(after.morning_flags.day6_saiham)+'; tail='+String(data.text).slice(-1800));

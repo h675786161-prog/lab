@@ -48,6 +48,17 @@
     return /(?:拒绝(?:希罗|邀请)?|不答应|不接受|不跟(?:希罗)?走|不加入|留在中央庭|选择中央庭|支持(?:你|希罗)|认同(?:你|希罗|这个方案|你的方案)|赞同(?:你|希罗|这个方案|你的方案)|愿意(?:和希罗)?合作|跟(?:你|希罗)走|加入(?:你|希罗)|保持沉默|暂不表态|不表态|暂不回答)/.test(t);
   };
 
+  const inferSceneLocation=text=>{
+    const rules=[
+      ['中央庭会议室',/(?:你|你们)[^。\n]{0,90}(?:来到|进入|走进|抵达|赶到)[^。\n]{0,55}(?:中央庭的?)?(?:会议室|议事大厅|议事厅)/g],
+      ['中央庭指挥室',/(?:你|你们)[^。\n]{0,90}(?:来到|进入|走进|抵达|赶到)[^。\n]{0,55}(?:中央庭的?)?(?:指挥室|办公室)/g],
+      ['中央庭走廊',/(?:你|你们)[^。\n]{0,90}(?:来到|进入|走进|抵达|赶到|推门而出)[^。\n]{0,55}(?:中央庭的?)?(?:走廊|廊道)/g],
+      ['中央庭寝室',/(?:你|你们)[^。\n]{0,90}(?:回到|返回|进入|走进)[^。\n]{0,55}(?:中央庭的?)?(?:寝室|房间)/g]
+    ];
+    let found=null,index=-1;
+    for(const [name,re] of rules){for(const m of text.matchAll(re)){if(m.index>=index){index=m.index;found=name;}}}
+    return found;
+  };
   const gates={6:['day6_monologue','day6_saiham'],5:['day5_monologue','day5_split'],4:['day4_monologue','day4_speech'],3:['day3_monologue','day3_ann_departure'],2:['day2_monologue']};
   const morningReady=prior=>prior.day===7?prior.tasks?.DAY7_OPENING?.status==='completed':(gates[prior.day]||[]).every(key=>prior.morning_flags?.[key]===true);
   const endpoints=new Set(['终结','箱庭风景','牺牲的意义','永恒的终焉','两个人的旅途']);
@@ -118,6 +129,10 @@
       }
       if(path==='route_flags.oldstreet_delayed'&&next===true&&!completed('central'))commands.splice(i,1);
     }
+    const inferredLocation=inferSceneLocation(story);
+    const hasLocationUpdate=commands.some(c=>String(c.args?.[0]||'').replace(/^['"]|['"]$/g,'')==='location');
+    if(inferredLocation&&inferredLocation!==prior.location&&!hasLocationUpdate)
+      commands.push({type:'set',args:['location',String(prior.location||''),inferredLocation],reason:'正文已发生实际位移，同步当前位置'});
     if(midnight&&prior.day>0&&commands.some(c=>String(c.args?.[0]||'').replace(/^['"]|['"]$/g,'')==='clock_minutes'&&parse(c.args?.at(-1))===1440)){
       if(!commands.some(c=>String(c.args?.[0]||'').replace(/^['"]|['"]$/g,'')==='day'))commands.push({type:'set',args:['day',String(prior.day-1)],reason:'午夜强制睡觉'});
       commands.push({type:'set',args:['clock_minutes','480'],reason:'次日08:00'});
