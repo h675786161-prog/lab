@@ -3,14 +3,14 @@ import fs from 'node:fs/promises';
 import {chromium} from 'playwright';
 const out='.lab/fixtures/qidu-day-gate/live';
 await fs.mkdir(out,{recursive:true});
-const card=JSON.parse(await fs.readFile('.lab/fixtures/qidu-day-gate/Qidu-v0.4.42-day-gate.json','utf8'));
+const card=JSON.parse(await fs.readFile('.lab/fixtures/qidu-day-gate/Qidu-v0.4.43-decision-boundary.json','utf8'));
 for(const s of card.data.extensions.tavern_helper.scripts)s.content=s.content.replace(/https:\/\/gcore\.jsdelivr\.net\/gh\/MagicalAstrogy\/MagVarUpdate@[^']+/, '/f7d-mvu.js');
 for(const script of card.data.extensions.tavern_helper.scripts)if(script.content.includes("host[KEY]={version:1,allow,dispose}"))script.content=script.content.replace("host[KEY]={version:1,allow,dispose}","host[KEY]={version:1,allow,dispose,state}");
 const init=JSON.parse(card.data.character_book.entries.find(e=>e.comment.includes('[InitVar]')).content);
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 const page=await browser.newPage({viewport:{width:1080,height:2500}});
 page.setDefaultTimeout(30000);
-const rounds=[],requests=[],errors=[];const testedRevision='canonical-morning-source-v1';
+const rounds=[],requests=[],errors=[];const testedRevision='decision-boundary-v2';
 page.on('pageerror',e=>errors.push(e.message.slice(0,500)));const runtimeLog=[];page.on('console',m=>{const t=m.text();if(/Set '|七都|变量|mag_|过期|MVU|script error/i.test(t))runtimeLog.push(t.slice(0,2000));});
 page.on('request',r=>{if(r.url().endsWith('/api/backends/chat-completions/generate')){try{const d=r.postDataJSON();requests.push({model:d.model,source:d.chat_completion_source,message_count:d.messages?.length,chars:JSON.stringify(d.messages).length,messages:d.messages});void fs.writeFile(out+'/native-prompts.json',JSON.stringify(requests,null,2));}catch{}}});
 let failure;const pending=new Set();page.on('request',r=>{if(r.url().endsWith('/api/backends/chat-completions/generate'))pending.add(r);});for(const event of ['requestfinished','requestfailed'])page.on(event,r=>pending.delete(r));const waitIdle=async()=>{const deadline=Date.now()+180000;while(pending.size){if(Date.now()>deadline)throw Error('native background requests timeout');await page.waitForTimeout(500);}await page.waitForTimeout(1000);};
@@ -52,6 +52,17 @@ try{
    if(requests.length===start)throw Error('No native model request was sent');
    if(data.is_user||!data.text)throw Error('no native assistant reply');if(data.variables?.stat_data?.day!==scene.day)throw Error('native MVU did not commit the expected day');if(data.terminal?.status!=='ready')throw Error('terminal is not ready after native MVU commit');
    rounds.push({case:scene.id,round:i+1,user:scene.inputs[i],before,after:data.variables?.stat_data,text:data.text,gates:data.gates,terminal:data.terminal,allGates:data.allGates,gateState:data.gateState,rawVariables:data.variables,commitDiagnostics:await page.evaluate(()=>window.__commitDiagnostics),requests:requests.slice(start).map(r=>({model:r.model,source:r.source,message_count:r.message_count,chars:r.chars}))});
+   const after=data.variables?.stat_data;
+   if(scene.id==='day6'){
+     if(i<3&&after.morning_flags.day6_saiham!==false)throw Error('day6_saiham completed before secrecy decision round '+(i+1));
+     if(i===3&&after.morning_flags.day6_saiham!==true)throw Error('day6_saiham did not complete after explicit decision');
+     if(i<3&&/(?:抬着|带着|护送着|押送着)[\s\S]{0,240}赛哈姆[\s\S]{0,240}(?:离开中央庭|走出中央庭|脚步声[^。\n]{0,80}(?:消失|远去))/.test(data.text))throw Error('day6 prose crossed unresolved secrecy boundary');
+   }
+   if(scene.id.startsWith('split-')){
+     if(i<2&&after.morning_flags.day5_split!==false)throw Error('day5_split completed before player decision '+scene.id+' round '+(i+1));
+     if(i===1&&/(?:希罗|他)[\s\S]{0,180}(?:离开中央庭|走出(?:议事厅|大厅)|脚步声[^。\n]{0,80}(?:消失|远去))[\s\S]{0,260}安托涅瓦[\s\S]{0,160}(?:倒下|瘫倒|力竭)/.test(data.text))throw Error('day5 prose crossed unresolved Hiro decision boundary '+scene.id);
+     if(i===2&&after.morning_flags.day5_split!==true)throw Error('day5_split did not complete after explicit refusal '+scene.id);
+   }
    await page.evaluate(()=>{const chat=document.querySelector('#chat'),last=chat?.querySelector('.mes:last-of-type');if(chat&&last)chat.scrollTop=last.offsetTop;});
    await page.screenshot({path:out+'/'+scene.id+'-'+(i+1)+'.jpg',type:'jpeg',quality:90,fullPage:true});
    await checkpoint('completed '+scene.id+' '+(i+1));

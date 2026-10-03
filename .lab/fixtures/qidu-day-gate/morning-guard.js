@@ -35,8 +35,17 @@
   };
   const hasSaihamDeparture=text=>{
     const visible=text.replace(/“[^”]*”|「[^」]*」|『[^』]*』|"[^"]*"/g,'');
-    return /赛哈姆/.test(visible)&&/希罗/.test(text)&&/活骸/.test(text)
-      && /(?:赛哈姆[\s\S]{0,140}(?:被带走|被抬走|被送走|被转移|离开了|离去|离开中央庭)|(?:抬着|带着|护送|押送)[\s\S]{0,100}赛哈姆[\s\S]{0,100}(?:离开|离去|走出|送往)|(?:部下|随从|人员)[\s\S]{0,100}(?:担架|推车)[\s\S]{0,100}(?:离开|离去|走出))/.test(visible);
+    if(!/赛哈姆/.test(visible)||!/希罗/.test(text)||!/活骸/.test(text))return false;
+    // 只有“实际离场已经发生”才算完成。准备撤离、将被送往、要求保密、正在固定担架均不算。
+    const completed=
+      /赛哈姆[\s\S]{0,180}(?:被带离中央庭|被抬离中央庭|已经离开中央庭|随[^。\n]{0,60}(?:离开中央庭|走出中央庭))/.test(visible)
+      || /(?:抬着|带着|护送着|押送着)[\s\S]{0,140}赛哈姆[\s\S]{0,180}(?:离开中央庭|走出中央庭|穿过[^。\n]{0,80}(?:安全通道|侧门|出口)[\s\S]{0,80}(?:消失|远去))/.test(visible)
+      || /(?:担架|推车)[\s\S]{0,220}(?:穿过[^。\n]{0,80}(?:安全通道|侧门|出口)[\s\S]{0,100}(?:脚步声[^。\n]{0,60}(?:消失|远去)|消失在)|离开中央庭)/.test(visible);
+    return completed&&!/(?:准备|即将|将要|打算|需要)[^。\n]{0,40}(?:撤离|离开|送往|转移)/.test(visible.slice(Math.max(0,visible.lastIndexOf('赛哈姆'))));
+  };
+  const day5DecisionMade=user=>{
+    const t=String(user||'').replace(/\s+/g,'');
+    return /(?:拒绝(?:希罗|邀请)?|不答应|不接受|不跟(?:希罗)?走|不加入|留在中央庭|选择中央庭|支持(?:你|希罗)|认同(?:你|希罗|这个方案|你的方案)|赞同(?:你|希罗|这个方案|你的方案)|愿意(?:和希罗)?合作|跟(?:你|希罗)走|加入(?:你|希罗)|保持沉默|暂不表态|不表态|暂不回答)/.test(t);
   };
 
   const gates={6:['day6_monologue','day6_saiham'],5:['day5_monologue','day5_split'],4:['day4_monologue','day4_speech'],3:['day3_monologue','day3_ann_departure'],2:['day2_monologue']};
@@ -79,7 +88,7 @@
         const key=path.slice('morning_flags.'.length),expected={day5_:5,day4_:4,day3_:3,day2_:2};
         const day=Number(key.match(/^day([2345])_/)?.[1]);
         if(day)invalid||=prior.day!==day||old!==false||!(key.endsWith('_monologue')?hasMorningVoice(transcript):morningMarkers[key]?.test(story));
-        if(key==='day5_split')invalid||=!/安托涅瓦/.test(story);
+        if(key==='day5_split')invalid||=!/安托涅瓦/.test(story)||!day5DecisionMade(user);
         if(key==='day5_split')invalid||=prior.morning_flags?.day5_monologue!==true&&!commands.some(c=>String(c.args?.[0]).includes('day5_monologue'))&&!hasMorningVoice(transcript);
         if(key==='day4_speech')invalid||=prior.morning_flags?.day4_monologue!==true&&!commands.some(c=>String(c.args?.[0]).includes('day4_monologue'))&&!hasMorningVoice(transcript);
         if(key==='day3_ann_departure')invalid||=prior.morning_flags?.day3_monologue!==true&&!commands.some(c=>String(c.args?.[0]).includes('day3_monologue'))&&!hasMorningVoice(transcript);

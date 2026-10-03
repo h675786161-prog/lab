@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
 const root='.lab/fixtures/qidu-day-gate';
-const card=JSON.parse(fs.readFileSync(root+'/Qidu-v0.4.42-day-gate.json','utf8'));
+const card=JSON.parse(fs.readFileSync(root+'/Qidu-v0.4.43-decision-boundary.json','utf8'));
 const code=fs.readFileSync(root+'/day-gate.js','utf8');
 const source=card.data.character_book.entries;
 let current=null;
