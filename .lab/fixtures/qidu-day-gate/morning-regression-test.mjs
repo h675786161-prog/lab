@@ -19,8 +19,8 @@ assert(!run(6,dream+'\n希罗说：“我需要带走赛哈姆进行活骸治疗
 assert(run(6,carry,[{is_user:false,mes:dream,variables:{0:{stat_data:{day:6}}}}]).some(c=>path(c)==='morning_flags.day6_saiham'));
 assert(!run(6,'希罗说明活骸化，赛哈姆已固定在担架上，队伍准备从安全通道撤离。',[{is_user:false,mes:dream,variables:{0:{stat_data:{day:6}}}}],{},[{type:'set',args:['morning_flags.day6_saiham','false','true']}],'我先问清楚她怎么了').some(c=>path(c)==='morning_flags.day6_saiham'));
 assert(run(6,'赛哈姆活骸化后，希罗的防护人员抬着担架穿过侧翼安全通道，脚步声消失在走廊尽头。',[{is_user:false,mes:dream,variables:{0:{stat_data:{day:6}}}}]).some(c=>path(c)==='morning_flags.day6_saiham'));
-assert(!run(5,'希罗与安托涅瓦争论后离开中央庭，安托涅瓦力竭倒下。',[],{day5_monologue:true},[{type:'set',args:['morning_flags.day5_split','false','true']}],'我随安来到会议室，先听他们说。').some(c=>path(c)==='morning_flags.day5_split'));
-assert(run(5,'希罗与安托涅瓦争论后离开中央庭，安托涅瓦力竭倒下。',[],{day5_monologue:true},[{type:'set',args:['morning_flags.day5_split','false','true']}],'我拒绝希罗的邀请，留在中央庭。').some(c=>path(c)==='morning_flags.day5_split'));
+assert(!run(5,'希罗与安托涅瓦争论后离开中央庭，安托涅瓦力竭倒下。',[],{day5_monologue:true,day5_split:false},[{type:'set',args:['morning_flags.day5_split','false','true']}],'我随安来到会议室，先听他们说。').some(c=>path(c)==='morning_flags.day5_split'));
+assert(run(5,'希罗与安托涅瓦争论后离开中央庭，安托涅瓦力竭倒下。',[],{day5_monologue:true,day5_split:false},[{type:'set',args:['morning_flags.day5_split','false','true']}],'我拒绝希罗的邀请，留在中央庭。').some(c=>path(c)==='morning_flags.day5_split'));
 assert(!run(6,'安递来温水。',[{is_user:false,mes:dream,variables:{0:{stat_data:{day:5}}}}]).some(c=>path(c)==='morning_flags.day6_monologue'));
 assert(!run(6,dream,[],{},[{type:'set',args:['clock_minutes','480','560']}],'去巡查').some(c=>path(c)==='clock_minutes'));
 assert(run(6,'你和安巡查了街区。',[],{day6_monologue:true,day6_saiham:true},[{type:'set',args:['clock_minutes','480','560']}],'我去巡查').some(c=>path(c)==='clock_minutes'));
