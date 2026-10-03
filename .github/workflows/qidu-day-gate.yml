@@ -2,7 +2,7 @@ name: Qidu daily lore gate revision
 on:
   push:
     branches: ['feature/qidu-day-gate-20261002']
-    paths: ['.lab/fixtures/qidu-day-gate/patch.py','.lab/fixtures/qidu-day-gate/day-gate.js','.lab/fixtures/qidu-day-gate/test.mjs','.github/workflows/qidu-day-gate.yml']
+    paths: ['.lab/fixtures/qidu-day-gate/patch.py','.lab/fixtures/qidu-day-gate/day-gate.js','.lab/fixtures/qidu-day-gate/morning-guard.js','.lab/fixtures/qidu-day-gate/test.mjs','.lab/fixtures/qidu-day-gate/morning-regression-test.mjs','.github/workflows/qidu-day-gate.yml']
 concurrency:
   group: qidu-daily-gate-rebuild
   cancel-in-progress: true
