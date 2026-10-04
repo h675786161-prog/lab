@@ -52,6 +52,39 @@ jobs:
            if r.status!=200:raise RuntimeError('local secret configuration failed')
           print('Existing GG key configured without disclosure')
           PY
+      - name: Probe 3f before browser test
+        env:
+          GG_KEY: ${{ secrets.GG }}
+        run: |
+          python - <<'PY'
+          import os,json,time,urllib.request,urllib.error
+          from pathlib import Path
+          out=Path('.lab/fixtures/qidu-day-gate/live/current-3f-probe.json')
+          out.parent.mkdir(parents=True,exist_ok=True)
+          result={'model':'gemini-3-flash-preview','site':'https://gcli.ggchan.dev'}
+          last=None
+          for attempt in range(1,5):
+            t=time.monotonic()
+            try:
+              req=urllib.request.Request('https://gcli.ggchan.dev/v1/chat/completions',data=json.dumps({'model':'gemini-3-flash-preview','messages':[{'role':'user','content':'只回复数字37。'}],'max_tokens':128,'stream':False}).encode(),headers={'Authorization':'Bearer '+os.environ['GG_KEY'],'Content-Type':'application/json'})
+              with urllib.request.urlopen(req,timeout=75) as r:
+                data=json.load(r)
+              text=data.get('choices',[{}])[0].get('message',{}).get('content','')
+              result.update(status='ok',attempt=attempt,response=text,elapsed_seconds=round(time.monotonic()-t,2))
+              out.write_text(json.dumps(result,ensure_ascii=False,indent=2))
+              print(json.dumps(result,ensure_ascii=False))
+              break
+            except urllib.error.HTTPError as e:
+              last={'status':'http_error','http_status':e.code,'attempt':attempt,'elapsed_seconds':round(time.monotonic()-t,2)}
+            except Exception as e:
+              last={'status':'error','error_type':type(e).__name__,'attempt':attempt,'elapsed_seconds':round(time.monotonic()-t,2)}
+            result.update(last)
+            out.write_text(json.dumps(result,ensure_ascii=False,indent=2))
+            if attempt<4: time.sleep(15*attempt)
+          else:
+            raise RuntimeError('3f preflight failed: '+json.dumps(last,ensure_ascii=False))
+          time.sleep(10)
+          PY
       - name: Prepare browser test dependency
         run: |
           npm install --no-save --no-audit --no-fund playwright@1.55.0
