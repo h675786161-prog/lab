@@ -37,16 +37,25 @@
   const hasSaihamDeparture=text=>{
     const visible=text.replace(/“[^”]*”|「[^」]*」|『[^』]*』|"[^"]*"/g,'');
     if(!/赛哈姆/.test(visible)||!/希罗/.test(text)||!/活骸/.test(text))return false;
-    // 只有“实际离场已经发生”才算完成。准备撤离、将被送往、要求保密、正在固定担架均不算。
+    const explicitStay=/(?:赛哈姆[^。\n]{0,80}(?:仍|依旧|还)(?:留|在)[^。\n]{0,60}(?:中央庭|会议室|房间)|赛哈姆[^。\n]{0,80}(?:没有|并未|尚未|还没)(?:被)?(?:带走|带离|转移|离开))/.test(visible);
+    if(explicitStay)return false;
     const completed=
-      /希罗(?:一行)?[^。\n]{0,35}(?:离去|离开)的方向/.test(visible)
-      ||       /(?:护送|抬|推|带)[^。\n]{0,70}担架[^。\n]{0,100}(?:撤离|离去|离开)[\s\S]{0,180}(?:希罗[^。\n]{0,60}(?:离去|离开)|脚步声[^。\n]{0,100}消失)/.test(visible)
-      ||       /赛哈姆[\s\S]{0,180}(?:被带离中央庭|被抬离中央庭|已经离开中央庭|随[^。\n]{0,60}(?:离开(?:了)?中央庭|走出(?:了)?中央庭))/.test(visible)
-      || /(?:抬着|带着|护送着|押送着)[\s\S]{0,140}赛哈姆[\s\S]{0,180}(?:离开(?:了)?中央庭|走出(?:了)?中央庭|穿过[^。\n]{0,80}(?:安全通道|侧门|出口)[\s\S]{0,80}(?:消失|远去))/.test(visible)
-      || /(?:担架|推车)[\s\S]{0,220}(?:穿过[^。\n]{0,80}(?:安全通道|侧门|出口)[\s\S]{0,100}(?:脚步声[^。\n]{0,60}(?:消失|远去)|消失在)|离开(?:了)?中央庭)/.test(visible);
-    return completed&&!/(?:准备|即将|将要|打算|需要)[^。\n]{0,40}(?:撤离|离开|送往|转移)/.test(visible.slice(Math.max(0,visible.lastIndexOf('赛哈姆'))));
+      /赛哈姆[\s\S]{0,180}(?:被(?:带|抬|推|护送)离中央庭|已经离开中央庭|随(?:着)?希罗[^。\n]{0,80}(?:离开(?:了)?中央庭|走出(?:了)?中央庭))/.test(visible)
+      || /(?:希罗|护送人员|工作人员|几人|一行人)[^。\n]{0,100}(?:带着|抬着|推着|护送着)[^。\n]{0,120}赛哈姆[^。\n]{0,160}(?:离开(?:了)?中央庭|走出(?:了)?中央庭|穿过[^。\n]{0,80}(?:安全通道|侧门|出口)[^。\n]{0,100}(?:消失|远去))/.test(visible)
+      || /赛哈姆[\s\S]{0,120}(?:担架|推车)[\s\S]{0,220}(?:离开(?:了)?中央庭|走出(?:了)?中央庭|穿过[^。\n]{0,80}(?:安全通道|侧门|出口)[\s\S]{0,100}(?:脚步声[^。\n]{0,60}(?:消失|远去)|消失在))/.test(visible)
+      || /(?:担架|推车)[\s\S]{0,120}赛哈姆[\s\S]{0,220}(?:离开(?:了)?中央庭|走出(?:了)?中央庭|穿过[^。\n]{0,80}(?:安全通道|侧门|出口)[\s\S]{0,100}(?:脚步声[^。\n]{0,60}(?:消失|远去)|消失在))/.test(visible);
+    const pending=/(?:赛哈姆|担架|推车)[^。\n]{0,120}(?:准备|即将|将要|打算|需要|等待)[^。\n]{0,60}(?:撤离|离开|送往|转移|带走)/.test(visible);
+    return completed&&!pending;
   };
-  const day6DecisionMade=user=>/(?:答应|拒绝|不答应|不接受|不保密|不隐瞒|不替[^。\n]{0,15}保密|保持沉默|不作承诺|不作正面承诺|允许[^。\n]{0,12}带走)/.test(String(user||''));
+  const day6DecisionMade=user=>{
+    const t=String(user||'').replace(/\s+/g,'');
+    if(/(?:明确)?拒绝|不答应|不接受|不保密|不隐瞒|不替[^。\n]{0,15}保密|不允许[^。\n]{0,12}带走|不让[^。\n]{0,12}带走|不作承诺|不作正面承诺/.test(t))return true;
+    if(/(?:还没|尚未|暂未|没有|没)(?:明确)?答应|(?:先|等)(?:听|解释|说明|说清|讲清|问清|看看|观察|再说)|(?:暂不|先不)(?:表态|回答|决定|答应)|再看看|(?:答应|同意|接受)[^。！？；]{0,8}(?:吗|么|没有)/.test(t))return false;
+    const positive=/(?:^|[，。！？；、])(?:我)?(?:答应|同意|接受)[^。！？；]{0,24}(?:$|[，。！？；、])/.test(t);
+    const removal=/(?:^|[，。！？；、])(?:我)?(?:允许|让)[^。！？；]{0,24}(?:带走|转移)[^。！？；]{0,16}(?:$|[，。！？；、])/.test(t);
+    const secrecy=/(?:^|[，。！？；、])(?:我)?(?:保持沉默|替[^。！？；]{0,15}保密|会保密|愿意保密)(?:$|[，。！？；、])/.test(t);
+    return positive||removal||secrecy;
+  };
   const day5DecisionMade=user=>{
     const t=String(user||'').replace(/\s+/g,'');
     return /(?:拒绝(?:希罗|邀请)?|不答应|不接受|不跟(?:希罗)?走|不加入|留在中央庭|选择中央庭|支持(?:你|希罗)|认同(?:你|希罗|这个方案|你的方案)|赞同(?:你|希罗|这个方案|你的方案)|愿意(?:和希罗)?合作|跟(?:你|希罗)走|加入(?:你|希罗)|保持沉默|暂不表态|不表态|暂不回答)/.test(t);
@@ -79,14 +88,19 @@
         commands.push({type:'set',args:['morning_flags.'+key,'false','true'],reason:'当前日正文已完成固定演出'});
     };
     if(prior.day>=2&&prior.day<=6&&hasMorningVoice(transcript))addFlag(monologueKey);
-    if(prior.day===6&&hasMorningVoice(transcript)&&hasSaihamDeparture(transcript))addFlag('day6_saiham');
+    if(prior.day===6&&day6DecisionMade(user)&&hasMorningVoice(transcript)&&hasSaihamDeparture(transcript))addFlag('day6_saiham');
     const enteringDay6=prior.day===6||commands.some(c=>String(c.args?.[0]||'').replace(/^['"]|['"]$/g,'')==='day'&&parse(c.args?.at(-1))===6);
     const midnight=commands.some(c=>String(c.args?.[0]||'').replace(/^['"]|['"]$/g,'')==='clock_minutes'&&parse(c.args?.at(-1))===1440);
+    const morningLocked=prior.day>=2&&prior.day<=6&&!morningReady(prior);
     for(let i=commands.length-1;i>=0;i--){
       const cmd=commands[i],path=String(cmd.args?.[0]||'').trim().replace(/^['"]|['"]$/g,''),old=val(get(prior,path)),next=parse(cmd.args?.at(-1));
       host.__F7D_MVU_GUARD__.lastPath=path;
       let invalid=!path||path.includes('$')||path==='schema'||path==='node_used'||path.includes('.patrol')||path==='known'&&cmd.type!=='set';
       if(['regions','cores','tasks','ann','route_flags','hiro','battle_flags','intel_flags','npc_intel','relationships','cg_system','meta','player_profile'].includes(path))invalid=true;
+      if(morningLocked){
+        const safeDuringMorning=path.startsWith('morning_flags.')||path==='location'||path==='known'||path.startsWith('intel_flags.')||path.startsWith('npc_intel.')||path.startsWith('cg_system.shown.');
+        if(!safeDuringMorning)invalid=true;
+      }
       if(path==='day')invalid||=cmd.type!=='set'||!Number.isInteger(next)||next!==old-1||old<=0||!(/(睡|休息到明天|结束今天|跳过今天)/.test(user)||prior.clock_minutes===1440||commands.some(c=>String(c.args?.[0]||'').replace(/^['"]|['"]$/g,'')==='clock_minutes'&&parse(c.args?.at(-1))===1440));
       const shortExchange=/(?:听.{0,12}(?:说明|讲|解释)|询问|问清|了解|交谈|聊|请.{0,10}(?:介绍|讲清|说明))/.test(user)&&!/(?:前往|赶往|出发|巡查|战斗|救援|清理|深入|调查现场|进入(?:[一-龥]{2,8}区)|动手处理)/.test(user);
       if(path==='clock_minutes'&&next>old)invalid||=shortExchange;
@@ -100,7 +114,7 @@
       if(path==='battle_flags.sybilla_rescued'&&next===true)invalid||=get(prior,'battle_flags.sybilla_condition_obtained')!==true;
       const morningMarkers={day5_monologue:/低语|梦中.*声音|小神/,day5_split:/(?:希罗[\s\S]*离开|离开[\s\S]*希罗|希罗[\s\S]*(?:身影消失|分道扬镳|正式分裂|脚步声[^。\n]{0,60}(?:散去|消失)))/,day4_monologue:/低语|梦中.*声音|小神/,day4_speech:/希罗[\s\S]*演讲|演讲[\s\S]*希罗/,day3_monologue:/低语|梦中.*声音|小神/,day3_ann_departure:/安[\s\S]*(离开|不见|离去)/,day2_monologue:/低语|梦中.*声音|小神/};
       if(path.startsWith('morning_flags.')&&next===true){
-        const key=path.slice('morning_flags.'.length),expected={day5_:5,day4_:4,day3_:3,day2_:2};
+        const key=path.slice('morning_flags.'.length);
         const day=Number(key.match(/^day([2345])_/)?.[1]);
         if(day)invalid||=prior.day!==day||old!==false||!(key.endsWith('_monologue')?hasMorningVoice(transcript):morningMarkers[key]?.test(story));
         if(key==='day5_split')invalid||=!/安托涅瓦/.test(story)||!day5DecisionMade(user);
