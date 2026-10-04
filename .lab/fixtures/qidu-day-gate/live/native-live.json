@@ -1,11 +1,2003 @@
 {
   "model": "gemini-3-flash-preview",
   "native": true,
-  "rounds": [],
+  "rounds": [
+    {
+      "case": "day6",
+      "round": 1,
+      "user": "继续第六天晨间剧情。我醒来后先观察赛哈姆异状并听希罗解释。对于他的保密要求，我明确拒绝保密，但允许他先带走赛哈姆救治，我会把亲眼所见告诉安托涅瓦。等赛哈姆实际离开中央庭、晨间事件完整收束后，我和安完成一轮中央庭巡查，再回来汇报。请按实际顺序完整演出，不要省略中间现场。",
+      "before": {
+        "schema": "f7d_textloop_0.4",
+        "loop": 1,
+        "day": 6,
+        "route": "central",
+        "location": "中央庭寝室",
+        "regions": {
+          "court": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "school": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "east": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "central": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "institute": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "seaside": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "old": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "harbor": {
+            "liberated": false,
+            "build_steps": []
+          }
+        },
+        "cores": {
+          "court": "purified",
+          "school": "unknown",
+          "east": "unknown",
+          "central": "unknown",
+          "institute": "unknown",
+          "seaside": "unknown",
+          "old": "unknown",
+          "harbor": "unknown"
+        },
+        "tasks": {
+          "DAY7_OPENING": {
+            "status": "completed",
+            "deadline": "第7天开场固定剧情结束",
+            "objective": "完成苏醒、中央庭引导与希罗初始剧情",
+            "known": false,
+            "deadline_known": false
+          },
+          "SCHOOL_RESCUE": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放高校学园",
+            "known": false,
+            "deadline_known": false
+          },
+          "SECOND_REGION": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放东方古街或中央城区其中一个",
+            "known": false,
+            "deadline_known": false
+          },
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "known": [
+          "安",
+          "安托涅瓦",
+          "晏华",
+          "希罗",
+          "珈儿",
+          "泰丝拉",
+          "赛哈姆"
+        ],
+        "relationships": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "ann": {
+          "affection": 0,
+          "core_events": [],
+          "camera": false,
+          "eligible": false,
+          "chased": null,
+          "recovered": false,
+          "deadline_checked": false,
+          "deadline_passed": null
+        },
+        "hiro": {
+          "intel": 0,
+          "handled": []
+        },
+        "route_flags": {
+          "first_second_region": "east",
+          "oldstreet_delayed": false,
+          "wenzi_injured": false,
+          "wenzi_joined": false,
+          "ann_route_closed": false,
+          "harbor_core_stolen": false
+        },
+        "antoneva_choice": null,
+        "artifact_view": null,
+        "ann_release": null,
+        "battle_flags": {
+          "final_battle": null,
+          "active_corpse_final": null,
+          "sybilla_condition_obtained": false,
+          "sybilla_rescued": null
+        },
+        "meta": {
+          "cg": [],
+          "endings": []
+        },
+        "intel_flags": {
+          "countdown_visible_to_user": true,
+          "countdown_meaning_known": false,
+          "countdown_reported_to": [],
+          "city_blackgate_history_known": false,
+          "central_court_basics_known": false,
+          "hiro_founder_known": false,
+          "hiro_prior_commander_known": false,
+          "chimera_exists_known": false,
+          "hiro_chimera_research_known": false,
+          "antoneva_chimera_policy_known": false,
+          "first_chimera_incident_known": false,
+          "zero_identity_known": false,
+          "ann_origin_known": false,
+          "loop_truth_known": false,
+          "countdown_initial_mentions": 1,
+          "countdown_last_narrated_day": 7
+        },
+        "npc_intel": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "day_ready_to_sleep": false,
+        "player_profile": {
+          "gender": "unknown"
+        },
+        "cg_system": {
+          "enabled": true,
+          "mode": "direct_only",
+          "album_enabled": true,
+          "responsive_enabled": true,
+          "shown": {
+            "ann_first_meet": true,
+            "antoneva_first_meet": false,
+            "ending_journey": false,
+            "ending_eternal_end": false,
+            "ending_sacrifice_male": false,
+            "ending_sacrifice_female": false,
+            "ending_final_male": false,
+            "ending_final_female": false,
+            "ending_box_male": false,
+            "ending_box_female": false
+          }
+        },
+        "clock_minutes": 480,
+        "morning_flags": {
+          "day6_monologue": false,
+          "day6_saiham": false,
+          "day6_seth": false,
+          "day5_monologue": false,
+          "day5_split": false,
+          "day4_monologue": false,
+          "day4_speech": false,
+          "day3_monologue": false,
+          "day3_ann_departure": false,
+          "day2_monologue": false
+        },
+        "terminal": {
+          "contacts": {
+            "$meta": {
+              "extensible": true
+            }
+          },
+          "city": [],
+          "journal": []
+        }
+      },
+      "after": {
+        "schema": "f7d_textloop_0.4",
+        "loop": 1,
+        "day": 6,
+        "route": "central",
+        "location": "中央庭指挥室",
+        "regions": {
+          "court": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "school": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "east": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "central": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "institute": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "seaside": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "old": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "harbor": {
+            "liberated": false,
+            "build_steps": []
+          }
+        },
+        "cores": {
+          "court": "purified",
+          "school": "unknown",
+          "east": "unknown",
+          "central": "unknown",
+          "institute": "unknown",
+          "seaside": "unknown",
+          "old": "unknown",
+          "harbor": "unknown"
+        },
+        "tasks": {
+          "DAY7_OPENING": {
+            "status": "completed",
+            "deadline": "第7天开场固定剧情结束",
+            "objective": "完成苏醒、中央庭引导与希罗初始剧情",
+            "known": false,
+            "deadline_known": false
+          },
+          "SCHOOL_RESCUE": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放高校学园",
+            "known": false,
+            "deadline_known": false
+          },
+          "SECOND_REGION": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放东方古街或中央城区其中一个",
+            "known": false,
+            "deadline_known": false
+          },
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "known": [
+          "安",
+          "安托涅瓦",
+          "晏华",
+          "希罗",
+          "珈儿",
+          "泰丝拉",
+          "赛哈姆"
+        ],
+        "relationships": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "ann": {
+          "affection": 0,
+          "core_events": [],
+          "camera": false,
+          "eligible": false,
+          "chased": null,
+          "recovered": false,
+          "deadline_checked": false,
+          "deadline_passed": null
+        },
+        "hiro": {
+          "intel": 0,
+          "handled": []
+        },
+        "route_flags": {
+          "first_second_region": "east",
+          "oldstreet_delayed": false,
+          "wenzi_injured": false,
+          "wenzi_joined": false,
+          "ann_route_closed": false,
+          "harbor_core_stolen": false
+        },
+        "antoneva_choice": null,
+        "artifact_view": null,
+        "ann_release": null,
+        "battle_flags": {
+          "final_battle": null,
+          "active_corpse_final": null,
+          "sybilla_condition_obtained": false,
+          "sybilla_rescued": null
+        },
+        "meta": {
+          "cg": [],
+          "endings": []
+        },
+        "intel_flags": {
+          "countdown_visible_to_user": true,
+          "countdown_meaning_known": false,
+          "countdown_reported_to": [],
+          "city_blackgate_history_known": false,
+          "central_court_basics_known": false,
+          "hiro_founder_known": false,
+          "hiro_prior_commander_known": false,
+          "chimera_exists_known": false,
+          "hiro_chimera_research_known": false,
+          "antoneva_chimera_policy_known": false,
+          "first_chimera_incident_known": false,
+          "zero_identity_known": false,
+          "ann_origin_known": false,
+          "loop_truth_known": false,
+          "countdown_initial_mentions": 1,
+          "countdown_last_narrated_day": 7
+        },
+        "npc_intel": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "day_ready_to_sleep": false,
+        "player_profile": {
+          "gender": "unknown"
+        },
+        "cg_system": {
+          "enabled": true,
+          "mode": "direct_only",
+          "album_enabled": true,
+          "responsive_enabled": true,
+          "shown": {
+            "ann_first_meet": true,
+            "antoneva_first_meet": false,
+            "ending_journey": false,
+            "ending_eternal_end": false,
+            "ending_sacrifice_male": false,
+            "ending_sacrifice_female": false,
+            "ending_final_male": false,
+            "ending_final_female": false,
+            "ending_box_male": false,
+            "ending_box_female": false
+          }
+        },
+        "clock_minutes": 480,
+        "morning_flags": {
+          "day6_monologue": true,
+          "day6_saiham": false,
+          "day6_seth": false,
+          "day5_monologue": false,
+          "day5_split": false,
+          "day4_monologue": false,
+          "day4_speech": false,
+          "day3_monologue": false,
+          "day3_ann_departure": false,
+          "day2_monologue": false
+        },
+        "terminal": {
+          "contacts": {
+            "$meta": {
+              "extensible": true
+            }
+          },
+          "city": [],
+          "journal": []
+        }
+      },
+      "text": "在朦胧的沉浮间，耳畔隐约回荡着极轻、极淡的低语。\n\n那声音仿佛隔着层层叠叠的潮水，辨不清男女与远近，只带着某种叹息般的自言自语：\n「……又开始了……」\n「这一次，你能走到哪里呢……」\n\n低语悄然散去，意识随之浮出水面。\n\n你睁开双眼。视野上方悬浮的微光倒计时，无声地由「7」变为了「6」。\n\n还未等你彻底清醒，门外刺耳的警报与剧烈的金属撞击声猛然撕裂了清晨的宁静！\n\n你迅速起身冲出房间，中央庭的长廊内弥漫着混乱的警报红光。走廊中段，深色长发凌乱散落的赛哈姆正半跪在地，周围坚硬的地砖寸寸龟裂。她的身躯正散发着极为浓烈而不祥的黑雾，暗红与漆黑交织的异质纹路顺着手臂蔓延，甚至凝聚出近乎残缺黑翼般的扭曲轮廓。她的呼吸粗重如同野兽，手中的枪械在狂暴的幻力中剧烈震颤，理智似乎正被痛苦的狂潮吞没，任何试图靠近的防卫人员都被那股暴走的冲击强行掀翻。\n\n你尝试调动幻力进行压制与连接，但狂乱的能量流几乎在接触的瞬间便传来强烈的反噬，根本无法正面平复那濒临崩溃的内核。\n\n就在局势将要彻底失控之际，一道冷静的指令在回廊尽头响起。\n\n伴随着特殊的压制力场与拘束装置的展开，银白短发、身披白色长外套的希罗带着随行人员切入现场。数枚特制的抑制核心精准钉入赛哈姆身周的地面，层层交错的力场迅速锁死了向外肆虐的黑雾。在多重针对性设备的合力压制下，赛哈姆发出一声痛苦的低哼，身形一晃，终于脱力倒在金属拘束架上，失去了意识。\n\n希罗推了推鼻梁上的眼镜，目光从昏迷的赛哈姆身上移开，转向站在前方的你。\n\n“初次见到这种景象，难免会感到动摇吧。”希罗的声音平缓而沉着，没有丝毫慌乱，“这被称为‘活骸化’。神器使体内的幻力一旦突破极限且无法逆转，肉体与精神就会遭到侵蚀，彻底沦为不可控的破坏体。”\n\n他注视着你，语气带着研究者特有的笃定与探询：“中央庭一贯的规矩，对于这种状态的神器使往往意味着绝对的终结。但研究所还有尝试稳定与干预的可能。为了她着想，这件事……最好不要告诉安托涅瓦。你能对此保持沉默么？”\n\n你看着被拘束在担架上的赛哈姆，迎着希罗的视线明确开口：你拒绝为他保密，现场的亲眼所见你会如实告知安托涅瓦；但眼下赛哈姆的情况刻不容缓，允许他先行将赛哈姆带走进行紧急救治。\n\n希罗闻言并未动怒，只是微微挑眉，唇角浮起一丝难以捉摸的弧度。\n\n“坦率得令人印象深刻。既然如此，当务之急确实是保住她的性命。”希罗抬起手示意随行人员，“将她转移去研究所。”\n\n医疗与防护人员迅速启动封闭转移箱，将昏迷的赛哈姆固定妥当，沿着专用通道快步撤离。希罗向你微微致意后，也随同转移队伍离开了长廊。\n\n通道内恢复了死寂，唯有地面焦黑的痕迹昭示着方才的惊险。安快步赶到了你身旁，看到你无恙才松了一口气，但看着空荡荡的廊道，神色间满是担忧。\n\n为了防止方才的暴走波及中央庭其他防线与设施，你决定先不急于惊动各方，而是与安一同在中央庭内展开一轮全面的巡视与排查。\n\n安执起双剑，仔细陪同你检查了中庭枢纽、外围巡逻哨位以及动力传输管道。沿途的防卫人员在你的安抚与指示下迅速归位，受损的感应装置也被逐一标记报修。巡查过程中，安始终默契地护在你身侧，耐心地梳理着各处的安全汇报，整个中央庭的秩序在平稳中重新巩固下来。\n\n巡查完毕，时间已临近上午九点二十分。你带着安来到中央办公区，推开了安托涅瓦的办公室大门。\n\n安托涅瓦正坐在轮椅上审阅晨间的防务报告，长发端庄地搭在肩侧。见你们进门，她放下手中的文件，温和地抬起头：“辛苦了。听说清晨巡逻区有些骚动，发生什么事了？”\n\n你在桌前站定，没有隐瞒，将清晨目睹的赛哈姆异状、幻力失控的黑雾、希罗现身以特殊设备压制、希罗对“活骸化”的解释、其提出的保密要求，以及赛哈姆最终被希罗带往研究所救治的全部经过，一五一十向她坦白。\n\n听着你的陈述，安托涅瓦眼中的温和逐渐退去，覆上了一层极深的凝重与沉痛。她搭在轮椅扶手上的手指微微收紧，沉默了许久。\n\n“……他果然还是介入了。”\n\n安托涅瓦低声轻叹，目光转向窗外矗立的城市轮廓，声音平静却带着无法抹去的沉重：\n\n“活骸化……不是可以用寻常救治\n\n<StatusPlaceHolderImpl/>",
+      "gates": {
+        "globalLore": [],
+        "characterLore": [
+          {
+            "id": 11,
+            "comment": "[F7D_GATE:{\"day\":6}] 11｜第6天：赛哈姆活骸事件"
+          },
+          {
+            "id": 30,
+            "comment": "[F7D_GATE:{\"unlock\":7}] 30｜高校学园：六巡查与黑核"
+          },
+          {
+            "id": 31,
+            "comment": "[F7D_GATE:{\"unlock\":7}] 31｜东方古街：六巡查与五行阵黑核"
+          },
+          {
+            "id": 32,
+            "comment": "[F7D_GATE:{\"unlock\":7}] 32｜中央城区：六巡查与蜂蜜蛋糕黑核"
+          },
+          {
+            "id": 64,
+            "comment": "[F7D_GATE:{\"saiham\":true}] 64｜赛哈姆"
+          },
+          {
+            "id": 90,
+            "comment": "[F7D_GATE:{\"unlock\":7}] 90｜安的三次核心剧情登记"
+          },
+          {
+            "id": 97,
+            "comment": "[F7D_GATE:{\"day\":6}] 已开放剧情事实"
+          },
+          {
+            "id": 103,
+            "comment": "[F7D_GATE:{\"day\":6}] 已开放剧情事实"
+          }
+        ],
+        "chatLore": [],
+        "personaLore": []
+      },
+      "terminal": {
+        "version": 1,
+        "status": "ready",
+        "reason": "",
+        "snapshot": {
+          "schema": "f7d-terminal-v1",
+          "scope": {
+            "chatId": "native-6-0",
+            "branchId": "166c7654-0fa0-4600-9394-66ab8bdedb03:819b1d2f-a8c9-4409-92f9-7555957d36df:0:4",
+            "loop": 1
+          },
+          "revision": "166c7654-0fa0-4600-9394-66ab8bdedb03:3",
+          "header": {
+            "dayLabel": "第6天",
+            "timeLabel": "08:00",
+            "location": "中央庭指挥室"
+          },
+          "tasks": [],
+          "contacts": [],
+          "city": [],
+          "journal": [],
+          "album": {
+            "enabled": true,
+            "warning": null,
+            "items": [
+              {
+                "id": "ann_first_meet",
+                "title": "安·病房初见",
+                "assetKey": "ann_first_meet"
+              }
+            ]
+          }
+        },
+        "error": null
+      },
+      "allGates": [
+        {
+          "globalLore": [],
+          "characterLore": [
+            {
+              "id": 11,
+              "comment": "[F7D_GATE:{\"day\":6}] 11｜第6天：赛哈姆活骸事件"
+            },
+            {
+              "id": 30,
+              "comment": "[F7D_GATE:{\"unlock\":7}] 30｜高校学园：六巡查与黑核"
+            },
+            {
+              "id": 31,
+              "comment": "[F7D_GATE:{\"unlock\":7}] 31｜东方古街：六巡查与五行阵黑核"
+            },
+            {
+              "id": 32,
+              "comment": "[F7D_GATE:{\"unlock\":7}] 32｜中央城区：六巡查与蜂蜜蛋糕黑核"
+            },
+            {
+              "id": 64,
+              "comment": "[F7D_GATE:{\"saiham\":true}] 64｜赛哈姆"
+            },
+            {
+              "id": 90,
+              "comment": "[F7D_GATE:{\"unlock\":7}] 90｜安的三次核心剧情登记"
+            },
+            {
+              "id": 97,
+              "comment": "[F7D_GATE:{\"day\":6}] 已开放剧情事实"
+            },
+            {
+              "id": 103,
+              "comment": "[F7D_GATE:{\"day\":6}] 已开放剧情事实"
+            }
+          ],
+          "chatLore": [],
+          "personaLore": []
+        },
+        {
+          "globalLore": [],
+          "characterLore": [
+            {
+              "id": 11,
+              "comment": "[F7D_GATE:{\"day\":6}] 11｜第6天：赛哈姆活骸事件"
+            },
+            {
+              "id": 30,
+              "comment": "[F7D_GATE:{\"unlock\":7}] 30｜高校学园：六巡查与黑核"
+            },
+            {
+              "id": 31,
+              "comment": "[F7D_GATE:{\"unlock\":7}] 31｜东方古街：六巡查与五行阵黑核"
+            },
+            {
+              "id": 32,
+              "comment": "[F7D_GATE:{\"unlock\":7}] 32｜中央城区：六巡查与蜂蜜蛋糕黑核"
+            },
+            {
+              "id": 64,
+              "comment": "[F7D_GATE:{\"saiham\":true}] 64｜赛哈姆"
+            },
+            {
+              "id": 90,
+              "comment": "[F7D_GATE:{\"unlock\":7}] 90｜安的三次核心剧情登记"
+            },
+            {
+              "id": 97,
+              "comment": "[F7D_GATE:{\"day\":6}] 已开放剧情事实"
+            },
+            {
+              "id": 103,
+              "comment": "[F7D_GATE:{\"day\":6}] 已开放剧情事实"
+            }
+          ],
+          "chatLore": [],
+          "personaLore": []
+        },
+        {
+          "globalLore": [],
+          "characterLore": [
+            {
+              "id": 11,
+              "comment": "[F7D_GATE:{\"day\":6}] 11｜第6天：赛哈姆活骸事件"
+            },
+            {
+              "id": 30,
+              "comment": "[F7D_GATE:{\"unlock\":7}] 30｜高校学园：六巡查与黑核"
+            },
+            {
+              "id": 31,
+              "comment": "[F7D_GATE:{\"unlock\":7}] 31｜东方古街：六巡查与五行阵黑核"
+            },
+            {
+              "id": 32,
+              "comment": "[F7D_GATE:{\"unlock\":7}] 32｜中央城区：六巡查与蜂蜜蛋糕黑核"
+            },
+            {
+              "id": 64,
+              "comment": "[F7D_GATE:{\"saiham\":true}] 64｜赛哈姆"
+            },
+            {
+              "id": 90,
+              "comment": "[F7D_GATE:{\"unlock\":7}] 90｜安的三次核心剧情登记"
+            },
+            {
+              "id": 97,
+              "comment": "[F7D_GATE:{\"day\":6}] 已开放剧情事实"
+            },
+            {
+              "id": 103,
+              "comment": "[F7D_GATE:{\"day\":6}] 已开放剧情事实"
+            }
+          ],
+          "chatLore": [],
+          "personaLore": []
+        },
+        {
+          "globalLore": [],
+          "characterLore": [
+            {
+              "id": 11,
+              "comment": "[F7D_GATE:{\"day\":6}] 11｜第6天：赛哈姆活骸事件"
+            },
+            {
+              "id": 30,
+              "comment": "[F7D_GATE:{\"unlock\":7}] 30｜高校学园：六巡查与黑核"
+            },
+            {
+              "id": 31,
+              "comment": "[F7D_GATE:{\"unlock\":7}] 31｜东方古街：六巡查与五行阵黑核"
+            },
+            {
+              "id": 32,
+              "comment": "[F7D_GATE:{\"unlock\":7}] 32｜中央城区：六巡查与蜂蜜蛋糕黑核"
+            },
+            {
+              "id": 64,
+              "comment": "[F7D_GATE:{\"saiham\":true}] 64｜赛哈姆"
+            },
+            {
+              "id": 90,
+              "comment": "[F7D_GATE:{\"unlock\":7}] 90｜安的三次核心剧情登记"
+            },
+            {
+              "id": 97,
+              "comment": "[F7D_GATE:{\"day\":6}] 已开放剧情事实"
+            },
+            {
+              "id": 103,
+              "comment": "[F7D_GATE:{\"day\":6}] 已开放剧情事实"
+            }
+          ],
+          "chatLore": [],
+          "personaLore": []
+        }
+      ],
+      "gateState": {
+        "schema": "f7d_textloop_0.4",
+        "loop": 1,
+        "day": 6,
+        "route": "central",
+        "location": "中央庭指挥室",
+        "regions": {
+          "court": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "school": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "east": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "central": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "institute": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "seaside": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "old": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "harbor": {
+            "liberated": false,
+            "build_steps": []
+          }
+        },
+        "cores": {
+          "court": "purified",
+          "school": "unknown",
+          "east": "unknown",
+          "central": "unknown",
+          "institute": "unknown",
+          "seaside": "unknown",
+          "old": "unknown",
+          "harbor": "unknown"
+        },
+        "tasks": {
+          "DAY7_OPENING": {
+            "status": "completed",
+            "deadline": "第7天开场固定剧情结束",
+            "objective": "完成苏醒、中央庭引导与希罗初始剧情",
+            "known": false,
+            "deadline_known": false
+          },
+          "SCHOOL_RESCUE": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放高校学园",
+            "known": false,
+            "deadline_known": false
+          },
+          "SECOND_REGION": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放东方古街或中央城区其中一个",
+            "known": false,
+            "deadline_known": false
+          },
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "known": [
+          "安",
+          "安托涅瓦",
+          "晏华",
+          "希罗",
+          "珈儿",
+          "泰丝拉",
+          "赛哈姆"
+        ],
+        "relationships": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "ann": {
+          "affection": 0,
+          "core_events": [],
+          "camera": false,
+          "eligible": false,
+          "chased": null,
+          "recovered": false,
+          "deadline_checked": false,
+          "deadline_passed": null
+        },
+        "hiro": {
+          "intel": 0,
+          "handled": []
+        },
+        "route_flags": {
+          "first_second_region": "east",
+          "oldstreet_delayed": false,
+          "wenzi_injured": false,
+          "wenzi_joined": false,
+          "ann_route_closed": false,
+          "harbor_core_stolen": false
+        },
+        "antoneva_choice": null,
+        "artifact_view": null,
+        "ann_release": null,
+        "battle_flags": {
+          "final_battle": null,
+          "active_corpse_final": null,
+          "sybilla_condition_obtained": false,
+          "sybilla_rescued": null
+        },
+        "meta": {
+          "cg": [],
+          "endings": []
+        },
+        "intel_flags": {
+          "countdown_visible_to_user": true,
+          "countdown_meaning_known": false,
+          "countdown_reported_to": [],
+          "city_blackgate_history_known": false,
+          "central_court_basics_known": false,
+          "hiro_founder_known": false,
+          "hiro_prior_commander_known": false,
+          "chimera_exists_known": false,
+          "hiro_chimera_research_known": false,
+          "antoneva_chimera_policy_known": false,
+          "first_chimera_incident_known": false,
+          "zero_identity_known": false,
+          "ann_origin_known": false,
+          "loop_truth_known": false,
+          "countdown_initial_mentions": 1,
+          "countdown_last_narrated_day": 7
+        },
+        "npc_intel": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "day_ready_to_sleep": false,
+        "player_profile": {
+          "gender": "unknown"
+        },
+        "cg_system": {
+          "enabled": true,
+          "mode": "direct_only",
+          "album_enabled": true,
+          "responsive_enabled": true,
+          "shown": {
+            "ann_first_meet": true,
+            "antoneva_first_meet": false,
+            "ending_journey": false,
+            "ending_eternal_end": false,
+            "ending_sacrifice_male": false,
+            "ending_sacrifice_female": false,
+            "ending_final_male": false,
+            "ending_final_female": false,
+            "ending_box_male": false,
+            "ending_box_female": false
+          }
+        },
+        "clock_minutes": 480,
+        "morning_flags": {
+          "day6_monologue": true,
+          "day6_saiham": false,
+          "day6_seth": false,
+          "day5_monologue": false,
+          "day5_split": false,
+          "day4_monologue": false,
+          "day4_speech": false,
+          "day3_monologue": false,
+          "day3_ann_departure": false,
+          "day2_monologue": false
+        },
+        "terminal": {
+          "contacts": {
+            "$meta": {
+              "extensible": true
+            }
+          },
+          "city": [],
+          "journal": []
+        }
+      },
+      "rawVariables": {
+        "initialized_lorebooks": {
+          "永远的7日之都｜七日轮回文本互动｜内置世界书": []
+        },
+        "stat_data": {
+          "schema": "f7d_textloop_0.4",
+          "loop": 1,
+          "day": 6,
+          "route": "central",
+          "location": "中央庭指挥室",
+          "regions": {
+            "court": {
+              "liberated": true,
+              "build_steps": []
+            },
+            "school": {
+              "liberated": true,
+              "build_steps": []
+            },
+            "east": {
+              "liberated": true,
+              "build_steps": []
+            },
+            "central": {
+              "liberated": false,
+              "build_steps": []
+            },
+            "institute": {
+              "liberated": false,
+              "build_steps": []
+            },
+            "seaside": {
+              "liberated": false,
+              "build_steps": []
+            },
+            "old": {
+              "liberated": false,
+              "build_steps": []
+            },
+            "harbor": {
+              "liberated": false,
+              "build_steps": []
+            }
+          },
+          "cores": {
+            "court": "purified",
+            "school": "unknown",
+            "east": "unknown",
+            "central": "unknown",
+            "institute": "unknown",
+            "seaside": "unknown",
+            "old": "unknown",
+            "harbor": "unknown"
+          },
+          "tasks": {
+            "DAY7_OPENING": {
+              "status": "completed",
+              "deadline": "第7天开场固定剧情结束",
+              "objective": "完成苏醒、中央庭引导与希罗初始剧情",
+              "known": false,
+              "deadline_known": false
+            },
+            "SCHOOL_RESCUE": {
+              "status": "pending",
+              "deadline": "第6天结束前",
+              "objective": "解放高校学园",
+              "known": false,
+              "deadline_known": false
+            },
+            "SECOND_REGION": {
+              "status": "pending",
+              "deadline": "第6天结束前",
+              "objective": "解放东方古街或中央城区其中一个",
+              "known": false,
+              "deadline_known": false
+            },
+            "$meta": {
+              "extensible": true
+            }
+          },
+          "known": [
+            "安",
+            "安托涅瓦",
+            "晏华",
+            "希罗",
+            "珈儿",
+            "泰丝拉",
+            "赛哈姆"
+          ],
+          "relationships": {
+            "$meta": {
+              "extensible": true
+            }
+          },
+          "ann": {
+            "affection": 0,
+            "core_events": [],
+            "camera": false,
+            "eligible": false,
+            "chased": null,
+            "recovered": false,
+            "deadline_checked": false,
+            "deadline_passed": null
+          },
+          "hiro": {
+            "intel": 0,
+            "handled": []
+          },
+          "route_flags": {
+            "first_second_region": "east",
+            "oldstreet_delayed": false,
+            "wenzi_injured": false,
+            "wenzi_joined": false,
+            "ann_route_closed": false,
+            "harbor_core_stolen": false
+          },
+          "antoneva_choice": null,
+          "artifact_view": null,
+          "ann_release": null,
+          "battle_flags": {
+            "final_battle": null,
+            "active_corpse_final": null,
+            "sybilla_condition_obtained": false,
+            "sybilla_rescued": null
+          },
+          "meta": {
+            "cg": [],
+            "endings": []
+          },
+          "intel_flags": {
+            "countdown_visible_to_user": true,
+            "countdown_meaning_known": false,
+            "countdown_reported_to": [],
+            "city_blackgate_history_known": false,
+            "central_court_basics_known": false,
+            "hiro_founder_known": false,
+            "hiro_prior_commander_known": false,
+            "chimera_exists_known": false,
+            "hiro_chimera_research_known": false,
+            "antoneva_chimera_policy_known": false,
+            "first_chimera_incident_known": false,
+            "zero_identity_known": false,
+            "ann_origin_known": false,
+            "loop_truth_known": false,
+            "countdown_initial_mentions": 1,
+            "countdown_last_narrated_day": 7
+          },
+          "npc_intel": {
+            "$meta": {
+              "extensible": true
+            }
+          },
+          "day_ready_to_sleep": false,
+          "player_profile": {
+            "gender": "unknown"
+          },
+          "cg_system": {
+            "enabled": true,
+            "mode": "direct_only",
+            "album_enabled": true,
+            "responsive_enabled": true,
+            "shown": {
+              "ann_first_meet": true,
+              "antoneva_first_meet": false,
+              "ending_journey": false,
+              "ending_eternal_end": false,
+              "ending_sacrifice_male": false,
+              "ending_sacrifice_female": false,
+              "ending_final_male": false,
+              "ending_final_female": false,
+              "ending_box_male": false,
+              "ending_box_female": false
+            }
+          },
+          "clock_minutes": 480,
+          "morning_flags": {
+            "day6_monologue": true,
+            "day6_saiham": false,
+            "day6_seth": false,
+            "day5_monologue": false,
+            "day5_split": false,
+            "day4_monologue": false,
+            "day4_speech": false,
+            "day3_monologue": false,
+            "day3_ann_departure": false,
+            "day2_monologue": false
+          },
+          "terminal": {
+            "contacts": {
+              "$meta": {
+                "extensible": true
+              }
+            },
+            "city": [],
+            "journal": []
+          }
+        },
+        "schema": {
+          "type": "object",
+          "properties": {
+            "schema": {
+              "type": "string",
+              "required": true
+            },
+            "loop": {
+              "type": "number",
+              "required": true
+            },
+            "day": {
+              "type": "number",
+              "required": true
+            },
+            "route": {
+              "type": "string",
+              "required": true
+            },
+            "location": {
+              "type": "string",
+              "required": true
+            },
+            "regions": {
+              "type": "object",
+              "properties": {
+                "court": {
+                  "type": "object",
+                  "properties": {
+                    "liberated": {
+                      "type": "boolean",
+                      "required": true
+                    },
+                    "build_steps": {
+                      "type": "array",
+                      "extensible": false,
+                      "recursiveExtensible": false,
+                      "elementType": {
+                        "type": "any"
+                      },
+                      "required": true
+                    }
+                  },
+                  "extensible": false,
+                  "recursiveExtensible": false,
+                  "required": true
+                },
+                "school": {
+                  "type": "object",
+                  "properties": {
+                    "liberated": {
+                      "type": "boolean",
+                      "required": true
+                    },
+                    "build_steps": {
+                      "type": "array",
+                      "extensible": false,
+                      "recursiveExtensible": false,
+                      "elementType": {
+                        "type": "any"
+                      },
+                      "required": true
+                    }
+                  },
+                  "extensible": false,
+                  "recursiveExtensible": false,
+                  "required": true
+                },
+                "east": {
+                  "type": "object",
+                  "properties": {
+                    "liberated": {
+                      "type": "boolean",
+                      "required": true
+                    },
+                    "build_steps": {
+                      "type": "array",
+                      "extensible": false,
+                      "recursiveExtensible": false,
+                      "elementType": {
+                        "type": "any"
+                      },
+                      "required": true
+                    }
+                  },
+                  "extensible": false,
+                  "recursiveExtensible": false,
+                  "required": true
+                },
+                "central": {
+                  "type": "object",
+                  "properties": {
+                    "liberated": {
+                      "type": "boolean",
+                      "required": true
+                    },
+                    "build_steps": {
+                      "type": "array",
+                      "extensible": false,
+                      "recursiveExtensible": false,
+                      "elementType": {
+                        "type": "any"
+                      },
+                      "required": true
+                    }
+                  },
+                  "extensible": false,
+                  "recursiveExtensible": false,
+                  "required": true
+                },
+                "institute": {
+                  "type": "object",
+                  "properties": {
+                    "liberated": {
+                      "type": "boolean",
+                      "required": true
+                    },
+                    "build_steps": {
+                      "type": "array",
+                      "extensible": false,
+                      "recursiveExtensible": false,
+                      "elementType": {
+                        "type": "any"
+                      },
+                      "required": true
+                    }
+                  },
+                  "extensible": false,
+                  "recursiveExtensible": false,
+                  "required": true
+                },
+                "seaside": {
+                  "type": "object",
+                  "properties": {
+                    "liberated": {
+                      "type": "boolean",
+                      "required": true
+                    },
+                    "build_steps": {
+                      "type": "array",
+                      "extensible": false,
+                      "recursiveExtensible": false,
+                      "elementType": {
+                        "type": "any"
+                      },
+                      "required": true
+                    }
+                  },
+                  "extensible": false,
+                  "recursiveExtensible": false,
+                  "required": true
+                },
+                "old": {
+                  "type": "object",
+                  "properties": {
+                    "liberated": {
+                      "type": "boolean",
+                      "required": true
+                    },
+                    "build_steps": {
+                      "type": "array",
+                      "extensible": false,
+                      "recursiveExtensible": false,
+                      "elementType": {
+                        "type": "any"
+                      },
+                      "required": true
+                    }
+                  },
+                  "extensible": false,
+                  "recursiveExtensible": false,
+                  "required": true
+                },
+                "harbor": {
+                  "type": "object",
+                  "properties": {
+                    "liberated": {
+                      "type": "boolean",
+                      "required": true
+                    },
+                    "build_steps": {
+                      "type": "array",
+                      "extensible": false,
+                      "recursiveExtensible": false,
+                      "elementType": {
+                        "type": "any"
+                      },
+                      "required": true
+                    }
+                  },
+                  "extensible": false,
+                  "recursiveExtensible": false,
+                  "required": true
+                }
+              },
+              "extensible": false,
+              "recursiveExtensible": false,
+              "required": true
+            },
+            "cores": {
+              "type": "object",
+              "properties": {
+                "court": {
+                  "type": "string",
+                  "required": true
+                },
+                "school": {
+                  "type": "string",
+                  "required": true
+                },
+                "east": {
+                  "type": "string",
+                  "required": true
+                },
+                "central": {
+                  "type": "string",
+                  "required": true
+                },
+                "institute": {
+                  "type": "string",
+                  "required": true
+                },
+                "seaside": {
+                  "type": "string",
+                  "required": true
+                },
+                "old": {
+                  "type": "string",
+                  "required": true
+                },
+                "harbor": {
+                  "type": "string",
+                  "required": true
+                }
+              },
+              "extensible": false,
+              "recursiveExtensible": false,
+              "required": true
+            },
+            "tasks": {
+              "type": "object",
+              "properties": {
+                "DAY7_OPENING": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "deadline": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "objective": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "known": {
+                      "type": "boolean",
+                      "required": true
+                    },
+                    "deadline_known": {
+                      "type": "boolean",
+                      "required": true
+                    }
+                  },
+                  "extensible": false,
+                  "recursiveExtensible": false,
+                  "required": false
+                },
+                "SCHOOL_RESCUE": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "deadline": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "objective": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "known": {
+                      "type": "boolean",
+                      "required": true
+                    },
+                    "deadline_known": {
+                      "type": "boolean",
+                      "required": true
+                    }
+                  },
+                  "extensible": false,
+                  "recursiveExtensible": false,
+                  "required": false
+                },
+                "SECOND_REGION": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "deadline": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "objective": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "known": {
+                      "type": "boolean",
+                      "required": true
+                    },
+                    "deadline_known": {
+                      "type": "boolean",
+                      "required": true
+                    }
+                  },
+                  "extensible": false,
+                  "recursiveExtensible": false,
+                  "required": false
+                }
+              },
+              "extensible": true,
+              "recursiveExtensible": false,
+              "required": true
+            },
+            "known": {
+              "type": "array",
+              "extensible": false,
+              "recursiveExtensible": false,
+              "elementType": {
+                "type": "string"
+              },
+              "required": true
+            },
+            "relationships": {
+              "type": "object",
+              "properties": {},
+              "extensible": true,
+              "recursiveExtensible": false,
+              "required": true
+            },
+            "ann": {
+              "type": "object",
+              "properties": {
+                "affection": {
+                  "type": "number",
+                  "required": true
+                },
+                "core_events": {
+                  "type": "array",
+                  "extensible": false,
+                  "recursiveExtensible": false,
+                  "elementType": {
+                    "type": "any"
+                  },
+                  "required": true
+                },
+                "camera": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "eligible": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "chased": {
+                  "type": "any",
+                  "required": true
+                },
+                "recovered": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "deadline_checked": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "deadline_passed": {
+                  "type": "any",
+                  "required": true
+                }
+              },
+              "extensible": false,
+              "recursiveExtensible": false,
+              "required": true
+            },
+            "hiro": {
+              "type": "object",
+              "properties": {
+                "intel": {
+                  "type": "number",
+                  "required": true
+                },
+                "handled": {
+                  "type": "array",
+                  "extensible": false,
+                  "recursiveExtensible": false,
+                  "elementType": {
+                    "type": "any"
+                  },
+                  "required": true
+                }
+              },
+              "extensible": false,
+              "recursiveExtensible": false,
+              "required": true
+            },
+            "route_flags": {
+              "type": "object",
+              "properties": {
+                "first_second_region": {
+                  "type": "string",
+                  "required": true
+                },
+                "oldstreet_delayed": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "wenzi_injured": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "wenzi_joined": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "ann_route_closed": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "harbor_core_stolen": {
+                  "type": "boolean",
+                  "required": true
+                }
+              },
+              "extensible": false,
+              "recursiveExtensible": false,
+              "required": true
+            },
+            "antoneva_choice": {
+              "type": "any",
+              "required": true
+            },
+            "artifact_view": {
+              "type": "any",
+              "required": true
+            },
+            "ann_release": {
+              "type": "any",
+              "required": true
+            },
+            "battle_flags": {
+              "type": "object",
+              "properties": {
+                "final_battle": {
+                  "type": "any",
+                  "required": true
+                },
+                "active_corpse_final": {
+                  "type": "any",
+                  "required": true
+                },
+                "sybilla_condition_obtained": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "sybilla_rescued": {
+                  "type": "any",
+                  "required": true
+                }
+              },
+              "extensible": false,
+              "recursiveExtensible": false,
+              "required": true
+            },
+            "meta": {
+              "type": "object",
+              "properties": {
+                "cg": {
+                  "type": "array",
+                  "extensible": false,
+                  "recursiveExtensible": false,
+                  "elementType": {
+                    "type": "any"
+                  },
+                  "required": true
+                },
+                "endings": {
+                  "type": "array",
+                  "extensible": false,
+                  "recursiveExtensible": false,
+                  "elementType": {
+                    "type": "any"
+                  },
+                  "required": true
+                }
+              },
+              "extensible": false,
+              "recursiveExtensible": false,
+              "required": true
+            },
+            "intel_flags": {
+              "type": "object",
+              "properties": {
+                "countdown_visible_to_user": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "countdown_meaning_known": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "countdown_reported_to": {
+                  "type": "array",
+                  "extensible": false,
+                  "recursiveExtensible": false,
+                  "elementType": {
+                    "type": "any"
+                  },
+                  "required": true
+                },
+                "city_blackgate_history_known": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "central_court_basics_known": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "hiro_founder_known": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "hiro_prior_commander_known": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "chimera_exists_known": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "hiro_chimera_research_known": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "antoneva_chimera_policy_known": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "first_chimera_incident_known": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "zero_identity_known": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "ann_origin_known": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "loop_truth_known": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "countdown_initial_mentions": {
+                  "type": "number",
+                  "required": true
+                },
+                "countdown_last_narrated_day": {
+                  "type": "number",
+                  "required": true
+                }
+              },
+              "extensible": false,
+              "recursiveExtensible": false,
+              "required": true
+            },
+            "npc_intel": {
+              "type": "object",
+              "properties": {},
+              "extensible": true,
+              "recursiveExtensible": false,
+              "required": true
+            },
+            "day_ready_to_sleep": {
+              "type": "boolean",
+              "required": true
+            },
+            "player_profile": {
+              "type": "object",
+              "properties": {
+                "gender": {
+                  "type": "string",
+                  "required": true
+                }
+              },
+              "extensible": false,
+              "recursiveExtensible": false,
+              "required": true
+            },
+            "cg_system": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "mode": {
+                  "type": "string",
+                  "required": true
+                },
+                "album_enabled": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "responsive_enabled": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "shown": {
+                  "type": "object",
+                  "properties": {
+                    "ann_first_meet": {
+                      "type": "boolean",
+                      "required": true
+                    },
+                    "antoneva_first_meet": {
+                      "type": "boolean",
+                      "required": true
+                    },
+                    "ending_journey": {
+                      "type": "boolean",
+                      "required": true
+                    },
+                    "ending_eternal_end": {
+                      "type": "boolean",
+                      "required": true
+                    },
+                    "ending_sacrifice_male": {
+                      "type": "boolean",
+                      "required": true
+                    },
+                    "ending_sacrifice_female": {
+                      "type": "boolean",
+                      "required": true
+                    },
+                    "ending_final_male": {
+                      "type": "boolean",
+                      "required": true
+                    },
+                    "ending_final_female": {
+                      "type": "boolean",
+                      "required": true
+                    },
+                    "ending_box_male": {
+                      "type": "boolean",
+                      "required": true
+                    },
+                    "ending_box_female": {
+                      "type": "boolean",
+                      "required": true
+                    }
+                  },
+                  "extensible": false,
+                  "recursiveExtensible": false,
+                  "required": true
+                }
+              },
+              "extensible": false,
+              "recursiveExtensible": false,
+              "required": true
+            },
+            "clock_minutes": {
+              "type": "number",
+              "required": true
+            },
+            "morning_flags": {
+              "type": "object",
+              "properties": {
+                "day6_monologue": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "day6_saiham": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "day6_seth": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "day5_monologue": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "day5_split": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "day4_monologue": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "day4_speech": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "day3_monologue": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "day3_ann_departure": {
+                  "type": "boolean",
+                  "required": true
+                },
+                "day2_monologue": {
+                  "type": "boolean",
+                  "required": true
+                }
+              },
+              "extensible": false,
+              "recursiveExtensible": false,
+              "required": true
+            },
+            "terminal": {
+              "type": "object",
+              "properties": {
+                "contacts": {
+                  "type": "object",
+                  "properties": {},
+                  "extensible": true,
+                  "recursiveExtensible": false,
+                  "required": true
+                },
+                "city": {
+                  "type": "array",
+                  "extensible": false,
+                  "recursiveExtensible": false,
+                  "elementType": {
+                    "type": "any"
+                  },
+                  "required": true
+                },
+                "journal": {
+                  "type": "array",
+                  "extensible": false,
+                  "recursiveExtensible": false,
+                  "elementType": {
+                    "type": "any"
+                  },
+                  "required": true
+                }
+              },
+              "extensible": false,
+              "recursiveExtensible": false,
+              "required": true
+            }
+          },
+          "extensible": false,
+          "recursiveExtensible": false
+        },
+        "display_data": {
+          "schema": "f7d_textloop_0.4",
+          "loop": 1,
+          "day": 6,
+          "route": "central",
+          "location": "中央庭寝室->中央庭指挥室 (正文已发生实际位移，同步当前位置)",
+          "regions": {
+            "court": {
+              "liberated": true,
+              "build_steps": []
+            },
+            "school": {
+              "liberated": true,
+              "build_steps": []
+            },
+            "east": {
+              "liberated": true,
+              "build_steps": []
+            },
+            "central": {
+              "liberated": false,
+              "build_steps": []
+            },
+            "institute": {
+              "liberated": false,
+              "build_steps": []
+            },
+            "seaside": {
+              "liberated": false,
+              "build_steps": []
+            },
+            "old": {
+              "liberated": false,
+              "build_steps": []
+            },
+            "harbor": {
+              "liberated": false,
+              "build_steps": []
+            }
+          },
+          "cores": {
+            "court": "purified",
+            "school": "unknown",
+            "east": "unknown",
+            "central": "unknown",
+            "institute": "unknown",
+            "seaside": "unknown",
+            "old": "unknown",
+            "harbor": "unknown"
+          },
+          "tasks": {
+            "DAY7_OPENING": {
+              "status": "completed",
+              "deadline": "第7天开场固定剧情结束",
+              "objective": "完成苏醒、中央庭引导与希罗初始剧情",
+              "known": false,
+              "deadline_known": false
+            },
+            "SCHOOL_RESCUE": {
+              "status": "pending",
+              "deadline": "第6天结束前",
+              "objective": "解放高校学园",
+              "known": false,
+              "deadline_known": false
+            },
+            "SECOND_REGION": {
+              "status": "pending",
+              "deadline": "第6天结束前",
+              "objective": "解放东方古街或中央城区其中一个",
+              "known": false,
+              "deadline_known": false
+            },
+            "$meta": {
+              "extensible": true
+            }
+          },
+          "known": [
+            "安",
+            "安托涅瓦",
+            "晏华",
+            "希罗",
+            "珈儿",
+            "泰丝拉",
+            "赛哈姆"
+          ],
+          "relationships": {
+            "$meta": {
+              "extensible": true
+            }
+          },
+          "ann": {
+            "affection": 0,
+            "core_events": [],
+            "camera": false,
+            "eligible": false,
+            "chased": null,
+            "recovered": false,
+            "deadline_checked": false,
+            "deadline_passed": null
+          },
+          "hiro": {
+            "intel": 0,
+            "handled": []
+          },
+          "route_flags": {
+            "first_second_region": "east",
+            "oldstreet_delayed": false,
+            "wenzi_injured": false,
+            "wenzi_joined": false,
+            "ann_route_closed": false,
+            "harbor_core_stolen": false
+          },
+          "antoneva_choice": null,
+          "artifact_view": null,
+          "ann_release": null,
+          "battle_flags": {
+            "final_battle": null,
+            "active_corpse_final": null,
+            "sybilla_condition_obtained": false,
+            "sybilla_rescued": null
+          },
+          "meta": {
+            "cg": [],
+            "endings": []
+          },
+          "intel_flags": {
+            "countdown_visible_to_user": true,
+            "countdown_meaning_known": false,
+            "countdown_reported_to": [],
+            "city_blackgate_history_known": false,
+            "central_court_basics_known": false,
+            "hiro_founder_known": false,
+            "hiro_prior_commander_known": false,
+            "chimera_exists_known": false,
+            "hiro_chimera_research_known": false,
+            "antoneva_chimera_policy_known": false,
+            "first_chimera_incident_known": false,
+            "zero_identity_known": false,
+            "ann_origin_known": false,
+            "loop_truth_known": false,
+            "countdown_initial_mentions": 1,
+            "countdown_last_narrated_day": 7
+          },
+          "npc_intel": {
+            "$meta": {
+              "extensible": true
+            }
+          },
+          "day_ready_to_sleep": false,
+          "player_profile": {
+            "gender": "unknown"
+          },
+          "cg_system": {
+            "enabled": true,
+            "mode": "direct_only",
+            "album_enabled": true,
+            "responsive_enabled": true,
+            "shown": {
+              "ann_first_meet": true,
+              "antoneva_first_meet": false,
+              "ending_journey": false,
+              "ending_eternal_end": false,
+              "ending_sacrifice_male": false,
+              "ending_sacrifice_female": false,
+              "ending_final_male": false,
+              "ending_final_female": false,
+              "ending_box_male": false,
+              "ending_box_female": false
+            }
+          },
+          "clock_minutes": 480,
+          "morning_flags": {
+            "day6_monologue": "false->true (当前日正文已完成固定演出)",
+            "day6_saiham": false,
+            "day6_seth": false,
+            "day5_monologue": false,
+            "day5_split": false,
+            "day4_monologue": false,
+            "day4_speech": false,
+            "day3_monologue": false,
+            "day3_ann_departure": false,
+            "day2_monologue": false
+          },
+          "terminal": {
+            "contacts": {
+              "$meta": {
+                "extensible": true
+              }
+            },
+            "city": [],
+            "journal": []
+          }
+        },
+        "delta_data": {
+          "morning_flags": {
+            "day6_monologue": "false->true (当前日正文已完成固定演出)"
+          },
+          "location": "中央庭寝室->中央庭指挥室 (正文已发生实际位移，同步当前位置)"
+        }
+      },
+      "commitDiagnostics": [],
+      "requests": [
+        {
+          "model": "gemini-3-flash-preview",
+          "source": "custom",
+          "message_count": 13,
+          "chars": 30737
+        }
+      ]
+    }
+  ],
   "errors": [],
   "failure": {
-    "message": "page.evaluate: Error: <none>\n    at sendOpenAIRequest (http://127.0.0.1:8000/scripts/openai.js:3105:19)\n    at async sendGenerationRequest (http://127.0.0.1:8000/script.js:6059:16)\n    at async finishGenerating (http://127.0.0.1:8000/script.js:5390:20)\n    at async eval (eval at evaluate (:291:30), <anonymous>:1:79)\n    at async <anonymous>:317:30",
+    "message": "day6_saiham did not complete after explicit decision; flag=false; tail=在朦胧的沉浮间，耳畔隐约回荡着极轻、极淡的低语。\n\n那声音仿佛隔着层层叠叠的潮水，辨不清男女与远近，只带着某种叹息般的自言自语：\n「……又开始了……」\n「这一次，你能走到哪里呢……」\n\n低语悄然散去，意识随之浮出水面。\n\n你睁开双眼。视野上方悬浮的微光倒计时，无声地由「7」变为了「6」。\n\n还未等你彻底清醒，门外刺耳的警报与剧烈的金属撞击声猛然撕裂了清晨的宁静！\n\n你迅速起身冲出房间，中央庭的长廊内弥漫着混乱的警报红光。走廊中段，深色长发凌乱散落的赛哈姆正半跪在地，周围坚硬的地砖寸寸龟裂。她的身躯正散发着极为浓烈而不祥的黑雾，暗红与漆黑交织的异质纹路顺着手臂蔓延，甚至凝聚出近乎残缺黑翼般的扭曲轮廓。她的呼吸粗重如同野兽，手中的枪械在狂暴的幻力中剧烈震颤，理智似乎正被痛苦的狂潮吞没，任何试图靠近的防卫人员都被那股暴走的冲击强行掀翻。\n\n你尝试调动幻力进行压制与连接，但狂乱的能量流几乎在接触的瞬间便传来强烈的反噬，根本无法正面平复那濒临崩溃的内核。\n\n就在局势将要彻底失控之际，一道冷静的指令在回廊尽头响起。\n\n伴随着特殊的压制力场与拘束装置的展开，银白短发、身披白色长外套的希罗带着随行人员切入现场。数枚特制的抑制核心精准钉入赛哈姆身周的地面，层层交错的力场迅速锁死了向外肆虐的黑雾。在多重针对性设备的合力压制下，赛哈姆发出一声痛苦的低哼，身形一晃，终于脱力倒在金属拘束架上，失去了意识。\n\n希罗推了推鼻梁上的眼镜，目光从昏迷的赛哈姆身上移开，转向站在前方的你。\n\n“初次见到这种景象，难免会感到动摇吧。”希罗的声音平缓而沉着，没有丝毫慌乱，“这被称为‘活骸化’。神器使体内的幻力一旦突破极限且无法逆转，肉体与精神就会遭到侵蚀，彻底沦为不可控的破坏体。”\n\n他注视着你，语气带着研究者特有的笃定与探询：“中央庭一贯的规矩，对于这种状态的神器使往往意味着绝对的终结。但研究所还有尝试稳定与干预的可能。为了她着想，这件事……最好不要告诉安托涅瓦。你能对此保持沉默么？”\n\n你看着被拘束在担架上的赛哈姆，迎着希罗的视线明确开口：你拒绝为他保密，现场的亲眼所见你会如实告知安托涅瓦；但眼下赛哈姆的情况刻不容缓，允许他先行将赛哈姆带走进行紧急救治。\n\n希罗闻言并未动怒，只是微微挑眉，唇角浮起一丝难以捉摸的弧度。\n\n“坦率得令人印象深刻。既然如此，当务之急确实是保住她的性命。”希罗抬起手示意随行人员，“将她转移去研究所。”\n\n医疗与防护人员迅速启动封闭转移箱，将昏迷的赛哈姆固定妥当，沿着专用通道快步撤离。希罗向你微微致意后，也随同转移队伍离开了长廊。\n\n通道内恢复了死寂，唯有地面焦黑的痕迹昭示着方才的惊险。安快步赶到了你身旁，看到你无恙才松了一口气，但看着空荡荡的廊道，神色间满是担忧。\n\n为了防止方才的暴走波及中央庭其他防线与设施，你决定先不急于惊动各方，而是与安一同在中央庭内展开一轮全面的巡视与排查。\n\n安执起双剑，仔细陪同你检查了中庭枢纽、外围巡逻哨位以及动力传输管道。沿途的防卫人员在你的安抚与指示下迅速归位，受损的感应装置也被逐一标记报修。巡查过程中，安始终默契地护在你身侧，耐心地梳理着各处的安全汇报，整个中央庭的秩序在平稳中重新巩固下来。\n\n巡查完毕，时间已临近上午九点二十分。你带着安来到中央办公区，推开了安托涅瓦的办公室大门。\n\n安托涅瓦正坐在轮椅上审阅晨间的防务报告，长发端庄地搭在肩侧。见你们进门，她放下手中的文件，温和地抬起头：“辛苦了。听说清晨巡逻区有些骚动，发生什么事了？”\n\n你在桌前站定，没有隐瞒，将清晨目睹的赛哈姆异状、幻力失控的黑雾、希罗现身以特殊设备压制、希罗对“活骸化”的解释、其提出的保密要求，以及赛哈姆最终被希罗带往研究所救治的全部经过，一五一十向她坦白。\n\n听着你的陈述，安托涅瓦眼中的温和逐渐退去，覆上了一层极深的凝重与沉痛。她搭在轮椅扶手上的手指微微收紧，沉默了许久。\n\n“……他果然还是介入了。”\n\n安托涅瓦低声轻叹，目光转向窗外矗立的城市轮廓，声音平静却带着无法抹去的沉重：\n\n“活骸化……不是可以用寻常救治\n\n<StatusPlaceHolderImpl/>",
     "phase": "generating day6 1",
-    "stack": "page.evaluate: Error: <none>\n    at sendOpenAIRequest (http://127.0.0.1:8000/scripts/openai.js:3105:19)\n    at async sendGenerationRequest (http://127.0.0.1:8000/script.js:6059:16)\n    at async finishGenerating (http://127.0.0.1:8000/script.js:5390:20)\n    at async eval (eval at evaluate (:291:30), <anonymous>:1:79)\n    at async <anonymous>:317:30\n    at /home/runner/work/lab/lab/.lab/fixtures/qidu-day-gate/native-live.mjs:47:16"
+    "stack": "Error: day6_saiham did not complete after explicit decision; flag=false; tail=在朦胧的沉浮间，耳畔隐约回荡着极轻、极淡的低语。\n\n那声音仿佛隔着层层叠叠的潮水，辨不清男女与远近，只带着某种叹息般的自言自语：\n「……又开始了……」\n「这一次，你能走到哪里呢……」\n\n低语悄然散去，意识随之浮出水面。\n\n你睁开双眼。视野上方悬浮的微光倒计时，无声地由「7」变为了「6」。\n\n还未等你彻底清醒，门外刺耳的警报与剧烈的金属撞击声猛然撕裂了清晨的宁静！\n\n你迅速起身冲出房间，中央庭的长廊内弥漫着混乱的警报红光。走廊中段，深色长发凌乱散落的赛哈姆正半跪在地，周围坚硬的地砖寸寸龟裂。她的身躯正散发着极为浓烈而不祥的黑雾，暗红与漆黑交织的异质纹路顺着手臂蔓延，甚至凝聚出近乎残缺黑翼般的扭曲轮廓。她的呼吸粗重如同野兽，手中的枪械在狂暴的幻力中剧烈震颤，理智似乎正被痛苦的狂潮吞没，任何试图靠近的防卫人员都被那股暴走的冲击强行掀翻。\n\n你尝试调动幻力进行压制与连接，但狂乱的能量流几乎在接触的瞬间便传来强烈的反噬，根本无法正面平复那濒临崩溃的内核。\n\n就在局势将要彻底失控之际，一道冷静的指令在回廊尽头响起。\n\n伴随着特殊的压制力场与拘束装置的展开，银白短发、身披白色长外套的希罗带着随行人员切入现场。数枚特制的抑制核心精准钉入赛哈姆身周的地面，层层交错的力场迅速锁死了向外肆虐的黑雾。在多重针对性设备的合力压制下，赛哈姆发出一声痛苦的低哼，身形一晃，终于脱力倒在金属拘束架上，失去了意识。\n\n希罗推了推鼻梁上的眼镜，目光从昏迷的赛哈姆身上移开，转向站在前方的你。\n\n“初次见到这种景象，难免会感到动摇吧。”希罗的声音平缓而沉着，没有丝毫慌乱，“这被称为‘活骸化’。神器使体内的幻力一旦突破极限且无法逆转，肉体与精神就会遭到侵蚀，彻底沦为不可控的破坏体。”\n\n他注视着你，语气带着研究者特有的笃定与探询：“中央庭一贯的规矩，对于这种状态的神器使往往意味着绝对的终结。但研究所还有尝试稳定与干预的可能。为了她着想，这件事……最好不要告诉安托涅瓦。你能对此保持沉默么？”\n\n你看着被拘束在担架上的赛哈姆，迎着希罗的视线明确开口：你拒绝为他保密，现场的亲眼所见你会如实告知安托涅瓦；但眼下赛哈姆的情况刻不容缓，允许他先行将赛哈姆带走进行紧急救治。\n\n希罗闻言并未动怒，只是微微挑眉，唇角浮起一丝难以捉摸的弧度。\n\n“坦率得令人印象深刻。既然如此，当务之急确实是保住她的性命。”希罗抬起手示意随行人员，“将她转移去研究所。”\n\n医疗与防护人员迅速启动封闭转移箱，将昏迷的赛哈姆固定妥当，沿着专用通道快步撤离。希罗向你微微致意后，也随同转移队伍离开了长廊。\n\n通道内恢复了死寂，唯有地面焦黑的痕迹昭示着方才的惊险。安快步赶到了你身旁，看到你无恙才松了一口气，但看着空荡荡的廊道，神色间满是担忧。\n\n为了防止方才的暴走波及中央庭其他防线与设施，你决定先不急于惊动各方，而是与安一同在中央庭内展开一轮全面的巡视与排查。\n\n安执起双剑，仔细陪同你检查了中庭枢纽、外围巡逻哨位以及动力传输管道。沿途的防卫人员在你的安抚与指示下迅速归位，受损的感应装置也被逐一标记报修。巡查过程中，安始终默契地护在你身侧，耐心地梳理着各处的安全汇报，整个中央庭的秩序在平稳中重新巩固下来。\n\n巡查完毕，时间已临近上午九点二十分。你带着安来到中央办公区，推开了安托涅瓦的办公室大门。\n\n安托涅瓦正坐在轮椅上审阅晨间的防务报告，长发端庄地搭在肩侧。见你们进门，她放下手中的文件，温和地抬起头：“辛苦了。听说清晨巡逻区有些骚动，发生什么事了？”\n\n你在桌前站定，没有隐瞒，将清晨目睹的赛哈姆异状、幻力失控的黑雾、希罗现身以特殊设备压制、希罗对“活骸化”的解释、其提出的保密要求，以及赛哈姆最终被希罗带往研究所救治的全部经过，一五一十向她坦白。\n\n听着你的陈述，安托涅瓦眼中的温和逐渐退去，覆上了一层极深的凝重与沉痛。她搭在轮椅扶手上的手指微微收紧，沉默了许久。\n\n“……他果然还是介入了。”\n\n安托涅瓦低声轻叹，目光转向窗外矗立的城市轮廓，声音平静却带着无法抹去的沉重：\n\n“活骸化……不是可以用寻常救治\n\n<StatusPlaceHolderImpl/>\n    at file:///home/runner/work/lab/lab/.lab/fixtures/qidu-day-gate/native-live.mjs:65:61"
   }
 }
