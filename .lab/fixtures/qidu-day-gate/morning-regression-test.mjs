@@ -31,4 +31,5 @@ assert(run(6,nativeVoice).some(c=>path(c)==='morning_flags.day6_monologue'));
 assert(run(6,'希罗介入赛哈姆活骸化。医疗小队护送着担架沿着走廊后方迅速撤离，希罗随之转身离去。急促的脚步声很快消失在下层通道深处。',[{is_user:false,mes:dream,variables:{0:{stat_data:{day:6}}}}],{},[],'我不答应替你保密').some(c=>path(c)==='morning_flags.day6_saiham'));
 assert(run(6,'希罗处理赛哈姆活骸化，担架撤向出口。安看着希罗一行离去的方向。',[{is_user:false,mes:dream,variables:{0:{stat_data:{day:6}}}}]).some(c=>path(c)==='morning_flags.day6_saiham'));
 assert(!run(6,carry,[{is_user:false,mes:dream,variables:{0:{stat_data:{day:6}}}}],{},[],'我先观察').some(c=>path(c)==='morning_flags.day6_saiham'));
+assert(run(5,'希罗转身走向门口。他的身影消失在走廊尽头，中央庭与希罗正式分道扬镳。安托涅瓦脱力倒下。晏华接手事务。',[],{day5_monologue:true,day5_split:false},[{type:'set',args:['morning_flags.day5_split','false','true']}],'我拒绝希罗的邀请，留在中央庭。').some(c=>path(c)==='morning_flags.day5_split'));
 console.log('morning/location regression checks passed');
