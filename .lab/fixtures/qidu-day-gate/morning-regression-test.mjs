@@ -5,7 +5,7 @@ const card=JSON.parse(fs.readFileSync(new URL('./Qidu-v0.4.45-morning-lore-corre
 const source=card.data.extensions.tavern_helper.scripts.find(s=>s.name.includes('不可逆')).content;
 const dream='在半梦半醒的意识深处，一个空灵的声音回响着。\n\n“你又醒来了。”';
 const carry='希罗压制了赛哈姆的活骸化。部下抬着赛哈姆的担架离开了中央庭。';
-function run(day,text,history=[],flags={},commands=[],user='继续'){
+function run(day,text,history=[],flags={},commands=[],user='我不答应替你保密'){
  let handler;const chat=history.concat({is_user:true,mes:user});
  const host={SillyTavern:{getContext:()=>({chat})},Mvu:{events:{COMMAND_PARSED:'commands'}}};
  const context={parent:host,TavernHelper:{eventOn:(name,fn)=>{if(name==='commands')handler=fn;},eventRemoveListener:()=>{}},addEventListener:()=>{}};context.window=context;
@@ -29,4 +29,6 @@ assert(moved.some(c=>path(c)==='location'&&c.args.at(-1)==='中央庭会议室')
 const nativeVoice='黑暗与虚无仿佛没有边界。在意识重归躯壳的前一刻，耳畔浮起极轻微的虚幻声响。\n\n“……你……醒了吗……”\n\n那声音模糊不清，随即被现实的感知冲散。你睁开双眼。';
 assert(run(6,nativeVoice).some(c=>path(c)==='morning_flags.day6_monologue'));
 assert(run(6,'希罗介入赛哈姆活骸化。医疗小队护送着担架沿着走廊后方迅速撤离，希罗随之转身离去。急促的脚步声很快消失在下层通道深处。',[{is_user:false,mes:dream,variables:{0:{stat_data:{day:6}}}}],{},[],'我不答应替你保密').some(c=>path(c)==='morning_flags.day6_saiham'));
+assert(run(6,'希罗处理赛哈姆活骸化，担架撤向出口。安看着希罗一行离去的方向。',[{is_user:false,mes:dream,variables:{0:{stat_data:{day:6}}}}]).some(c=>path(c)==='morning_flags.day6_saiham'));
+assert(!run(6,carry,[{is_user:false,mes:dream,variables:{0:{stat_data:{day:6}}}}],{},[],'我先观察').some(c=>path(c)==='morning_flags.day6_saiham'));
 console.log('morning/location regression checks passed');
