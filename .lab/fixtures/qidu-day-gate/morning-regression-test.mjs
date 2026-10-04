@@ -28,4 +28,5 @@ const moved=run(5,'你迅速起身来到中央庭的议事大厅，希罗正在�
 assert(moved.some(c=>path(c)==='location'&&c.args.at(-1)==='中央庭会议室'));
 const nativeVoice='黑暗与虚无仿佛没有边界。在意识重归躯壳的前一刻，耳畔浮起极轻微的虚幻声响。\n\n“……你……醒了吗……”\n\n那声音模糊不清，随即被现实的感知冲散。你睁开双眼。';
 assert(run(6,nativeVoice).some(c=>path(c)==='morning_flags.day6_monologue'));
+assert(run(6,'希罗介入赛哈姆活骸化。医疗小队护送着担架沿着走廊后方迅速撤离，希罗随之转身离去。急促的脚步声很快消失在下层通道深处。',[{is_user:false,mes:dream,variables:{0:{stat_data:{day:6}}}}],{},[],'我不答应替你保密').some(c=>path(c)==='morning_flags.day6_saiham'));
 console.log('morning/location regression checks passed');
