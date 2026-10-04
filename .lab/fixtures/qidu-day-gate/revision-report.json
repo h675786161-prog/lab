@@ -1,6 +1,6 @@
 {
   "base": "Qidu-v0.4.41-terminal-v1.json",
-  "version": "0.4.45-morning-lore-correct",
+  "version": "0.4.46-node1-guard-fix",
   "gated": {
     "10": "[F7D_GATE:{\"day\":7}] 10｜第7天：苏醒与高校主线",
     "11": "[F7D_GATE:{\"day\":6}] 11｜第6天：赛哈姆活骸事件",
