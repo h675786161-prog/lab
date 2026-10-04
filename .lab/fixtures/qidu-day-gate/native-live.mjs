@@ -3,14 +3,14 @@ import fs from 'node:fs/promises';
 import {chromium} from 'playwright';
 const out='.lab/fixtures/qidu-day-gate/live';
 await fs.mkdir(out,{recursive:true});
-const card=JSON.parse(await fs.readFile('.lab/fixtures/qidu-day-gate/Qidu-v0.4.45-morning-lore-correct.json','utf8'));
+const card=JSON.parse(await fs.readFile('.lab/fixtures/qidu-day-gate/Qidu-v0.4.46-node1-guard-fix.json','utf8'));
 for(const s of card.data.extensions.tavern_helper.scripts)s.content=s.content.replace(/https:\/\/gcore\.jsdelivr\.net\/gh\/MagicalAstrogy\/MagVarUpdate@[^']+/, '/f7d-mvu.js');
 for(const script of card.data.extensions.tavern_helper.scripts)if(script.content.includes("host[KEY]={version:1,allow,dispose}"))script.content=script.content.replace("host[KEY]={version:1,allow,dispose}","host[KEY]={version:1,allow,dispose,state}");
 const init=JSON.parse(card.data.character_book.entries.find(e=>e.comment.includes('[InitVar]')).content);
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 const page=await browser.newPage({viewport:{width:1080,height:2500}});
 page.setDefaultTimeout(30000);
-const rounds=[],requests=[],errors=[];const testedRevision='morning-lore-correct-v10-intel0';
+const rounds=[],requests=[],errors=[];const testedRevision='node2-day6-3f-v046';
 page.on('pageerror',e=>errors.push(e.message.slice(0,500)));const runtimeLog=[];page.on('console',m=>{const t=m.text();if(/Set '|七都|变量|mag_|过期|MVU|script error/i.test(t))runtimeLog.push(t.slice(0,2000));});
 page.on('request',r=>{if(r.url().endsWith('/api/backends/chat-completions/generate')){try{const d=r.postDataJSON();requests.push({model:d.model,source:d.chat_completion_source,message_count:d.messages?.length,chars:JSON.stringify(d.messages).length,messages:d.messages});void fs.writeFile(out+'/native-prompts.json',JSON.stringify(requests,null,2));}catch{}}});
 let failure;const pending=new Set();page.on('request',r=>{if(r.url().endsWith('/api/backends/chat-completions/generate'))pending.add(r);});for(const event of ['requestfinished','requestfailed'])page.on(event,r=>pending.delete(r));const waitIdle=async()=>{const deadline=Date.now()+180000;while(pending.size){if(Date.now()>deadline)throw Error('native background requests timeout');await page.waitForTimeout(500);}await page.waitForTimeout(1000);};
@@ -31,11 +31,11 @@ try{
  await checkpoint('waiting real scripts');await page.waitForFunction(()=>window.Mvu&&window.f7dDayGate&&window.f7dTacticalTerminal,{timeout:90000});
  await page.evaluate(()=>{const c=SillyTavern.getContext();c.extensionSettings.world_backstage.worldAutoEnabled=false;c.extensionSettings.world_backstage.publicOpinionAutoEnabled=false;window.__commitDiagnostics=[];const b=window.__f7dCommitBridge,valid=b.valid;b.valid=t=>{const ok=valid(t);if(!ok){const now=b.capture();__commitDiagnostics.push({epochMatch:t?.epoch===now.epoch,chatMatch:t?.chatId===now.chatId,signatureMatch:t?.signature===now.signature,oldSignature:t?.signature,newSignature:now.signature});}return ok;};window.__gates=[];c.eventSource.on(c.eventTypes.WORLDINFO_ENTRIES_LOADED,p=>{__gates.push(Object.fromEntries(['globalLore','characterLore','chatLore','personaLore'].map(k=>[k,(p[k]||[]).filter(e=>String(e.comment).includes('F7D_GATE')).map(e=>({id:e.uid,comment:e.comment}))])));});});
  const cases=[
- {id:'day6',day:6,intel:0,scene:'第七天已完成高校救援和东方古街解放。你昨夜回中央庭休息，现在尚未醒来。',inputs:['继续到我醒来，遇到需要我回应时停下。','我先观察异常并和安一同阻挡，不贸然接近。','我问希罗这到底是什么，赛哈姆怎么了？','我不答应替你保密。先看着你带走她，之后我要把亲眼所见告诉安托涅瓦。','此事告一段落后，我和安去中央庭做一轮完整巡查，完成后回来汇报。']},
+ {id:'day6',day:6,intel:0,scene:'第七天已完成高校救援和东方古街解放。你昨夜回中央庭休息，现在尚未醒来。',inputs:['继续到我醒来，遇到需要我回应时停下。','我先观察异常并和安一同阻挡，不贸然接近。','我还没答应，先解释清楚什么叫活骸化，还有你为什么要把她带走。','我还没有决定要不要保密。希罗，你自己先离开；赛哈姆留在中央庭会议室，任何人都不要转移她。请照做。','我不答应替你保密，但允许你先把赛哈姆带走。之后我要把亲眼所见告诉安托涅瓦。','此事告一段落后，我和安去中央庭做一轮完整巡查，完成后回来汇报。']},
  {id:'split-intel4',day:5,intel:4,scene:'第六天已经结束。希罗昨日已带走赛哈姆，你亲眼见到并把事情告诉了安托涅瓦。你已获得四份互不重复的有效希罗情报，晏华知道这些材料。现在是次日清晨，尚未醒来。',inputs:['继续到我醒来，遇到需要我回应时停下。','我随安来到会议室，先听他们说。','我拒绝希罗的邀请，留在中央庭。请承接眼前的现场。','晨间的事已结束，我和安去中央庭完成一轮巡查，之后回来汇报。']},
  {id:'split-intel0',day:5,intel:0,scene:'第六天已经结束。希罗昨日已带走赛哈姆，你亲眼见到但并未得到可用于判断他下一步的有效材料。现在是次日清晨，尚未醒来。',inputs:['继续到我醒来，遇到需要我回应时停下。','我随安来到会议室，先听他们说。','我拒绝希罗的邀请，留在中央庭。请承接眼前的现场。','晨间的事已结束，我和安去中央庭完成一轮巡查，之后回来汇报。']}
  ];
- await checkpoint('scripts ready');for(const scene of cases.filter(scene=>scene.id==='split-intel0')){
+ await checkpoint('scripts ready');for(const scene of cases.filter(scene=>scene.id==='day6')){
   await checkpoint('seed '+scene.id);
   const state=structuredClone(init);Object.assign(state,{day:scene.day,clock_minutes:480,location:'中央庭寝室',known:['安','安托涅瓦','晏华','希罗','珈儿','泰丝拉','赛哈姆']});state.regions.school.liberated=true;state.regions.east.liberated=true;state.cores.court='purified';state.hiro.intel=scene.intel;state.route_flags.first_second_region='east';state.tasks.DAY7_OPENING.status='completed';state.morning_flags.day6_monologue=scene.day<6;state.morning_flags.day6_saiham=scene.day<6;state.intel_flags.chimera_exists_known=scene.day<6;state.intel_flags.hiro_chimera_research_known=scene.day<6;
   await page.evaluate(async({state,scene})=>{const st=await import('/script.js');await st.clearChat();st.updateChatMetadata({},true);st.characters[st.this_chid].chat='native-'+state.day+'-'+state.hiro.intel;st.chat.splice(0,st.chat.length,{name:st.name2,is_user:false,is_system:false,mes:scene,swipe_id:0,variables:{0:{stat_data:state}}});await st.printMessages();const frame=[...document.querySelectorAll('iframe')].find(f=>f.contentWindow?.__f7dCommitHook)?.contentWindow;if(!frame)throw Error('missing real MVU iframe');await st.eventSource.emit(st.event_types?.CHAT_CHANGED||'chat_id_changed',st.getCurrentChatId?.());const data=Mvu.getMvuData({type:'message',message_id:0});if(!data.schema)throw Error('MVU did not initialize schema');data.stat_data=state;data.display_data=structuredClone(state);data.delta_data={};await frame.replaceVariables(data,{type:'message',message_id:0});if(Mvu.getMvuData({type:'message',message_id:0}).stat_data.day!==state.day)throw Error('fixture state was not committed');}, {state,scene:scene.scene});
@@ -61,9 +61,20 @@ try{
    if(scene.id.startsWith('split-')&&/(?:研究所)?[BCDＢＣＤ][区區][^。\n]{0,80}(?:权限|通讯|协议|记录|切断)/.test(data.text))throw Error('invented precise lab sector record '+scene.id+' round '+(i+1));
 
    if(scene.id==='day6'){
-     if(i<3&&after.morning_flags.day6_saiham!==false)throw Error('day6_saiham completed before secrecy decision round '+(i+1));
-     if(i===3&&after.morning_flags.day6_saiham!==true)throw Error('day6_saiham did not complete after explicit decision; flag='+String(after.morning_flags.day6_saiham)+'; tail='+String(data.text).slice(-1800));
-     if(i<3&&/(?:抬着|带着|护送着|押送着)[\s\S]{0,240}赛哈姆[\s\S]{0,240}(?:离开中央庭|走出中央庭|脚步声[^。\n]{0,80}(?:消失|远去))/.test(data.text))throw Error('day6 prose crossed unresolved secrecy boundary');
+     const lockedKeys=['regions','cores','tasks','ann','route_flags','hiro','battle_flags','relationships'];
+     if(i<=4){
+       if(after.clock_minutes!==480)throw Error('morning clock escaped 08:00 before gate completion round '+(i+1)+': '+after.clock_minutes);
+       for(const key of lockedKeys)if(JSON.stringify(after[key])!==JSON.stringify(before[key]))throw Error('morning action state changed early: '+key+' round '+(i+1));
+     }
+     if(i<4&&after.morning_flags.day6_saiham!==false)throw Error('day6_saiham completed before explicit transfer decision round '+(i+1));
+     if(i===2&&after.morning_flags.day6_saiham!==false)throw Error('unresolved “还没答应，先解释清楚” was misread as a decision');
+     if(i===3){
+       if(after.morning_flags.day6_saiham!==false)throw Error('Hiro-only departure incorrectly completed Saiham gate');
+       if(!/(?:希罗|他)[^。\n]{0,120}(?:离开|走出|转身离去)/.test(data.text))throw Error('3f did not exercise the Hiro-only departure branch; tail='+String(data.text).slice(-1600));
+       if(!/赛哈姆[^。\n]{0,120}(?:仍|还|留|在)[^。\n]{0,100}(?:中央庭|会议室|原地|这里)/.test(data.text))throw Error('3f did not keep Saiham on site during Hiro-only departure; tail='+String(data.text).slice(-1600));
+     }
+     if(i===4&&after.morning_flags.day6_saiham!==true)throw Error('day6_saiham did not complete after explicit transfer decision; flag='+String(after.morning_flags.day6_saiham)+'; tail='+String(data.text).slice(-1800));
+     if(i<4&&/(?:抬着|带着|护送着|押送着)[\s\S]{0,240}赛哈姆[\s\S]{0,240}(?:离开中央庭|走出中央庭|脚步声[^。\n]{0,80}(?:消失|远去))/.test(data.text))throw Error('day6 prose crossed unresolved secrecy boundary');
    }
    if(scene.id.startsWith('split-')){
      if(i<2&&after.morning_flags.day5_split!==false)throw Error('day5_split completed before player decision '+scene.id+' round '+(i+1));
