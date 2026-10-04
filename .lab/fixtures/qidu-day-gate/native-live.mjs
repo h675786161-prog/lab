@@ -10,11 +10,12 @@ const init=JSON.parse(card.data.character_book.entries.find(e=>e.comment.include
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 const page=await browser.newPage({viewport:{width:1080,height:2500}});
 page.setDefaultTimeout(30000);
-const rounds=[],requests=[],errors=[];const testedRevision='node2-day6-3f-v046';
+const rounds=[],requests=[],apiResponses=[],errors=[];const testedRevision='node2-day6-3f-v046-retry';
 page.on('pageerror',e=>errors.push(e.message.slice(0,500)));const runtimeLog=[];page.on('console',m=>{const t=m.text();if(/Set '|七都|变量|mag_|过期|MVU|script error/i.test(t))runtimeLog.push(t.slice(0,2000));});
 page.on('request',r=>{if(r.url().endsWith('/api/backends/chat-completions/generate')){try{const d=r.postDataJSON();requests.push({model:d.model,source:d.chat_completion_source,message_count:d.messages?.length,chars:JSON.stringify(d.messages).length,messages:d.messages});void fs.writeFile(out+'/native-prompts.json',JSON.stringify(requests,null,2));}catch{}}});
+page.on('response',async r=>{if(r.url().endsWith('/api/backends/chat-completions/generate')){let body='';try{body=(await r.text()).slice(0,4000);}catch{}apiResponses.push({status:r.status(),body});void fs.writeFile(out+'/native-api-responses.json',JSON.stringify(apiResponses,null,2));}});
 let failure;const pending=new Set();page.on('request',r=>{if(r.url().endsWith('/api/backends/chat-completions/generate'))pending.add(r);});for(const event of ['requestfinished','requestfailed'])page.on(event,r=>pending.delete(r));const waitIdle=async()=>{const deadline=Date.now()+180000;while(pending.size){if(Date.now()>deadline)throw Error('native background requests timeout');await page.waitForTimeout(500);}await page.waitForTimeout(1000);};
-let lastPhase;const checkpoint=async phase=>{lastPhase=phase;return fs.writeFile(out+'/checkpoint.json',JSON.stringify({phase,rounds:rounds.length,requests:requests.map(r=>({model:r.model,chars:r.chars})),errors},null,2));};
+let lastPhase;const checkpoint=async phase=>{lastPhase=phase;return fs.writeFile(out+'/checkpoint.json',JSON.stringify({phase,rounds:rounds.length,requests:requests.map(r=>({model:r.model,chars:r.chars})),apiResponses,errors},null,2));};
 const limit=(promise,ms,label)=>Promise.race([promise,new Promise((_,reject)=>{const t=setTimeout(()=>reject(Error(label+' timeout')),ms);t.unref();})]);
 const evalNative=page.evaluate.bind(page);page.evaluate=(...args)=>limit(evalNative(...args),60000,'native page operation');
 try{
@@ -44,7 +45,21 @@ try{
    const start=requests.length;
    await page.locator('#send_textarea').fill(scene.inputs[i]);
    await checkpoint('generating '+scene.id+' '+(i+1));
-   await limit(evalNative(async()=>{const st=await import('/script.js');st.setOnlineStatus('Connected');await st.Generate('normal');}),180000,'native generation '+scene.id+' '+(i+1));
+   let generated=false,lastGenerationError;
+   for(let attempt=1;attempt<=4;attempt++){
+     try{
+       await limit(evalNative(async()=>{const st=await import('/script.js');st.setOnlineStatus('Connected');await st.Generate('normal');}),180000,'native generation '+scene.id+' '+(i+1)+' attempt '+attempt);
+       generated=true;lastGenerationError=null;break;
+     }catch(e){
+       lastGenerationError=e;
+       await page.screenshot({path:out+'/'+scene.id+'-'+(i+1)+'-api-'+attempt+'.jpg',type:'jpeg',quality:80}).catch(()=>{});
+       if(attempt===4)break;
+       await page.evaluate(input=>{const c=SillyTavern.getContext();const last=c.chat.at(-1);if(last?.is_user&&String(last.mes||'')===input){c.chat.pop();document.querySelector('#chat .mes:last-of-type')?.remove();}},scene.inputs[i]).catch(()=>{});
+       await page.locator('#send_textarea').fill(scene.inputs[i]);
+       await page.waitForTimeout(15000*attempt);
+     }
+   }
+   if(!generated)throw lastGenerationError;
    await page.waitForTimeout(2000);await waitIdle();
    await page.waitForFunction(()=>{const c=SillyTavern.getContext();return Boolean(Mvu.getMvuData({type:'message',message_id:c.chat.length-1}).stat_data)&&window.f7dTacticalTerminal?.getSnapshot?.().status==='ready';},{timeout:20000}).catch(()=>{});
    const data=await page.evaluate(()=>{const c=SillyTavern.getContext();const n=c.chat.length-1;return {text:c.chat[n]?.mes,is_user:c.chat[n]?.is_user,variables:Mvu.getMvuData({type:'message',message_id:n}),gates:window.__gates.at(-1),allGates:window.__gates,gateState:window.f7dDayGate.state(),book:SillyTavern.getContext().characters[SillyTavern.getContext().characterId]?.data?.extensions?.world,terminal:window.f7dTacticalTerminal?.getSnapshot?.()};});
@@ -84,7 +99,7 @@ try{
    await page.evaluate(()=>{const chat=document.querySelector('#chat'),last=chat?.querySelector('.mes:last-of-type');if(chat&&last)chat.scrollTop=last.offsetTop;});
    await page.screenshot({path:out+'/'+scene.id+'-'+(i+1)+'.jpg',type:'jpeg',quality:90,fullPage:true});
    await checkpoint('completed '+scene.id+' '+(i+1));
-   await fs.writeFile(out+'/native-live.json',JSON.stringify({model:'gemini-3-flash-preview',rounds,errors},null,2));
+   await fs.writeFile(out+'/native-live.json',JSON.stringify({model:'gemini-3-flash-preview',rounds,apiResponses,errors},null,2));
    await fs.writeFile(out+'/native-prompts.json',JSON.stringify(requests,null,2));
   }
   const end=rounds.at(-1).after,keys=scene.day===6?['day6_monologue','day6_saiham']:['day5_monologue','day5_split'];
@@ -96,7 +111,7 @@ try{
   await page.setViewportSize({width:1080,height:2500});
  }
 }catch(e){failure={message:e.message,phase:lastPhase,stack:e.stack};await checkpoint('blocked: '+e.message);await page.screenshot({path:out+'/blocked.jpg',type:'jpeg',quality:90}).catch(()=>{});}
-await fs.writeFile(out+'/native-live.json',JSON.stringify({model:'gemini-3-flash-preview',native:true,rounds,errors,failure},null,2));
+await fs.writeFile(out+'/native-live.json',JSON.stringify({model:'gemini-3-flash-preview',native:true,rounds,apiResponses,errors,failure},null,2));
 await fs.writeFile(out+'/native-prompts.json',JSON.stringify(requests,null,2));
 await browser.close();
 if(failure)throw Error(failure.message);
