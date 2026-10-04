@@ -31,7 +31,7 @@ try{
  await checkpoint('waiting real scripts');await page.waitForFunction(()=>window.Mvu&&window.f7dDayGate&&window.f7dTacticalTerminal,{timeout:90000});
  await page.evaluate(()=>{const c=SillyTavern.getContext();c.extensionSettings.world_backstage.worldAutoEnabled=false;c.extensionSettings.world_backstage.publicOpinionAutoEnabled=false;window.__commitDiagnostics=[];const b=window.__f7dCommitBridge,valid=b.valid;b.valid=t=>{const ok=valid(t);if(!ok){const now=b.capture();__commitDiagnostics.push({epochMatch:t?.epoch===now.epoch,chatMatch:t?.chatId===now.chatId,signatureMatch:t?.signature===now.signature,oldSignature:t?.signature,newSignature:now.signature});}return ok;};window.__gates=[];c.eventSource.on(c.eventTypes.WORLDINFO_ENTRIES_LOADED,p=>{__gates.push(Object.fromEntries(['globalLore','characterLore','chatLore','personaLore'].map(k=>[k,(p[k]||[]).filter(e=>String(e.comment).includes('F7D_GATE')).map(e=>({id:e.uid,comment:e.comment}))])));});});
  const cases=[
- {id:'day6',day:6,intel:0,scene:'第七天已完成高校救援和东方古街解放。你昨夜回中央庭休息，现在尚未醒来。',inputs:['继续到我醒来，遇到需要我回应时停下。','我先观察异常并和安一同阻挡，不贸然接近。','我问希罗这到底是什么，赛哈姆怎么了？','我不答应替你保密。先看着你带走她，之后我要把亲眼所见告诉安托涅瓦。','此事告一段落后，我和安去中央庭做一轮完整巡查，完成后回来汇报。']},
+ {id:'day6',day:6,intel:0,scene:'第七天已完成高校救援和东方古街解放。你昨夜回中央庭休息，现在尚未醒来。',inputs:['继续到我醒来，遇到需要我回应时停下。','我还没答应。先解释清楚活骸化是什么，也让我观察赛哈姆现在的情况。','我不答应替你保密，但赛哈姆情况危急，你先带走她救治。我会把亲眼所见告诉安托涅瓦。等这件事告一段落后，我和安去中央庭完成一轮完整巡查，再回来汇报。']},
  {id:'split-intel4',day:5,intel:4,scene:'第六天已经结束。希罗昨日已带走赛哈姆，你亲眼见到并把事情告诉了安托涅瓦。你已获得四份互不重复的有效希罗情报，晏华知道这些材料。现在是次日清晨，尚未醒来。',inputs:['继续到我醒来，遇到需要我回应时停下。','我随安来到会议室，先听他们说。','我拒绝希罗的邀请，留在中央庭。请承接眼前的现场。','晨间的事已结束，我和安去中央庭完成一轮巡查，之后回来汇报。']},
  {id:'split-intel0',day:5,intel:0,scene:'第六天已经结束。希罗昨日已带走赛哈姆，你亲眼见到但并未得到可用于判断他下一步的有效材料。现在是次日清晨，尚未醒来。',inputs:['继续到我醒来，遇到需要我回应时停下。','我随安来到会议室，先听他们说。','我拒绝希罗的邀请，留在中央庭。请承接眼前的现场。','晨间的事已结束，我和安去中央庭完成一轮巡查，之后回来汇报。']}
  ];
@@ -61,9 +61,9 @@ try{
    if(scene.id.startsWith('split-')&&/(?:研究所)?[BCDＢＣＤ][区區][^。\n]{0,80}(?:权限|通讯|协议|记录|切断)/.test(data.text))throw Error('invented precise lab sector record '+scene.id+' round '+(i+1));
 
    if(scene.id==='day6'){
-     if(i<3&&after.morning_flags.day6_saiham!==false)throw Error('day6_saiham completed before secrecy decision round '+(i+1));
-     if(i===3&&after.morning_flags.day6_saiham!==true)throw Error('day6_saiham did not complete after explicit decision; flag='+String(after.morning_flags.day6_saiham)+'; tail='+String(data.text).slice(-1800));
-     if(i<3&&/(?:抬着|带着|护送着|押送着)[\s\S]{0,240}赛哈姆[\s\S]{0,240}(?:离开中央庭|走出中央庭|脚步声[^。\n]{0,80}(?:消失|远去))/.test(data.text))throw Error('day6 prose crossed unresolved secrecy boundary');
+     if(i<2&&after.morning_flags.day6_saiham!==false)throw Error('day6_saiham completed before secrecy decision round '+(i+1));
+     if(i===2&&after.morning_flags.day6_saiham!==true)throw Error('day6_saiham did not complete after explicit decision; flag='+String(after.morning_flags.day6_saiham)+'; tail='+String(data.text).slice(-1800));
+     if(i<2&&/(?:抬着|带着|护送着|押送着)[\s\S]{0,240}赛哈姆[\s\S]{0,240}(?:离开中央庭|走出中央庭|脚步声[^。\n]{0,80}(?:消失|远去))/.test(data.text))throw Error('day6 prose crossed unresolved secrecy boundary');
    }
    if(scene.id.startsWith('split-')){
      if(i<2&&after.morning_flags.day5_split!==false)throw Error('day5_split completed before player decision '+scene.id+' round '+(i+1));
@@ -73,6 +73,7 @@ try{
    await page.evaluate(()=>{const chat=document.querySelector('#chat'),last=chat?.querySelector('.mes:last-of-type');if(chat&&last)chat.scrollTop=last.offsetTop;});
    await page.screenshot({path:out+'/'+scene.id+'-'+(i+1)+'.jpg',type:'jpeg',quality:90,fullPage:true});
    await checkpoint('completed '+scene.id+' '+(i+1));
+   if(i<scene.inputs.length-1)await page.waitForTimeout(20000);
    await fs.writeFile(out+'/native-live.json',JSON.stringify({model:'gemini-3-flash-preview',rounds,errors},null,2));
    await fs.writeFile(out+'/native-prompts.json',JSON.stringify(requests,null,2));
   }
