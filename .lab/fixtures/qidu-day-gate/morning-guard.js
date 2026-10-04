@@ -98,7 +98,7 @@
       }
       if(path==='battle_flags.sybilla_condition_obtained'&&next===true)invalid||=old!==false||!/(追查|调查|占卜|爱缪莎)/.test(user)||!/爱缪莎/.test(story)||!/(塔罗|占卜|牌阵)/.test(story);
       if(path==='battle_flags.sybilla_rescued'&&next===true)invalid||=get(prior,'battle_flags.sybilla_condition_obtained')!==true;
-      const morningMarkers={day5_monologue:/低语|梦中.*声音|小神/,day5_split:/希罗[\s\S]*离开|离开[\s\S]*希罗/,day4_monologue:/低语|梦中.*声音|小神/,day4_speech:/希罗[\s\S]*演讲|演讲[\s\S]*希罗/,day3_monologue:/低语|梦中.*声音|小神/,day3_ann_departure:/安[\s\S]*(离开|不见|离去)/,day2_monologue:/低语|梦中.*声音|小神/};
+      const morningMarkers={day5_monologue:/低语|梦中.*声音|小神/,day5_split:/(?:希罗[\s\S]*离开|离开[\s\S]*希罗|希罗[\s\S]*(?:身影消失|分道扬镳|正式分裂|脚步声[^。\n]{0,60}(?:散去|消失)))/,day4_monologue:/低语|梦中.*声音|小神/,day4_speech:/希罗[\s\S]*演讲|演讲[\s\S]*希罗/,day3_monologue:/低语|梦中.*声音|小神/,day3_ann_departure:/安[\s\S]*(离开|不见|离去)/,day2_monologue:/低语|梦中.*声音|小神/};
       if(path.startsWith('morning_flags.')&&next===true){
         const key=path.slice('morning_flags.'.length),expected={day5_:5,day4_:4,day3_:3,day2_:2};
         const day=Number(key.match(/^day([2345])_/)?.[1]);
