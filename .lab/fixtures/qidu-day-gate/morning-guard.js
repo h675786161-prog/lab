@@ -46,6 +46,7 @@
       || /(?:担架|推车)[\s\S]{0,220}(?:穿过[^。\n]{0,80}(?:安全通道|侧门|出口)[\s\S]{0,100}(?:脚步声[^。\n]{0,60}(?:消失|远去)|消失在)|离开(?:了)?中央庭)/.test(visible);
     return completed&&!/(?:准备|即将|将要|打算|需要)[^。\n]{0,40}(?:撤离|离开|送往|转移)/.test(visible.slice(Math.max(0,visible.lastIndexOf('赛哈姆'))));
   };
+  const day6DecisionMade=user=>/(?:答应|拒绝|不答应|不接受|不保密|不隐瞒|不替[^。\n]{0,15}保密|保持沉默|不作承诺|不作正面承诺|允许[^。\n]{0,12}带走)/.test(String(user||''));
   const day5DecisionMade=user=>{
     const t=String(user||'').replace(/\s+/g,'');
     return /(?:拒绝(?:希罗|邀请)?|不答应|不接受|不跟(?:希罗)?走|不加入|留在中央庭|选择中央庭|支持(?:你|希罗)|认同(?:你|希罗|这个方案|你的方案)|赞同(?:你|希罗|这个方案|你的方案)|愿意(?:和希罗)?合作|跟(?:你|希罗)走|加入(?:你|希罗)|保持沉默|暂不表态|不表态|暂不回答)/.test(t);
@@ -109,7 +110,7 @@
       }
       if(path==='tasks.DAY7_OPENING.status'&&next==='completed')invalid||=!/希罗/.test(story)||!/交付|开始行动|指挥使/.test(story);
       if(path==='morning_flags.day6_monologue'&&next===true)invalid||=!enteringDay6||!hasMorningVoice(transcript);
-      if(path==='morning_flags.day6_saiham'&&next===true)invalid||=!enteringDay6||get(prior,'morning_flags.day6_monologue')!==true&&!commands.some(c=>String(c.args?.[0]||'').includes('day6_monologue'))&&!hasMorningVoice(transcript)||!hasSaihamDeparture(transcript);
+      if(path==='morning_flags.day6_saiham'&&next===true)invalid||=!day6DecisionMade(user)||!enteringDay6||get(prior,'morning_flags.day6_monologue')!==true&&!commands.some(c=>String(c.args?.[0]||'').includes('day6_monologue'))&&!hasMorningVoice(transcript)||!hasSaihamDeparture(transcript);
       if(path==='morning_flags.day6_seth'&&next===true)invalid||=!enteringDay6||!/赛斯/.test(story);
       if(path.startsWith('cores.')){
         const zone=path.split('.')[1];
