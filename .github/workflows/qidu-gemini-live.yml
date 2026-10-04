@@ -4,7 +4,7 @@ on:
     branches: [feature/qidu-day6-node2-3f-20261004]
     paths: ['.github/workflows/qidu-gemini-live.yml', '.lab/fixtures/qidu-day-gate/native-live.mjs', '.lab/fixtures/qidu-day-gate/apply-node1.py']
 concurrency:
-  group: qidu-gemini-native
+  group: qidu-node2-day6-3f-20261004
   cancel-in-progress: true
 permissions:
   contents: write
