@@ -200,3 +200,42 @@ for(const s of [
  '赛哈姆没有登上运输车。希罗登上运输车，驶离中央庭区域。',
 ])test('登车关联反例不能冒充人物离场：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});
 test('登车全文缺少模型离场命令仍不能自动补命令',()=>{assert.equal(has(run({text:boardingFailure.text,commands:[mon()]}),'day6_saiham'),false);});
+
+const continuationBaseline=fs.readFileSync(new URL('./morning-guard.continuation-baseline.js',import.meta.url),'utf8');
+const continuationFailure=JSON.parse(fs.readFileSync(new URL('./continuation-failure.json',import.meta.url),'utf8'));
+test('相邻两句真实登车全文修前拒绝、修后保留模型命令',()=>{
+ const opts={text:continuationFailure.text,state:continuationFailure.before,user:continuationFailure.user,commands:continuationFailure.commands};
+ assert.equal(has(run({...opts,code:continuationBaseline}),'day6_saiham'),false);
+ const rows=run(opts);assert.ok(has(rows,'day6_monologue'));assert.ok(has(rows,'day6_saiham'));
+ assert.ok(rows.every(c=>opts.commands.some(old=>JSON.stringify(old)===JSON.stringify(c))));
+});
+for(const s of [
+ '希罗与押运着赛哈姆的特遣人员踏上研究院运输车队。直到车门闭锁、引擎发动并彻底驶离整个中央庭区域，广场才平静下来。',
+ '赛哈姆登上运输车。随后车门闭锁，驶离了整个中央庭区域。',
+ '赛哈姆被送上救护车。该车驶出了中央庭的管辖区域。',
+ '赛哈姆踏上运输车，驶离整个中央庭区域。',
+ '希罗与护送着赛哈姆的随行人员登上运输车，驶离整个中央庭区域。',
+])test('同一实际登车事件承接实际驶离：'+s,()=>{assert.ok(has(run({text:vehicleStory(s)}),'day6_saiham'));});
+for(const s of [
+ '赛哈姆没有登上运输车。随后车门闭锁，驶离整个中央庭区域。',
+ '赛哈姆准备登上运输车。随后车门闭锁，驶离整个中央庭区域。',
+ '如果赛哈姆登上运输车。随后车门闭锁，驶离整个中央庭区域。',
+ '你回忆赛哈姆登上运输车。随后车门闭锁，驶离整个中央庭区域。',
+ '昨天赛哈姆登上运输车。随后车门闭锁，驶离整个中央庭区域。',
+ '赛哈姆登上运输车。随后车门闭锁，将驶离整个中央庭区域。',
+ '赛哈姆登上运输车。随后车门闭锁，尚未驶离整个中央庭区域。',
+ '赛哈姆登上运输车。随后她下车，车辆驶离整个中央庭区域。',
+ '赛哈姆登上运输车。随后另一辆汽车驶离整个中央庭区域。',
+ '赛哈姆登上运输车。随后空车驶离整个中央庭区域。',
+ '赛哈姆登上救护车。运输车驶离整个中央庭区域。',
+ '赛哈姆登上救护车，运输车驶离整个中央庭区域。',
+ '赛哈姆站在旁边，希罗登上运输车。随后车门闭锁，驶离整个中央庭区域。',
+ '希罗与押运着赛哈姆的特遣人员准备踏上运输车队。直到车门闭锁并驶离整个中央庭区域，你才会安心。',
+ '赛哈姆的行李登上运输车。随后车门闭锁，驶离整个中央庭区域。',
+ '赛哈姆登上运输车。运输车停在原地。随后车辆驶离整个中央庭区域。',
+ '赛哈姆登上运输车。你走进大厅。随后车辆驶离整个中央庭区域。',
+ '赛哈姆登上运输车。随后车辆驶离整个中央庭区域内的道路。',
+ '赛哈姆登上运输车。“随后车门闭锁，驶离整个中央庭区域。”',
+ '赛哈姆登上运输车。随后车辆驶离整个中央庭区域。赛哈姆仍留在中央庭。',
+ '赛哈姆将让希罗登上运输车，驶离中央庭区域。',
+])test('相邻句关联仍拒绝非实际离场：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});

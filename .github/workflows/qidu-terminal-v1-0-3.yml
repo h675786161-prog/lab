@@ -67,6 +67,8 @@ jobs:
         run: F7D_REPLAY_FIXTURE=scope F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.3/native-live.mjs
       - name: Replay recorded boarding failure through native generation
         run: F7D_REPLAY_FIXTURE=boarding F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.3/native-live.mjs
+      - name: Replay adjacent sentence boarding failure through native generation
+        run: F7D_REPLAY_FIXTURE=continuation F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.3/native-live.mjs
       - name: Natural model morning and continuous patrol
         run: node .lab/fixtures/f7d-terminal-v1.0.3/native-live.mjs
       - uses: actions/upload-artifact@v4
