@@ -1,0 +1,39 @@
+{
+  "testedCommit": "2cac620219e3817d3e8ddc07099bf467571ca22b",
+  "runId": 37431781127,
+  "jobId": 112164077963,
+  "result": "controlled-commit-regression-passed",
+  "naturalGeneration": false,
+  "officialDeliveryCommit": "4cd2f36b740ba46a2b5d11bfb18fe4a211b146cf",
+  "failedSetupRun": 37431558578,
+  "unitTests": 24,
+  "cardSmokeTests": 34,
+  "artifact": {
+    "id": 11397536035,
+    "sha256": "aa99a0a5c78a01c0e8cc680aebb8a8179e1c08f1d156f97704de8a405b6b5e09",
+    "bytes": 823779
+  },
+  "runtime": {
+    "SillyTavern": "8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8",
+    "TavernHelper": "519599bc68247d8e759cc844a983f8f5252941a8",
+    "WorldBackstage": "f9babfa0ee0bd3003d3529fd171b83103cfee4c1",
+    "MVU": "183d8ade3b9a3369e824a55cb13b4ddf91aada50",
+    "mvuArtifactSha256": "43e38e31c3f86734cdd38c6047d22e871a043abbc2af9116ee2c54438462db6a",
+    "node": "22.23.3",
+    "playwright": "1.55.0"
+  },
+  "files": {
+    "README.md": "c2e5d75112924b2788c38be1c8bcd9adace47b1b2247e53eceeac27f9cbc2921",
+    "baseline/checkpoint.json": "4a8b3fefc45113f4a93ba906591e957efe4bc4c8e6b9dcf7f281eb03e7a2c0c8",
+    "baseline/commit-replay.json": "1c91e1d48b6912f2745fb40618bbaf28cd7da9a56bc22646a4b76d18ea01efcc",
+    "baseline/morning.json": "3fb220a532c2b725fc48f0a773029a928256e761065c619b008bba0f3fdef8eb",
+    "baseline/patrol.json": "eae6b0db74c76a7700cdbe3cdeb307ca0528913a89b31f9c4dd33d19cfdb628b",
+    "fixed/checkpoint.json": "ed5dfacf3615d2d396675c6ad57d1149892be7a4ffa8be2655e0c23c64002d68",
+    "fixed/commit-replay.json": "b039528a9a811e7ba9035b3ecf0fca9a081f9110806c62184e90f3b3a2221c49",
+    "fixed/morning.json": "875098adbea1a1575ad458174c334eb391cd393c60c676db9dedc71769aebd20",
+    "fixed/patrol.json": "5c8169f19610a8b4cad178b7793671ba3b8f806efd9b6a51a977dffd7cd89091",
+    "isolation/实机验收记录.json": "cf69d711335af3863ca0f0c129bca4839b6bd290c66f81972504ba30499925c7",
+    "isolation/真实提交快照-脱敏.json": "78b8dc5143f0fcec5a0c2018b6489c6590c510c3299f89d19c819104db92fdc7",
+    "verify-evidence.mjs": "d57ea6ea9b67921e725d4794a6e6c15b5ab439ffe2dfc0d4a4ac7f83fecc778e"
+  }
+}
