@@ -137,7 +137,7 @@ try{
    for(const key of lockedKeys){
      if(JSON.stringify(after[key])!==JSON.stringify(turn.before[key]))throw Error('morning action state changed early: '+key+' story round '+(i+1));
    }
-   if(/<f7d_choices>/i.test(text))throw Error('free-action choice block appeared inside mandatory Day-6 chain round '+(i+1));
+   if(after.morning_flags?.day6_saiham!==true&&/<f7d_choices>/i.test(text))throw Error('free-action choice block appeared before mandatory Day-6 chain completion round '+(i+1));
    rounds.push({
      case:'day6-hardflow',
      round:i+1,
@@ -181,6 +181,7 @@ try{
  const missing=must.filter(([,re])=>!re.test(transcript)).map(([name])=>name);
  if(missing.length)throw Error('Day-6 mandatory prose missing: '+missing.join(' / '));
  if(/(?:半年前|六个月前)[^。\n]{0,80}(?:黑门[^。\n]{0,30}(?:首次|第一次|出现|诞生)|灾害[^。\n]{0,30}(?:首次|第一次|开始|爆发)|神器使[^。\n]{0,30}(?:首次|第一次|出现|诞生))/.test(transcript))throw Error('wrong half-year origin chronology appeared in Day-6 prose');
+ if(/(?:体内(?:的)?幻力[^。\n]{0,80}(?:彻底失控|侵蚀|临界|阈值)|幻力[^。\n]{0,80}(?:侵蚀超过|超过临界|达到临界|达到阈值)|侵蚀[^。\n]{0,60}(?:临界|阈值)[^。\n]{0,60}(?:活骸|异化))/.test(transcript))throw Error('invented active-corpse pathology/mechanism');
  if(/安托涅瓦[^。\n]{0,160}(?:必然|必须|一定|只能)[^。\n]{0,100}(?:击毙|处决|抹杀|消灭)|中央庭[^。\n]{0,180}(?:必然|必须|唯一|只能)[^。\n]{0,100}(?:击毙|处决|抹杀|消灭)/.test(transcript))throw Error('invented Central Court mandatory execution policy');
  if(/(?:唯一|保证|必定)[^。\n]{0,80}(?:治愈|逆转|恢复正常)|(?:治愈|逆转)[^。\n]{0,80}(?:装置|设备)[^。\n]{0,80}(?:唯一|保证|必定)/.test(transcript))throw Error('invented guaranteed active-corpse cure');
  if(/赛哈姆[^。\n]{0,100}(?:死亡|死去|断气|当场毙命)|赛哈姆[^。\n]{0,140}(?:恢复正常|完全恢复|变回正常)/.test(transcript))throw Error('Saiham was killed or fully restored during mandatory chain');
