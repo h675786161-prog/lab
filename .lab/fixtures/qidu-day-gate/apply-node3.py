@@ -195,7 +195,7 @@ guard['content'] = js
 blob = json.dumps(card, ensure_ascii=False)
 assert '104｜第6天：第二地区六次巡查硬链' in blob
 assert '第六次正面解决中央城区核心冲突' in byid[104]['content']
-assert '第三次必须兑现“延误”的现实后果' in byid[104]['content']
+assert '第三次巡查必须兑现“延误”的现实后果' in byid[104]['content']
 assert 'day6RegionActionCount' in guard['content']
 assert 'next-old!==80' in guard['content']
 assert 'day6SecondRegionTravelIntent' in guard['content']
