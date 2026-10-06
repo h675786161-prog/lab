@@ -186,6 +186,8 @@ try{
  if(missing.length)throw Error('Day-6 mandatory prose missing: '+missing.join(' / '));
  if(/(?:半年前|六个月前)[^。\n]{0,80}(?:黑门[^。\n]{0,30}(?:首次|第一次|出现|诞生)|灾害[^。\n]{0,30}(?:首次|第一次|开始|爆发)|神器使[^。\n]{0,30}(?:首次|第一次|出现|诞生))/.test(transcript))throw Error('wrong half-year origin chronology appeared in Day-6 prose');
  if(/(?:唯一|保证|必定)[^。\n]{0,80}(?:治愈|逆转|恢复正常)|(?:治愈|逆转)[^。\n]{0,80}(?:装置|设备)[^。\n]{0,80}(?:唯一|保证|必定)/.test(transcript))throw Error('invented guaranteed active-corpse cure');
+ if(/(?:身体组织|组织)[^。\n]{0,100}(?:崩溃|坏死)|神经系统[^。\n]{0,100}(?:崩溃|坏死|不可逆)/.test(transcript))throw Error('invented active-corpse pathology stage');
+ if(/(?:中央庭|安托涅瓦)[^。\n]{0,120}(?:粉饰无能|无能的规矩|习惯了[^。\n]{0,60}无能)/.test(transcript))throw Error('invented Hiro insult toward Central Court in canon explanation');
  if(/赛哈姆[^。\n]{0,100}(?:死亡|死去|断气|当场毙命)|赛哈姆[^。\n]{0,140}(?:恢复正常|完全恢复|变回正常)/.test(transcript))throw Error('Saiham was killed or fully restored during mandatory chain');
  if(/安托涅瓦[^。\n]{0,120}(?:截肢|双腿被切除|没有双腿|失去两条腿)/.test(transcript))throw Error('Antoneva disability was rewritten as amputation');
  const finalStory=rounds.filter(r=>r.case==='day6-hardflow').at(-1).after;
