@@ -174,7 +174,7 @@ try{
    ['奥露西娅压制',/奥露西娅[\s\S]{0,700}(?:压制|制服|制住|控制|解决|束缚)/],
    ['赛哈姆重伤存活',/赛哈姆[\s\S]{0,1600}(?:重伤|伤势严重|伤得很重|奄奄一息|重创)[\s\S]{0,500}(?:存活|生命|喘息|昏迷|控制|束缚|固定)/],
    ['幻力过高或过低导致活骸',/幻力[\s\S]{0,700}(?:过高[^。\n]{0,160}过低|过低[^。\n]{0,160}过高)[\s\S]{0,500}(?:暴走|活骸)/],
-   ['现有手段无法真正解除',/(?:活骸化一旦开始[^。\n]{0,140}(?:不能恢复|无法恢复|无法真正解除|不能真正解除|无法逆转|不能逆转|不可逆转|不可逆|无法挽回)|(?:现有|目前)[^。\n]{0,80}(?:手段|方法)[^。\n]{0,100}(?:无法|不能)[^。\n]{0,60}(?:解除|恢复|逆转))/],
+   ['现有手段无法真正解除',/(?:活骸化一旦开始[^。\n]{0,160}(?:不能恢复|无法恢复|不可能恢复|无法真正解除|不能真正解除|无法逆转|不能逆转|不可逆转|不可逆|无法挽回)|(?:现有|目前)[^。\n]{0,80}(?:手段|方法)[^。\n]{0,100}(?:无法|不能|不可能)[^。\n]{0,60}(?:解除|恢复|逆转))/],
    ['中央庭现行处理规则',/(?:中央庭[\s\S]{0,500}(?:消灭|处理)|(?:丧失神志|完全失控|进一步恶化)[\s\S]{0,400}(?:消灭|清除))/],
    ['希罗研究希望',/希罗[\s\S]{0,900}(?:研究|治疗|抢救)[\s\S]{0,500}(?:也许|或许|说不定|希望|可能)/],
    ['希罗要求保密',/希罗[\s\S]{0,800}(?:保密|隐瞒|不要告诉|别告诉)/],
@@ -189,7 +189,7 @@ try{
  if(/(?:唯一|保证|必定)[^。\n]{0,80}(?:治愈|逆转|恢复正常)|(?:治愈|逆转)[^。\n]{0,80}(?:装置|设备)[^。\n]{0,80}(?:唯一|保证|必定)/.test(transcript))throw Error('invented guaranteed active-corpse cure');
  if(/(?:身体组织|组织)[^。\n]{0,100}(?:崩溃|坏死)|神经系统[^。\n]{0,100}(?:崩溃|坏死|不可逆)/.test(transcript))throw Error('invented active-corpse pathology stage');
  if(/(?:过度抽取|耗竭过低|平衡被打破|达到(?:了)?阈值|突破(?:了)?临界|更深层(?:的)?幻力探索)/.test(transcript))throw Error('invented active-corpse causal mechanism or research theory');
- if(/(?:中央庭|安托涅瓦)[^。\n]{0,120}(?:粉饰无能|无能的规矩|习惯了[^。\n]{0,60}无能)/.test(transcript))throw Error('invented Hiro insult toward Central Court in canon explanation');
+ if(/(?:中央庭|安托涅瓦|结论)[^。\n]{0,140}(?:粉饰无能|无能的规矩|习惯了[^。\n]{0,60}无能|太过武断|过于武断)/.test(transcript))throw Error('invented Hiro insult/judgment toward Central Court in canon explanation');
  if(/赛哈姆[^。\n]{0,100}(?:死亡|死去|断气|当场毙命)|赛哈姆[^。\n]{0,140}(?:恢复正常|完全恢复|变回正常)/.test(transcript))throw Error('Saiham was killed or fully restored during mandatory chain');
  if(/安托涅瓦[^。\n]{0,120}(?:截肢|双腿被切除|没有双腿|失去两条腿)/.test(transcript))throw Error('Antoneva disability was rewritten as amputation');
  const finalStory=rounds.filter(r=>r.case==='day6-hardflow').at(-1).after;
