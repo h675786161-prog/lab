@@ -1,0 +1,107 @@
+name: Qidu Day6 node3 second-region real ST
+on:
+  push:
+    branches: [feature/qidu-day6-node3-region-branches-20261007]
+    paths: ['.github/workflows/qidu-node3-live.yml', '.lab/fixtures/qidu-day-gate/node3-live.mjs', '.lab/fixtures/qidu-day-gate/apply-node1.py', '.lab/fixtures/qidu-day-gate/apply-node2.py', '.lab/fixtures/qidu-day-gate/apply-node3.py']
+concurrency:
+  group: qidu-node3-day6-3f-${{ matrix.case }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  native-live:
+    strategy:
+      fail-fast: false
+      matrix:
+        case: [east-first, central-first]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Rebuild exact node3 candidate
+        run: python3 .lab/fixtures/qidu-day-gate/apply-node3.py
+      - name: Prepare exact lab runtime
+        run: |
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git /tmp/qidu-native
+          git -C /tmp/qidu-native fetch origin 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8 --depth=1
+          git -C /tmp/qidu-native checkout --detach FETCH_HEAD
+          cd /tmp/qidu-native
+          npm ci --no-audit --no-fund
+          mkdir -p public/scripts/extensions/third-party
+          git clone https://github.com/N0VI028/JS-Slash-Runner.git public/scripts/extensions/third-party/JS-Slash-Runner
+          git -C public/scripts/extensions/third-party/JS-Slash-Runner checkout 519599bc68247d8e759cc844a983f8f5252941a8
+          git clone https://github.com/h675786161-prog/world-backstage.git public/scripts/extensions/third-party/world-backstage-test
+          git -C public/scripts/extensions/third-party/world-backstage-test checkout f9babfa0ee0bd3003d3529fd171b83103cfee4c1
+          curl -fsSL https://raw.githubusercontent.com/MagicalAstrogy/MagVarUpdate/183d8ade3b9a3369e824a55cb13b4ddf91aada50/artifact/bundle.js -o public/f7d-mvu.js
+          nohup node server.js --port 8000 > /tmp/qidu-native-server.log 2>&1 &
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:8000/ >/dev/null; then break; fi
+            sleep 1
+          done
+      - name: Configure existing GG key in isolated server
+        env:
+          GG_KEY: ${{ secrets.GG }}
+        run: |
+          python - <<'PY'
+          import os,json,urllib.request,http.cookiejar
+          key=os.environ.get('GG_KEY')
+          if not key:raise RuntimeError('GG secret missing')
+          opener=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
+          with opener.open('http://127.0.0.1:8000/csrf-token') as r: token=json.load(r)['token']
+          req=urllib.request.Request('http://127.0.0.1:8000/api/secrets/write',data=json.dumps({'key':'api_key_custom','value':key,'label':'GG live test'}).encode(),headers={'Content-Type':'application/json','X-CSRF-Token':token})
+          with opener.open(req) as r:
+           if r.status!=200:raise RuntimeError('local secret configuration failed')
+          print('Existing GG key configured without disclosure')
+          PY
+      - name: Probe 3f before browser test
+        env:
+          GG_KEY: ${{ secrets.GG }}
+        run: |
+          python - <<'PY'
+          import os,json,time,urllib.request,urllib.error
+          from pathlib import Path
+          out=Path('.lab/fixtures/qidu-day-gate/live/current-3f-probe.json')
+          out.parent.mkdir(parents=True,exist_ok=True)
+          result={'model':'gemini-3-flash-preview','site':'https://gcli.ggchan.dev'}
+          last=None
+          for attempt in range(1,5):
+            t=time.monotonic()
+            try:
+              req=urllib.request.Request('https://gcli.ggchan.dev/v1/chat/completions',data=json.dumps({'model':'gemini-3-flash-preview','messages':[{'role':'user','content':'只回复数字37。'}],'max_tokens':128,'stream':False}).encode(),headers={'Authorization':'Bearer '+os.environ['GG_KEY'],'Content-Type':'application/json'})
+              with urllib.request.urlopen(req,timeout=75) as r:
+                data=json.load(r)
+              text=data.get('choices',[{}])[0].get('message',{}).get('content','')
+              result.update(status='ok',attempt=attempt,response=text,elapsed_seconds=round(time.monotonic()-t,2))
+              out.write_text(json.dumps(result,ensure_ascii=False,indent=2))
+              print(json.dumps(result,ensure_ascii=False))
+              break
+            except urllib.error.HTTPError as e:
+              last={'status':'http_error','http_status':e.code,'attempt':attempt,'elapsed_seconds':round(time.monotonic()-t,2)}
+            except Exception as e:
+              last={'status':'error','error_type':type(e).__name__,'attempt':attempt,'elapsed_seconds':round(time.monotonic()-t,2)}
+            result.update(last)
+            out.write_text(json.dumps(result,ensure_ascii=False,indent=2))
+            if attempt<4: time.sleep(15*attempt)
+          else:
+            raise RuntimeError('3f preflight failed: '+json.dumps(last,ensure_ascii=False))
+          time.sleep(10)
+          PY
+      - name: Prepare browser test dependency
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run node3 branch through native SillyTavern
+        env:
+          NODE3_CASE: ${{ matrix.case }}
+        run: node .lab/fixtures/qidu-day-gate/node3-live.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qidu-node3-${{ matrix.case }}-live
+          path: |
+            .lab/fixtures/qidu-day-gate/node3-live/*.json
+            .lab/fixtures/qidu-day-gate/node3-live/*.jpg
+          if-no-files-found: warn
