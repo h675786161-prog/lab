@@ -35,12 +35,12 @@
       "bytes": 3577
     },
     "Qidu-v0.4.41-terminal-v1.0.3.json": {
-      "sha256": "35141f2ea837aaca24f9e4525c0f8710405ac08ba6e86293a52fd90765c3ef55",
-      "bytes": 1647569
+      "sha256": "56084ed0a25b1c66594f71bed1b4294f6ab2f8bb3ba54cdb3a200580f41c3cc5",
+      "bytes": 1646699
     },
     "README.md": {
-      "sha256": "2408b2c1becc4ad574819ec3098033060f531beabe48ee36931aeef027cc3b0a",
-      "bytes": 2617
+      "sha256": "1f86f8f89db002cba1f30e015f65dc8b73acf4007a93881ef59514c16f70cf86",
+      "bytes": 1872
     },
     "boarding-failure.json": {
       "sha256": "06f4163fbb8880b7181edcb00ab4148472911ffe63eace060074c19e7d0abd16",
@@ -59,8 +59,8 @@
       "bytes": 12085
     },
     "guard.test.mjs": {
-      "sha256": "fa867ccbb5dd083d8951a0c9390d331bf6d2c2d8285a0ff06ac1c7c73d6e34b8",
-      "bytes": 21317
+      "sha256": "521eff68f54e4f682a1df393273aa7274acac310465d9b09218b6cecb5549cfd",
+      "bytes": 25930
     },
     "morning-guard.baseline.js": {
       "sha256": "de2b29cd7c2e8ed64c9b4420f116a1e065a2402c11396230066467918d407077",
@@ -75,12 +75,16 @@
       "bytes": 15570
     },
     "morning-guard.js": {
-      "sha256": "2731a1a7afd2580aec47ffe1bbf661039e40a0b6c4268ddcc9b02a7ebca98b26",
-      "bytes": 17717
+      "sha256": "42ad36ae308574f6d15d6e9862a7414492d5a10e0bc71af6ba084c6460a2b61c",
+      "bytes": 16844
     },
     "morning-guard.scope-baseline.js": {
       "sha256": "519c2d4090089980c67ccbed2d5803eff838da8848456edad21fdeaaf20f1dd8",
       "bytes": 13977
+    },
+    "morning-guard.transport-baseline.js": {
+      "sha256": "2731a1a7afd2580aec47ffe1bbf661039e40a0b6c4268ddcc9b02a7ebca98b26",
+      "bytes": 17717
     },
     "morning-guard.vehicle-baseline.js": {
       "sha256": "6be05399cf2adffc0dad57b025198ac4ec47562ef61cd79bebf8604162a3bc9f",
@@ -91,8 +95,8 @@
       "bytes": 2984
     },
     "native-live.mjs": {
-      "sha256": "2b7daa430a1bb342526d8f75617932ecc7acf6eb83b1a9f653292a5f8fee41e0",
-      "bytes": 16833
+      "sha256": "4cdd0dd7c40479079a20a19c0fb5e45911a0367f0e132c2f16bd51cad698e30d",
+      "bytes": 16842
     },
     "replay-fixture.json": {
       "sha256": "020b9495d874f0e908abb630cccf254f07e7f9e89093d7e50730e294bf3db543",
@@ -101,6 +105,10 @@
     "scope-failure.json": {
       "sha256": "68a056b79f6bbeb81cf6584e2e0105737396264f1866224f266e1ba894cfc7cf",
       "bytes": 12809
+    },
+    "transport-failure.json": {
+      "sha256": "5d88763268211604d0fab0499f9ec546e416ae4f709925a755cd3acb69bee090",
+      "bytes": 11741
     },
     "vehicle-failure.json": {
       "sha256": "551e4bb2ea9ef77b7d91299b4fca2f8ab95fce6aaff8c6cdb4851d43c34d45ff",

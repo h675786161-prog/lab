@@ -30,37 +30,26 @@
     const visible=narrative(text),sentences=visible.split(/[。！？\n]+/);
     const complete=/(?:赛哈姆[^。！？\n]{0,100}(?:被(?:希罗)?(?:带|抬|推|护送)离(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道))|已经离开(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道))|随(?:着)?希罗[^。！？\n]{0,80}(?:离开|走出)(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道)))|(?:希罗|随从|护送人员|工作人员|几人|一行人|他)[^。！？\n]{0,100}(?:带着|抬着|推着|护送着)[^。！？\n]{0,120}赛哈姆[^。！？\n]{0,160}(?:离开|走出)(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道)))|(?:希罗|随从|随行人员|护送人员|工作人员|几人|一行人|他)[^。！？\n]{0,100}(?:将|把)赛哈姆[^。！？\n]{0,100}(?:带|抬|推|护送)(?:离|出)(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道))/;
     const escortedVehicle=/担架[^！？\n]{0,240}(?:一行人|希罗与随行队伍|护送队伍)[^！？\n]{0,240}(?:驶离|驶出)(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道))/;
-    // 同一运输事件须同时证明赛哈姆是乘员，以及该载具实际离开完整区域。
-    const transportName='(?:运输车辆|运输车队|运输车|救护车|车辆|车队|汽车|押运飞行器|运输飞行器|飞行器|运输机|直升机|载具)';
-    const passenger='(?:希罗(?:与|和|及))?(?:(?:昏迷(?:中)?|失去意识|受伤|被固定|活骸化|已经昏迷|陷入昏迷)的)?赛哈姆(?:与希罗|和希罗|及希罗)?';
-    const carriedFirst=new RegExp('('+transportName+')[^。！？\\n]{0,60}(?:载着|搭载着?|带着)'+passenger+'(?!的)');
-    const passengerFirst=new RegExp('(?:载着|搭载着?|带着)'+passenger+'的('+transportName+')');
-    const boarded=new RegExp('赛哈姆(?!的(?!身影))([^。！？\\n]{0,100}?)(?:登上|踏上|上了|抬上|送上|抱上|扶上|装入|送入)[^。！？\\n]{0,50}?('+transportName+')');
-    const escortedBoarded=new RegExp('(?:押运着|护送着|抬着|推着)赛哈姆的(?:特遣人员|随行人员|护送人员|工作人员|队伍)[^。！？\\n]{0,60}(?:登上|踏上|上了)[^。！？\\n]{0,50}?('+transportName+')');
-    const transportNames=new RegExp(transportName,'g');
-    const action='(?:载着|搭载着?|带着|登上|踏上|上了|抬上|送上|抱上|扶上|装入|送入|驶离|驶出|飞离|飞出|离开|起飞|升空|升入)';
-    const unrealTransport=new RegExp('(?:并未|没有|尚未|未曾|还没|不会|不曾|不)(?:真正|实际|已经|再)?'+action+'|(?:将(?!(?:(?:昏迷|受伤|失去意识)的)?赛哈姆)|会|预计|可能|应该|也许|昨天|昨日|此前|据说|听说)[^。！？\\n]{0,180}'+action+'|(?:计划|打算|准备|即将|将要|将会|声称|表示|如果|假如|要是|想象|回忆|回想)[^。！？\\n]{0,180}'+action);
-    const changedPassenger=new RegExp('下车|下机|离开(?:了)?'+transportName+'|(?:留(?:在|于)|放(?:在|回)|停在)[^。！？\\n]{0,12}(?:中央庭|原地|车外|机外)|另(?:一|外一)(?:辆|架)|空车|空载');
+    // 车辆与乘员须在同一句实际离场叙述中关联；不凭空车、旁人或人物行李推断离场。
+    // 区域名须完整结束，不能把“管辖区域内的主廊”截成已经离开整个区域。
+    const carriedDeparture=/(?:运输车辆|运输车|救护车|车辆|车队|汽车)[^。！？\n]{0,60}(?:载着|搭载着|搭载|带着)(?:希罗(?:与|和))?(?:(?:昏迷(?:中)?|失去意识|受伤|被固定|活骸化|已经昏迷|陷入昏迷)的)?赛哈姆(?!的)[^。！？\n]{0,100}(?:驶离|驶出)(?:了)?中央庭(?:的管辖区域|管辖区域|区域|辖区)?(?=\s*(?:$|[，,。！？；;：:]))/;
+    const carriedExcluded=/(?:并未|没有|尚未|未曾|还没|不会|不曾|不)(?:真正|实际|已经|再)?(?:载着|搭载着?|带着|驶离|驶出)|(?:将|会|预计|可能|应该|也许)[^。！？\n]{0,16}(?:载着|搭载着?|带着|驶离|驶出)|(?:昨天|昨日|此前|据说|听说)[^。！？\n]{0,180}(?:载着|搭载着?|带着|驶离|驶出)/;
+    // 人物先登车的语序也须证明同句实际驶离，且中途没有下车或更换乘员。
+    const boardedDeparture=/赛哈姆(?!的(?!身影))([^。！？\n]{0,100}?)(?:登上|上了|抬上|送上|抱上|扶上)([^。！？\n]{0,50}?)(?:运输车辆|运输车|救护车|车辆|汽车)([^。！？\n]{0,100}?)(?:驶离|驶出)(?:了)?中央庭(?:的管辖区域|管辖区域|区域|辖区)?(?=\s*(?:$|[，,。！？；;：:]))/;
+    const boardedExcluded=/(?:没有|并未|尚未|未曾|还没|不会|不曾|不)(?:真正|实际|已经|再)?(?:登上|上了|抬上|送上|抱上|扶上|驶离|驶出)|(?:将(?!(?:(?:昏迷|受伤|失去意识)的)?赛哈姆)|会|预计|可能|应该|也许|昨天|昨日|此前|据说|听说)[^。！？\n]{0,180}(?:登上|上了|抬上|送上|抱上|扶上|驶离|驶出)/;
+    const changedPassenger=/下车|离开(?:了)?(?:运输车|救护车|车辆|汽车)|(?:留|放|停)[^。！？\n]{0,12}(?:中央庭|原地|车外)|另一辆|另外一辆|空车|空载/;
     const changedBoardingSubject=/希罗|随行人员|工作人员|护送人员|随从|其他人|另一人|他们|他(?:却|则|独自)|她(?:却|则|独自)|指挥使|安(?:托涅瓦)?|晏华|你|我|旁边|身旁|车旁|站在|站着|留在|停在|看着|望着|等待/;
-    const exitEvent=/(?:驶离|驶出|飞离|飞出|离开)(?:了)?(?:整个|全部)?中央庭(?:(?:的)?(?:整个|全部)?(?:管辖区域|区域|辖区))?(?=\s*(?:$|[，,。！？；;：:]))/;
-    const transportEvent=p=>{
-      if(unrealTransport.test(p)||changedPassenger.test(p))return null;
-      for(const re of [carriedFirst,passengerFirst,escortedBoarded]){
-        const m=re.exec(p);if(m)return {vehicle:m[1],end:m.index+m[0].length};
-      }
-      const m=boarded.exec(p);
-      return m&&!changedBoardingSubject.test(m[1])?{vehicle:m[2],end:m.index+m[0].length}:null;
-    };
-    const normalizeVehicle=v=>v?.replace(/运输车辆|运输车队/,'运输车').replace(/押运飞行器|运输飞行器/,'飞行器');
-    const actualTransportExit=(p,previous)=>{
-      const exit=exitEvent.exec(p);if(!exit||unrealTransport.test(p)||changedPassenger.test(p))return false;
-      const current=transportEvent(p),event=current||transportEvent(previous||'');if(!event)return false;
-      if(current&&exit.index<event.end)return false;
-      const prefix=p.slice(current?event.end:0,exit.index);
-      if(!current&&!/^(?:直到|随后|接着|待|车门|引擎|这辆车|该车|该载具|该飞行器|运输车队|运输车|救护车|车辆|车队|载具|飞行器|运输机|直升机)/.test(p.trim()))return false;
-      if(changedBoardingSubject.test(prefix))return false;
-      const vehicle=[...prefix.matchAll(transportNames)].at(-1)?.[0];
-      return !vehicle||normalizeVehicle(vehicle)===normalizeVehicle(event.vehicle);
+    // 相邻两句只承接已经登车的同一事件，不从远处的担架或其他车辆推断乘员。
+    const boardingEvent=/赛哈姆(?!的(?!身影))([^。！？\n]{0,100}?)(?:登上|踏上|上了|抬上|送上|抱上|扶上)[^。！？\n]{0,50}?(运输车辆|运输车队|运输车|救护车|车辆|汽车)/;
+    const escortedBoarding=/(?:押运着|护送着|抬着|推着)赛哈姆的(?:特遣人员|随行人员|护送人员|工作人员|队伍)[^。！？\n]{0,60}(?:登上|踏上|上了)[^。！？\n]{0,50}?(运输车辆|运输车队|运输车|救护车|车辆|汽车)/;
+    const unrealBoarding=/计划|打算|准备|即将|将要|将会|可能|声称|表示|如果|假如|要是|想象|回忆|回想/;
+    const exitEvent=/(?:驶离|驶出)(?:了)?(?:整个|全部)?中央庭(?:的管辖区域|管辖区域|区域|辖区)?(?=\s*(?:$|[，,。！？；;：:]))/;
+    const actualBoarding=p=>{
+      if(boardedExcluded.test(p)||unrealBoarding.test(p)||changedPassenger.test(p))return null;
+      const direct=boardingEvent.exec(p);
+      if(direct&&!changedBoardingSubject.test(direct[1]))return {vehicle:direct[2]};
+      const escorted=escortedBoarding.exec(p);
+      return escorted?{vehicle:escorted[1]}:null;
     };
     const excluded=/(?:(?:没有|并未|尚未|还没|不会|未曾)(?:被(?:希罗|随从|护送人员)?)?(?:带着|抬着|推着|护送着|离开|带离|带出|走出|转移|带走|驶离|驶出)|(?:计划|打算|准备|即将|将要|将会|可能|声称|表示|如果|假如|要是|想象|回忆|回想)[^。！？\n]{0,180}(?:离开|带离|走出|转移|带走|驶离|驶出))/;
     const stay=/赛哈姆[^。！？\n]{0,100}(?:(?:仍|依旧|还)(?:留|在)[^。！？\n]{0,60}中央庭|(?:没有|并未|尚未|还没)(?:被)?(?:带走|带离|转移|离开))/;
@@ -69,8 +58,17 @@
       const p=sentences[i];
       if(stay.test(p))lastStay=i;
       const context=sentences.slice(Math.max(0,i-1),i+1).join('。');
-      const transportExit=actualTransportExit(p,sentences[i-1]);
-      if((!excluded.test(p)&&(complete.test(p)||transportExit))||(!excluded.test(context)&&escortedVehicle.test(context)))lastComplete=i;
+      const actualCarriedDeparture=!carriedExcluded.test(p)&&carriedDeparture.test(p);
+      const boarded=boardedDeparture.exec(p);
+      const actualBoardedDeparture=boarded&&!boardedExcluded.test(p)&&!changedBoardingSubject.test(boarded[1])&&!changedPassenger.test(boarded[0]);
+      const exit=exitEvent.exec(p),sameBoard=actualBoarding(p),previousBoard=i>0?actualBoarding(sentences[i-1]):null;
+      const exitPrefix=exit?p.slice(0,exit.index):'';
+      const nextVehicle=[...exitPrefix.matchAll(/运输车辆|运输车队|运输车|救护车|车辆|汽车/g)].at(-1)?.[0];
+      const normalizeVehicle=v=>v?.replace(/运输车辆|运输车队/,'运输车');
+      const sameVehicle=!nextVehicle||normalizeVehicle(nextVehicle)===normalizeVehicle((sameBoard||previousBoard)?.vehicle);
+      const nextSentenceExit=previousBoard&&sameVehicle&&/^(?:直到|随后|接着|待|车门|引擎|这辆车|该车|运输车队|运输车|救护车|车辆|车队)/.test(p.trim())&&!changedBoardingSubject.test(exitPrefix);
+      const actualLinkedExit=exit&&sameVehicle&&(sameBoard||nextSentenceExit)&&!boardedExcluded.test(p)&&!unrealBoarding.test(p)&&!changedPassenger.test(p);
+      if((!excluded.test(p)&&(complete.test(p)||actualCarriedDeparture||actualBoardedDeparture||actualLinkedExit))||(!excluded.test(context)&&escortedVehicle.test(context)))lastComplete=i;
     }
     const observed=String(text||'').replace(/<f7d_choices>[\s\S]*?<\/f7d_choices>/gi,'');
     return /希罗/.test(observed)&&/活骸/.test(observed)&&lastComplete>=0&&lastComplete>lastStay;

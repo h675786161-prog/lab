@@ -239,3 +239,65 @@ for(const s of [
  '赛哈姆登上运输车。随后车辆驶离整个中央庭区域。赛哈姆仍留在中央庭。',
  '赛哈姆将让希罗登上运输车，驶离中央庭区域。',
 ])test('相邻句关联仍拒绝非实际离场：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});
+
+const transportBaseline=fs.readFileSync(new URL('./morning-guard.transport-baseline.js',import.meta.url),'utf8');
+const transportFailure=JSON.parse(fs.readFileSync(new URL('./transport-failure.json',import.meta.url),'utf8'));
+test('载具升空离场完整自然失败正文修前拒绝、修后保留原命令',()=>{
+ const opts={text:transportFailure.text,state:transportFailure.before,user:transportFailure.user,commands:transportFailure.commands};
+ assert.equal(has(run({...opts,code:transportBaseline}),'day6_saiham'),false);
+ for(const commands of [opts.commands,[...opts.commands].reverse()]){
+  const rows=run({...opts,commands});assert.ok(has(rows,'day6_monologue'));assert.ok(has(rows,'day6_saiham'));
+  assert.ok(rows.every(c=>opts.commands.some(old=>JSON.stringify(old)===JSON.stringify(c))));
+ }
+});
+for(const vehicle of ['运输车','救护车','飞行器','押运飞行器','运输机','直升机','载具']){
+ for(const s of [
+  vehicle+'载着希罗与赛哈姆，离开了中央庭整个管辖区域。',
+  '载着希罗与赛哈姆的'+vehicle+'升入高空，彻底离开了中央庭整个管辖区域。',
+  '搭载着昏迷的赛哈姆的'+vehicle+'离开中央庭的整个区域。',
+ ])test('载具与乘员前后语序明确实际离场：'+s,()=>{assert.ok(has(run({text:vehicleStory(s)}),'day6_saiham'));});
+}
+for(const s of [
+ '赛哈姆登上飞行器，飞离整个中央庭区域。',
+ '赛哈姆被送入飞行器。该飞行器起飞并飞出了中央庭全部管辖区域。',
+ '载着赛哈姆与希罗的载具离开中央庭。',
+ '载着赛哈姆的飞行器没有再停留，离开中央庭的管辖区域。',
+ '希罗与押运着赛哈姆的特遣人员登上飞行器。随后飞行器离开中央庭的整个辖区。',
+ '运输车载着赛哈姆。随后车门闭锁，驶离中央庭整个管辖区域。',
+])test('实际运输事件只在完整区域离场后结算：'+s,()=>{assert.ok(has(run({text:vehicleStory(s)}),'day6_saiham'));});
+for(const s of [
+ '载着希罗与赛哈姆的载具升入高空。',
+ '载着希罗与赛哈姆的载具起飞，在中央庭上空盘旋。',
+ '载着希罗与赛哈姆的载具离开中央庭整个管辖区域内的停机坪。',
+ '载着希罗与赛哈姆的载具离开中央庭的整个区域 内的主廊。',
+ '载着希罗与赛哈姆的载具离开中央庭主楼。',
+ '载着希罗与赛哈姆的载具离开中央庭大门。',
+ '载着希罗与赛哈姆的载具准备离开中央庭整个管辖区域。',
+ '载着希罗与赛哈姆的载具将离开中央庭整个管辖区域。',
+ '载着希罗与赛哈姆的载具尚未离开中央庭整个管辖区域。',
+ '载着希罗与赛哈姆的载具不会离开中央庭整个管辖区域。',
+ '飞行器不载着赛哈姆，离开中央庭整个管辖区域。',
+ '飞行器没有搭载赛哈姆，离开中央庭整个管辖区域。',
+ '如果载着赛哈姆的飞行器离开中央庭区域，你会安心。',
+ '你回忆载着赛哈姆的飞行器离开中央庭区域的情景。',
+ '昨天载着赛哈姆的飞行器离开中央庭区域。',
+ '据说载着赛哈姆的飞行器离开中央庭区域。',
+ '“载着希罗与赛哈姆的载具离开中央庭整个管辖区域。”',
+ '载着赛哈姆的行李的飞行器离开中央庭区域。',
+ '载着赛哈姆的照片的载具离开中央庭区域。',
+ '飞行器载着希罗，从赛哈姆身边飞离中央庭区域。',
+ '赛哈姆站在旁边，希罗登上飞行器，飞离中央庭区域。',
+ '赛哈姆登上飞行器，但又下机，飞行器离开中央庭区域。',
+ '赛哈姆登上飞行器，另一架飞行器离开中央庭区域。',
+ '赛哈姆登上飞行器。随后另一架飞行器离开中央庭区域。',
+ '赛哈姆登上飞行器。运输车离开中央庭区域。',
+ '赛哈姆登上飞行器，空载飞行器离开中央庭区域。',
+ '载着赛哈姆的飞行器离开中央庭区域。赛哈姆仍留在中央庭。',
+ '飞行器离开中央庭区域，赛哈姆才登上该飞行器。',
+ '赛哈姆登上飞行器。飞行器停在原地。随后飞行器离开中央庭区域。',
+ '赛哈姆登上飞行器。随后希罗独自离开中央庭区域。',
+])test('载具、乘员与离场边界反例：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});
+test('载具离场没有模型命令或独白前置仍不得补旗标',()=>{
+ assert.equal(has(run({text:transportFailure.text,commands:[mon()]}),'day6_saiham'),false);
+ assert.equal(has(run({text:transportFailure.text,commands:[departure()]}),'day6_saiham'),false);
+});
