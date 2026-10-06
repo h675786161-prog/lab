@@ -101,7 +101,10 @@ marker = "  const day6DecisionMade=user=>{"
 assert marker in js
 insert = r'''  const hasDay6FixedResolution=text=>{
     const t=String(text||'');
-    if(!hasSaihamDeparture(t))return false;
+    const fixedDeparture=hasSaihamDeparture(t)
+      ||/(?:希罗|罗纳克|奥露西娅|几人|一行人)[\s\S]{0,320}(?:带着|抱起|抬着|推着|护送着|将)[\s\S]{0,220}赛哈姆[\s\S]{0,220}(?:离开(?:了)?现场|带离(?:了)?现场|离开(?:了)?事发地|消失在[^。\n]{0,80}(?:警戒线|出口|通道)之外)/.test(t)
+      ||/赛哈姆[\s\S]{0,240}(?:被带离(?:了)?现场|被带走[^。\n]{0,100}(?:离开|现场)|随(?:着)?希罗[^。\n]{0,120}(?:离开(?:了)?现场|离去))/.test(t);
+    if(!fixedDeparture)return false;
     const annLost=/安[\s\S]{0,700}(?:不敌|被逼退|被压制|落入下风|受创)/.test(t);
     const helpers=/罗纳克/.test(t)&&/奥露西娅/.test(t);
     const refusal=/(?:你|指挥使)[^。\n]{0,100}(?:拒绝[^。\n]{0,30}(?:保密|隐瞒|希罗)|不(?:会|愿|肯)[^。\n]{0,30}(?:保密|隐瞒)|不会替[^。\n]{0,30}保密)/.test(t);
