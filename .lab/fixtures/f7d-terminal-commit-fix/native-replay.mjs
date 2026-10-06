@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import crypto from 'node:crypto';
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
-import {parseCompletionMetadata} from './response-metadata.mjs';
+import {parseCompletionMetadata} from '../f7d-terminal-v1-natural/response-metadata.mjs';
 const root='.lab/fixtures/f7d-terminal-commit-fix';
 const variant=process.env.COMMIT_VARIANT||'fixed';
 assert.ok(['baseline','fixed'].includes(variant));
