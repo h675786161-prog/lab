@@ -1,0 +1,30 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+import crypto from 'node:crypto';
+import {EventEmitter} from 'node:events';
+import test from 'node:test';
+import assert from 'node:assert/strict';
+const source=fs.readFileSync(new URL('./card-provider.js',import.meta.url),'utf8');
+function setup(){
+ const events=new EventEmitter();events.makeFirst=(t,f)=>{events.removeListener(t,f);events.prependListener(t,f);};
+ const input={value:'原有输入',dispatchEvent(){},focus(){}};
+ const ctx={chatId:'测试聊天',characterId:0,groupId:null,chat:[{mes:'已提交剧情',swipe_id:0}],accountStorage:{getItem:()=>null,setItem:()=>{}},eventSource:events,eventTypes:Object.fromEntries(['CHAT_CHANGED','GENERATION_STARTED','GENERATION_ENDED','GENERATION_STOPPED'].map(x=>[x,x]))};
+ const host={document:{querySelector:()=>input},HTMLTextAreaElement:{prototype:{}},crypto,SillyTavern:{getContext:()=>ctx},Event:class{constructor(type){this.type=type}},dispatchEvent(){}};
+ vm.runInNewContext(source,{window:{parent:host,addEventListener(){},removeEventListener(){}},console});
+ const state={schema:'f7d_textloop_0.4',loop:1,day:6,clock_minutes:480,known:['赛哈姆','安'],morning_flags:{day6_saiham:false},terminal:{contacts:{赛哈姆:{name:'赛哈姆',known:true,channel_acquired:true,channel:'已取得的通信方式',available:true},安:{name:'安',known:true,channel_acquired:true,channel:'已取得的通信方式',available:true}}}};
+ const commit=()=>host.__f7dCommitBridge.publish(host.__f7dCommitBridge.capture(),0,()=>({stat_data:state}));
+ const contact=()=>host.f7dTacticalTerminal.getSnapshot().snapshot?.contacts.find(c=>c.id==='赛哈姆');
+ return {events,input,ctx,host,state,commit,contact,api:host.f7dTacticalTerminal};
+}
+test('接走前已有联系人可联系且显示在线',()=>{const x=setup();x.commit();assert.equal(x.contact().available,true);assert.equal(x.contact().status,'online');});
+test('真实接走提交后保留联系人、离线且不可联系',()=>{const x=setup();x.state.morning_flags.day6_saiham=true;x.commit();assert.equal(x.contact().name,'赛哈姆');assert.equal(x.contact().available,false);assert.equal(x.contact().status,'offline');assert.equal(x.contact().statusLabel,'离线');});
+test('旧联系人可联系值不能覆盖接走后的通信锁',()=>{const x=setup();x.state.morning_flags.day6_saiham=true;x.state.terminal.contacts.赛哈姆.available=true;const before=JSON.stringify(x.state);x.commit();assert.equal(x.contact().available,false);assert.equal(JSON.stringify(x.state),before);});
+test('离线联系被拒绝且无草稿、不改输入、不增加消息',async()=>{const x=setup();x.state.morning_flags.day6_saiham=true;x.commit();const state=JSON.stringify(x.state),n=x.ctx.chat.length;const r=await x.api.requestIntent({type:'contact',id:'赛哈姆',revision:x.api.getSnapshot().snapshot.revision});assert.equal(r.error.code,'CONTACT_UNAVAILABLE');assert.equal(r.draft,null);assert.equal(r.inserted,false);assert.equal(x.input.value,'原有输入');assert.equal(x.ctx.chat.length,n);assert.equal(JSON.stringify(x.state),state);});
+test('赛哈姆离线不影响其他已知联系人',()=>{const x=setup();x.state.morning_flags.day6_saiham=true;x.commit();assert.equal(x.api.getSnapshot().snapshot.contacts.find(c=>c.id==='安').available,true);});
+test('未知或未取得通信方式的角色不凭空生成联系人',()=>{const x=setup();x.state.morning_flags.day6_saiham=true;x.state.terminal.contacts.赛哈姆.channel_acquired=false;x.commit();assert.equal(x.contact(),undefined);});
+test('联系人别名和独立标识均落实赛哈姆通信锁',()=>{const x=setup();x.state.known.push('神器使编号');x.state.terminal.contacts.神器使编号={name:'塞哈姆',known:true,channel_acquired:true,available:true};x.state.morning_flags.day6_saiham=true;x.commit();assert.equal(x.api.getSnapshot().snapshot.contacts.find(c=>c.id==='神器使编号').available,false);});
+test('生成结束前不展示新的离线投影',()=>{const x=setup();x.commit();x.events.emit('GENERATION_STARTED','normal',{},false);x.state.morning_flags.day6_saiham=true;x.commit();assert.equal(x.api.getSnapshot().status,'empty');x.events.emit('GENERATION_ENDED');assert.equal(x.contact().status,'offline');});
+test('切聊天立即清空旧角色的离线数据',()=>{const x=setup();x.state.morning_flags.day6_saiham=true;x.commit();x.ctx.chatId='另一聊天';x.events.emit('CHAT_CHANGED');assert.equal(x.api.getSnapshot().snapshot,null);});
+test('新轮回重置后只按新存档恢复、不把上轮通讯锁带入',()=>{const x=setup();x.state.morning_flags.day6_saiham=true;x.commit();x.state.loop=2;x.state.morning_flags.day6_saiham=false;x.commit();assert.equal(x.contact().available,true);assert.equal(x.api.getSnapshot().snapshot.scope.loop,2);});
+test('修改外部快照不能绕过离线拒绝',async()=>{const x=setup();x.state.morning_flags.day6_saiham=true;x.commit();const snapshot=x.api.getSnapshot().snapshot;snapshot.contacts[0].available=true;const r=await x.api.requestIntent({type:'contact',id:'赛哈姆',revision:snapshot.revision});assert.equal(r.error.code,'CONTACT_UNAVAILABLE');});
+test('离线公开投影不暴露原始晨间旗标或秘密字段',()=>{const x=setup();x.state.morning_flags.day6_saiham=true;x.state.npc_intel={秘密:'不能公开'};x.commit();assert.equal(/morning_flags|npc_intel|秘密/.test(JSON.stringify(x.api.getSnapshot())),false);});

@@ -1,0 +1,259 @@
+{
+  "text": "黑暗与清醒的缝隙里，先浮现出一段仿佛贴着耳廓、却又来自遥远虚空的模糊低语。\n\n那声音轻微得像是一声叹息，带着残缺的空茫与困惑，在意识彻底聚拢的瞬间悄然散去。\n\n你睁开眼。\n\n视野正前方的半空中，那个只有你自己能看见的悬浮数字，已经从“7”悄然变为了“6”。\n\n还没等视线完全适应寝室的晨光，门外走廊深处骤然炸开沉闷的撞击声与撕裂般的幻力轰鸣！\n\n你迅速推门而出。\n\n中央庭宽阔的回廊上，刺鼻的焦灼气息扑面而来。深棕色长发散乱垂落的赛哈姆正单膝跪在碎裂的地砖上，一侧额发遮盖下的面容因剧烈的痛苦而绷紧。原本整洁坚硬的黑红两色战斗服周围，正不断溢散出浓郁得近乎实质化的暗色晶粒，那是极度狂暴、几乎彻底失控的幻力波动。黑色的硬质异化组织正顺着她的手背与颈侧蔓延，原本作为神器的枪械在地面上剧烈震颤，发出野兽般的低鸣。\n\n你试图上前调动指挥使的权限去平抑那股狂躁的能量，但掌心刚一触及外围气流，整个人便被一股沉重暴戾的冲击生生震退了数步。那不是常规的脱力或损伤，而是某种从生命与神器核心最深处破裂开来的剧变。\n\n“别靠得太近，现在的她，自我意识正在被完全吞没。”\n\n从容沉稳的男声自廊道另一端传来。\n\n银白色的短发整齐向后梳开，鼻梁上架着眼镜，希罗穿着那件标志性的白色长外套，在几名随行研究人员的护卫下快步走近。他的神色看不出慌乱，只有一种深入骨髓的审视与专注。\n\n随行人员迅速展开抑制力场，数道金属锁链与屏障勉强将暴动的赛哈姆困在原地。\n\n希罗站在屏障前，转头看向你，声音压得很低，语调平稳得近乎冷酷：\n\n“这就是‘活骸化’。神器使过度使用力量、或是幻力失控冲垮身心防线后的必然终局。她已经不再是人类，而是一具只剩下本能与破坏欲的躯壳。”\n\n他扶了扶眼镜，目光越过痛苦喘息的赛哈姆，落在你身上：\n\n“中央庭内部对这种现象一直保持着极端谨慎的压制，但一味的遮掩解决不了任何问题。这件事情非同小可，我不希望走廊上发生的这一切传到安托涅瓦或者其他人耳中。指挥使，请为今天看到的事情保密。”\n\n“我拒绝替你隐瞒。”你迎着他的目光，语气没有任何退让，“但我允许你现在带走她进行救治。”\n\n面对你的正面回绝，希罗并没有流露出恼怒或意外。他微微打量了你两秒，嘴角泛起一抹惯常的从容弧度：\n\n“很坦率的回答。至少在‘不能让她死在这里’这点上，我们达成了共识。”\n\n他不再多做劝说，抬手向身后的随从打了个手势。压制装置发出刺耳的嗡鸣，赛哈姆身上的暗色结晶被某种特制力场强行收拢禁锢，陷入了深度的昏迷。随行人员迅速用担架将她固定，动作极其熟练，仿佛早已演练过无数次。\n\n希罗转过身，领着一行人沿着中央通道前行。\n\n穿过宽阔的主廊，越过安检闸口，沉重的中央庭正门在晨光中缓缓开启。你站在门内，注视着希罗与随行队伍护送着赛哈姆的身影彻底穿过外庭广场，登上早已等候在防区边缘的专用运输车，随车流彻底驶离了中央庭区域。\n\n晨风卷走走廊上的焦糊味，中央庭重归寂静。\n\n晨间事件已然落幕，中央庭的战术终端与日常通道恢复了运转。<UpdateVariable>\n_.set('morning_flags.day6_monologue', false, true); // 醒前小神模糊低语完成\n_.set('morning_flags.day6_saiham', false, true); // 赛哈姆活骸化及希罗介入演出完成并离开中央庭\n_.set('intel_flags.chimera_exists_known', false, true); // 获知活骸化概念\n_.set('intel_flags.hiro_chimera_research_known', false, true); // 获知希罗在进行活骸化相关研究/处理\n_.set('intel_flags.countdown_last_narrated_day', 7, 6); // 视野数字6已在第六天晨间叙述\n_.set('location', '中央庭寝室', '中央庭'); // 离开寝室来到中央庭大厅\n</UpdateVariable>\n\n<StatusPlaceHolderImpl/>",
+  "before": {
+    "schema": "f7d_textloop_0.4",
+    "loop": 1,
+    "day": 6,
+    "route": "central",
+    "location": "中央庭寝室",
+    "regions": {
+      "court": {
+        "liberated": true,
+        "build_steps": []
+      },
+      "school": {
+        "liberated": true,
+        "build_steps": []
+      },
+      "east": {
+        "liberated": true,
+        "build_steps": []
+      },
+      "central": {
+        "liberated": false,
+        "build_steps": []
+      },
+      "institute": {
+        "liberated": false,
+        "build_steps": []
+      },
+      "seaside": {
+        "liberated": false,
+        "build_steps": []
+      },
+      "old": {
+        "liberated": false,
+        "build_steps": []
+      },
+      "harbor": {
+        "liberated": false,
+        "build_steps": []
+      }
+    },
+    "cores": {
+      "court": "purified",
+      "school": "unknown",
+      "east": "unknown",
+      "central": "unknown",
+      "institute": "unknown",
+      "seaside": "unknown",
+      "old": "unknown",
+      "harbor": "unknown"
+    },
+    "tasks": {
+      "DAY7_OPENING": {
+        "status": "completed",
+        "deadline": "第7天开场固定剧情结束",
+        "objective": "完成苏醒、中央庭引导与希罗初始剧情",
+        "known": false,
+        "deadline_known": false
+      },
+      "SCHOOL_RESCUE": {
+        "status": "pending",
+        "deadline": "第6天结束前",
+        "objective": "解放高校学园",
+        "known": false,
+        "deadline_known": false
+      },
+      "SECOND_REGION": {
+        "status": "pending",
+        "deadline": "第6天结束前",
+        "objective": "解放东方古街或中央城区其中一个",
+        "known": false,
+        "deadline_known": false
+      },
+      "$meta": {
+        "extensible": true
+      }
+    },
+    "known": [
+      "安",
+      "安托涅瓦",
+      "晏华",
+      "希罗",
+      "珈儿",
+      "泰丝拉",
+      "赛哈姆"
+    ],
+    "relationships": {
+      "$meta": {
+        "extensible": true
+      }
+    },
+    "ann": {
+      "affection": 0,
+      "core_events": [],
+      "camera": false,
+      "eligible": false,
+      "chased": null,
+      "recovered": false,
+      "deadline_checked": false,
+      "deadline_passed": null
+    },
+    "hiro": {
+      "intel": 0,
+      "handled": []
+    },
+    "route_flags": {
+      "first_second_region": "east",
+      "oldstreet_delayed": false,
+      "wenzi_injured": false,
+      "wenzi_joined": false,
+      "ann_route_closed": false,
+      "harbor_core_stolen": false
+    },
+    "antoneva_choice": null,
+    "artifact_view": null,
+    "ann_release": null,
+    "battle_flags": {
+      "final_battle": null,
+      "active_corpse_final": null,
+      "sybilla_condition_obtained": false,
+      "sybilla_rescued": null
+    },
+    "meta": {
+      "cg": [],
+      "endings": []
+    },
+    "intel_flags": {
+      "countdown_visible_to_user": true,
+      "countdown_meaning_known": false,
+      "countdown_reported_to": [],
+      "city_blackgate_history_known": false,
+      "central_court_basics_known": false,
+      "hiro_founder_known": false,
+      "hiro_prior_commander_known": false,
+      "chimera_exists_known": false,
+      "hiro_chimera_research_known": false,
+      "antoneva_chimera_policy_known": false,
+      "first_chimera_incident_known": false,
+      "zero_identity_known": false,
+      "ann_origin_known": false,
+      "loop_truth_known": false,
+      "countdown_initial_mentions": 1,
+      "countdown_last_narrated_day": 7
+    },
+    "npc_intel": {
+      "$meta": {
+        "extensible": true
+      }
+    },
+    "day_ready_to_sleep": false,
+    "player_profile": {
+      "gender": "unknown"
+    },
+    "cg_system": {
+      "enabled": true,
+      "mode": "direct_only",
+      "album_enabled": true,
+      "responsive_enabled": true,
+      "shown": {
+        "ann_first_meet": true,
+        "antoneva_first_meet": false,
+        "ending_journey": false,
+        "ending_eternal_end": false,
+        "ending_sacrifice_male": false,
+        "ending_sacrifice_female": false,
+        "ending_final_male": false,
+        "ending_final_female": false,
+        "ending_box_male": false,
+        "ending_box_female": false
+      }
+    },
+    "clock_minutes": 480,
+    "morning_flags": {
+      "day6_monologue": false,
+      "day6_saiham": false,
+      "day6_seth": false,
+      "day5_monologue": false,
+      "day5_split": false,
+      "day4_monologue": false,
+      "day4_speech": false,
+      "day3_monologue": false,
+      "day3_ann_departure": false,
+      "day2_monologue": false
+    },
+    "terminal": {
+      "contacts": {
+        "$meta": {
+          "extensible": true
+        }
+      },
+      "city": [],
+      "journal": []
+    }
+  },
+  "user": "继续第六天晨间剧情。我醒来后观察赛哈姆的异状，听希罗解释。我明确拒绝替他保密，但允许他先带走赛哈姆救治。请按眼前的真实顺序演到希罗和随行人员带着赛哈姆走出中央庭大门、离开整个中央庭区域，再收束晨间事件；仅从主廊移往其他房间不算实际离场。后续行动由我下一条消息决定。",
+  "commands": [
+    {
+      "type": "set",
+      "full_match": "_.set('morning_flags.day6_monologue', false, true); // 醒前小神模糊低语完成",
+      "args": [
+        "'morning_flags.day6_monologue'",
+        "false",
+        "true"
+      ],
+      "reason": "醒前小神模糊低语完成"
+    },
+    {
+      "type": "set",
+      "full_match": "_.set('morning_flags.day6_saiham', false, true); // 赛哈姆活骸化及希罗介入演出完成并离开中央庭",
+      "args": [
+        "'morning_flags.day6_saiham'",
+        "false",
+        "true"
+      ],
+      "reason": "赛哈姆活骸化及希罗介入演出完成并离开中央庭"
+    },
+    {
+      "type": "set",
+      "full_match": "_.set('intel_flags.chimera_exists_known', false, true); // 获知活骸化概念",
+      "args": [
+        "'intel_flags.chimera_exists_known'",
+        "false",
+        "true"
+      ],
+      "reason": "获知活骸化概念"
+    },
+    {
+      "type": "set",
+      "full_match": "_.set('intel_flags.hiro_chimera_research_known', false, true); // 获知希罗在进行活骸化相关研究/处理",
+      "args": [
+        "'intel_flags.hiro_chimera_research_known'",
+        "false",
+        "true"
+      ],
+      "reason": "获知希罗在进行活骸化相关研究/处理"
+    },
+    {
+      "type": "set",
+      "full_match": "_.set('intel_flags.countdown_last_narrated_day', 7, 6); // 视野数字6已在第六天晨间叙述",
+      "args": [
+        "'intel_flags.countdown_last_narrated_day'",
+        "7",
+        "6"
+      ],
+      "reason": "视野数字6已在第六天晨间叙述"
+    },
+    {
+      "type": "set",
+      "full_match": "_.set('location', '中央庭寝室', '中央庭'); // 离开寝室来到中央庭大厅",
+      "args": [
+        "'location'",
+        "'中央庭寝室'",
+        "'中央庭'"
+      ],
+      "reason": "离开寝室来到中央庭大厅"
+    }
+  ]
+}

@@ -1,0 +1,153 @@
+{
+  "deliveryRevision": "1.0.4",
+  "interfaceVersion": 1,
+  "mvuSchema": "f7d_textloop_0.4",
+  "baselineCommit": "4cd2f36b740ba46a2b5d11bfb18fe4a211b146cf",
+  "candidateStatus": "awaiting-real-model-acceptance",
+  "runtime": {
+    "SillyTavern": "8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8",
+    "TavernHelper": "519599bc68247d8e759cc844a983f8f5252941a8",
+    "MVU": "183d8ade3b9a3369e824a55cb13b4ddf91aada50",
+    "WorldBackstage": "f9babfa0ee0bd3003d3529fd171b83103cfee4c1",
+    "mvuArtifactSha256": "43e38e31c3f86734cdd38c6047d22e871a043abbc2af9116ee2c54438462db6a",
+    "node": "22",
+    "playwright": "1.55.0"
+  },
+  "assets": {
+    "ann_first_meet": "cbd22fbf763fc3cdad55284616ec6a8d7544d10260d05e16dbafbc610e087d33",
+    "antoneva_first_meet": "64f019603fe19c5fb60b1a620905edd1fcf435b93e567ed8b01e0e99dddba7ca",
+    "ending_journey": "856b588691487fb08a8df077a5f0296bc34e02a4e124500b27de6af85aae4487",
+    "ending_eternal_end": "583f956e8420ffcbbb87d070136038e00aecd189b62ea7837fa26dd6100134d7",
+    "ending_sacrifice_male": "c974118448963d2799f7b5b519b2d593334d1f12c0e79282fbc9f7ef48700c5f",
+    "ending_sacrifice_female": "17a6b76647bd2a230ee95c18a9e56410d02c4f719b80920c071c68f952c2a4b0",
+    "ending_final_male": "a57d37a280f136094edf40542a61be807937f5e3aa409d21210693a91e8bd32e",
+    "ending_final_female": "33da28f040668d890d593708ce4b8f80e9bbe61f1948389dab763e9ba14ae8b0",
+    "ending_box_male": "eba62dd75080d716ab16a779806dcc580273a7f952e6f5cdb4e92a6438be9ace",
+    "ending_box_female": "50566527a906f39c5833beb6023f8d113f2cd743b3686a9a4950f403982e3577"
+  },
+  "files": {
+    "CONTRACT.md": {
+      "sha256": "080af46ab12d031deee65c16b5a50de0a696c46df5df7232d0720f726133dc20",
+      "bytes": 10411
+    },
+    "INSTALL.md": {
+      "sha256": "1b1b9e9d226eabcd74bfa5353e06408d3a13571df9116956cf03dabacfce52a8",
+      "bytes": 3577
+    },
+    "Qidu-v0.4.41-terminal-v1.0.4.json": {
+      "sha256": "33befe30e1bc93f0e8e2505af029381ae9d9938b81a4df6afec742771f3c43db",
+      "bytes": 1650069
+    },
+    "README.md": {
+      "sha256": "42e968e4be2d89b9b9439a96c3d307d9e978f705999b0c207842c2e0eba6d629",
+      "bytes": 1689
+    },
+    "boarding-failure.json": {
+      "sha256": "06f4163fbb8880b7181edcb00ab4148472911ffe63eace060074c19e7d0abd16",
+      "bytes": 11375
+    },
+    "card-only-smoke.mjs": {
+      "sha256": "f7470ce584ece6c5cabd3899b42f60921718a58efcadbdd380c5f4eba8af5af7",
+      "bytes": 20652
+    },
+    "card-provider.baseline.js": {
+      "sha256": "10abfee69049953e65d68a1e756e89e7af5b7038092b926b22f1def03b60c420",
+      "bytes": 10998
+    },
+    "card-provider.js": {
+      "sha256": "d556d35defa8ea1dafa24dc1b0522af46ebb5aef818d8551698af385965d4f2b",
+      "bytes": 11280
+    },
+    "contact-offline.test.mjs": {
+      "sha256": "447d592b866c1ec770c65583fc462b86b6cf87abc74574241de68775e561251b",
+      "bytes": 5446
+    },
+    "continuation-failure.json": {
+      "sha256": "7664276f55a551b2212140b59c3e314595e6827884124077fdc7814890d7f15a",
+      "bytes": 12085
+    },
+    "escort-failure.json": {
+      "sha256": "362b055d6f8c9da33409d07d8b73e4935febff0883317b59efc6274300a84756",
+      "bytes": 11389
+    },
+    "fact-reply.json": {
+      "sha256": "f21fa690eb72bf3f8b6e69254c9b14bc8cf423738a006c51ffb00c5dc01f5410",
+      "bytes": 489
+    },
+    "guard.test.mjs": {
+      "sha256": "0174b9ae555ae3bcf5e56825d27d8150b495bc55d4e4ebac64cefda559e455db",
+      "bytes": 30670
+    },
+    "morning-guard-escort-baseline.js": {
+      "sha256": "42ad36ae308574f6d15d6e9862a7414492d5a10e0bc71af6ba084c6460a2b61c",
+      "bytes": 16844
+    },
+    "morning-guard.baseline.js": {
+      "sha256": "de2b29cd7c2e8ed64c9b4420f116a1e065a2402c11396230066467918d407077",
+      "bytes": 8957
+    },
+    "morning-guard.boarding-baseline.js": {
+      "sha256": "7d6b28f86059be34195e2f2f6b811d93ecc192c098af175e2a4d499f5b96b8ff",
+      "bytes": 14066
+    },
+    "morning-guard.continuation-baseline.js": {
+      "sha256": "79dffe2a46e63b592b4b660744c596708de14b2c6c823e6334e6b5e082eb0000",
+      "bytes": 15570
+    },
+    "morning-guard.fact-baseline.js": {
+      "sha256": "00f16918444687d9c29d32b8197246f77e339cb2cfe5fd7a73a4dc1cbe3f55e4",
+      "bytes": 17484
+    },
+    "morning-guard.js": {
+      "sha256": "bd1088ec8f1df5898d5307dc7ef589a10d9d041b694388e6fd5977779a45e999",
+      "bytes": 18489
+    },
+    "morning-guard.scope-baseline.js": {
+      "sha256": "519c2d4090089980c67ccbed2d5803eff838da8848456edad21fdeaaf20f1dd8",
+      "bytes": 13977
+    },
+    "morning-guard.transport-baseline.js": {
+      "sha256": "2731a1a7afd2580aec47ffe1bbf661039e40a0b6c4268ddcc9b02a7ebca98b26",
+      "bytes": 17717
+    },
+    "morning-guard.vehicle-baseline.js": {
+      "sha256": "6be05399cf2adffc0dad57b025198ac4ec47562ef61cd79bebf8604162a3bc9f",
+      "bytes": 12953
+    },
+    "mvu-commit-hook.js": {
+      "sha256": "062c4d9eb3e1a51f840c450347773f8cbd5957bed0e62b50e75004ebd78fec4e",
+      "bytes": 2984
+    },
+    "native-live.mjs": {
+      "sha256": "f70cd049c33a60efb5e5b558c8caa3c05c09998b5ae84621c99daf53dc4d8e01",
+      "bytes": 18579
+    },
+    "provider-isolation.test.mjs": {
+      "sha256": "4b724be4c34d4c11059170ffe862173ae4e6ee9d9bb1cc20ddf75ff36b4c165c",
+      "bytes": 4463
+    },
+    "replay-fixture.json": {
+      "sha256": "020b9495d874f0e908abb630cccf254f07e7f9e89093d7e50730e294bf3db543",
+      "bytes": 25976
+    },
+    "scope-failure.json": {
+      "sha256": "68a056b79f6bbeb81cf6584e2e0105737396264f1866224f266e1ba894cfc7cf",
+      "bytes": 12809
+    },
+    "transport-failure.json": {
+      "sha256": "5d88763268211604d0fab0499f9ec546e416ae4f709925a755cd3acb69bee090",
+      "bytes": 11741
+    },
+    "vehicle-failure.json": {
+      "sha256": "551e4bb2ea9ef77b7d91299b4fca2f8ab95fce6aaff8c6cdb4851d43c34d45ff",
+      "bytes": 12060
+    },
+    "verify-delivery.mjs": {
+      "sha256": "477e54dc5b87c47ef756927c3e429c0647dadfbd13dcd2b854cfb812f9930e8e",
+      "bytes": 2046
+    }
+  },
+  "previousCandidateCommit": "46c062a370c76b49ed530020e5aface03720162b",
+  "guardPatchCommit": "b0ff93060557dc24d3a3466cc2f52e2539ffb64b",
+  "scopeFailureSourceCommit": "fc8007fd13aee835b3f6938c0ca1c82127bf1c13"
+}

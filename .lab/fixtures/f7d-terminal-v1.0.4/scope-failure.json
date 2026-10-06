@@ -1,0 +1,281 @@
+{
+  "sourceCommit": "fc8007fd13aee835b3f6938c0ca1c82127bf1c13",
+  "runId": 37513472340,
+  "text": "……在意识浮出水面的极深处，有一道轻细而模糊的声音仿佛穿透了层叠的灰雾，在耳畔低低回荡。\n\n「……又开始了呢。」\n「这一次……你又能走到哪里呢……」\n\n低语声尚未完全散去，意识便已被尖锐的现实撕裂拉回。睁开双眼时，中央庭寝室的天花板映入眼帘，而视野一角浮动着的那个虚幻数字，已无声地更迭为了「6」。\n\n还未来得及平复呼吸，门外回廊便轰然炸开剧烈的金属撞击与能量撕裂声。\n\n迅速推门赶往异响传来的庭院主廊，眼前的景象令人心头一紧——深棕色长发散乱垂落的赛哈姆单膝跪在碎裂的地砖上，额发遮掩下的面容满是痛苦与压抑的狂躁。黑红相间的硬质护甲边缘，正不断渗出浓稠而极不稳定的暗色能量，那股幻力暴烈得不合常理，甚至在她身后隐隐凝聚成扭曲如残翼般的异质阴影。那是完全脱离理智控制的征兆。\n\n你下意识想要调动指挥使的权限上前稳定她的精神链接，然而尚未彻底适应的幻力回流被那股狂暴的斥力狠狠震开，脚步不由得受阻后退。\n\n沉稳从容的脚步声在回廊另一侧适时响起。\n银白色短发向后整齐梳拢、戴着细边眼镜的希罗披着一尘不染的白色长外套，在数名随行人员的跟随下步入现场。他抬手示意身侧的部下展开特制压制力场，同时以极其精准的节奏介入，将狂暴中的赛哈姆暂时压制在原地。\n\n「冷静些，赛哈姆。」希罗的声音平和而沉静，随后他转过头，镜片后的目光落在你的身上，「初次亲眼见到这种情形，想必十分惊骇吧，指挥使。」\n\n他看着逐渐脱力昏迷过去的赛哈姆，语气中带着从容的研究者姿态：「神器使的肉体与精神在承受幻力侵蚀越过极限后，便会不可逆地滑向这种崩坏态——我们称之为『活骸化』。目前的中央庭尚无公开的有效应对手段，若任由消息在庭内传开，只会引发不必要的恐慌。所以，关于赛哈姆今天的状况，我希望你能暂时对安托涅瓦与其他人保密。」\n\n目光扫过倒地受制、气息微弱的赛哈姆，你迎上希罗的视线，没有顺从他的诱导，平静而明确地表明了态度：\n——你不会替他隐瞒此事，但考虑到赛哈姆此刻濒临崩溃的危急状态，你允许他先将人带走救治。\n\n听到这意料之外却又条理分明的回答，希罗微微一怔，随即从容地失笑摇头。\n「真是不留余地的新人……不过，能分清优先事项，优先考虑队员的性命，这一点值得赞赏。」希罗并未恼怒，也没有在此刻继续施压，只是抬了抬手，「那就按你说的办。无论如何，赛哈姆的时间确实不多了。」\n\n随行的几名人员动作迅速而严谨地将失去意识的赛哈姆固定在封闭式转运担架上，抑制装置发出低沉的蜂鸣。希罗转过身，领着队伍穿过中央庭幽深的回廊。\n\n你一路跟随着这支队伍，视线未曾移开。穿过主厅、走下宽阔的迎宾阶梯，直到厚重的中央庭金属大门在晨光中开启，希罗与随行车队带着赛哈姆彻底驶离了中央庭的管辖区域，消失在城市主干道的拐角处。\n\n晨风吹过空旷的门前广场，现场重归寂静。晨间突发的危机暂且告一段落，但关于活骸化的真相、希罗的意图，以及赛哈姆被带走的去向，都沉甸甸地压在眼前。\n\n<f7d_choices>\n<f7d_choice>立刻前往中央庭办公室，将赛哈姆异化与希罗带走她的情况如实告知安托涅瓦</f7d_choice>\n<f7d_choice>联络晏华，调取刚才车队的离开路线并汇报现场记录</f7d_choice>\n<f7d_choice>先检查方才发生冲突的回廊地面，搜集可能残留的痕迹或异化幻力碎片</f7d_choice>\n</f7d_choices>\n\n<UpdateVariable>\n_.set('location', '中央庭寝室', '中央庭大门');//随着送走赛哈姆移动至中央庭大门\n_.set('morning_flags.day6_monologue', false, true);//第6天醒前低语演出完毕\n_.set('morning_flags.day6_saiham', false, true);//赛哈姆活骸化及希罗介入带走演出完毕\n_.set('intel_flags.countdown_last_narrated_day', 7, 6);//第6天醒来视野倒计时变更为6并已描写\n_.set('intel_flags.chimera_exists_known', false, true);//获知神器使幻力侵蚀极限崩坏称为活骸化\n_.set('intel_flags.hiro_chimera_research_known', false, true);//知晓希罗掌握并主导活骸化相关处置与救治\n_.set('tasks.SCHOOL_RESCUE.status', 'pending', 'completed');//高校已在第7天解放，状态同步结算\n_.set('tasks.SECOND_REGION.status', 'pending', 'completed');//东方古街已在第7天解放，状态同步结算\n</UpdateVariable>\n\n<StatusPlaceHolderImpl/>",
+  "before": {
+    "schema": "f7d_textloop_0.4",
+    "loop": 1,
+    "day": 6,
+    "route": "central",
+    "location": "中央庭寝室",
+    "regions": {
+      "court": {
+        "liberated": true,
+        "build_steps": []
+      },
+      "school": {
+        "liberated": true,
+        "build_steps": []
+      },
+      "east": {
+        "liberated": true,
+        "build_steps": []
+      },
+      "central": {
+        "liberated": false,
+        "build_steps": []
+      },
+      "institute": {
+        "liberated": false,
+        "build_steps": []
+      },
+      "seaside": {
+        "liberated": false,
+        "build_steps": []
+      },
+      "old": {
+        "liberated": false,
+        "build_steps": []
+      },
+      "harbor": {
+        "liberated": false,
+        "build_steps": []
+      }
+    },
+    "cores": {
+      "court": "purified",
+      "school": "unknown",
+      "east": "unknown",
+      "central": "unknown",
+      "institute": "unknown",
+      "seaside": "unknown",
+      "old": "unknown",
+      "harbor": "unknown"
+    },
+    "tasks": {
+      "DAY7_OPENING": {
+        "status": "completed",
+        "deadline": "第7天开场固定剧情结束",
+        "objective": "完成苏醒、中央庭引导与希罗初始剧情",
+        "known": false,
+        "deadline_known": false
+      },
+      "SCHOOL_RESCUE": {
+        "status": "pending",
+        "deadline": "第6天结束前",
+        "objective": "解放高校学园",
+        "known": false,
+        "deadline_known": false
+      },
+      "SECOND_REGION": {
+        "status": "pending",
+        "deadline": "第6天结束前",
+        "objective": "解放东方古街或中央城区其中一个",
+        "known": false,
+        "deadline_known": false
+      },
+      "$meta": {
+        "extensible": true
+      }
+    },
+    "known": [
+      "安",
+      "安托涅瓦",
+      "晏华",
+      "希罗",
+      "珈儿",
+      "泰丝拉",
+      "赛哈姆"
+    ],
+    "relationships": {
+      "$meta": {
+        "extensible": true
+      }
+    },
+    "ann": {
+      "affection": 0,
+      "core_events": [],
+      "camera": false,
+      "eligible": false,
+      "chased": null,
+      "recovered": false,
+      "deadline_checked": false,
+      "deadline_passed": null
+    },
+    "hiro": {
+      "intel": 0,
+      "handled": []
+    },
+    "route_flags": {
+      "first_second_region": "east",
+      "oldstreet_delayed": false,
+      "wenzi_injured": false,
+      "wenzi_joined": false,
+      "ann_route_closed": false,
+      "harbor_core_stolen": false
+    },
+    "antoneva_choice": null,
+    "artifact_view": null,
+    "ann_release": null,
+    "battle_flags": {
+      "final_battle": null,
+      "active_corpse_final": null,
+      "sybilla_condition_obtained": false,
+      "sybilla_rescued": null
+    },
+    "meta": {
+      "cg": [],
+      "endings": []
+    },
+    "intel_flags": {
+      "countdown_visible_to_user": true,
+      "countdown_meaning_known": false,
+      "countdown_reported_to": [],
+      "city_blackgate_history_known": false,
+      "central_court_basics_known": false,
+      "hiro_founder_known": false,
+      "hiro_prior_commander_known": false,
+      "chimera_exists_known": false,
+      "hiro_chimera_research_known": false,
+      "antoneva_chimera_policy_known": false,
+      "first_chimera_incident_known": false,
+      "zero_identity_known": false,
+      "ann_origin_known": false,
+      "loop_truth_known": false,
+      "countdown_initial_mentions": 1,
+      "countdown_last_narrated_day": 7
+    },
+    "npc_intel": {
+      "$meta": {
+        "extensible": true
+      }
+    },
+    "day_ready_to_sleep": false,
+    "player_profile": {
+      "gender": "unknown"
+    },
+    "cg_system": {
+      "enabled": true,
+      "mode": "direct_only",
+      "album_enabled": true,
+      "responsive_enabled": true,
+      "shown": {
+        "ann_first_meet": true,
+        "antoneva_first_meet": false,
+        "ending_journey": false,
+        "ending_eternal_end": false,
+        "ending_sacrifice_male": false,
+        "ending_sacrifice_female": false,
+        "ending_final_male": false,
+        "ending_final_female": false,
+        "ending_box_male": false,
+        "ending_box_female": false
+      }
+    },
+    "clock_minutes": 480,
+    "morning_flags": {
+      "day6_monologue": false,
+      "day6_saiham": false,
+      "day6_seth": false,
+      "day5_monologue": false,
+      "day5_split": false,
+      "day4_monologue": false,
+      "day4_speech": false,
+      "day3_monologue": false,
+      "day3_ann_departure": false,
+      "day2_monologue": false
+    },
+    "terminal": {
+      "contacts": {
+        "$meta": {
+          "extensible": true
+        }
+      },
+      "city": [],
+      "journal": []
+    }
+  },
+  "user": "继续第六天晨间剧情。我醒来后观察赛哈姆的异状，听希罗解释。我明确拒绝替他保密，但允许他先带走赛哈姆救治。请按眼前的真实顺序演到希罗和随行人员带着赛哈姆走出中央庭大门、离开整个中央庭区域，再收束晨间事件；仅从主廊移往其他房间不算实际离场。后续行动由我下一条消息决定。",
+  "commands": [
+    {
+      "type": "set",
+      "full_match": "_.set('location', '中央庭寝室', '中央庭大门');//随着送走赛哈姆移动至中央庭大门",
+      "args": [
+        "'location'",
+        "'中央庭寝室'",
+        "'中央庭大门'"
+      ],
+      "reason": "随着送走赛哈姆移动至中央庭大门"
+    },
+    {
+      "type": "set",
+      "full_match": "_.set('morning_flags.day6_monologue', false, true);//第6天醒前低语演出完毕",
+      "args": [
+        "'morning_flags.day6_monologue'",
+        "false",
+        "true"
+      ],
+      "reason": "第6天醒前低语演出完毕"
+    },
+    {
+      "type": "set",
+      "full_match": "_.set('morning_flags.day6_saiham', false, true);//赛哈姆活骸化及希罗介入带走演出完毕",
+      "args": [
+        "'morning_flags.day6_saiham'",
+        "false",
+        "true"
+      ],
+      "reason": "赛哈姆活骸化及希罗介入带走演出完毕"
+    },
+    {
+      "type": "set",
+      "full_match": "_.set('intel_flags.countdown_last_narrated_day', 7, 6);//第6天醒来视野倒计时变更为6并已描写",
+      "args": [
+        "'intel_flags.countdown_last_narrated_day'",
+        "7",
+        "6"
+      ],
+      "reason": "第6天醒来视野倒计时变更为6并已描写"
+    },
+    {
+      "type": "set",
+      "full_match": "_.set('intel_flags.chimera_exists_known', false, true);//获知神器使幻力侵蚀极限崩坏称为活骸化",
+      "args": [
+        "'intel_flags.chimera_exists_known'",
+        "false",
+        "true"
+      ],
+      "reason": "获知神器使幻力侵蚀极限崩坏称为活骸化"
+    },
+    {
+      "type": "set",
+      "full_match": "_.set('intel_flags.hiro_chimera_research_known', false, true);//知晓希罗掌握并主导活骸化相关处置与救治",
+      "args": [
+        "'intel_flags.hiro_chimera_research_known'",
+        "false",
+        "true"
+      ],
+      "reason": "知晓希罗掌握并主导活骸化相关处置与救治"
+    },
+    {
+      "type": "set",
+      "full_match": "_.set('tasks.SCHOOL_RESCUE.status', 'pending', 'completed');//高校已在第7天解放，状态同步结算",
+      "args": [
+        "'tasks.SCHOOL_RESCUE.status'",
+        "'pending'",
+        "'completed'"
+      ],
+      "reason": "高校已在第7天解放，状态同步结算"
+    },
+    {
+      "type": "set",
+      "full_match": "_.set('tasks.SECOND_REGION.status', 'pending', 'completed');//东方古街已在第7天解放，状态同步结算",
+      "args": [
+        "'tasks.SECOND_REGION.status'",
+        "'pending'",
+        "'completed'"
+      ],
+      "reason": "东方古街已在第7天解放，状态同步结算"
+    }
+  ]
+}
