@@ -1,0 +1,71 @@
+{
+  "phase": "完成 patrol",
+  "rounds": 2,
+  "requests": [
+    {
+      "id": 1,
+      "model": "gemini-3-flash-preview",
+      "source": "custom",
+      "max_tokens": 6000,
+      "message_count": 13,
+      "chars": 35854,
+      "updateRulePresent": true,
+      "currentStateMarkerPresent": true,
+      "unexpandedVariableMacro": false
+    },
+    {
+      "id": 2,
+      "model": "gemini-3-flash-preview",
+      "source": "custom",
+      "max_tokens": 6000,
+      "message_count": 15,
+      "chars": 31312,
+      "updateRulePresent": true,
+      "currentStateMarkerPresent": true,
+      "unexpandedVariableMacro": false
+    }
+  ],
+  "responses": [
+    {
+      "id": 1,
+      "status": 200,
+      "bodySha256": "6292eb8bfc633f4b26341250bbab0b22544bf8d45557ad39d53f52d8d4afbbec",
+      "finishReasons": [
+        {
+          "index": 0,
+          "reason": "stop"
+        }
+      ],
+      "usages": [],
+      "models": [
+        "recorded-reply"
+      ],
+      "doneSeen": true,
+      "parsedFrames": 2,
+      "invalidFrames": 0,
+      "finishReasonKnown": true,
+      "truncated": false
+    },
+    {
+      "id": 2,
+      "status": 200,
+      "bodySha256": "7a1651911e3f6eb9c54117e37a4499d693b2169f15a2cce9a5c0750c3b6773e6",
+      "finishReasons": [
+        {
+          "index": 0,
+          "reason": "stop"
+        }
+      ],
+      "usages": [],
+      "models": [
+        "recorded-reply"
+      ],
+      "doneSeen": true,
+      "parsedFrames": 2,
+      "invalidFrames": 0,
+      "finishReasonKnown": true,
+      "truncated": false
+    }
+  ],
+  "errors": []
+}

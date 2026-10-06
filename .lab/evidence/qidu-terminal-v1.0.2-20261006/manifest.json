@@ -1,0 +1,215 @@
+{
+  "purpose": "原始证据完整性及产品/测试问题分类，不替代完整验收",
+  "latestSourceCommit": "46c062a370c76b49ed530020e5aface03720162b",
+  "interfaceVersion": 1,
+  "deliveryRevision": "1.0.2",
+  "phoneInstalled": false,
+  "runtime": {
+    "SillyTavern": "8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8",
+    "TavernHelper": "519599bc68247d8e759cc844a983f8f5252941a8",
+    "MVU": "183d8ade3b9a3369e824a55cb13b4ddf91aada50",
+    "WorldBackstage": "f9babfa0ee0bd3003d3529fd171b83103cfee4c1",
+    "mvuArtifactSha256": "43e38e31c3f86734cdd38c6047d22e871a043abbc2af9116ee2c54438462db6a",
+    "node": "22",
+    "playwright": "1.55.0"
+  },
+  "attempts": {
+    "attempt1": {
+      "sourceCommit": "358d855c24119966fd371d30a7a20f2af7c4ed04",
+      "runId": 37453510900,
+      "jobId": 112235480926,
+      "artifactId": 11408371417,
+      "zipSha256": "a8deea2e96e78d84db16456d98f9b75fe87bd93b52dafc352f4b4fc03f26d342",
+      "guardTests": 27,
+      "cardSha256": "624c93c6e53e24b62c785254dc6073f9a43cdac24e802ea72183578d1079b0f3",
+      "naturalPassed": false,
+      "naturalFailures": [
+        {
+          "case": "morning",
+          "label": "赛哈姆离场结算"
+        },
+        {
+          "case": "patrol",
+          "label": "与晨间自然连续未重新播种"
+        }
+      ],
+      "naturalFailure": null,
+      "completedNaturalRounds": 2,
+      "jobConclusion": "failure",
+      "smokeConclusion": "skipped"
+    },
+    "attempt2": {
+      "sourceCommit": "ec2907abba73efb61f85ab301ada6d46225c6aa5",
+      "runId": 37454515356,
+      "jobId": 112238716955,
+      "artifactId": 11409621009,
+      "zipSha256": "dd585c9389f58586f0cd513065769f8ef0a31cacf45fdf7b5193f0e288b0a74f",
+      "guardTests": 32,
+      "cardSha256": "81c14faa623ffad2fd6195f71994c8893027f23b463dc4a843b9c2e45eb46dbe",
+      "naturalPassed": false,
+      "naturalFailures": [
+        {
+          "case": "morning",
+          "label": "晨间独白结算"
+        },
+        {
+          "case": "morning",
+          "label": "赛哈姆离场结算"
+        },
+        {
+          "case": "patrol",
+          "label": "与晨间自然连续未重新播种"
+        }
+      ],
+      "naturalFailure": null,
+      "completedNaturalRounds": 2,
+      "jobConclusion": "failure",
+      "smokeConclusion": "skipped"
+    },
+    "attempt3": {
+      "sourceCommit": "46c062a370c76b49ed530020e5aface03720162b",
+      "runId": 37455246606,
+      "jobId": 112241133532,
+      "guardTests": 36,
+      "cardSha256": "1fc39f446b31efe33cbe15f1c2f94803887ba30ce5c9de7ca4c9894ef1abeeda",
+      "naturalPassed": false,
+      "naturalFailures": [],
+      "naturalFailure": {
+        "message": "page.evaluate: Error: Got response status 524\n    at sendOpenAIRequest (http://127.0.0.1:8000/scripts/openai.js:3064:15)\n    at async sendStreamingRequest (http://127.0.0.1:8000/script.js:6095:20)\n    at async finishGenerating (http://127.0.0.1:8000/script.js:5334:44)\n    at async eval (eval at evaluate (:291:30), <anonymous>:1:79)\n    at async <anonymous>:317:30",
+        "phase": "生成 patrol",
+        "stack": "page.evaluate: Error: Got response status 524\n    at sendOpenAIRequest (http://127.0.0.1:8000/scripts/openai.js:3064:15)\n    at async sendStreamingRequest (http://127.0.0.1:8000/script.js:6095:20)\n    at async finishGenerating (http://127.0.0.1:8000/script.js:5334:44)\n    at async eval (eval at evaluate (:291:30), <anonymous>:1:79)\n    at async <anonymous>:317:30\n    at /home/runner/work/lab/lab/.lab/fixtures/f7d-terminal-v1.0.2/native-live.mjs:100:15"
+      },
+      "completedNaturalRounds": 1,
+      "jobConclusion": "failure",
+      "smokeConclusion": "skipped",
+      "artifactId": 11409267603,
+      "zipSha256": "87e0fd02b7c6dce17a5469acd6ea8012c96ec4acbfbdb9ea5d2e45981b91aae6"
+    }
+  },
+  "files": {
+    "README.md": {
+      "sha256": "a33fbeeb3fb89e09b680fdb6af20ccff9c19d682198bf64af8a205b29cea42e2",
+      "bytes": 5212
+    },
+    "attempt1/jobs.json": {
+      "sha256": "3967276ddd46ca6f301ed1bb00ded1c207d4e30e9de680eda71a02fd38a1bbf9",
+      "bytes": 2323
+    },
+    "attempt1/natural/checkpoint.json": {
+      "sha256": "79340c03efed4f39f11b0e8bb5c054295ef3d5e98c79e67457052219f70de8e6",
+      "bytes": 9293
+    },
+    "attempt1/natural/morning.json": {
+      "sha256": "677aa20b43f1e8d99ce352c78eb9ea29c391736df0fdd6808cfad25507a58651",
+      "bytes": 27192
+    },
+    "attempt1/natural/patrol.json": {
+      "sha256": "2c7f2239ceb995a9661493d6c0ba1f830f630e8b0dcdab64fc7bf50913f6709f",
+      "bytes": 21821
+    },
+    "attempt1/natural/terminal-live.json": {
+      "sha256": "b7a39844c0a2a982c6ffdbac0fb6f8fb449e4f230edd066ff36cb6104996d3bc",
+      "bytes": 71706
+    },
+    "attempt1/replay/checkpoint.json": {
+      "sha256": "8dc1c2fcaf3ab6c4a3ae1901bce3420a980f60d133bb2c82baab5bfd9fc2dd20",
+      "bytes": 1558
+    },
+    "attempt1/replay/morning.json": {
+      "sha256": "655d1b23ece5e8b483b8e731f719a601a2cfa4ca44b873142dff2bc27ed3d0ce",
+      "bytes": 23123
+    },
+    "attempt1/replay/patrol.json": {
+      "sha256": "7f520780f5631ac819a117a782ab5fbfc868a492b5531fc6c9512164be2a2115",
+      "bytes": 19852
+    },
+    "attempt1/replay/terminal-live.json": {
+      "sha256": "3ae55702b6d79d4848d8fec6da3260e8c2ad63426cb3981ea294a032814594cc",
+      "bytes": 56986
+    },
+    "attempt2/jobs.json": {
+      "sha256": "68bf3371cdd14d2d6ff3c71a7928d23ee08ce2584b953a34434a79024d97a016",
+      "bytes": 2323
+    },
+    "attempt2/natural/checkpoint.json": {
+      "sha256": "645b180f3e24332520b0d2806220dfd3638cda903c6f040c5f0ad02b9a1668e1",
+      "bytes": 11327
+    },
+    "attempt2/natural/morning.json": {
+      "sha256": "8e575215c9feae69fc74eb66e9bcb9acdeb0b45beba49a1767f2900d34a17661",
+      "bytes": 30605
+    },
+    "attempt2/natural/patrol.json": {
+      "sha256": "2714aed339baaf3e16072282bbebca00b27637a6a47dd1b440111fd4dddde525",
+      "bytes": 23717
+    },
+    "attempt2/natural/terminal-live.json": {
+      "sha256": "dc332f91471d96dc1ba3dd6202f8e8142bbbe72972e10b4e48315bb41f0678f8",
+      "bytes": 79774
+    },
+    "attempt2/replay/checkpoint.json": {
+      "sha256": "d7050aed461b09aa5349015d0940a87ca759d24ca67f8751f29a26200e1badfa",
+      "bytes": 1558
+    },
+    "attempt2/replay/morning.json": {
+      "sha256": "8fb511052bc053175c6989491c6bf5213b0d9d1057682c61e45a241e916fdb95",
+      "bytes": 23265
+    },
+    "attempt2/replay/patrol.json": {
+      "sha256": "54ea4a531950339518b30fd9a1d8477812e35830b7ca08518f28155e838ad7fe",
+      "bytes": 19852
+    },
+    "attempt2/replay/terminal-live.json": {
+      "sha256": "b215cde859ccdb9904d7a64768188dd9d5afad6be5b49bf6ecc733e23364396e",
+      "bytes": 57128
+    },
+    "attempt3/jobs.json": {
+      "sha256": "4fea9601cf6144825cb381e8ab05b13ce554eaf2527d5bbe2896c6683af1e65d",
+      "bytes": 2323
+    },
+    "attempt3/natural/checkpoint.json": {
+      "sha256": "06bf9b8744459228a1d1a86b6c72eea065763bcbba6745c5f7fdfa17448289ea",
+      "bytes": 7492
+    },
+    "attempt3/natural/morning.json": {
+      "sha256": "6c9ec0fda096a42a6693341524bbe69ba9938b55384b56bb3f11d3a50b972cb5",
+      "bytes": 29653
+    },
+    "attempt3/natural/terminal-live.json": {
+      "sha256": "49c20537300cec32ea01269cd624ef636e0c6f0de9f9c2d04290e4ca25e1fa96",
+      "bytes": 46756
+    },
+    "attempt3/replay/checkpoint.json": {
+      "sha256": "d7050aed461b09aa5349015d0940a87ca759d24ca67f8751f29a26200e1badfa",
+      "bytes": 1558
+    },
+    "attempt3/replay/morning.json": {
+      "sha256": "1daf94ae034cb55dfbf7fcbea9d3e9269cea1c811772f195e36d39a561504296",
+      "bytes": 23267
+    },
+    "attempt3/replay/patrol.json": {
+      "sha256": "6703bccdd54132fac72b9ab9c6ff4695f026ebed9284b0f67c50184fcdbc87cc",
+      "bytes": 19850
+    },
+    "attempt3/replay/terminal-live.json": {
+      "sha256": "9a5b894e0bf10998b61df2d1600127c1837a4fc9552316ff63527140d88502ff",
+      "bytes": 57128
+    },
+    "attempt3/unit-validation.log": {
+      "sha256": "a959e7f7eae4ab5bcc9672251c84b4d9a127baf40ca099df5b1c4fccbca1259f",
+      "bytes": 23375
+    },
+    "final-artifact.json": {
+      "sha256": "795b539c31de3b105fe5505b6581cb5de260e300124359a66434d1c0ebec0e95",
+      "bytes": 137
+    },
+    "superseded-jobs.json": {
+      "sha256": "e7dc528e2b46ed5e5d077cbc217ba00037371abba8cd01238668093d9041dedf",
+      "bytes": 5072
+    },
+    "verify-evidence.mjs": {
+      "sha256": "83f72e60c16441157405117fe24f6362bdbb7a6f58c48edd4b5fdd2377624fce",
+      "bytes": 3468
+    }
+  }
+}

@@ -1,0 +1,2259 @@
+{
+  "candidate": "0.4.41-terminal-v1.0.2",
+  "candidateSha256": "624c93c6e53e24b62c785254dc6073f9a43cdac24e802ea72183578d1079b0f3",
+  "baselineDeliveryCommit": "4cd2f36b740ba46a2b5d11bfb18fe4a211b146cf",
+  "deliveryRevision": "1.0.2",
+  "model": "gemini-3-flash-preview",
+  "maxTokens": 6000,
+  "naturalGeneration": true,
+  "controlledReplay": false,
+  "phoneInstalled": false,
+  "cardModified": false,
+  "rounds": [
+    {
+      "id": "morning",
+      "independentSeed": false,
+      "user": "继续第六天晨间剧情。我醒来后观察赛哈姆的异状，听希罗解释。我明确拒绝替他保密，但允许他先带走赛哈姆救治。请按眼前的真实顺序演到赛哈姆实际离开中央庭、晨间事件收束，后续行动由我下一条消息决定。",
+      "before": {
+        "schema": "f7d_textloop_0.4",
+        "loop": 1,
+        "day": 6,
+        "route": "central",
+        "location": "中央庭寝室",
+        "regions": {
+          "court": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "school": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "east": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "central": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "institute": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "seaside": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "old": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "harbor": {
+            "liberated": false,
+            "build_steps": []
+          }
+        },
+        "cores": {
+          "court": "purified",
+          "school": "unknown",
+          "east": "unknown",
+          "central": "unknown",
+          "institute": "unknown",
+          "seaside": "unknown",
+          "old": "unknown",
+          "harbor": "unknown"
+        },
+        "tasks": {
+          "DAY7_OPENING": {
+            "status": "completed",
+            "deadline": "第7天开场固定剧情结束",
+            "objective": "完成苏醒、中央庭引导与希罗初始剧情",
+            "known": false,
+            "deadline_known": false
+          },
+          "SCHOOL_RESCUE": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放高校学园",
+            "known": false,
+            "deadline_known": false
+          },
+          "SECOND_REGION": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放东方古街或中央城区其中一个",
+            "known": false,
+            "deadline_known": false
+          },
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "known": [
+          "安",
+          "安托涅瓦",
+          "晏华",
+          "希罗",
+          "珈儿",
+          "泰丝拉",
+          "赛哈姆"
+        ],
+        "relationships": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "ann": {
+          "affection": 0,
+          "core_events": [],
+          "camera": false,
+          "eligible": false,
+          "chased": null,
+          "recovered": false,
+          "deadline_checked": false,
+          "deadline_passed": null
+        },
+        "hiro": {
+          "intel": 0,
+          "handled": []
+        },
+        "route_flags": {
+          "first_second_region": "east",
+          "oldstreet_delayed": false,
+          "wenzi_injured": false,
+          "wenzi_joined": false,
+          "ann_route_closed": false,
+          "harbor_core_stolen": false
+        },
+        "antoneva_choice": null,
+        "artifact_view": null,
+        "ann_release": null,
+        "battle_flags": {
+          "final_battle": null,
+          "active_corpse_final": null,
+          "sybilla_condition_obtained": false,
+          "sybilla_rescued": null
+        },
+        "meta": {
+          "cg": [],
+          "endings": []
+        },
+        "intel_flags": {
+          "countdown_visible_to_user": true,
+          "countdown_meaning_known": false,
+          "countdown_reported_to": [],
+          "city_blackgate_history_known": false,
+          "central_court_basics_known": false,
+          "hiro_founder_known": false,
+          "hiro_prior_commander_known": false,
+          "chimera_exists_known": false,
+          "hiro_chimera_research_known": false,
+          "antoneva_chimera_policy_known": false,
+          "first_chimera_incident_known": false,
+          "zero_identity_known": false,
+          "ann_origin_known": false,
+          "loop_truth_known": false,
+          "countdown_initial_mentions": 1,
+          "countdown_last_narrated_day": 7
+        },
+        "npc_intel": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "day_ready_to_sleep": false,
+        "player_profile": {
+          "gender": "unknown"
+        },
+        "cg_system": {
+          "enabled": true,
+          "mode": "direct_only",
+          "album_enabled": true,
+          "responsive_enabled": true,
+          "shown": {
+            "ann_first_meet": true,
+            "antoneva_first_meet": false,
+            "ending_journey": false,
+            "ending_eternal_end": false,
+            "ending_sacrifice_male": false,
+            "ending_sacrifice_female": false,
+            "ending_final_male": false,
+            "ending_final_female": false,
+            "ending_box_male": false,
+            "ending_box_female": false
+          }
+        },
+        "clock_minutes": 480,
+        "morning_flags": {
+          "day6_monologue": false,
+          "day6_saiham": false,
+          "day6_seth": false,
+          "day5_monologue": false,
+          "day5_split": false,
+          "day4_monologue": false,
+          "day4_speech": false,
+          "day3_monologue": false,
+          "day3_ann_departure": false,
+          "day2_monologue": false
+        },
+        "terminal": {
+          "contacts": {
+            "$meta": {
+              "extensible": true
+            }
+          },
+          "city": [],
+          "journal": []
+        }
+      },
+      "text": "意识浮沉在一片冰冷而空茫的幽暗之中。\n\n在感官彻底苏醒前，耳畔先一步掠过一段细微而模糊的呢喃，仿佛隔着极深的水层，破碎得无法辨清来源与语意，只留下某种冰凉的触感，转瞬便消融在清晨微熹的空气里。\n\n你睁开双眼，中央庭寝室的天花板映入眼帘。\n视野正上方，那个始终悬浮着的半透明数字在微光中悄无声息地翻转，由“7”沉落为清晰的“6”。\n\n还没等思绪彻底平复，门外走廊深处便传来一阵沉闷的金属撞击声与撕裂般的喘息。\n\n你迅速起身推门而出。转过庭廊拐角，眼前的景象令人心头一紧——深棕色长发散乱垂落的赛哈姆单膝跪在地上，黑与暗红相间的护甲边缘正剧烈颤动。原本遮住一侧眉眼的额发被冷汗浸湿，自她背部与肩侧蔓延而出的，并非寻常的幻力光芒，而是一种令人窒息的漆黑晶质，隐隐凝聚成破碎残缺的羽翼轮廓。她手中的枪械在坚硬的地砖上拖出刺耳的划痕，喉间溢出痛苦而断续的低喘，眼底翻涌着近乎失控的浑浊暗芒。\n\n你尝试上前靠近并调动自身力量予以安抚，但那股狂暴外溢的异化幻力几乎将空气撕扯得生疼，寻常的压制根本无法渗透进她已然溃散的意识之中。\n\n“不要勉强靠近，现在的她，已经听不到任何战术指令了。”\n\n沉稳而从容的声音自后方响起。希罗迈步走来，银白色的短发整齐地向后梳理，镜片后是一双毫无惊慌的眼眸。他身着白色的长外套与深色衬衣，神态平静得宛如面对一场早已预演过的实验记录。\n\n希罗抬手，随行的制式拘束装置与特制力场迅速展开，在极近距离精准截断了外溢的狂乱乱流，暂时将痛苦挣扎的赛哈姆稳固在可控的力场内。失去反抗力气的佣兵终于脱力，垂下头昏厥过去。\n\n希罗收回视线，转向你，语气平缓而笃定：\n“如你所见，这就是‘活骸化’。神器使过度驱使幻力、或是受到深层侵蚀后的不可逆异化。人格、理智都会在这一过程中被剥夺，最终沦为只知道破坏的黑门怪物。”\n\n他推了推眼镜，目光直视着你：\n“关于赛哈姆的状况，以及这种现象的存在，在中央庭尚未得出成熟结论前，我不希望引起不必要的恐慌。指挥使，请对此保持沉默，不要向外界透露。”\n\n你看着昏迷中周身仍泛着暗色晶痕的赛哈姆，语气没有任何动摇，直接拒绝了他的封口要求。但面对眼前命悬一线的同伴，你明确表示，允许他先将赛哈姆带走进行紧急救治。\n\n听到你的拒绝，希罗并未显露恼怒，甚至连眼底的笑意也未减退分毫。他只是若有所思地打量了你片刻，随即微微颔首：\n\n“既然如此，那就先以她的生命为重。救治需要专门的设施，人我先带走了。”\n\n随着希罗示意，几名随行人员迅速移送力场舱，将赛哈姆带离了中央庭主廊。晨光透过窗格倾斜下来，地面上只留下几道尚未彻底消散的暗沉灼痕，走廊内重归寂静。\n\n晨间的突发变故至此平息，时钟仍指向清晨。\n\n<UpdateVariable>\n_.set('morning_flags.day6_monologue', false, true); // 醒前模糊呢喃演出完成\n_.set('morning_flags.day6_saiham', false, true); // 赛哈姆活骸化及希罗介入演出收束\n_.set('intel_flags.chimera_exists_known', false, true); // 获知活骸化概念存在\n_.set('intel_flags.hiro_chimera_research_known', false, true); // 确知希罗正在接触并处理活骸化个案\n_.set('intel_flags.countdown_last_narrated_day', 7, 6); // 倒计时变更为6已在正文演出\n</UpdateVariable>\n\n<StatusPlaceHolderImpl/>",
+      "is_user": false,
+      "after": {
+        "schema": "f7d_textloop_0.4",
+        "loop": 1,
+        "day": 6,
+        "route": "central",
+        "location": "中央庭寝室",
+        "regions": {
+          "court": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "school": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "east": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "central": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "institute": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "seaside": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "old": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "harbor": {
+            "liberated": false,
+            "build_steps": []
+          }
+        },
+        "cores": {
+          "court": "purified",
+          "school": "unknown",
+          "east": "unknown",
+          "central": "unknown",
+          "institute": "unknown",
+          "seaside": "unknown",
+          "old": "unknown",
+          "harbor": "unknown"
+        },
+        "tasks": {
+          "DAY7_OPENING": {
+            "status": "completed",
+            "deadline": "第7天开场固定剧情结束",
+            "objective": "完成苏醒、中央庭引导与希罗初始剧情",
+            "known": false,
+            "deadline_known": false
+          },
+          "SCHOOL_RESCUE": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放高校学园",
+            "known": false,
+            "deadline_known": false
+          },
+          "SECOND_REGION": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放东方古街或中央城区其中一个",
+            "known": false,
+            "deadline_known": false
+          },
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "known": [
+          "安",
+          "安托涅瓦",
+          "晏华",
+          "希罗",
+          "珈儿",
+          "泰丝拉",
+          "赛哈姆"
+        ],
+        "relationships": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "ann": {
+          "affection": 0,
+          "core_events": [],
+          "camera": false,
+          "eligible": false,
+          "chased": null,
+          "recovered": false,
+          "deadline_checked": false,
+          "deadline_passed": null
+        },
+        "hiro": {
+          "intel": 0,
+          "handled": []
+        },
+        "route_flags": {
+          "first_second_region": "east",
+          "oldstreet_delayed": false,
+          "wenzi_injured": false,
+          "wenzi_joined": false,
+          "ann_route_closed": false,
+          "harbor_core_stolen": false
+        },
+        "antoneva_choice": null,
+        "artifact_view": null,
+        "ann_release": null,
+        "battle_flags": {
+          "final_battle": null,
+          "active_corpse_final": null,
+          "sybilla_condition_obtained": false,
+          "sybilla_rescued": null
+        },
+        "meta": {
+          "cg": [],
+          "endings": []
+        },
+        "intel_flags": {
+          "countdown_visible_to_user": true,
+          "countdown_meaning_known": false,
+          "countdown_reported_to": [],
+          "city_blackgate_history_known": false,
+          "central_court_basics_known": false,
+          "hiro_founder_known": false,
+          "hiro_prior_commander_known": false,
+          "chimera_exists_known": true,
+          "hiro_chimera_research_known": true,
+          "antoneva_chimera_policy_known": false,
+          "first_chimera_incident_known": false,
+          "zero_identity_known": false,
+          "ann_origin_known": false,
+          "loop_truth_known": false,
+          "countdown_initial_mentions": 1,
+          "countdown_last_narrated_day": 6
+        },
+        "npc_intel": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "day_ready_to_sleep": false,
+        "player_profile": {
+          "gender": "unknown"
+        },
+        "cg_system": {
+          "enabled": true,
+          "mode": "direct_only",
+          "album_enabled": true,
+          "responsive_enabled": true,
+          "shown": {
+            "ann_first_meet": true,
+            "antoneva_first_meet": false,
+            "ending_journey": false,
+            "ending_eternal_end": false,
+            "ending_sacrifice_male": false,
+            "ending_sacrifice_female": false,
+            "ending_final_male": false,
+            "ending_final_female": false,
+            "ending_box_male": false,
+            "ending_box_female": false
+          }
+        },
+        "clock_minutes": 480,
+        "morning_flags": {
+          "day6_monologue": true,
+          "day6_saiham": false,
+          "day6_seth": false,
+          "day5_monologue": false,
+          "day5_split": false,
+          "day4_monologue": false,
+          "day4_speech": false,
+          "day3_monologue": false,
+          "day3_ann_departure": false,
+          "day2_monologue": false
+        },
+        "terminal": {
+          "contacts": {
+            "$meta": {
+              "extensible": true
+            }
+          },
+          "city": [],
+          "journal": []
+        }
+      },
+      "terminal": {
+        "version": 1,
+        "status": "ready",
+        "reason": "",
+        "snapshot": {
+          "schema": "f7d-terminal-v1",
+          "scope": {
+            "chatId": "formal-natural-morning-1791284527462",
+            "branchId": "fdf7d13a-6b71-4a0c-9928-e9e14bffef5c:d18cfed4-3be8-4cfc-89e1-76ded76227e6:0:4",
+            "loop": 1
+          },
+          "revision": "fdf7d13a-6b71-4a0c-9928-e9e14bffef5c:3",
+          "header": {
+            "dayLabel": "第6天",
+            "timeLabel": "08:00",
+            "location": "中央庭寝室"
+          },
+          "tasks": [],
+          "contacts": [],
+          "city": [],
+          "journal": [],
+          "album": {
+            "enabled": true,
+            "warning": null,
+            "items": [
+              {
+                "id": "ann_first_meet",
+                "title": "安·病房初见",
+                "assetKey": "ann_first_meet"
+              }
+            ]
+          }
+        },
+        "error": null
+      },
+      "timeline": [
+        {
+          "at": 9908.300000000003,
+          "status": "empty",
+          "reason": "剧情生成中",
+          "clock": 480,
+          "flags": {
+            "day6_monologue": false,
+            "day6_saiham": false,
+            "day6_seth": false,
+            "day5_monologue": false,
+            "day5_split": false,
+            "day4_monologue": false,
+            "day4_speech": false,
+            "day3_monologue": false,
+            "day3_ann_departure": false,
+            "day2_monologue": false
+          }
+        },
+        {
+          "at": 10064.400000000009,
+          "status": "empty",
+          "reason": "等待玩家消息变量提交"
+        },
+        {
+          "at": 65918.3,
+          "status": "empty",
+          "reason": "等待回复变量提交"
+        },
+        {
+          "at": 65951.2,
+          "status": "ready",
+          "reason": "",
+          "revision": "fdf7d13a-6b71-4a0c-9928-e9e14bffef5c:3",
+          "scope": {
+            "chatId": "formal-natural-morning-1791284527462",
+            "branchId": "fdf7d13a-6b71-4a0c-9928-e9e14bffef5c:d18cfed4-3be8-4cfc-89e1-76ded76227e6:0:4",
+            "loop": 1
+          },
+          "clock": 480,
+          "flags": {
+            "day6_monologue": true,
+            "day6_saiham": false,
+            "day6_seth": false,
+            "day5_monologue": false,
+            "day5_split": false,
+            "day4_monologue": false,
+            "day4_speech": false,
+            "day3_monologue": false,
+            "day3_ann_departure": false,
+            "day2_monologue": false
+          }
+        }
+      ],
+      "commands": [
+        {
+          "phase": "before",
+          "at": 10066.600000000006,
+          "commands": []
+        },
+        {
+          "phase": "after",
+          "at": 10066.699999999997,
+          "commands": []
+        },
+        {
+          "phase": "before",
+          "at": 65946.3,
+          "commands": [
+            {
+              "type": "set",
+              "full_match": "_.set('morning_flags.day6_monologue', false, true); // 醒前模糊呢喃演出完成",
+              "args": [
+                "'morning_flags.day6_monologue'",
+                "false",
+                "true"
+              ],
+              "reason": "醒前模糊呢喃演出完成"
+            },
+            {
+              "type": "set",
+              "full_match": "_.set('morning_flags.day6_saiham', false, true); // 赛哈姆活骸化及希罗介入演出收束",
+              "args": [
+                "'morning_flags.day6_saiham'",
+                "false",
+                "true"
+              ],
+              "reason": "赛哈姆活骸化及希罗介入演出收束"
+            },
+            {
+              "type": "set",
+              "full_match": "_.set('intel_flags.chimera_exists_known', false, true); // 获知活骸化概念存在",
+              "args": [
+                "'intel_flags.chimera_exists_known'",
+                "false",
+                "true"
+              ],
+              "reason": "获知活骸化概念存在"
+            },
+            {
+              "type": "set",
+              "full_match": "_.set('intel_flags.hiro_chimera_research_known', false, true); // 确知希罗正在接触并处理活骸化个案",
+              "args": [
+                "'intel_flags.hiro_chimera_research_known'",
+                "false",
+                "true"
+              ],
+              "reason": "确知希罗正在接触并处理活骸化个案"
+            },
+            {
+              "type": "set",
+              "full_match": "_.set('intel_flags.countdown_last_narrated_day', 7, 6); // 倒计时变更为6已在正文演出",
+              "args": [
+                "'intel_flags.countdown_last_narrated_day'",
+                "7",
+                "6"
+              ],
+              "reason": "倒计时变更为6已在正文演出"
+            }
+          ]
+        },
+        {
+          "phase": "after",
+          "at": 65947.7,
+          "commands": [
+            {
+              "type": "set",
+              "full_match": "_.set('morning_flags.day6_monologue', false, true); // 醒前模糊呢喃演出完成",
+              "args": [
+                "'morning_flags.day6_monologue'",
+                "false",
+                "true"
+              ],
+              "reason": "醒前模糊呢喃演出完成"
+            },
+            {
+              "type": "set",
+              "full_match": "_.set('intel_flags.chimera_exists_known', false, true); // 获知活骸化概念存在",
+              "args": [
+                "'intel_flags.chimera_exists_known'",
+                "false",
+                "true"
+              ],
+              "reason": "获知活骸化概念存在"
+            },
+            {
+              "type": "set",
+              "full_match": "_.set('intel_flags.hiro_chimera_research_known', false, true); // 确知希罗正在接触并处理活骸化个案",
+              "args": [
+                "'intel_flags.hiro_chimera_research_known'",
+                "false",
+                "true"
+              ],
+              "reason": "确知希罗正在接触并处理活骸化个案"
+            },
+            {
+              "type": "set",
+              "full_match": "_.set('intel_flags.countdown_last_narrated_day', 7, 6); // 倒计时变更为6已在正文演出",
+              "args": [
+                "'intel_flags.countdown_last_narrated_day'",
+                "7",
+                "6"
+              ],
+              "reason": "倒计时变更为6已在正文演出"
+            }
+          ]
+        }
+      ],
+      "publications": [
+        {
+          "at": 10067.5,
+          "id": 1,
+          "result": true,
+          "clock": 480,
+          "flags": {
+            "day6_monologue": false,
+            "day6_saiham": false,
+            "day6_seth": false,
+            "day5_monologue": false,
+            "day5_split": false,
+            "day4_monologue": false,
+            "day4_speech": false,
+            "day3_monologue": false,
+            "day3_ann_departure": false,
+            "day2_monologue": false
+          },
+          "status": "empty"
+        },
+        {
+          "at": 65951.3,
+          "id": 2,
+          "result": true,
+          "clock": 480,
+          "flags": {
+            "day6_monologue": true,
+            "day6_saiham": false,
+            "day6_seth": false,
+            "day5_monologue": false,
+            "day5_split": false,
+            "day4_monologue": false,
+            "day4_speech": false,
+            "day3_monologue": false,
+            "day3_ann_departure": false,
+            "day2_monologue": false
+          },
+          "status": "ready"
+        }
+      ],
+      "stale": [],
+      "guard": {
+        "ready": true,
+        "calls": 3,
+        "lastPath": "morning_flags.day6_monologue"
+      },
+      "requests": [
+        {
+          "id": 1,
+          "model": "gemini-3-flash-preview",
+          "source": "custom",
+          "max_tokens": 6000,
+          "message_count": 12,
+          "chars": 32010,
+          "updateRulePresent": true,
+          "currentStateMarkerPresent": true,
+          "unexpandedVariableMacro": false
+        }
+      ],
+      "responses": [
+        {
+          "id": 1,
+          "status": 200,
+          "bodySha256": "f6ee2be641c18419f14d0fc69e0450a32ab1942917c4c417e552e9c53059ee12",
+          "finishReasons": [
+            {
+              "index": 0,
+              "reason": "stop"
+            }
+          ],
+          "usages": [
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 18684,
+              "completion_tokens": 1062,
+              "total_tokens": 20483
+            }
+          ],
+          "models": [
+            "gemini-3-flash-preview"
+          ],
+          "doneSeen": true,
+          "parsedFrames": 44,
+          "invalidFrames": 0,
+          "finishReasonKnown": true,
+          "truncated": false
+        }
+      ],
+      "hasUpdateVariable": true,
+      "checks": [
+        {
+          "label": "实际发出原生模型请求",
+          "passed": true
+        },
+        {
+          "label": "收到助手正文",
+          "passed": true
+        },
+        {
+          "label": "提交后终端就绪",
+          "passed": true
+        },
+        {
+          "label": "生成期间立即清空",
+          "passed": true
+        },
+        {
+          "label": "正常提交无过期拒绝",
+          "passed": true
+        },
+        {
+          "label": "真实消息提交后才通知",
+          "passed": true
+        },
+        {
+          "label": "终端未暴露内部字段",
+          "passed": true
+        },
+        {
+          "label": "晨间独白结算",
+          "passed": true
+        },
+        {
+          "label": "赛哈姆离场结算",
+          "passed": false
+        },
+        {
+          "label": "晨间不扣时",
+          "passed": true
+        },
+        {
+          "label": "模型完成元数据正常结束",
+          "passed": true
+        }
+      ],
+      "passed": false
+    },
+    {
+      "id": "patrol",
+      "independentSeed": true,
+      "user": "我和安去中央庭各防区与外围走廊完成一轮巡查，处理现场警戒和后勤，然后回来向安托涅瓦汇报。完成这一次行动后停下，不继续执行下一项。",
+      "before": {
+        "schema": "f7d_textloop_0.4",
+        "loop": 1,
+        "day": 6,
+        "route": "central",
+        "location": "中央庭寝室",
+        "regions": {
+          "court": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "school": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "east": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "central": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "institute": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "seaside": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "old": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "harbor": {
+            "liberated": false,
+            "build_steps": []
+          }
+        },
+        "cores": {
+          "court": "purified",
+          "school": "unknown",
+          "east": "unknown",
+          "central": "unknown",
+          "institute": "unknown",
+          "seaside": "unknown",
+          "old": "unknown",
+          "harbor": "unknown"
+        },
+        "tasks": {
+          "DAY7_OPENING": {
+            "status": "completed",
+            "deadline": "第7天开场固定剧情结束",
+            "objective": "完成苏醒、中央庭引导与希罗初始剧情",
+            "known": false,
+            "deadline_known": false
+          },
+          "SCHOOL_RESCUE": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放高校学园",
+            "known": false,
+            "deadline_known": false
+          },
+          "SECOND_REGION": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放东方古街或中央城区其中一个",
+            "known": false,
+            "deadline_known": false
+          },
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "known": [
+          "安",
+          "安托涅瓦",
+          "晏华",
+          "希罗",
+          "珈儿",
+          "泰丝拉",
+          "赛哈姆"
+        ],
+        "relationships": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "ann": {
+          "affection": 0,
+          "core_events": [],
+          "camera": false,
+          "eligible": false,
+          "chased": null,
+          "recovered": false,
+          "deadline_checked": false,
+          "deadline_passed": null
+        },
+        "hiro": {
+          "intel": 0,
+          "handled": []
+        },
+        "route_flags": {
+          "first_second_region": "east",
+          "oldstreet_delayed": false,
+          "wenzi_injured": false,
+          "wenzi_joined": false,
+          "ann_route_closed": false,
+          "harbor_core_stolen": false
+        },
+        "antoneva_choice": null,
+        "artifact_view": null,
+        "ann_release": null,
+        "battle_flags": {
+          "final_battle": null,
+          "active_corpse_final": null,
+          "sybilla_condition_obtained": false,
+          "sybilla_rescued": null
+        },
+        "meta": {
+          "cg": [],
+          "endings": []
+        },
+        "intel_flags": {
+          "countdown_visible_to_user": true,
+          "countdown_meaning_known": false,
+          "countdown_reported_to": [],
+          "city_blackgate_history_known": false,
+          "central_court_basics_known": false,
+          "hiro_founder_known": false,
+          "hiro_prior_commander_known": false,
+          "chimera_exists_known": true,
+          "hiro_chimera_research_known": true,
+          "antoneva_chimera_policy_known": false,
+          "first_chimera_incident_known": false,
+          "zero_identity_known": false,
+          "ann_origin_known": false,
+          "loop_truth_known": false,
+          "countdown_initial_mentions": 1,
+          "countdown_last_narrated_day": 7
+        },
+        "npc_intel": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "day_ready_to_sleep": false,
+        "player_profile": {
+          "gender": "unknown"
+        },
+        "cg_system": {
+          "enabled": true,
+          "mode": "direct_only",
+          "album_enabled": true,
+          "responsive_enabled": true,
+          "shown": {
+            "ann_first_meet": true,
+            "antoneva_first_meet": false,
+            "ending_journey": false,
+            "ending_eternal_end": false,
+            "ending_sacrifice_male": false,
+            "ending_sacrifice_female": false,
+            "ending_final_male": false,
+            "ending_final_female": false,
+            "ending_box_male": false,
+            "ending_box_female": false
+          }
+        },
+        "clock_minutes": 480,
+        "morning_flags": {
+          "day6_monologue": true,
+          "day6_saiham": true,
+          "day6_seth": false,
+          "day5_monologue": false,
+          "day5_split": false,
+          "day4_monologue": false,
+          "day4_speech": false,
+          "day3_monologue": false,
+          "day3_ann_departure": false,
+          "day2_monologue": false
+        },
+        "terminal": {
+          "contacts": {
+            "$meta": {
+              "extensible": true
+            }
+          },
+          "city": [],
+          "journal": []
+        }
+      },
+      "text": "外围走廊的风卷着微凉的空气从通风格栅间穿过。\n\n安利落地整理好随身携带的记录板，橘黄色长发在身后随着步伐轻轻晃动。黑白女仆裙摆扫过地面，她一边对照着各防区的巡检清单，一边引着你沿中央庭外圈的巡逻通道依次排查。防壁基座的充能状态平稳，警戒哨位的感知阵列运转正常，沿途的后勤物资箱也已按编号核验入库。\n\n“东侧回廊的屏障读数一切正常，后勤部送来的应急物资也清点完毕了。”安在终端记录板上勾选完最后一项，转过头对你露出温和的浅笑，“指挥使，巡查很顺利，中央庭目前的警戒水平已经重新稳定下来了。”\n\n巡查与后勤交接耗费了一段时间。两人穿过主回廊，回到中央庭的核心办公区。\n\n安托涅瓦依然坐在办公桌后，深棕色的长发柔和地披在肩头，额侧的发束整齐地修饰着面颊。她穿着一贯端整的白深相叠长衣，身下的轮椅静静停在明亮的窗光下。见你们推门进来，她放下手中的文件，抬眸看向你，神情温和而沉静：\n\n“巡查辛苦了，指挥使，安。各防区和后勤通道的状况怎么样？”\n\n<UpdateVariable>\n_.set('location','中央庭寝室','中央庭办公室');//完成外围巡查后回到安托涅瓦处汇报\n_.set('clock_minutes',480,560);//完成一轮区域巡查与后勤整备，耗时80分钟\n_.set('ann.affection',0,5);//与安共同完成巡查与后勤协调，好感度提升\n</UpdateVariable>\n\n<f7d_choices>\n<f7d_choice>向安托涅瓦如实汇报防区与后勤情况，并如实告知今晨赛哈姆异变与希罗的干预</f7d_choice>\n<f7d_choice>先只作常规防区与后勤汇报，暂不提及清晨赛哈姆的事</f7d_choice>\n<f7d_choice>汇报完毕后，询问接下来高校学园与中央城区的支援优先级</f7d_choice>\n</f7d_choices>\n\n<StatusPlaceHolderImpl/>",
+      "is_user": false,
+      "after": {
+        "schema": "f7d_textloop_0.4",
+        "loop": 1,
+        "day": 6,
+        "route": "central",
+        "location": "中央庭办公室",
+        "regions": {
+          "court": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "school": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "east": {
+            "liberated": true,
+            "build_steps": []
+          },
+          "central": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "institute": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "seaside": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "old": {
+            "liberated": false,
+            "build_steps": []
+          },
+          "harbor": {
+            "liberated": false,
+            "build_steps": []
+          }
+        },
+        "cores": {
+          "court": "purified",
+          "school": "unknown",
+          "east": "unknown",
+          "central": "unknown",
+          "institute": "unknown",
+          "seaside": "unknown",
+          "old": "unknown",
+          "harbor": "unknown"
+        },
+        "tasks": {
+          "DAY7_OPENING": {
+            "status": "completed",
+            "deadline": "第7天开场固定剧情结束",
+            "objective": "完成苏醒、中央庭引导与希罗初始剧情",
+            "known": false,
+            "deadline_known": false
+          },
+          "SCHOOL_RESCUE": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放高校学园",
+            "known": false,
+            "deadline_known": false
+          },
+          "SECOND_REGION": {
+            "status": "pending",
+            "deadline": "第6天结束前",
+            "objective": "解放东方古街或中央城区其中一个",
+            "known": false,
+            "deadline_known": false
+          },
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "known": [
+          "安",
+          "安托涅瓦",
+          "晏华",
+          "希罗",
+          "珈儿",
+          "泰丝拉",
+          "赛哈姆"
+        ],
+        "relationships": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "ann": {
+          "affection": 5,
+          "core_events": [],
+          "camera": false,
+          "eligible": false,
+          "chased": null,
+          "recovered": false,
+          "deadline_checked": false,
+          "deadline_passed": null
+        },
+        "hiro": {
+          "intel": 0,
+          "handled": []
+        },
+        "route_flags": {
+          "first_second_region": "east",
+          "oldstreet_delayed": false,
+          "wenzi_injured": false,
+          "wenzi_joined": false,
+          "ann_route_closed": false,
+          "harbor_core_stolen": false
+        },
+        "antoneva_choice": null,
+        "artifact_view": null,
+        "ann_release": null,
+        "battle_flags": {
+          "final_battle": null,
+          "active_corpse_final": null,
+          "sybilla_condition_obtained": false,
+          "sybilla_rescued": null
+        },
+        "meta": {
+          "cg": [],
+          "endings": []
+        },
+        "intel_flags": {
+          "countdown_visible_to_user": true,
+          "countdown_meaning_known": false,
+          "countdown_reported_to": [],
+          "city_blackgate_history_known": false,
+          "central_court_basics_known": false,
+          "hiro_founder_known": false,
+          "hiro_prior_commander_known": false,
+          "chimera_exists_known": true,
+          "hiro_chimera_research_known": true,
+          "antoneva_chimera_policy_known": false,
+          "first_chimera_incident_known": false,
+          "zero_identity_known": false,
+          "ann_origin_known": false,
+          "loop_truth_known": false,
+          "countdown_initial_mentions": 1,
+          "countdown_last_narrated_day": 7
+        },
+        "npc_intel": {
+          "$meta": {
+            "extensible": true
+          }
+        },
+        "day_ready_to_sleep": false,
+        "player_profile": {
+          "gender": "unknown"
+        },
+        "cg_system": {
+          "enabled": true,
+          "mode": "direct_only",
+          "album_enabled": true,
+          "responsive_enabled": true,
+          "shown": {
+            "ann_first_meet": true,
+            "antoneva_first_meet": false,
+            "ending_journey": false,
+            "ending_eternal_end": false,
+            "ending_sacrifice_male": false,
+            "ending_sacrifice_female": false,
+            "ending_final_male": false,
+            "ending_final_female": false,
+            "ending_box_male": false,
+            "ending_box_female": false
+          }
+        },
+        "clock_minutes": 560,
+        "morning_flags": {
+          "day6_monologue": true,
+          "day6_saiham": true,
+          "day6_seth": false,
+          "day5_monologue": false,
+          "day5_split": false,
+          "day4_monologue": false,
+          "day4_speech": false,
+          "day3_monologue": false,
+          "day3_ann_departure": false,
+          "day2_monologue": false
+        },
+        "terminal": {
+          "contacts": {
+            "$meta": {
+              "extensible": true
+            }
+          },
+          "city": [],
+          "journal": []
+        }
+      },
+      "terminal": {
+        "version": 1,
+        "status": "ready",
+        "reason": "",
+        "snapshot": {
+          "schema": "f7d-terminal-v1",
+          "scope": {
+            "chatId": "formal-natural-patrol-1791284585575",
+            "branchId": "fdf7d13a-6b71-4a0c-9928-e9e14bffef5c:56ce4b6c-687f-427e-b2d6-58728d005451:0:8",
+            "loop": 1
+          },
+          "revision": "fdf7d13a-6b71-4a0c-9928-e9e14bffef5c:6",
+          "header": {
+            "dayLabel": "第6天",
+            "timeLabel": "09:20",
+            "location": "中央庭办公室"
+          },
+          "tasks": [],
+          "contacts": [],
+          "city": [],
+          "journal": [],
+          "album": {
+            "enabled": true,
+            "warning": null,
+            "items": [
+              {
+                "id": "ann_first_meet",
+                "title": "安·病房初见",
+                "assetKey": "ann_first_meet"
+              }
+            ]
+          }
+        },
+        "error": null
+      },
+      "timeline": [
+        {
+          "at": 67933.50000000001,
+          "status": "empty",
+          "reason": "剧情生成中",
+          "clock": 480,
+          "flags": {
+            "day6_monologue": true,
+            "day6_saiham": true,
+            "day6_seth": false,
+            "day5_monologue": false,
+            "day5_split": false,
+            "day4_monologue": false,
+            "day4_speech": false,
+            "day3_monologue": false,
+            "day3_ann_departure": false,
+            "day2_monologue": false
+          }
+        },
+        {
+          "at": 68081.7,
+          "status": "empty",
+          "reason": "等待玩家消息变量提交"
+        },
+        {
+          "at": 111456.2,
+          "status": "empty",
+          "reason": "等待回复变量提交"
+        },
+        {
+          "at": 111489.2,
+          "status": "ready",
+          "reason": "",
+          "revision": "fdf7d13a-6b71-4a0c-9928-e9e14bffef5c:6",
+          "scope": {
+            "chatId": "formal-natural-patrol-1791284585575",
+            "branchId": "fdf7d13a-6b71-4a0c-9928-e9e14bffef5c:56ce4b6c-687f-427e-b2d6-58728d005451:0:8",
+            "loop": 1
+          },
+          "clock": 560,
+          "flags": {
+            "day6_monologue": true,
+            "day6_saiham": true,
+            "day6_seth": false,
+            "day5_monologue": false,
+            "day5_split": false,
+            "day4_monologue": false,
+            "day4_speech": false,
+            "day3_monologue": false,
+            "day3_ann_departure": false,
+            "day2_monologue": false
+          }
+        }
+      ],
+      "commands": [
+        {
+          "phase": "before",
+          "at": 68083.2,
+          "commands": []
+        },
+        {
+          "phase": "after",
+          "at": 68083.3,
+          "commands": []
+        },
+        {
+          "phase": "before",
+          "at": 111483.40000000001,
+          "commands": [
+            {
+              "type": "set",
+              "full_match": "_.set('location','中央庭寝室','中央庭办公室');//完成外围巡查后回到安托涅瓦处汇报",
+              "args": [
+                "'location'",
+                "'中央庭寝室'",
+                "'中央庭办公室'"
+              ],
+              "reason": "完成外围巡查后回到安托涅瓦处汇报"
+            },
+            {
+              "type": "set",
+              "full_match": "_.set('clock_minutes',480,560);//完成一轮区域巡查与后勤整备，耗时80分钟",
+              "args": [
+                "'clock_minutes'",
+                "480",
+                "560"
+              ],
+              "reason": "完成一轮区域巡查与后勤整备，耗时80分钟"
+            },
+            {
+              "type": "set",
+              "full_match": "_.set('ann.affection',0,5);//与安共同完成巡查与后勤协调，好感度提升",
+              "args": [
+                "'ann.affection'",
+                "0",
+                "5"
+              ],
+              "reason": "与安共同完成巡查与后勤协调，好感度提升"
+            }
+          ]
+        },
+        {
+          "phase": "after",
+          "at": 111484.00000000001,
+          "commands": [
+            {
+              "type": "set",
+              "full_match": "_.set('location','中央庭寝室','中央庭办公室');//完成外围巡查后回到安托涅瓦处汇报",
+              "args": [
+                "'location'",
+                "'中央庭寝室'",
+                "'中央庭办公室'"
+              ],
+              "reason": "完成外围巡查后回到安托涅瓦处汇报"
+            },
+            {
+              "type": "set",
+              "full_match": "_.set('clock_minutes',480,560);//完成一轮区域巡查与后勤整备，耗时80分钟",
+              "args": [
+                "'clock_minutes'",
+                "480",
+                "560"
+              ],
+              "reason": "完成一轮区域巡查与后勤整备，耗时80分钟"
+            },
+            {
+              "type": "set",
+              "full_match": "_.set('ann.affection',0,5);//与安共同完成巡查与后勤协调，好感度提升",
+              "args": [
+                "'ann.affection'",
+                "0",
+                "5"
+              ],
+              "reason": "与安共同完成巡查与后勤协调，好感度提升"
+            }
+          ]
+        }
+      ],
+      "publications": [
+        {
+          "at": 68084.2,
+          "id": 1,
+          "result": true,
+          "clock": 480,
+          "flags": {
+            "day6_monologue": true,
+            "day6_saiham": true,
+            "day6_seth": false,
+            "day5_monologue": false,
+            "day5_split": false,
+            "day4_monologue": false,
+            "day4_speech": false,
+            "day3_monologue": false,
+            "day3_ann_departure": false,
+            "day2_monologue": false
+          },
+          "status": "empty"
+        },
+        {
+          "at": 111489.2,
+          "id": 2,
+          "result": true,
+          "clock": 560,
+          "flags": {
+            "day6_monologue": true,
+            "day6_saiham": true,
+            "day6_seth": false,
+            "day5_monologue": false,
+            "day5_split": false,
+            "day4_monologue": false,
+            "day4_speech": false,
+            "day3_monologue": false,
+            "day3_ann_departure": false,
+            "day2_monologue": false
+          },
+          "status": "ready"
+        }
+      ],
+      "stale": [],
+      "guard": {
+        "ready": true,
+        "calls": 6,
+        "lastPath": "location"
+      },
+      "requests": [
+        {
+          "id": 2,
+          "model": "gemini-3-flash-preview",
+          "source": "custom",
+          "max_tokens": 6000,
+          "message_count": 12,
+          "chars": 23179,
+          "updateRulePresent": true,
+          "currentStateMarkerPresent": true,
+          "unexpandedVariableMacro": false
+        }
+      ],
+      "responses": [
+        {
+          "id": 2,
+          "status": 200,
+          "bodySha256": "04236e41c98a2c45f76c9213299216f66cfe7184ecd477573dfbfba4f345775f",
+          "finishReasons": [
+            {
+              "index": 0,
+              "reason": "stop"
+            }
+          ],
+          "usages": [
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 0,
+              "completion_tokens": 0,
+              "total_tokens": 0
+            },
+            {
+              "prompt_tokens": 13119,
+              "completion_tokens": 553,
+              "total_tokens": 14022
+            }
+          ],
+          "models": [
+            "gemini-3-flash-preview"
+          ],
+          "doneSeen": true,
+          "parsedFrames": 24,
+          "invalidFrames": 0,
+          "finishReasonKnown": true,
+          "truncated": false
+        }
+      ],
+      "hasUpdateVariable": true,
+      "checks": [
+        {
+          "label": "实际发出原生模型请求",
+          "passed": true
+        },
+        {
+          "label": "收到助手正文",
+          "passed": true
+        },
+        {
+          "label": "提交后终端就绪",
+          "passed": true
+        },
+        {
+          "label": "生成期间立即清空",
+          "passed": true
+        },
+        {
+          "label": "正常提交无过期拒绝",
+          "passed": true
+        },
+        {
+          "label": "真实消息提交后才通知",
+          "passed": true
+        },
+        {
+          "label": "终端未暴露内部字段",
+          "passed": true
+        },
+        {
+          "label": "巡查实际扣80分钟",
+          "passed": true
+        },
+        {
+          "label": "模型完成元数据正常结束",
+          "passed": true
+        },
+        {
+          "label": "与晨间自然连续未重新播种",
+          "passed": false
+        }
+      ],
+      "passed": false
+    }
+  ],
+  "requests": [
+    {
+      "id": 1,
+      "model": "gemini-3-flash-preview",
+      "source": "custom",
+      "max_tokens": 6000,
+      "message_count": 12,
+      "chars": 32010,
+      "updateRulePresent": true,
+      "currentStateMarkerPresent": true,
+      "unexpandedVariableMacro": false
+    },
+    {
+      "id": 2,
+      "model": "gemini-3-flash-preview",
+      "source": "custom",
+      "max_tokens": 6000,
+      "message_count": 12,
+      "chars": 23179,
+      "updateRulePresent": true,
+      "currentStateMarkerPresent": true,
+      "unexpandedVariableMacro": false
+    }
+  ],
+  "responses": [
+    {
+      "id": 1,
+      "status": 200,
+      "bodySha256": "f6ee2be641c18419f14d0fc69e0450a32ab1942917c4c417e552e9c53059ee12",
+      "finishReasons": [
+        {
+          "index": 0,
+          "reason": "stop"
+        }
+      ],
+      "usages": [
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 18684,
+          "completion_tokens": 1062,
+          "total_tokens": 20483
+        }
+      ],
+      "models": [
+        "gemini-3-flash-preview"
+      ],
+      "doneSeen": true,
+      "parsedFrames": 44,
+      "invalidFrames": 0,
+      "finishReasonKnown": true,
+      "truncated": false
+    },
+    {
+      "id": 2,
+      "status": 200,
+      "bodySha256": "04236e41c98a2c45f76c9213299216f66cfe7184ecd477573dfbfba4f345775f",
+      "finishReasons": [
+        {
+          "index": 0,
+          "reason": "stop"
+        }
+      ],
+      "usages": [
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        {
+          "prompt_tokens": 13119,
+          "completion_tokens": 553,
+          "total_tokens": 14022
+        }
+      ],
+      "models": [
+        "gemini-3-flash-preview"
+      ],
+      "doneSeen": true,
+      "parsedFrames": 24,
+      "invalidFrames": 0,
+      "finishReasonKnown": true,
+      "truncated": false
+    }
+  ],
+  "errors": [],
+  "failures": [
+    {
+      "case": "morning",
+      "label": "赛哈姆离场结算"
+    },
+    {
+      "case": "patrol",
+      "label": "与晨间自然连续未重新播种"
+    }
+  ],
+  "runtimeLog": [
+    "Event emitted: th_unique_check.MVU变量框架",
+    "Event emitted: th_unique_check.MVU变量框架",
+    "Event emitted: mag_variable_initialized",
+    "Event emitted: mag_variable_update_started",
+    "Event emitted: mag_command_parsed",
+    "Event emitted: mag_command_parsed_for_zod",
+    "Event emitted: mag_command_parsed_ended_for_zod",
+    "Event emitted: mag_variable_update_ended",
+    "Event emitted: mag_variable_update_ended_for_zod",
+    "Event emitted: mag_variable_update_started",
+    "Event emitted: mag_command_parsed",
+    "Event emitted: mag_command_parsed_for_zod",
+    "Event emitted: mag_command_parsed_ended_for_zod",
+    "Event emitted: mag_variable_update_ended",
+    "Event emitted: mag_variable_update_ended_for_zod",
+    "[WI] Entry 92 from '永远的7日之都｜七日轮回文本互动｜内置世界书' processing {uid: 92, world: 永远的7日之都｜七日轮回文本互动｜内置世界书, key: Array(0), keysecondary: Array(0), comment: [InitVar] 七都｜变量初始值}",
+    "[WI] Entry 92 from '永远的7日之都｜七日轮回文本互动｜内置世界书' processing {uid: 92, world: 永远的7日之都｜七日轮回文本互动｜内置世界书, key: Array(0), keysecondary: Array(0), comment: [InitVar] 七都｜变量初始值}",
+    "Event emitted: mag_variable_update_started",
+    "Event emitted: mag_command_parsed",
+    "Event emitted: mag_command_parsed_for_zod",
+    "Event emitted: mag_command_parsed_ended_for_zod",
+    "Set 'morning_flags.day6_monologue' to 'true' (醒前模糊呢喃演出完成)",
+    "Event emitted: mag_variable_updated",
+    "Set 'intel_flags.chimera_exists_known' to 'true' (获知活骸化概念存在)",
+    "Event emitted: mag_variable_updated",
+    "Set 'intel_flags.hiro_chimera_research_known' to 'true' (确知希罗正在接触并处理活骸化个案)",
+    "Event emitted: mag_variable_updated",
+    "Set 'intel_flags.countdown_last_narrated_day' to '6' (倒计时变更为6已在正文演出)",
+    "Event emitted: mag_variable_updated",
+    "Event emitted: mag_variable_update_ended",
+    "Event emitted: mag_variable_update_ended_for_zod",
+    "Event emitted: mag_before_message_update",
+    "[WI] Entry 92 from '永远的7日之都｜七日轮回文本互动｜内置世界书' processing {uid: 92, world: 永远的7日之都｜七日轮回文本互动｜内置世界书, key: Array(0), keysecondary: Array(0), comment: [InitVar] 七都｜变量初始值}",
+    "[WI] Entry 92 from '永远的7日之都｜七日轮回文本互动｜内置世界书' processing {uid: 92, world: 永远的7日之都｜七日轮回文本互动｜内置世界书, key: Array(0), keysecondary: Array(0), comment: [InitVar] 七都｜变量初始值}",
+    "[WI] Entry 92 from '永远的7日之都｜七日轮回文本互动｜内置世界书' processing {uid: 92, world: 永远的7日之都｜七日轮回文本互动｜内置世界书, key: Array(0), keysecondary: Array(0), comment: [InitVar] 七都｜变量初始值}",
+    "[WI] Entry 92 from '永远的7日之都｜七日轮回文本互动｜内置世界书' processing {uid: 92, world: 永远的7日之都｜七日轮回文本互动｜内置世界书, key: Array(0), keysecondary: Array(0), comment: [InitVar] 七都｜变量初始值}",
+    "Event emitted: mag_variable_initialized",
+    "Event emitted: mag_variable_update_started",
+    "Event emitted: mag_command_parsed",
+    "Event emitted: mag_command_parsed_for_zod",
+    "Event emitted: mag_command_parsed_ended_for_zod",
+    "Event emitted: mag_variable_update_ended",
+    "Event emitted: mag_variable_update_ended_for_zod",
+    "Event emitted: mag_variable_update_started",
+    "Event emitted: mag_command_parsed",
+    "Event emitted: mag_command_parsed_for_zod",
+    "Event emitted: mag_command_parsed_ended_for_zod",
+    "Event emitted: mag_variable_update_ended",
+    "Event emitted: mag_variable_update_ended_for_zod",
+    "[WI] Entry 92 from '永远的7日之都｜七日轮回文本互动｜内置世界书' processing {uid: 92, world: 永远的7日之都｜七日轮回文本互动｜内置世界书, key: Array(0), keysecondary: Array(0), comment: [InitVar] 七都｜变量初始值}",
+    "[WI] Entry 92 from '永远的7日之都｜七日轮回文本互动｜内置世界书' processing {uid: 92, world: 永远的7日之都｜七日轮回文本互动｜内置世界书, key: Array(0), keysecondary: Array(0), comment: [InitVar] 七都｜变量初始值}",
+    "Event emitted: mag_variable_update_started",
+    "Event emitted: mag_command_parsed",
+    "Event emitted: mag_command_parsed_for_zod",
+    "Event emitted: mag_command_parsed_ended_for_zod",
+    "Set 'location' to '\"中央庭办公室\"' (完成外围巡查后回到安托涅瓦处汇报)",
+    "Event emitted: mag_variable_updated",
+    "Set 'clock_minutes' to '560' (完成一轮区域巡查与后勤整备，耗时80分钟)",
+    "Event emitted: mag_variable_updated",
+    "Set 'ann.affection' to '5' (与安共同完成巡查与后勤协调，好感度提升)",
+    "Event emitted: mag_variable_updated",
+    "Event emitted: mag_variable_update_ended",
+    "Event emitted: mag_variable_update_ended_for_zod",
+    "Event emitted: mag_before_message_update",
+    "[WI] Entry 92 from '永远的7日之都｜七日轮回文本互动｜内置世界书' processing {uid: 92, world: 永远的7日之都｜七日轮回文本互动｜内置世界书, key: Array(0), keysecondary: Array(0), comment: [InitVar] 七都｜变量初始值}",
+    "[WI] Entry 92 from '永远的7日之都｜七日轮回文本互动｜内置世界书' processing {uid: 92, world: 永远的7日之都｜七日轮回文本互动｜内置世界书, key: Array(0), keysecondary: Array(0), comment: [InitVar] 七都｜变量初始值}"
+  ]
+}
