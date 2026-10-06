@@ -1,0 +1,44 @@
+{
+  "baselineSourceCommit": "46c062a370c76b49ed530020e5aface03720162b",
+  "failureEvidenceCommit": "a355c72347049380857d3dbeb54c113556a73e63",
+  "tests": 65,
+  "passed": 65,
+  "failed": 0,
+  "realSillyTavernAcceptance": false,
+  "formalCandidateModified": false,
+  "phoneCodeModified": false,
+  "files": {
+    "README.md": {
+      "bytes": 2517,
+      "sha256": "b8c1e63f883f8ee4a4d1b15041b4c64f1106f003f03e40d5096aa8cecacbc056"
+    },
+    "guard.test.mjs": {
+      "bytes": 11768,
+      "sha256": "b641b359d645b50fd36b7138c0c280d48e43f0c66a46061d4ece3927fb3366b6"
+    },
+    "morning-guard.baseline.js": {
+      "bytes": 8957,
+      "sha256": "de2b29cd7c2e8ed64c9b4420f116a1e065a2402c11396230066467918d407077"
+    },
+    "morning-guard.js": {
+      "bytes": 13977,
+      "sha256": "519c2d4090089980c67ccbed2d5803eff838da8848456edad21fdeaaf20f1dd8"
+    },
+    "morning-guard.vehicle-baseline.js": {
+      "bytes": 12953,
+      "sha256": "6be05399cf2adffc0dad57b025198ac4ec47562ef61cd79bebf8604162a3bc9f"
+    },
+    "replay-fixture.json": {
+      "bytes": 25976,
+      "sha256": "020b9495d874f0e908abb630cccf254f07e7f9e89093d7e50730e294bf3db543"
+    },
+    "unit-validation.log": {
+      "bytes": 7150,
+      "sha256": "ba61edd26eee9c165347fc39d3a3d3db08a3b1dfde16db4ce5f4461fc638cf79"
+    },
+    "vehicle-failure.json": {
+      "bytes": 12060,
+      "sha256": "551e4bb2ea9ef77b7d91299b4fca2f8ab95fce6aaff8c6cdb4851d43c34d45ff"
+    }
+  }
+}
