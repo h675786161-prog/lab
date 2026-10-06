@@ -102,8 +102,7 @@ anchor = "  const endpoints=new Set(['终结','箱庭风景','牺牲的意义','
 assert anchor in js
 helper = r'''  const day6SecondZone=prior=>prior?.route_flags?.first_second_region==='east'?'central':prior?.route_flags?.first_second_region==='central'?'east':null;
   const zoneName=zone=>zone==='east'?'东方古街':zone==='central'?'中央城区':'';
-  const patrolIntentText=t=>/(?:巡查|深入|继续推进|继续调查|调查现场|清理|救援|追踪|战斗|处理(?:现场|危机|异常))/.test(String(t||''))
-    &&!/^(?:先)?(?:问|询问|听|查看|看看|聊|交谈)/.test(String(t||''));
+  const patrolIntentText=t=>{const s=String(t||'');return !/(?:先|暂时|现在)?不(?:开始|继续|进行)?(?:这一轮|下一轮|本轮)?巡查|只(?:问|询问|聊|交谈|查看|确认)/.test(s)&&/(?:巡查|深入|继续推进|继续调查|调查现场|清理|救援|追踪|战斗|处理(?:现场|危机|异常))/.test(s)&&!/^(?:先)?(?:问|询问|听|查看|看看|聊|交谈)/.test(s);};
   const day6SecondRegionTravelIntent=(user,prior)=>{
     const zone=day6SecondZone(prior),name=zoneName(zone),t=String(user||'');
     return !!zone&&!String(prior?.location||'').startsWith(name)
@@ -185,6 +184,11 @@ auto = r'''
 '''
 js = js.replace(protect_anchor, protect_anchor + auto, 1)
 
+short_line = "      const shortExchange=/(?:听.{0,12}(?:说明|讲|解释)|询问|问清|了解|交谈|聊|请.{0,10}(?:介绍|讲清|说明))/.test(user)&&!/(?:前往|赶往|出发|巡查|战斗|救援|清理|深入|调查现场|进入(?:[一-龥]{2,8}区)|动手处理)/.test(user);"
+short_new = "      const explicitNoAction=/(?:先|暂时|现在)?不(?:开始|继续|进行)?(?:这一轮|下一轮|本轮)?巡查|只(?:问|询问|聊|交谈|查看|确认)/.test(user);\n      const shortExchange=explicitNoAction||/(?:听.{0,12}(?:说明|讲|解释)|询问|问清|了解|交谈|聊|请.{0,10}(?:介绍|讲清|说明))/.test(user)&&!/(?:前往|赶往|出发|巡查|战斗|救援|清理|深入|调查现场|进入(?:[一-龥]{2,8}区)|动手处理)/.test(user);"
+assert short_line in js
+js = js.replace(short_line, short_new, 1)
+
 clock_anchor = "      if(path==='clock_minutes'&&next>old)invalid||=!morningReady(prior);"
 assert clock_anchor in js
 js = js.replace(clock_anchor, clock_anchor + "\n      if(path==='clock_minutes'&&next>old&&(secondRegionTravel||secondRegionAction)&&!alreadyChargedSecondRegion)invalid||=next-old!==80;", 1)
@@ -224,6 +228,7 @@ assert 'day6SecondRegionTravelIntent' in guard['content']
 assert 'alreadyChargedSecondRegion' in guard['content']
 assert '显式同步当前时刻' in guard['content']
 assert 'variables.display_data.clock_minutes' in guard['content']
+assert 'explicitNoAction' in guard['content']
 assert '跨区移动1次到10:40' in byid[104]['content']
 assert 'wenzi_injured' in guard['content']
 
