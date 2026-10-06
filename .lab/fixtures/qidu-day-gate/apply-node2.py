@@ -129,11 +129,7 @@ insert = r'''  const hasDay6LockedResolution=text=>{
 js = js.replace(marker, insert + marker, 1)
 
 old = "    if(prior.day===6&&day6DecisionMade(user)&&hasMorningVoice(transcript)&&hasSaihamDeparture(transcript))addFlag('day6_saiham');"
-new = r"""    if(prior.day===6&&hasMorningVoice(transcript)&&hasDay6FixedResolution(transcript)){
-      addFlag('day6_saiham');
-      if(get(prior,'intel_flags.first_chimera_incident_known')!==true&&!commands.some(c=>String(c.args?.[0]||'').replace(/^['"]|['"]$/g,'')==='intel_flags.first_chimera_incident_known'&&parse(c.args?.at(-1))===true))
-        commands.push({type:'set',args:['intel_flags.first_chimera_incident_known','false','true'],reason:'已听完安托涅瓦关于十几年前第一活骸事故的亲历说明'});
-    }"""
+new = "    if(prior.day===6&&hasMorningVoice(transcript)&&hasDay6LockedResolution(transcript))addFlag('day6_saiham');"
 assert old in js
 js = js.replace(old, new, 1)
 
@@ -159,4 +155,4 @@ assert '双腿在那场事故中残废' in byid[97]['content']
 assert '黑门早在多年前' not in blob
 
 dst.write_text(json.dumps(card, ensure_ascii=False, indent=2), encoding='utf-8')
-print(f'node2 hardflow candidate ready: {dst} sha256={hashlib.sha256(dst.read_bytes()).hexdigest()}')
+print(f'node2 canon-timing candidate ready: {dst} sha256={hashlib.sha256(dst.read_bytes()).hexdigest()}')
