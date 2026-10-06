@@ -3,14 +3,14 @@ import fs from 'node:fs/promises';
 import {chromium} from 'playwright';
 const out='.lab/fixtures/qidu-day-gate/live';
 await fs.mkdir(out,{recursive:true});
-const card=JSON.parse(await fs.readFile('.lab/fixtures/qidu-day-gate/Qidu-v0.4.47-node2-day6-hardflow-history.json','utf8'));
+const card=JSON.parse(await fs.readFile('.lab/fixtures/qidu-day-gate/Qidu-v0.4.48-node2-day6-canon-timing.json','utf8'));
 for(const s of card.data.extensions.tavern_helper.scripts)s.content=s.content.replace(/https:\/\/gcore\.jsdelivr\.net\/gh\/MagicalAstrogy\/MagVarUpdate@[^']+/, '/f7d-mvu.js');
 for(const script of card.data.extensions.tavern_helper.scripts)if(script.content.includes("host[KEY]={version:1,allow,dispose}"))script.content=script.content.replace("host[KEY]={version:1,allow,dispose}","host[KEY]={version:1,allow,dispose,state}");
 const init=JSON.parse(card.data.character_book.entries.find(e=>e.comment.includes('[InitVar]')).content);
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 const page=await browser.newPage({viewport:{width:1080,height:2500}});
 page.setDefaultTimeout(30000);
-const rounds=[],requests=[],apiResponses=[],errors=[];const testedRevision='node2-day6-3f-v047-hardflow-history';
+const rounds=[],requests=[],apiResponses=[],errors=[];const testedRevision='node2-day6-3f-v048-canon-timing';
 page.on('pageerror',e=>errors.push(e.message.slice(0,500)));const runtimeLog=[];page.on('console',m=>{const t=m.text();if(/Set '|七都|变量|mag_|过期|MVU|script error/i.test(t))runtimeLog.push(t.slice(0,2000));});
 page.on('request',r=>{if(r.url().endsWith('/api/backends/chat-completions/generate')){try{const d=r.postDataJSON();requests.push({model:d.model,source:d.chat_completion_source,message_count:d.messages?.length,chars:JSON.stringify(d.messages).length,messages:d.messages});void fs.writeFile(out+'/native-prompts.json',JSON.stringify(requests,null,2));}catch{}}});
 page.on('response',async r=>{if(r.url().endsWith('/api/backends/chat-completions/generate')){let body='';try{body=(await r.text()).slice(0,4000);}catch{}apiResponses.push({status:r.status(),body});void fs.writeFile(out+'/native-api-responses.json',JSON.stringify(apiResponses,null,2));}});
@@ -122,10 +122,10 @@ try{
  const storyTexts=[];
  let completed=false;
  const storyInputs=[
-   '继续第六天清晨的强制剧情。从我尚未醒来时的小神自语开始，严格按既定顺序自然演出；这段强制剧情没有全部结束前，不要给我自由行动选项。',
-   '继续尚未完成的第六天清晨强制剧情，从上一轮停下的下一个固定步骤往后演，不要重复前文，不要开放自由行动。',
-   '继续尚未完成的第六天清晨强制剧情，从上一轮停下的下一个固定步骤往后演，直到固定晨间链完整结束；不要跳步，不要开放自由行动。',
-   '继续完成仍未结束的第六天强制晨间链。只续写缺失步骤，完成后把行动权交回我。'
+   '继续第六天清晨08:00的0节点强制剧情。从我尚未醒来时的小神自语开始，严格按既定顺序演出，到希罗实际带着赛哈姆离开现场后立刻停止并把行动权交回我；不要自动替我回中央庭报告。',
+   '继续尚未完成的第六天08:00锁定段，从上一轮停下的下一个固定步骤往后演；到希罗实际带走赛哈姆后立即停止，不要自动完成回中央庭报告。',
+   '继续尚未完成的第六天08:00锁定段，只补完缺失步骤；希罗带走赛哈姆后结束时间锁并交回行动权，不要替我执行后续计时行动。',
+   '继续补完仍未结束的第六天08:00锁定段。只续写缺失步骤，希罗实际带走赛哈姆后停止。'
  ];
  const lockedKeys=['regions','cores','tasks','ann','route_flags','hiro','battle_flags','relationships'];
  for(let i=0;i<storyInputs.length;i++){
@@ -137,7 +137,11 @@ try{
    for(const key of lockedKeys){
      if(JSON.stringify(after[key])!==JSON.stringify(turn.before[key]))throw Error('morning action state changed early: '+key+' story round '+(i+1));
    }
-   if(after.morning_flags?.day6_saiham!==true&&/<f7d_choices>/i.test(text))throw Error('free-action choice block appeared before mandatory Day-6 chain completion round '+(i+1));
+   if(after.morning_flags?.day6_saiham!==true&&/<f7d_choices>/i.test(text))throw Error('free-action choice block appeared before Saiham departure round '+(i+1));
+   if(after.morning_flags?.day6_saiham===true){
+     const opts=[...text.matchAll(/<f7d_choice>([\s\S]*?)<\/f7d_choice>/gi)].map(m=>m[1]);
+     if(opts.some(o=>!/(?:中央庭|安托涅瓦|报告)/.test(o)))throw Error('unrelated free-action option appeared immediately after Day-6 unlock: '+opts.join(' | '));
+   }
    rounds.push({
      case:'day6-hardflow',
      round:i+1,
@@ -164,34 +168,64 @@ try{
  const must=[
    ['醒前小神/低语',/(?:小神|低语|呢喃|自语|声音)[\s\S]{0,500}(?:尚未醒|醒来|睁开|清晨|拍门|敲门)/],
    ['安拍门叫醒',/安[\s\S]{0,240}(?:拍门|敲门|砸门)[\s\S]{0,240}(?:醒|起来|出事)/],
-   ['赛哈姆活骸化',/赛哈姆[\s\S]{0,260}活骸/],
-   ['安不敌',/安[\s\S]{0,700}(?:不敌|被逼退|被压制|落入下风|受创)/],
-   ['希罗到场',/希罗/],
-   ['罗纳克救场',/罗纳克[\s\S]{0,500}(?:救|挡|拦|接住|解围|顶住|迎上)/],
-   ['奥露西娅完成压制',/奥露西娅[\s\S]{0,600}(?:压制|制服|制住|控制|解决|束缚)/],
-   ['赛哈姆重伤',/赛哈姆[\s\S]{0,1400}(?:重伤|伤势严重|伤得很重|奄奄一息|重创)/],
-   ['赛哈姆受控',/(?:奥露西娅[\s\S]{0,800}(?:压制|制服|制住|控制|束缚)[\s\S]{0,700}赛哈姆|赛哈姆[\s\S]{0,700}(?:压制|制服|制住|控制|拘束|束缚|固定))/],
-   ['希罗要求保密',/希罗[\s\S]{0,700}(?:保密|隐瞒|不要告诉|别告诉)/],
-   ['指挥使固定拒绝',/(?:你|指挥使)[\s\S]{0,300}(?:拒绝[^。\n]{0,40}(?:保密|隐瞒|希罗)|不(?:会|愿|肯)[^。\n]{0,40}(?:保密|隐瞒)|不会替[^。\n]{0,40}保密)/],
-   ['希罗遗憾',/希罗[\s\S]{0,300}(?:遗憾|可惜)/],
-   ['赛哈姆实际离场',/(?:希罗|罗纳克|奥露西娅|几人|一行人)[\s\S]{0,500}(?:带着|抬着|推着|护送着)[\s\S]{0,350}赛哈姆[\s\S]{0,500}(?:离开|带离|走出)|赛哈姆[\s\S]{0,500}(?:被带离|随[^。\n]{0,80}希罗[^。\n]{0,80}离开)/],
-   ['回中央庭报告安托涅瓦',/(?:回到|返回|赶回)[\s\S]{0,300}中央庭[\s\S]{0,900}安托涅瓦[\s\S]{0,500}(?:报告|告诉|说明|讲述)|(?:报告|告诉|说明|讲述)[\s\S]{0,500}安托涅瓦/],
-   ['十几年前第一活骸',/(?:十几年前|十余年前)[\s\S]{0,1000}(?:第一名|第一个)[^。\n]{0,30}活骸/],
-   ['安托涅瓦双腿残废',/安托涅瓦[\s\S]{0,1000}(?:双腿[^。\n]{0,120}(?:残废|无法行走|失去行走能力)|(?:残废|无法行走|失去行走能力)[^。\n]{0,120}双腿)/]
+   ['赛哈姆活骸化',/赛哈姆[\s\S]{0,300}活骸/],
+   ['安不敌',/安[\s\S]{0,800}(?:不敌|被逼退|被压制|落入下风|受创|震退|击退)/],
+   ['罗纳克救场',/罗纳克[\s\S]{0,600}(?:救|挡|拦|接住|解围|顶住|迎上)/],
+   ['奥露西娅压制',/奥露西娅[\s\S]{0,700}(?:压制|制服|制住|控制|解决|束缚)/],
+   ['赛哈姆重伤存活',/赛哈姆[\s\S]{0,1600}(?:重伤|伤势严重|伤得很重|奄奄一息|重创)[\s\S]{0,500}(?:存活|生命|喘息|昏迷|控制|束缚|固定)/],
+   ['幻力过高或过低导致活骸',/幻力[\s\S]{0,700}(?:过高[^。\n]{0,160}过低|过低[^。\n]{0,160}过高)[\s\S]{0,500}(?:暴走|活骸)/],
+   ['现有手段无法真正解除',/(?:活骸化一旦开始[^。\n]{0,100}(?:不能恢复|无法恢复)|净化[\s\S]{0,400}(?:痛苦|无效)|时间回溯[\s\S]{0,400}(?:瞬间|短暂|原样))/],
+   ['中央庭现行处理规则',/(?:中央庭[\s\S]{0,500}(?:消灭|处理)|(?:丧失神志|完全失控|进一步恶化)[\s\S]{0,400}(?:消灭|清除))/],
+   ['希罗研究希望',/希罗[\s\S]{0,900}(?:研究|治疗|抢救)[\s\S]{0,500}(?:也许|或许|说不定|希望|可能)/],
+   ['希罗要求保密',/希罗[\s\S]{0,800}(?:保密|隐瞒|不要告诉|别告诉)/],
+   ['指挥使固定拒绝',/(?:你|指挥使)[\s\S]{0,400}(?:拒绝[^。\n]{0,50}(?:保密|隐瞒|希罗)|不(?:会|愿|肯)[^。\n]{0,50}(?:保密|隐瞒)|不会替[^。\n]{0,50}保密)/],
+   ['希罗遗憾',/希罗[\s\S]{0,400}(?:遗憾|可惜)/],
+   ['赛哈姆实际离场',/(?:希罗|罗纳克|奥露西娅|几人|一行人)[\s\S]{0,600}(?:带着|抱起|抬着|推着|护送着)[\s\S]{0,400}赛哈姆[\s\S]{0,600}(?:离开|带离|走出)|赛哈姆[\s\S]{0,600}(?:被带离|被带走|随[^。\n]{0,100}希罗[^。\n]{0,100}离开)/]
  ];
  const missing=must.filter(([,re])=>!re.test(transcript)).map(([name])=>name);
  if(missing.length)throw Error('Day-6 mandatory prose missing: '+missing.join(' / '));
  if(/(?:半年前|六个月前)[^。\n]{0,80}(?:黑门[^。\n]{0,30}(?:首次|第一次|出现|诞生)|灾害[^。\n]{0,30}(?:首次|第一次|开始|爆发)|神器使[^。\n]{0,30}(?:首次|第一次|出现|诞生))/.test(transcript))throw Error('wrong half-year origin chronology appeared in Day-6 prose');
- if(/(?:体内(?:的)?幻力[^。\n]{0,80}(?:彻底失控|侵蚀|临界|阈值)|幻力[^。\n]{0,80}(?:侵蚀超过|超过临界|达到临界|达到阈值)|侵蚀[^。\n]{0,60}(?:临界|阈值)[^。\n]{0,60}(?:活骸|异化))/.test(transcript))throw Error('invented active-corpse pathology/mechanism');
- if(/安托涅瓦[^。\n]{0,160}(?:必然|必须|一定|只能)[^。\n]{0,100}(?:击毙|处决|抹杀|消灭)|中央庭[^。\n]{0,180}(?:必然|必须|唯一|只能)[^。\n]{0,100}(?:击毙|处决|抹杀|消灭)/.test(transcript))throw Error('invented Central Court mandatory execution policy');
  if(/(?:唯一|保证|必定)[^。\n]{0,80}(?:治愈|逆转|恢复正常)|(?:治愈|逆转)[^。\n]{0,80}(?:装置|设备)[^。\n]{0,80}(?:唯一|保证|必定)/.test(transcript))throw Error('invented guaranteed active-corpse cure');
  if(/赛哈姆[^。\n]{0,100}(?:死亡|死去|断气|当场毙命)|赛哈姆[^。\n]{0,140}(?:恢复正常|完全恢复|变回正常)/.test(transcript))throw Error('Saiham was killed or fully restored during mandatory chain');
  if(/安托涅瓦[^。\n]{0,120}(?:截肢|双腿被切除|没有双腿|失去两条腿)/.test(transcript))throw Error('Antoneva disability was rewritten as amputation');
  const finalStory=rounds.filter(r=>r.case==='day6-hardflow').at(-1).after;
  if(finalStory.morning_flags?.day6_monologue!==true)throw Error('day6_monologue not committed');
- if(finalStory.morning_flags?.day6_saiham!==true)throw Error('day6_saiham full-chain flag not committed');
- if(finalStory.intel_flags?.first_chimera_incident_known!==true)throw Error('first chimera incident knowledge was not committed');
- if(finalStory.clock_minutes!==480)throw Error('mandatory chain consumed action time');
+ if(finalStory.morning_flags?.day6_saiham!==true)throw Error('day6_saiham was not committed at Saiham departure');
+ if(finalStory.intel_flags?.first_chimera_incident_known===true)throw Error('first chimera incident became known before the timed report action');
+ if(finalStory.clock_minutes!==480)throw Error('08:00 locked segment consumed action time');
+ if(/(?:回到|返回|赶回)[\s\S]{0,300}中央庭[\s\S]{0,900}安托涅瓦[\s\S]{0,400}(?:报告|告诉|说明|讲述)/.test(transcript))throw Error('model auto-completed Antoneva report inside 0-node locked segment');
+
+ await page.evaluate(()=>{
+   const chat=document.querySelector('#chat');
+   if(!chat)return;
+   chat.dataset.qiduPrevHeight=chat.style.height||'';
+   chat.dataset.qiduPrevMaxHeight=chat.style.maxHeight||'';
+   chat.dataset.qiduPrevOverflow=chat.style.overflow||'';
+   chat.style.height=chat.scrollHeight+'px';
+   chat.style.maxHeight='none';
+   chat.style.overflow='visible';
+ });
+ await page.waitForTimeout(500);
+ await page.locator('#chat').screenshot({path:out+'/day6-locked-story.jpg',type:'jpeg',quality:92});
+ await page.evaluate(()=>{
+   const chat=document.querySelector('#chat');
+   if(!chat)return;
+   chat.style.height=chat.dataset.qiduPrevHeight||'';
+   chat.style.maxHeight=chat.dataset.qiduPrevMaxHeight||'';
+   chat.style.overflow=chat.dataset.qiduPrevOverflow||'';
+ });
+
+ const reportUser='我现在回中央庭，把赛哈姆活骸化、希罗要求保密并带走她的事情完整报告给安托涅瓦。';
+ const report=await generateTurn(reportUser,'day6-report-antoneva');
+ const reportState=report.data.variables?.stat_data;
+ const reportText=String(report.data.text||'');
+ rounds.push({case:'day6-report',round:1,user:reportUser,before:report.before,after:reportState,text:reportText,terminal:report.data.terminal,gateState:report.data.gateState,requests:report.turnRequests});
+ if(reportState.morning_flags?.day6_saiham!==true)throw Error('day6 unlock flag regressed during report');
+ if(reportState.clock_minutes!==560)throw Error('Antoneva report did not consume exactly one 80-minute node; clock='+reportState.clock_minutes);
+ if(reportState.intel_flags?.first_chimera_incident_known!==true)throw Error('first chimera incident knowledge not committed after report');
+ if(!/(?:十几年前|十余年前)[\s\S]{0,1200}(?:第一名|第一个)[^。\n]{0,40}活骸/.test(reportText))throw Error('Antoneva report scene omitted first active-corpse history');
+ if(!/安托涅瓦[\s\S]{0,1200}(?:双腿[^。\n]{0,140}(?:残废|无法行走|失去行走能力)|(?:残废|无法行走|失去行走能力)[^。\n]{0,140}双腿)/.test(reportText))throw Error('Antoneva report scene omitted leg disability');
+ await page.screenshot({path:out+'/day6-report-antoneva.jpg',type:'jpeg',quality:90,fullPage:true});
 
  await page.evaluate(()=>{
    const chat=document.querySelector('#chat');
@@ -218,10 +252,10 @@ try{
  const post=patrol.data.variables?.stat_data;
  rounds.push({case:'day6-post-morning',round:1,user:patrolUser,before:patrol.before,after:post,text:patrol.data.text,terminal:patrol.data.terminal,gateState:patrol.data.gateState,requests:patrol.turnRequests});
  if(post.morning_flags?.day6_saiham!==true)throw Error('day6 mandatory chain regressed after patrol');
- if(post.clock_minutes!==560)throw Error('first post-morning patrol did not spend 80 minutes; clock='+post.clock_minutes);
+ if(post.clock_minutes!==640)throw Error('first patrol after the timed report did not spend another 80 minutes; clock='+post.clock_minutes);
  await page.screenshot({path:out+'/day6-post-morning-unlocked.jpg',type:'jpeg',quality:90,fullPage:true});
  await checkpoint('completed day6 hardflow and unlock');
- await fs.writeFile(out+'/native-live.json',JSON.stringify({model:'gemini-3-flash-preview',native:true,testedRevision,rounds,apiResponses,errors,assertions:{mandatoryFlow:true,historyChronology:true,noFreeChoices:true,morningLockedAt480:true,postMorningPatrolAt560:true}},null,2));
+ await fs.writeFile(out+'/native-live.json',JSON.stringify({model:'gemini-3-flash-preview',native:true,testedRevision,rounds,apiResponses,errors,assertions:{mandatoryLockedFlow:true,canonChimeraLore:true,unlockAtSaihamDeparture:true,reportConsumes80Minutes:true,reportAt560:true,postReportPatrolAt640:true}},null,2));
  await fs.writeFile(out+'/native-prompts.json',JSON.stringify(requests,null,2));
 }catch(e){failure={message:e.message,phase:lastPhase,stack:e.stack};await checkpoint('blocked: '+e.message);await page.screenshot({path:out+'/blocked.jpg',type:'jpeg',quality:90}).catch(()=>{});}
 await fs.writeFile(out+'/native-live.json',JSON.stringify({model:'gemini-3-flash-preview',native:true,rounds,apiResponses,errors,failure},null,2));
