@@ -4,6 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 const fixture=JSON.parse(fs.readFileSync(new URL('./replay-fixture.json',import.meta.url),'utf8'));
 const source=fs.readFileSync(new URL('./morning-guard.js',import.meta.url),'utf8');
+const boardingBaseline=fs.readFileSync(new URL('./morning-guard.boarding-baseline.js',import.meta.url),'utf8');
 const baseline=fs.readFileSync(new URL('./morning-guard.baseline.js',import.meta.url),'utf8');
 const flag=(key,next='true')=>({type:'set',args:[JSON.stringify('morning_flags.'+key),'false',next]});
 const mon=()=>flag('day6_monologue'),departure=()=>flag('day6_saiham');
@@ -152,3 +153,50 @@ for(const s of [
  '车队带着希罗，从赛哈姆身边驶离中央庭的管辖区域。',
  '车队带着赛哈姆驶离中央庭的管辖区域。赛哈姆仍留在中央庭。',
 ])test('车队辖区反例仍不得结算：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});
+
+const boardingFailure=JSON.parse(fs.readFileSync(new URL('./boarding-failure.json',import.meta.url),'utf8'));
+test('真实登车驶离全文修前拒绝，修后保留原命令且顺序无关',()=>{
+ const opts={text:boardingFailure.text,state:boardingFailure.before,user:boardingFailure.user,commands:boardingFailure.commands};
+ assert.equal(has(run({...opts,code:boardingBaseline}),'day6_saiham'),false);
+ for(const commands of [opts.commands,[...opts.commands].reverse()]){
+  const rows=run({...opts,commands});assert.ok(has(rows,'day6_monologue'));assert.ok(has(rows,'day6_saiham'));
+  assert.ok(rows.every(c=>opts.commands.some(old=>JSON.stringify(old)===JSON.stringify(c))));
+ }
+});
+for(const s of [
+ '赛哈姆登上运输车，随车流驶离了中央庭区域。',
+ '随行人员将昏迷的赛哈姆抬上运输车，驶离中央庭的管辖区域。',
+ '赛哈姆被送上早已等候的救护车，随后驶出了中央庭辖区。',
+ '希罗护送着赛哈姆的身影穿过广场，登上防区边缘的专用运输车，随车流驶离了中央庭区域。',
+ '赛哈姆上了运输车，驶离中央庭。',
+ '赛哈姆没有再抵抗，被扶上救护车，驶离了中央庭区域。',
+])test('人物登车与同车实际离场关联：'+s,()=>{assert.ok(has(run({text:vehicleStory(s)}),'day6_saiham'));});
+for(const s of [
+ '赛哈姆登上运输车，停在中央庭。',
+ '赛哈姆没有登上运输车，车辆驶离中央庭区域。',
+ '赛哈姆未曾上了运输车，车辆驶离中央庭区域。',
+ '赛哈姆被抬上运输车，尚未驶离中央庭区域。',
+ '赛哈姆不会登上运输车，车辆驶离中央庭区域。',
+ '赛哈姆登上运输车，将驶离中央庭区域。',
+ '赛哈姆准备登上运输车，随后驶离中央庭区域。',
+ '如果赛哈姆登上运输车，随车流驶离中央庭区域，你会跟上。',
+ '你回忆赛哈姆登上运输车，随车流驶离中央庭区域的情景。',
+ '昨天赛哈姆登上运输车，随车流驶离中央庭区域。',
+ '据说赛哈姆登上运输车，随车流驶离中央庭区域。',
+ '“赛哈姆登上运输车，随车流驶离中央庭区域。”',
+ '赛哈姆的行李被送上运输车，驶离中央庭区域。',
+ '赛哈姆的照片被送上运输车，驶离中央庭区域。',
+ '赛哈姆站在旁边，希罗登上运输车，驶离中央庭区域。',
+ '赛哈姆留在大厅，随行人员登上运输车，驶离中央庭区域。',
+ '赛哈姆登上运输车，随后下车，车辆驶离中央庭区域。',
+ '赛哈姆登上运输车，但又被放在原地，车辆驶离中央庭区域。',
+ '赛哈姆登上运输车，另一辆车驶离中央庭区域。',
+ '赛哈姆登上运输车，空车驶离中央庭区域。',
+ '赛哈姆登上运输车，驶离中央庭区域内的通道。',
+ '赛哈姆登上运输车，驶离中央庭的管辖区域内的主廊。',
+ '赛哈姆登上运输车，驶离中央庭 的大厅。',
+ '赛哈姆登上运输车，驶离中央庭大门。',
+ '赛哈姆登上运输车，驶离中央庭区域。赛哈姆仍留在中央庭。',
+ '赛哈姆没有登上运输车。希罗登上运输车，驶离中央庭区域。',
+])test('登车关联反例不能冒充人物离场：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});
+test('登车全文缺少模型离场命令仍不能自动补命令',()=>{assert.equal(has(run({text:boardingFailure.text,commands:[mon()]}),'day6_saiham'),false);});

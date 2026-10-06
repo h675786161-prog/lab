@@ -34,11 +34,6 @@
     // 区域名须完整结束，不能把“管辖区域内的主廊”截成已经离开整个区域。
     const carriedDeparture=/(?:运输车辆|运输车|救护车|车辆|车队|汽车)[^。！？\n]{0,60}(?:载着|搭载着|搭载|带着)(?:希罗(?:与|和))?(?:(?:昏迷(?:中)?|失去意识|受伤|被固定|活骸化|已经昏迷|陷入昏迷)的)?赛哈姆(?!的)[^。！？\n]{0,100}(?:驶离|驶出)(?:了)?中央庭(?:的管辖区域|管辖区域|区域|辖区)?(?=\s*(?:$|[，,。！？；;：:]))/;
     const carriedExcluded=/(?:并未|没有|尚未|未曾|还没|不会|不曾|不)(?:真正|实际|已经|再)?(?:载着|搭载着?|带着|驶离|驶出)|(?:将|会|预计|可能|应该|也许)[^。！？\n]{0,16}(?:载着|搭载着?|带着|驶离|驶出)|(?:昨天|昨日|此前|据说|听说)[^。！？\n]{0,180}(?:载着|搭载着?|带着|驶离|驶出)/;
-    // 人物先登车的语序也须证明同句实际驶离，且中途没有下车或更换乘员。
-    const boardedDeparture=/赛哈姆(?!的(?!身影))([^。！？\n]{0,100}?)(?:登上|上了|抬上|送上|抱上|扶上)([^。！？\n]{0,50}?)(?:运输车辆|运输车|救护车|车辆|汽车)([^。！？\n]{0,100}?)(?:驶离|驶出)(?:了)?中央庭(?:的管辖区域|管辖区域|区域|辖区)?(?=\s*(?:$|[，,。！？；;：:]))/;
-    const boardedExcluded=/(?:没有|并未|尚未|未曾|还没|不会|不曾|不)(?:真正|实际|已经|再)?(?:登上|上了|抬上|送上|抱上|扶上|驶离|驶出)|(?:将(?!(?:(?:昏迷|受伤|失去意识)的)?赛哈姆)|会|预计|可能|应该|也许|昨天|昨日|此前|据说|听说)[^。！？\n]{0,180}(?:登上|上了|抬上|送上|抱上|扶上|驶离|驶出)/;
-    const changedPassenger=/下车|离开(?:了)?(?:运输车|救护车|车辆|汽车)|(?:留|放|停)[^。！？\n]{0,12}(?:中央庭|原地|车外)|另一辆|另外一辆|空车|空载/;
-    const changedBoardingSubject=/希罗|随行人员|工作人员|护送人员|随从|其他人|另一人|他们|他(?:却|则|独自)|她(?:却|则|独自)|指挥使|安(?:托涅瓦)?|晏华|你|我|旁边|身旁|车旁|站在|站着|留在|停在|看着|望着|等待/;
     const excluded=/(?:(?:没有|并未|尚未|还没|不会|未曾)(?:被(?:希罗|随从|护送人员)?)?(?:带着|抬着|推着|护送着|离开|带离|带出|走出|转移|带走|驶离|驶出)|(?:计划|打算|准备|即将|将要|将会|可能|声称|表示|如果|假如|要是|想象|回忆|回想)[^。！？\n]{0,180}(?:离开|带离|走出|转移|带走|驶离|驶出))/;
     const stay=/赛哈姆[^。！？\n]{0,100}(?:(?:仍|依旧|还)(?:留|在)[^。！？\n]{0,60}中央庭|(?:没有|并未|尚未|还没)(?:被)?(?:带走|带离|转移|离开))/;
     let lastComplete=-1,lastStay=-1;
@@ -47,9 +42,7 @@
       if(stay.test(p))lastStay=i;
       const context=sentences.slice(Math.max(0,i-1),i+1).join('。');
       const actualCarriedDeparture=!carriedExcluded.test(p)&&carriedDeparture.test(p);
-      const boarded=boardedDeparture.exec(p);
-      const actualBoardedDeparture=boarded&&!boardedExcluded.test(p)&&!changedBoardingSubject.test(boarded[1])&&!changedPassenger.test(boarded[0]);
-      if((!excluded.test(p)&&(complete.test(p)||actualCarriedDeparture||actualBoardedDeparture))||(!excluded.test(context)&&escortedVehicle.test(context)))lastComplete=i;
+      if((!excluded.test(p)&&(complete.test(p)||actualCarriedDeparture))||(!excluded.test(context)&&escortedVehicle.test(context)))lastComplete=i;
     }
     const observed=String(text||'').replace(/<f7d_choices>[\s\S]*?<\/f7d_choices>/gi,'');
     return /希罗/.test(observed)&&/活骸/.test(observed)&&lastComplete>=0&&lastComplete>lastStay;
