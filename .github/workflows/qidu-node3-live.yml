@@ -4,7 +4,7 @@ on:
     branches: [feature/qidu-day6-node3-region-branches-20261007]
     paths: ['.github/workflows/qidu-node3-live.yml', '.lab/fixtures/qidu-day-gate/node3-live.mjs', '.lab/fixtures/qidu-day-gate/apply-node1.py', '.lab/fixtures/qidu-day-gate/apply-node2.py', '.lab/fixtures/qidu-day-gate/apply-node3.py']
 concurrency:
-  group: qidu-node3-day6-3f-${{ matrix.case }}
+  group: qidu-node3-day6-3f-20261007
   cancel-in-progress: true
 permissions:
   contents: read
