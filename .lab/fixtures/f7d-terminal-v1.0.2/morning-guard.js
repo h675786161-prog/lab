@@ -28,7 +28,7 @@
   };
   const hasSaihamDeparture=text=>{
     const visible=narrative(text),sentences=visible.split(/[。！？\n]+/);
-    const complete=/(?:赛哈姆[^。！？\n]{0,100}(?:被(?:希罗)?(?:带|抬|推|护送)离(?:了)?中央庭|已经离开(?:了)?中央庭|随(?:着)?希罗[^。！？\n]{0,80}(?:离开|走出)(?:了)?中央庭)|(?:希罗|随从|护送人员|工作人员|几人|一行人|他)[^。！？\n]{0,100}(?:带着|抬着|推着|护送着)[^。！？\n]{0,120}赛哈姆[^。！？\n]{0,160}(?:离开|走出)(?:了)?中央庭)/;
+    const complete=/(?:赛哈姆[^。！？\n]{0,100}(?:被(?:希罗)?(?:带|抬|推|护送)离(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道))|已经离开(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道))|随(?:着)?希罗[^。！？\n]{0,80}(?:离开|走出)(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道)))|(?:希罗|随从|护送人员|工作人员|几人|一行人|他)[^。！？\n]{0,100}(?:带着|抬着|推着|护送着)[^。！？\n]{0,120}赛哈姆[^。！？\n]{0,160}(?:离开|走出)(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道)))|(?:希罗|随从|随行人员|护送人员|工作人员|几人|一行人|他)[^。！？\n]{0,100}(?:将|把)赛哈姆[^。！？\n]{0,100}(?:带|抬|推|护送)(?:离|出)(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道))/;
     const excluded=/(?:(?:没有|并未|尚未|还没|不会|未曾)(?:被(?:希罗|随从|护送人员)?)?(?:带着|抬着|推着|护送着|离开|带离|带出|走出|转移|带走)|(?:计划|打算|准备|即将|将要|将会|可能|声称|表示|如果|假如|要是|想象|回忆|回想)[^。！？\n]{0,180}(?:离开|带离|走出|转移|带走))/;
     const stay=/赛哈姆[^。！？\n]{0,100}(?:(?:仍|依旧|还)(?:留|在)[^。！？\n]{0,60}中央庭|(?:没有|并未|尚未|还没)(?:被)?(?:带走|带离|转移|离开))/;
     let lastComplete=-1,lastStay=-1;
@@ -37,7 +37,8 @@
       if(stay.test(p))lastStay=i;
       if(!excluded.test(p)&&complete.test(p))lastComplete=i;
     }
-    return /希罗/.test(visible)&&/活骸/.test(visible)&&lastComplete>=0&&lastComplete>lastStay;
+    const observed=String(text||'').replace(/<f7d_choices>[\s\S]*?<\/f7d_choices>/gi,'');
+    return /希罗/.test(observed)&&/活骸/.test(observed)&&lastComplete>=0&&lastComplete>lastStay;
   };
   const gates={6:['day6_monologue','day6_saiham'],5:['day5_monologue','day5_split'],4:['day4_monologue','day4_speech'],3:['day3_monologue','day3_ann_departure'],2:['day2_monologue']};
   const morningReady=prior=>prior.day===7?prior.tasks?.DAY7_OPENING?.status==='completed':(gates[prior.day]||[]).every(key=>prior.morning_flags?.[key]===true);

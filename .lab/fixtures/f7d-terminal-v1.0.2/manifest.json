@@ -35,12 +35,12 @@
       "bytes": 3577
     },
     "Qidu-v0.4.41-terminal-v1.0.2.json": {
-      "sha256": "624c93c6e53e24b62c785254dc6073f9a43cdac24e802ea72183578d1079b0f3",
-      "bytes": 1641544
+      "sha256": "81c14faa623ffad2fd6195f71994c8893027f23b463dc4a843b9c2e45eb46dbe",
+      "bytes": 1642267
     },
     "README.md": {
-      "sha256": "c317144f343cc8cd75486539241f11de88492123678096424e2e63043c89bafc",
-      "bytes": 2397
+      "sha256": "82dcafa5b5967923963b8a8d2133c8ee0cfce7991a9ea543b7909ba0d7fa929c",
+      "bytes": 2433
     },
     "card-only-smoke.mjs": {
       "sha256": "c01a9480357db7fed72fd0a872c6b972c8be21c77ec52c975af408e667a5aaf0",
@@ -51,28 +51,28 @@
       "bytes": 11010
     },
     "guard.test.mjs": {
-      "sha256": "70c06103b390463dbac547540737fd722c31b82e65e464f7005531877cf7f8aa",
-      "bytes": 6429
+      "sha256": "31d6375301cec3068720287c9bfa68549112ecc59ed156c24fdd2d8876c18560",
+      "bytes": 7517
     },
     "morning-guard.baseline.js": {
       "sha256": "de2b29cd7c2e8ed64c9b4420f116a1e065a2402c11396230066467918d407077",
       "bytes": 8957
     },
     "morning-guard.js": {
-      "sha256": "eb1ad99dc63c54ed7e1ca7a2463f29d0e1b2ed046e35c810748a9a0c7d319f80",
-      "bytes": 11751
+      "sha256": "3c763d82db1f4961ffa51b35502239bf2f125f227a664c881b60531265326452",
+      "bytes": 12468
     },
     "mvu-commit-hook.js": {
       "sha256": "062c4d9eb3e1a51f840c450347773f8cbd5957bed0e62b50e75004ebd78fec4e",
       "bytes": 2984
     },
     "native-live.mjs": {
-      "sha256": "59a694443e37259c80e2b9a1ec7e3fed21e30bd88af83c42fa6c8ce3760b12d8",
-      "bytes": 15679
+      "sha256": "e856dbc68cc647c6582a7595b0235da32b385cbb65c14ffa8eeb0172829c8de4",
+      "bytes": 15790
     },
     "replay-fixture.json": {
-      "sha256": "91330432bf32110997d3428cb82fa45ddfbd67cdddc8c857a415000dcc7e51dc",
-      "bytes": 17145
+      "sha256": "e2b8027189799df2d51331b18d8464be9c5d81a707bc1e8ad6da04bad83f1936",
+      "bytes": 21066
     },
     "verify-delivery.mjs": {
       "sha256": "a6bd0d0fbb2e47f2d4807dc24ece7a2c9ccd0f6f960aa50ba6f9c4be130482db",

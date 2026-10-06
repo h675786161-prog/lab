@@ -59,3 +59,9 @@ test('错误操作类型不能绕过前置检查',()=>{const a=mon();a.type='ins
 
 
 test('整块晨间旗标写入不能绕过逐项校验',()=>{const rows=run({commands:[{type:'set',args:['\"morning_flags\"',JSON.stringify({day6_monologue:true,day6_saiham:true})]}]});assert.equal(rows.length,0);});
+
+test('活骸概念通过现场对白获知不要求旁白重复',()=>{const text=voice+'希罗说：“这是活骸化。”希罗带着赛哈姆离开了中央庭。';assert.ok(has(run({text}),'day6_saiham'));});
+test('随行人员将赛哈姆带离整个中央庭允许结算',()=>{const text=voice+'希罗处理赛哈姆的活骸化。随行人员将赛哈姆带离了中央庭。';assert.ok(has(run({text}),'day6_saiham'));});
+test('被带离主廊不能冒充离开整个中央庭',()=>{const text=voice+'希罗处理赛哈姆的活骸化。赛哈姆被带离了中央庭主廊。';assert.equal(has(run({text}),'day6_saiham'),false);});
+test('主动带离主廊不能冒充离开整个中央庭',()=>{const text=voice+'希罗处理赛哈姆的活骸化。随行人员将赛哈姆带离了中央庭主廊。';assert.equal(has(run({text}),'day6_saiham'),false);});
+test('最新真实模型只离开主廊的错误完成命令被拒绝',()=>{const rows=run({text:fixture.latestNaturalFailure.text});assert.ok(has(rows,'day6_monologue'));assert.equal(has(rows,'day6_saiham'),false);});
