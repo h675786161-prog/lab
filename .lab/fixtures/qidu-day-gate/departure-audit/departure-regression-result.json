@@ -1,0 +1,51 @@
+{
+  "sourceCommit": "5bf28e33407938e42a5cdbbaad4c250e7dea0d99",
+  "runId": "37211901343",
+  "baselineActualText": false,
+  "fixedActualText": true,
+  "cases": [
+    {
+      "name": "带离完成",
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "旧表达",
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "尚未离场",
+      "expected": false,
+      "passed": true
+    },
+    {
+      "name": "仍然在场",
+      "expected": false,
+      "passed": true
+    },
+    {
+      "name": "只是对白",
+      "expected": false,
+      "passed": true
+    },
+    {
+      "name": "准备离场",
+      "expected": false,
+      "passed": true
+    },
+    {
+      "name": "等待转移",
+      "expected": false,
+      "passed": true
+    },
+    {
+      "name": "没有人物",
+      "expected": false,
+      "passed": true
+    }
+  ],
+  "scope": "Exact departure predicate only; not a new SillyTavern or model run",
+  "mvuCommittedMonologue": true,
+  "finishReason": "not recorded; truncation not proven"
+}
