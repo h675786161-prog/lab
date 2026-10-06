@@ -1,0 +1,75 @@
+{
+  "sourceCommit": "5bf28e33407938e42a5cdbbaad4c250e7dea0d99",
+  "sourceRun": "37211901343",
+  "scope": "整段守卫运行于模拟事件环境；不是实机提交验收",
+  "count": 9,
+  "rows": [
+    {
+      "name": "原始整段守卫复现真实漏判",
+      "passed": true
+    },
+    {
+      "name": "修正整段守卫补齐离场命令",
+      "passed": true
+    },
+    {
+      "name": "尚未决定不结算",
+      "passed": true
+    },
+    {
+      "name": "只演出离场但没有晨间独白不结算",
+      "passed": true
+    },
+    {
+      "name": "对白中的离场不结算且删去模型错误命令",
+      "passed": true
+    },
+    {
+      "name": "尚未离场不结算且删去模型错误命令",
+      "passed": true
+    },
+    {
+      "name": "前一天离场历史不替代今天演出",
+      "passed": true
+    },
+    {
+      "name": "已结算的旗标不重复补写",
+      "passed": true
+    },
+    {
+      "name": "晨间锁定拒绝额外消耗时间",
+      "passed": true
+    }
+  ],
+  "baseline": [
+    {
+      "type": "set",
+      "args": [
+        "morning_flags.day6_monologue",
+        "false",
+        "true"
+      ],
+      "reason": "当前日正文已完成固定演出"
+    }
+  ],
+  "fixed": [
+    {
+      "type": "set",
+      "args": [
+        "morning_flags.day6_monologue",
+        "false",
+        "true"
+      ],
+      "reason": "当前日正文已完成固定演出"
+    },
+    {
+      "type": "set",
+      "args": [
+        "morning_flags.day6_saiham",
+        "false",
+        "true"
+      ],
+      "reason": "当前日正文已完成固定演出"
+    }
+  ]
+}
