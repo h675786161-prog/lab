@@ -1,4 +1,5 @@
 name: Qidu Gemini native live
+# node2-v048-canon-timing-rerun
 on:
   push:
     branches: [feature/qidu-day6-node2-3f-20261004]
