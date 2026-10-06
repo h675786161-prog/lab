@@ -28,7 +28,7 @@ node3_lore = '''【第6天后续｜第二地区六次巡查硬链】
 1. 第一次进入中央城区必须真实遇见赛斯，由他以中央庭神官身份参与眼前的居民疏散/治安与怪物问题，留下后续调查入口；同轮登记morning_flags.day6_seth=true。赛斯不能只作为任务名单里的名字，也不能一进城就跳到莱奥斯或黑核。
 2. 第二次继续处理城区现实危机，可推进莱奥斯相关异常/战斗；莱奥斯是有自主行动逻辑的机械伙伴，不写成无情机器人。
 3. 第三次让丽与莱奥斯关系进入主视野；丽对资源与安全的敏感来自经历，不写成只认钱的大小姐。
-4. 第四次继续居民/治安线。妮维若在此阶段或此前自然会合，必须通过现场位置、巡警身份与会合过程登场；她使用双枪与三头犬，不得凭空加入队伍或改成双刀/长枪。赛斯仍保持“不正经外表下认真处理小事”的核心。
+4. 第四次继续居民/治安线。妮维最迟必须在这一阶段通过现场位置、巡警身份与自然会合过程正式登场；她使用双枪与三头犬，不得凭空加入队伍或改成双刀/长枪。赛斯从第一次接引后不能被剧情吞掉，至少保持为持续参与/提供城区线索的同行或协作者，并保留“不正经外表下认真处理小事”的核心。
 5. 第五次敌方干扰逼近。达尔维拉/希罗侧痕迹必须通过现场证据逐步确认，不能因后台设定让{{user}}隔空实名识别。
 6. 第六次正面解决中央城区核心冲突，必须真实击败/解除利维坦造成的当前核心威胁后才可登记regions.central.liberated=true。这一步不净化中央城区黑核。
 结算：保持first_second_region='east'、oldstreet_delayed=false；不得回头制造“雯梓因延误受伤”。若前一日古街已经正常解放并有wenzi_joined=true，不得在城区线无故改回false。
@@ -145,6 +145,15 @@ auto = r'''
     const secondRegionAction=prior.day===6&&prior.intel_flags?.first_chimera_incident_known===true&&secondZone&&!prior.regions?.[secondZone]?.liberated&&regionActionIntent(user,prior);
     if(secondRegionAction&&prior.clock_minutes<1440&&!commands.some(c=>String(c.args?.[0]||'').replace(/^['"]|['"]$/g,'')==='clock_minutes'))
       commands.push({type:'set',args:['clock_minutes',String(prior.clock_minutes),String(Math.min(1440,prior.clock_minutes+80))],reason:'第6天第二地区一次实际行动消耗1节点'});
+    const regionCountNow=secondZone?day6RegionActionCount(secondZone,story):0;
+    const secondZoneSolved=secondZone==='central'
+      ? /利维坦/.test(story)&&/(?:中央城区|城区)[^。\n]{0,80}(?:解放|危机解除)|(?:解放|危机解除)[^。\n]{0,80}(?:中央城区|城区)/.test(story)
+      : secondZone==='east'
+        ? /(东方古街|古街)[^。\n]{0,80}(?:解放|危机解除)|(?:解放|危机解除)[^。\n]{0,80}(?:东方古街|古街)/.test(story)
+        : false;
+    const injuryReady=prior.route_flags?.wenzi_injured===true||commands.some(c=>String(c.args?.[0]||'').replace(/^['"]|['"]$/g,'')==='route_flags.wenzi_injured'&&parse(c.args?.at(-1))===true);
+    if(secondRegionAction&&regionCountNow>=6&&secondZoneSolved&&(secondZone!=='east'||injuryReady)&&!commands.some(c=>String(c.args?.[0]||'').replace(/^['"]|['"]$/g,'')==='regions.'+secondZone+'.liberated'))
+      commands.push({type:'set',args:['regions.'+secondZone+'.liberated','false','true'],reason:'第6天第二地区第六次实际巡查已收束核心危机'});
 '''
 js = js.replace(protect_anchor, protect_anchor + auto, 1)
 
