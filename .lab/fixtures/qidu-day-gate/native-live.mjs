@@ -189,7 +189,7 @@ try{
  if(/(?:唯一|保证|必定)[^。\n]{0,80}(?:治愈|逆转|恢复正常)|(?:治愈|逆转)[^。\n]{0,80}(?:装置|设备)[^。\n]{0,80}(?:唯一|保证|必定)/.test(transcript))throw Error('invented guaranteed active-corpse cure');
  if(/(?:身体组织|组织)[^。\n]{0,100}(?:崩溃|坏死)|神经系统[^。\n]{0,100}(?:崩溃|坏死|不可逆)/.test(transcript))throw Error('invented active-corpse pathology stage');
  if(/(?:过度抽取|耗竭过低|平衡被打破|达到(?:了)?阈值|突破(?:了)?临界|更深层(?:的)?幻力探索)/.test(transcript))throw Error('invented active-corpse causal mechanism or research theory');
- if(/(?:中央庭|安托涅瓦|结论)[^。\n]{0,140}(?:粉饰无能|无能的规矩|习惯了[^。\n]{0,60}无能|太过武断|过于武断)/.test(transcript))throw Error('invented Hiro insult/judgment toward Central Court in canon explanation');
+ if(/(?:中央庭|安托涅瓦|结论|决断)[^。\n]{0,160}(?:粉饰无能|无能的规矩|习惯了[^。\n]{0,60}无能|太过武断|过于武断|不近人情|冷血|残酷得没有道理)/.test(transcript))throw Error('invented Hiro insult/judgment toward Central Court in canon explanation');
  if(/赛哈姆[^。\n]{0,100}(?:死亡|死去|断气|当场毙命)|赛哈姆[^。\n]{0,140}(?:恢复正常|完全恢复|变回正常)/.test(transcript))throw Error('Saiham was killed or fully restored during mandatory chain');
  if(/安托涅瓦[^。\n]{0,120}(?:截肢|双腿被切除|没有双腿|失去两条腿)/.test(transcript))throw Error('Antoneva disability was rewritten as amputation');
  const finalStory=rounds.filter(r=>r.case==='day6-hardflow').at(-1).after;
@@ -197,7 +197,8 @@ try{
  if(finalStory.morning_flags?.day6_saiham!==true)throw Error('day6_saiham was not committed at Saiham departure');
  if(finalStory.intel_flags?.first_chimera_incident_known===true)throw Error('first chimera incident became known before the timed report action');
  if(finalStory.clock_minutes!==480)throw Error('08:00 locked segment consumed action time');
- if(/(?:回到|返回|赶回)[\s\S]{0,300}中央庭[\s\S]{0,900}安托涅瓦[\s\S]{0,400}(?:报告|告诉|说明|讲述)/.test(transcript))throw Error('model auto-completed Antoneva report inside 0-node locked segment');
+ const narrativeOnly=transcript.replace(/<f7d_choices>[\s\S]*?<\/f7d_choices>/gi,'').replace(/<branches>[\s\S]*?<\/branches>/gi,'').replace(/<UpdateVariable>[\s\S]*?<\/UpdateVariable>/gi,'');
+ if(/(?:你|你与安|你们)[^。\n]{0,120}(?:回到|返回|赶回)[^。\n]{0,100}中央庭[\s\S]{0,700}(?:向|对)[^。\n]{0,100}安托涅瓦[^。\n]{0,180}(?:报告|汇报|告诉|说明|讲述)/.test(narrativeOnly))throw Error('model auto-completed Antoneva report inside 0-node locked segment');
 
  await page.evaluate(()=>{
    const chat=document.querySelector('#chat');
