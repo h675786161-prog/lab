@@ -1,0 +1,373 @@
+{
+  "deliveryRevision": "1.0.4",
+  "interfaceVersion": 1,
+  "acceptance": "contact-offline-core-passed; natural-morning-continuation-failed",
+  "userDefinition": "希罗已实际带走赛哈姆即完成接走；不要求路线、载具或地域细节。已取得联系人保留、灰显、离线、不可联系，本轮不得产生赛哈姆通讯。",
+  "scope": {
+    "phoneInstalled": false,
+    "phoneProductCodeChanged": false,
+    "phonePR": 16,
+    "phonePRDraft": true,
+    "naturalStart": "第六天08:00，明确播种已知且取得赛哈姆与安联系方式；不是完整第七天长篇",
+    "guardDoesNotWriteMVU": true
+  },
+  "sourceCommit": "555fe2a4cdce04b561c080814aba351419ef40e1",
+  "cardSha256": "d50dca1452771fb7cc600d9fc6fdd9073afcd6e49534259116a9bcd85129ad85",
+  "attempts": [
+    {
+      "sourceCommit": "2f38c392df31f3f247e6a79b34ad7c798b5ce968",
+      "cardSha256": "33befe30e1bc93f0e8e2505af029381ae9d9938b81a4df6afec742771f3c43db",
+      "runId": 37524773941,
+      "jobId": 112478875051,
+      "artifact": {
+        "id": 11442425795,
+        "name": "qidu-terminal-v1-0-4-live",
+        "size_in_bytes": 3517737,
+        "url": "https://api.github.com/repos/h675786161-prog/lab/actions/artifacts/11442425795",
+        "archive_download_url": "https://api.github.com/repos/h675786161-prog/lab/actions/artifacts/11442425795/zip",
+        "expired": false,
+        "created_at": "2026-10-06T20:16:38Z",
+        "expires_at": "2027-01-04T20:13:09Z",
+        "updated_at": "2026-10-06T20:16:38Z",
+        "digest": "sha256:b7f4e89e556e5051e9148dd7fa6cb9fcd705292f6e61bc1f0d5cca230c925320",
+        "workflow_run": {
+          "id": 37524773941,
+          "repository_id": 1359169815,
+          "head_repository_id": 1359169815,
+          "head_branch": "audit/qidu-terminal-v1.0.4-20261007",
+          "head_sha": "2f38c392df31f3f247e6a79b34ad7c798b5ce968"
+        }
+      },
+      "jobResults": {
+        "jobs": [
+          {
+            "id": 112478875051,
+            "name": "native-live",
+            "status": "completed",
+            "conclusion": "failure",
+            "run_id": 37524773941,
+            "logs_url": null,
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 1
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 2
+              },
+              {
+                "name": "Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 3
+              },
+              {
+                "name": "Prepare exact lab runtime",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 4
+              },
+              {
+                "name": "Configure existing GG key in isolated server",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 5
+              },
+              {
+                "name": "Prepare browser test dependency",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 6
+              },
+              {
+                "name": "Validate delivery and guard regressions",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 7
+              },
+              {
+                "name": "Verify minimal taken away fact and offline contact",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 8
+              },
+              {
+                "name": "Replay recorded failure through native generation",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 9
+              },
+              {
+                "name": "Replay recorded jurisdiction failure through native generation",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 10
+              },
+              {
+                "name": "Replay recorded boarding failure through native generation",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 11
+              },
+              {
+                "name": "Replay adjacent sentence boarding failure through native generation",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 12
+              },
+              {
+                "name": "Replay passenger and air transport failure through native generation",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 13
+              },
+              {
+                "name": "Replay personnel transport failure through native generation",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 14
+              },
+              {
+                "name": "Natural model morning and continuous patrol",
+                "status": "completed",
+                "conclusion": "failure",
+                "number": 15
+              },
+              {
+                "name": "Run actions/upload-artifact@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 16
+              },
+              {
+                "name": "Post Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 31
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 32
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 33
+              }
+            ]
+          }
+        ]
+      },
+      "guardTests": 249,
+      "providerTests": 36,
+      "controlledGroups": 7,
+      "controlledChecksPerGroup": 29,
+      "naturalMorning": [
+        14,
+        15
+      ],
+      "naturalPatrol": [
+        13,
+        14
+      ],
+      "naturalContactChecksAllPassed": true
+    },
+    {
+      "sourceCommit": "555fe2a4cdce04b561c080814aba351419ef40e1",
+      "cardSha256": "d50dca1452771fb7cc600d9fc6fdd9073afcd6e49534259116a9bcd85129ad85",
+      "runId": 37525621656,
+      "jobId": 112481760031,
+      "artifact": {
+        "id": 11442178058,
+        "name": "qidu-terminal-v1-0-4-live",
+        "size_in_bytes": 3941694,
+        "url": "https://api.github.com/repos/h675786161-prog/lab/actions/artifacts/11442178058",
+        "archive_download_url": "https://api.github.com/repos/h675786161-prog/lab/actions/artifacts/11442178058/zip",
+        "expired": false,
+        "created_at": "2026-10-06T20:24:04Z",
+        "expires_at": "2027-01-04T20:19:54Z",
+        "updated_at": "2026-10-06T20:24:04Z",
+        "digest": "sha256:ffa4812d693f9e3c28077006a0fe4f6f13a1e50a10ee5ced26ac3bcde4bd27aa",
+        "workflow_run": {
+          "id": 37525621656,
+          "repository_id": 1359169815,
+          "head_repository_id": 1359169815,
+          "head_branch": "audit/qidu-terminal-v1.0.4-20261007",
+          "head_sha": "555fe2a4cdce04b561c080814aba351419ef40e1"
+        }
+      },
+      "jobResults": {
+        "jobs": [
+          {
+            "id": 112481760031,
+            "name": "native-live",
+            "status": "completed",
+            "conclusion": "failure",
+            "run_id": 37525621656,
+            "logs_url": null,
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 1
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 2
+              },
+              {
+                "name": "Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 3
+              },
+              {
+                "name": "Prepare exact lab runtime",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 4
+              },
+              {
+                "name": "Configure existing GG key in isolated server",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 5
+              },
+              {
+                "name": "Prepare browser test dependency",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 6
+              },
+              {
+                "name": "Validate delivery and guard regressions",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 7
+              },
+              {
+                "name": "Verify minimal taken away fact and offline contact",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 8
+              },
+              {
+                "name": "Replay recorded failure through native generation",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 9
+              },
+              {
+                "name": "Replay recorded jurisdiction failure through native generation",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 10
+              },
+              {
+                "name": "Replay recorded boarding failure through native generation",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 11
+              },
+              {
+                "name": "Replay adjacent sentence boarding failure through native generation",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 12
+              },
+              {
+                "name": "Replay passenger and air transport failure through native generation",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 13
+              },
+              {
+                "name": "Replay personnel transport failure through native generation",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 14
+              },
+              {
+                "name": "Replay completed handoff and offline fact",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 15
+              },
+              {
+                "name": "Natural model morning and continuous patrol",
+                "status": "completed",
+                "conclusion": "failure",
+                "number": 16
+              },
+              {
+                "name": "Run actions/upload-artifact@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 17
+              },
+              {
+                "name": "Post Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 33
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 34
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 35
+              }
+            ]
+          }
+        ]
+      },
+      "guardTests": 260,
+      "providerTests": 36,
+      "controlledGroups": 8,
+      "controlledChecksPerGroup": 29,
+      "naturalMorning": [
+        14,
+        15
+      ],
+      "naturalPatrol": [
+        13,
+        14
+      ],
+      "naturalContactChecksAllPassed": true
+    }
+  ],
+  "rawJsonCount": 68,
+  "stageBundleCount": 17,
+  "verification": "两份下载ZIP SHA256与GitHub产物digest相同。每阶段terminal-live.rounds逐项等于独立morning/patrol.json；全部候选SHA一致。每份原始JSON全文、字节数、SHA256保留。证据完整性通过不表示完整产品通过。",
+  "results": [
+    "两轮自然晨间与巡查均通过：已取得赛哈姆联系人保留且available=false/status=offline/statusLabel=离线；CONTACT_UNAVAILABLE、draft=null、inserted=false；输入、存档、消息数量不变；安未受影响。",
+    "最终受控最短事实和七份历史完整失败正文，每组29项原生酒馆/MVU验收全部通过。",
+    "自然晨间接走命令仍被守卫漏判删除，最终day6_saiham=false；此次离线由模型真实提交的terminal.contacts.赛哈姆.available=false成立。不能将自然测试说成完成flag强制投影的验收；该分支由12项单测与受控真实提交覆盖。",
+    "自然巡查独立重新播种，连续性检查失败；两轮整体失败。",
+    "卡侧剧情约束禁止本轮赛哈姆来信或通讯回应；未做多轮后续正文和实际手机UI联调，不能声称已验证后续永无通讯。"
+  ],
+  "remaining": [
+    "自然晨间完成flag与巡查连续验收",
+    "新版同装34项、无世界背面31项完整回归",
+    "真正长篇及停止/重新生成/轮回/524专项",
+    "手机产品灰显、离线文字、禁发送消费端实现联调",
+    "原手机Actions零步骤根因"
+  ]
+}
