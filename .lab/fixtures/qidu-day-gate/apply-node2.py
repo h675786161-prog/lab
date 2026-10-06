@@ -115,15 +115,9 @@ marker = "  const day6DecisionMade=user=>{"
 assert marker in js
 insert = r'''  const hasDay6LockedResolution=text=>{
     const t=String(text||'');
-    const fixedDeparture=hasSaihamDeparture(t)
-      ||/(?:希罗|罗纳克|奥露西娅|几人|一行人)[\s\S]{0,360}(?:带着|抱起|抬着|推着|护送着|将)[\s\S]{0,240}赛哈姆[\s\S]{0,300}(?:离开(?:了)?现场|带离(?:了)?现场|离开(?:了)?事发地|撤离(?:了)?(?:现场|事发地|废墟|警戒区)|消失在[^。\n]{0,100}(?:警戒线|出口|通道|道路|雾气)之外|身影[^。\n]{0,100}(?:消失|远去))/.test(t)
-      ||/赛哈姆[\s\S]{0,260}(?:被带离(?:了)?现场|被带走[^。\n]{0,100}(?:离开|现场)|随(?:着)?希罗[^。\n]{0,140}(?:离开(?:了)?现场|离去))/.test(t);
-    if(!fixedDeparture)return false;
-    const annLost=/安[\s\S]{0,700}(?:不敌|被逼退|被压制|落入下风|受创|震退|击退)/.test(t);
-    const helpers=/罗纳克/.test(t)&&/奥露西娅/.test(t);
-    const chimeraLore=/幻力[\s\S]{0,500}(?:过高[^。\n]{0,120}过低|过低[^。\n]{0,120}过高)[\s\S]{0,500}(?:活骸|暴走)/.test(t);
-    const refusal=/(?:你|指挥使)[^。\n]{0,140}(?:拒绝[^。\n]{0,40}(?:保密|隐瞒|希罗)|不(?:会|愿|肯)[^。\n]{0,40}(?:保密|隐瞒)|不会替[^。\n]{0,40}保密|没有[^。\n]{0,40}答应)/.test(t);
-    return annLost&&helpers&&chimeraLore&&refusal;
+    return hasSaihamDeparture(t)
+      ||/(?:希罗|罗纳克|奥露西娅|几人|三人|一行人)[\s\S]{0,360}(?:带着|抱起|抬着|推着|护送着|将)[\s\S]{0,240}赛哈姆[\s\S]{0,320}(?:离开(?:了)?现场|带离(?:了)?现场|离开(?:了)?事发地|撤离(?:了)?(?:现场|事发地|废墟|警戒区)|消失在[^。\n]{0,120}(?:警戒线|出口|通道|道路|雾气)之外|身影[^。\n]{0,120}(?:消失|远去))
+      ||/赛哈姆[\s\S]{0,280}(?:被带离(?:了)?现场|被带走[^。\n]{0,120}(?:离开|现场)|随(?:着)?希罗[^。\n]{0,160}(?:离开(?:了)?现场|离去|撤离))/;
   };
 '''
 js = js.replace(marker, insert + marker, 1)
@@ -134,7 +128,7 @@ assert old in js
 js = js.replace(old, new, 1)
 
 old = "      if(path==='morning_flags.day6_saiham'&&next===true)invalid||=!day6DecisionMade(user)||!enteringDay6||get(prior,'morning_flags.day6_monologue')!==true&&!commands.some(c=>String(c.args?.[0]||'').includes('day6_monologue'))&&!hasMorningVoice(transcript)||!hasSaihamDeparture(transcript);"
-new = "      if(path==='morning_flags.day6_saiham'&&next===true)invalid||=!enteringDay6||get(prior,'morning_flags.day6_monologue')!==true&&!commands.some(c=>String(c.args?.[0]||'').includes('day6_monologue'))&&!hasMorningVoice(transcript)||!hasDay6LockedResolution(transcript);"
+new = "      if(path==='morning_flags.day6_saiham'&&next===true)invalid||=prior.day!==6||get(prior,'morning_flags.day6_monologue')!==true&&!commands.some(c=>String(c.args?.[0]||'').includes('day6_monologue'))&&!hasMorningVoice(transcript)||!hasDay6LockedResolution(transcript);"
 assert old in js
 guard['content'] = js.replace(old, new, 1)
 
