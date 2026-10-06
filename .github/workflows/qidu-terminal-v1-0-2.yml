@@ -1,0 +1,78 @@
+name: 七都终端1.0.2晨间与自然提交验收
+on:
+  push:
+    branches: [audit/qidu-terminal-v1.0.2-20261006]
+    paths: ['.github/workflows/qidu-terminal-v1-0-2.yml', '.lab/fixtures/f7d-terminal-v1.0.2/**']
+concurrency:
+  group: qidu-terminal-v1-0-2
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  native-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare exact lab runtime
+        run: |
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git /tmp/qidu-native
+          git -C /tmp/qidu-native fetch origin 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8 --depth=1
+          git -C /tmp/qidu-native checkout --detach FETCH_HEAD
+          cd /tmp/qidu-native
+          npm ci --no-audit --no-fund
+          mkdir -p public/scripts/extensions/third-party
+          git clone https://github.com/N0VI028/JS-Slash-Runner.git public/scripts/extensions/third-party/JS-Slash-Runner
+          git -C public/scripts/extensions/third-party/JS-Slash-Runner checkout 519599bc68247d8e759cc844a983f8f5252941a8
+          git clone https://github.com/h675786161-prog/world-backstage.git public/scripts/extensions/third-party/world-backstage-test
+          git -C public/scripts/extensions/third-party/world-backstage-test checkout f9babfa0ee0bd3003d3529fd171b83103cfee4c1
+          curl -fsSL https://raw.githubusercontent.com/MagicalAstrogy/MagVarUpdate/183d8ade3b9a3369e824a55cb13b4ddf91aada50/artifact/bundle.js -o public/f7d-mvu.js
+          sha256sum public/f7d-mvu.js
+          test "$(sha256sum public/f7d-mvu.js | cut -d' ' -f1)" = '43e38e31c3f86734cdd38c6047d22e871a043abbc2af9116ee2c54438462db6a'
+          nohup node server.js --port 8000 > /tmp/qidu-native-server.log 2>&1 &
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:8000/ >/dev/null; then break; fi
+            sleep 1
+          done
+      - name: Configure existing GG key in isolated server
+        env:
+          GG_KEY: ${{ secrets.GG }}
+        run: |
+          python - <<'PY'
+          import os,json,urllib.request,http.cookiejar
+          key=os.environ.get('GG_KEY')
+          if not key:raise RuntimeError('GG secret missing')
+          opener=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
+          with opener.open('http://127.0.0.1:8000/csrf-token') as r: token=json.load(r)['token']
+          req=urllib.request.Request('http://127.0.0.1:8000/api/secrets/write',data=json.dumps({'key':'api_key_custom','value':key,'label':'GG live test'}).encode(),headers={'Content-Type':'application/json','X-CSRF-Token':token})
+          with opener.open(req) as r:
+           if r.status!=200:raise RuntimeError('local secret configuration failed')
+          print('Existing GG key configured without disclosure')
+          PY
+      - name: Prepare browser test dependency
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Validate delivery and guard regressions
+        run: |
+          node --test .lab/fixtures/f7d-terminal-v1.0.2/guard.test.mjs
+          node --test .lab/fixtures/f7d-terminal-commit-fix/isolation.test.mjs
+          node .lab/fixtures/f7d-terminal-v1.0.2/verify-delivery.mjs
+      - name: Replay recorded failure through native generation
+        run: F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.2/native-live.mjs
+      - name: Natural model morning and continuous patrol
+        run: node .lab/fixtures/f7d-terminal-v1.0.2/native-live.mjs
+      - name: Full card-only regression with world backstage
+        run: |
+          LAB_PLAYWRIGHT_CORE_ENTRY="$PWD/node_modules/playwright/index.mjs" F7D_FIXTURE_DIR="$PWD/.lab/fixtures/f7d-terminal-v1.0.2" LAB_EVIDENCE_DIR="$PWD/.lab/fixtures/f7d-terminal-v1.0.2/results/isolation" node .lab/fixtures/f7d-terminal-v1.0.2/card-only-smoke.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qidu-terminal-v1-0-2-live
+          path: |
+            .lab/fixtures/f7d-terminal-v1.0.2/results/**
+          if-no-files-found: warn
+

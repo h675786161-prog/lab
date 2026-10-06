@@ -1,0 +1,82 @@
+{
+  "deliveryRevision": "1.0.2",
+  "interfaceVersion": 1,
+  "mvuSchema": "f7d_textloop_0.4",
+  "baselineCommit": "4cd2f36b740ba46a2b5d11bfb18fe4a211b146cf",
+  "candidateStatus": "awaiting-real-model-acceptance",
+  "runtime": {
+    "SillyTavern": "8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8",
+    "TavernHelper": "519599bc68247d8e759cc844a983f8f5252941a8",
+    "MVU": "183d8ade3b9a3369e824a55cb13b4ddf91aada50",
+    "WorldBackstage": "f9babfa0ee0bd3003d3529fd171b83103cfee4c1",
+    "mvuArtifactSha256": "43e38e31c3f86734cdd38c6047d22e871a043abbc2af9116ee2c54438462db6a",
+    "node": "22",
+    "playwright": "1.55.0"
+  },
+  "assets": {
+    "ann_first_meet": "cbd22fbf763fc3cdad55284616ec6a8d7544d10260d05e16dbafbc610e087d33",
+    "antoneva_first_meet": "64f019603fe19c5fb60b1a620905edd1fcf435b93e567ed8b01e0e99dddba7ca",
+    "ending_journey": "856b588691487fb08a8df077a5f0296bc34e02a4e124500b27de6af85aae4487",
+    "ending_eternal_end": "583f956e8420ffcbbb87d070136038e00aecd189b62ea7837fa26dd6100134d7",
+    "ending_sacrifice_male": "c974118448963d2799f7b5b519b2d593334d1f12c0e79282fbc9f7ef48700c5f",
+    "ending_sacrifice_female": "17a6b76647bd2a230ee95c18a9e56410d02c4f719b80920c071c68f952c2a4b0",
+    "ending_final_male": "a57d37a280f136094edf40542a61be807937f5e3aa409d21210693a91e8bd32e",
+    "ending_final_female": "33da28f040668d890d593708ce4b8f80e9bbe61f1948389dab763e9ba14ae8b0",
+    "ending_box_male": "eba62dd75080d716ab16a779806dcc580273a7f952e6f5cdb4e92a6438be9ace",
+    "ending_box_female": "50566527a906f39c5833beb6023f8d113f2cd743b3686a9a4950f403982e3577"
+  },
+  "files": {
+    "CONTRACT.md": {
+      "sha256": "e9d81eca8e310a0dd41813144b695469ab2a7abd88eabc7cb7afd0a16a4114b8",
+      "bytes": 9164
+    },
+    "INSTALL.md": {
+      "sha256": "5c71ce2d49a6ef5f5b66115ddfd556394985c28f459efdd4a879e48431c48979",
+      "bytes": 3577
+    },
+    "Qidu-v0.4.41-terminal-v1.0.2.json": {
+      "sha256": "edaad44c4399c84991d2d6a136a3a89957d102993124124d2f77a987817bb967",
+      "bytes": 1641528
+    },
+    "README.md": {
+      "sha256": "4ba319080683f77f43eea28e02782d7fe155ffaa56fd7abbc60b1aea4926ec44",
+      "bytes": 2364
+    },
+    "card-only-smoke.mjs": {
+      "sha256": "c01a9480357db7fed72fd0a872c6b972c8be21c77ec52c975af408e667a5aaf0",
+      "bytes": 20652
+    },
+    "card-provider.js": {
+      "sha256": "71223daa2679e00b6c6b022debbaafafde9aefc7dec36d5b4030e1e2246502d4",
+      "bytes": 11010
+    },
+    "guard.test.mjs": {
+      "sha256": "6cd6715bbd98b72a28ce75550915fd9afc7c2cefa9dca3848581ca990137bee3",
+      "bytes": 6211
+    },
+    "morning-guard.baseline.js": {
+      "sha256": "de2b29cd7c2e8ed64c9b4420f116a1e065a2402c11396230066467918d407077",
+      "bytes": 8957
+    },
+    "morning-guard.js": {
+      "sha256": "3d763c9a118977368d8088478001123325cc789111e9595acfe66bfd779d309a",
+      "bytes": 11735
+    },
+    "mvu-commit-hook.js": {
+      "sha256": "062c4d9eb3e1a51f840c450347773f8cbd5957bed0e62b50e75004ebd78fec4e",
+      "bytes": 2984
+    },
+    "native-live.mjs": {
+      "sha256": "59a694443e37259c80e2b9a1ec7e3fed21e30bd88af83c42fa6c8ce3760b12d8",
+      "bytes": 15679
+    },
+    "replay-fixture.json": {
+      "sha256": "91330432bf32110997d3428cb82fa45ddfbd67cdddc8c857a415000dcc7e51dc",
+      "bytes": 17145
+    },
+    "verify-delivery.mjs": {
+      "sha256": "a6bd0d0fbb2e47f2d4807dc24ece7a2c9ccd0f6f960aa50ba6f9c4be130482db",
+      "bytes": 2046
+    }
+  }
+}
