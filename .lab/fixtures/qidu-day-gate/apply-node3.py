@@ -128,6 +128,17 @@ helper = r'''  const day6SecondZone=prior=>prior?.route_flags?.first_second_regi
     return count;
   };
   const delayedWenziInjury=text=>/达尔维拉/.test(text)&&/五行阵/.test(text)&&/雯梓[\s\S]{0,500}(?:受伤|负伤|伤势|被击中|受创|吐血|流血)/.test(text);
+  const stateBeforeLatestPlayer=()=>{
+    const chat=host.SillyTavern?.getContext?.()?.chat||[];
+    let userIndex=-1;
+    for(let i=chat.length-1;i>=0;i--){if(chat[i]?.is_user){userIndex=i;break;}}
+    for(let i=userIndex-1;i>=0;i--){
+      const m=chat[i];if(!m||m.is_user||m.is_system)continue;
+      const s=m.variables?.[m.swipe_id??0]?.stat_data;
+      if(s)return s;
+    }
+    return null;
+  };
 '''
 js = js.replace(anchor, helper + anchor, 1)
 
@@ -149,8 +160,16 @@ auto = r'''
       commands.push({type:'set',args:['morning_flags.day6_seth','false','true'],reason:'第6天首次中央城区巡查已真实演出赛斯'});
     const secondRegionTravel=prior.day===6&&prior.intel_flags?.first_chimera_incident_known===true&&secondZone&&!prior.regions?.[secondZone]?.liberated&&day6SecondRegionTravelIntent(user,prior);
     const secondRegionAction=prior.day===6&&prior.intel_flags?.first_chimera_incident_known===true&&secondZone&&!prior.regions?.[secondZone]?.liberated&&regionActionIntent(user,prior);
-    if((secondRegionTravel||secondRegionAction)&&prior.clock_minutes<1440&&!commands.some(c=>String(c.args?.[0]||'').replace(/^['"]|['"]$/g,'')==='clock_minutes'))
+    const beforePlayer=stateBeforeLatestPlayer();
+    const alreadyChargedSecondRegion=!!(beforePlayer&&(secondRegionTravel||secondRegionAction)&&prior.clock_minutes===beforePlayer.clock_minutes+80);
+    if(alreadyChargedSecondRegion){
+      for(let i=commands.length-1;i>=0;i--){
+        const path=String(commands[i]?.args?.[0]||'').replace(/^['"]|['"]$/g,'');
+        if(path==='clock_minutes')commands.splice(i,1);
+      }
+    }else if((secondRegionTravel||secondRegionAction)&&prior.clock_minutes<1440&&!commands.some(c=>String(c.args?.[0]||'').replace(/^['"]|['"]$/g,'')==='clock_minutes')){
       commands.push({type:'set',args:['clock_minutes',String(prior.clock_minutes),String(Math.min(1440,prior.clock_minutes+80))],reason:secondRegionTravel?'第6天跨区前往第二地区消耗1节点':'第6天第二地区一次实际巡查消耗1节点'});
+    }
     const regionCountNow=secondZone?day6RegionActionCount(secondZone,story,prior):0;
     const secondZoneSolved=secondZone==='central'
       ? /利维坦/.test(story)&&/(?:中央城区|城区)[^。\n]{0,80}(?:解放|危机解除)|(?:解放|危机解除)[^。\n]{0,80}(?:中央城区|城区)/.test(story)
@@ -165,7 +184,7 @@ js = js.replace(protect_anchor, protect_anchor + auto, 1)
 
 clock_anchor = "      if(path==='clock_minutes'&&next>old)invalid||=!morningReady(prior);"
 assert clock_anchor in js
-js = js.replace(clock_anchor, clock_anchor + "\n      if(path==='clock_minutes'&&next>old&&(secondRegionTravel||secondRegionAction))invalid||=next-old!==80;", 1)
+js = js.replace(clock_anchor, clock_anchor + "\n      if(path==='clock_minutes'&&next>old&&(secondRegionTravel||secondRegionAction)&&!alreadyChargedSecondRegion)invalid||=next-old!==80;", 1)
 
 lib_old = """      if((path==='regions.east.liberated'||path==='regions.central.liberated')&&next===true){
         const zone=path.split('.')[1],name=zone==='east'?'东方古街':'中央城区';
@@ -199,6 +218,7 @@ assert '第三次巡查必须兑现“延误”的现实后果' in byid[104]['co
 assert 'day6RegionActionCount' in guard['content']
 assert 'next-old!==80' in guard['content']
 assert 'day6SecondRegionTravelIntent' in guard['content']
+assert 'alreadyChargedSecondRegion' in guard['content']
 assert '跨区移动1次到10:40' in byid[104]['content']
 assert 'wenzi_injured' in guard['content']
 
