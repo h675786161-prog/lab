@@ -75,6 +75,8 @@ jobs:
         run: F7D_REPLAY_FIXTURE=transport F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
       - name: Replay personnel transport failure through native generation
         run: F7D_REPLAY_FIXTURE=escort F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
+      - name: Replay completed handoff and offline fact
+        run: F7D_REPLAY_FIXTURE=handoff F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
       - name: Natural model morning and continuous patrol
         run: node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
       - uses: actions/upload-artifact@v4

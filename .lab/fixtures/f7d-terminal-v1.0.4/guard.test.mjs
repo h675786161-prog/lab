@@ -347,3 +347,25 @@ for(const s of ['赛哈姆已经被希罗带走。','希罗把赛哈姆带走救
 for(const s of ['你允许希罗把赛哈姆带走。','希罗准备把赛哈姆带走。','希罗会把赛哈姆带走。','如果希罗把赛哈姆带走，你会安心。','你回忆希罗把赛哈姆带走的情景。','昨天希罗把赛哈姆带走。','据说赛哈姆被希罗带走。','赛哈姆尚未被希罗带走。','“赛哈姆被希罗带走了。”','希罗把赛哈姆的行李带走。','希罗把赛哈姆的照片带走。','希罗把赛哈姆带走。赛哈姆仍留在中央庭。'])test('许可、未来、传闻、否定和物品不是接走事实：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});
 test('本轮接走旗标不能被模型撤销恢复通信',()=>{const state=structuredClone(fixture.morning.before);state.morning_flags.day6_saiham=true;const rows=run({state,commands:[{type:'set',args:['"morning_flags.day6_saiham"','true','false']}],text:'赛哈姆发来消息。'});assert.equal(rows.length,0);});
 test('接走事实仍需要真实独白前置且不能自动添加模型命令',()=>{const text=vehicleStory('赛哈姆被希罗带走。');assert.equal(has(run({text,commands:[departure()]}),'day6_saiham'),false);assert.equal(has(run({text,commands:[mon()]}),'day6_saiham'),false);});
+
+const handoffFailure=JSON.parse(fs.readFileSync(new URL('./handoff-failure.json',import.meta.url),'utf8'));
+const handoffBaseline=fs.readFileSync(new URL('./morning-guard.handoff-baseline.js',import.meta.url),'utf8');
+test('自然正文实际抬起并随希罗接走，修前漏判、修后保留原命令',()=>{
+ const opts={text:handoffFailure.text,state:handoffFailure.before,user:handoffFailure.user,commands:handoffFailure.commands};
+ assert.equal(has(run({...opts,code:handoffBaseline}),'day6_saiham'),false);
+ const rows=run(opts);assert.ok(has(rows,'day6_saiham'));assert.ok(rows.every(c=>opts.commands.some(old=>JSON.stringify(old)===JSON.stringify(c))));
+});
+for(const s of [
+ '黑衣人员将昏迷的赛哈姆搬上担架，随着希罗一同撤离了长廊。',
+ '希罗示意随行人员将赛哈姆带走。',
+])test('实际随希罗接走不要求离开地域边界：'+s,()=>{assert.ok(has(run({text:vehicleStory(s)}),'day6_saiham'));});
+for(const s of [
+ '黑衣人员准备将赛哈姆抬上担架，随着希罗撤离长廊。',
+ '如果人员将赛哈姆抬上担架，随着希罗撤离长廊，你会安心。',
+ '昨天人员将赛哈姆抬上担架，随着希罗撤离长廊。',
+ '人员将赛哈姆的行李抬上担架，随着希罗撤离长廊。',
+ '人员将赛哈姆抬上担架，随后希罗独自离开。',
+ '人员将赛哈姆抬上担架，但尚未随着希罗撤离。',
+ '希罗准备示意人员将赛哈姆带走。',
+ '希罗允许人员将赛哈姆带走。',
+])test('随希罗的计划、否定和其他主体不算已接走：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});
