@@ -35,12 +35,12 @@
       "bytes": 3577
     },
     "Qidu-v0.4.41-terminal-v1.0.3.json": {
-      "sha256": "56084ed0a25b1c66594f71bed1b4294f6ab2f8bb3ba54cdb3a200580f41c3cc5",
-      "bytes": 1646699
+      "sha256": "aeea7c701f8f114b400e666087e06e1f0316b68df54c69e75da1ffd4a37732b7",
+      "bytes": 1647344
     },
     "README.md": {
-      "sha256": "1f86f8f89db002cba1f30e015f65dc8b73acf4007a93881ef59514c16f70cf86",
-      "bytes": 1872
+      "sha256": "3c3d051a252a4882cd3af10f410e6557425ffbaf08fe292ca3aaf0746f85800c",
+      "bytes": 2152
     },
     "boarding-failure.json": {
       "sha256": "06f4163fbb8880b7181edcb00ab4148472911ffe63eace060074c19e7d0abd16",
@@ -58,9 +58,17 @@
       "sha256": "7664276f55a551b2212140b59c3e314595e6827884124077fdc7814890d7f15a",
       "bytes": 12085
     },
+    "escort-failure.json": {
+      "sha256": "362b055d6f8c9da33409d07d8b73e4935febff0883317b59efc6274300a84756",
+      "bytes": 11389
+    },
     "guard.test.mjs": {
-      "sha256": "521eff68f54e4f682a1df393273aa7274acac310465d9b09218b6cecb5549cfd",
-      "bytes": 25930
+      "sha256": "ce35a72a5d3f3edaaa7125f72d04ee748076d908d1262fd3a7db87f44ffa95c6",
+      "bytes": 28917
+    },
+    "morning-guard-escort-baseline.js": {
+      "sha256": "42ad36ae308574f6d15d6e9862a7414492d5a10e0bc71af6ba084c6460a2b61c",
+      "bytes": 16844
     },
     "morning-guard.baseline.js": {
       "sha256": "de2b29cd7c2e8ed64c9b4420f116a1e065a2402c11396230066467918d407077",
@@ -75,8 +83,8 @@
       "bytes": 15570
     },
     "morning-guard.js": {
-      "sha256": "42ad36ae308574f6d15d6e9862a7414492d5a10e0bc71af6ba084c6460a2b61c",
-      "bytes": 16844
+      "sha256": "00f16918444687d9c29d32b8197246f77e339cb2cfe5fd7a73a4dc1cbe3f55e4",
+      "bytes": 17484
     },
     "morning-guard.scope-baseline.js": {
       "sha256": "519c2d4090089980c67ccbed2d5803eff838da8848456edad21fdeaaf20f1dd8",
@@ -95,8 +103,8 @@
       "bytes": 2984
     },
     "native-live.mjs": {
-      "sha256": "4cdd0dd7c40479079a20a19c0fb5e45911a0367f0e132c2f16bd51cad698e30d",
-      "bytes": 16842
+      "sha256": "308905c53139771060d42733c2bbebda0fef70c6d7f5e03021d6d66e8ab6ec07",
+      "bytes": 16848
     },
     "replay-fixture.json": {
       "sha256": "020b9495d874f0e908abb630cccf254f07e7f9e89093d7e50730e294bf3db543",

@@ -301,3 +301,41 @@ test('载具离场没有模型命令或独白前置仍不得补旗标',()=>{
  assert.equal(has(run({text:transportFailure.text,commands:[mon()]}),'day6_saiham'),false);
  assert.equal(has(run({text:transportFailure.text,commands:[departure()]}),'day6_saiham'),false);
 });
+
+const escortBaseline=fs.readFileSync(new URL('./morning-guard-escort-baseline.js',import.meta.url),'utf8');
+const escortFailure=JSON.parse(fs.readFileSync(new URL('./escort-failure.json',import.meta.url),'utf8'));
+test('徒步运送队伍全文修前拒绝、修后保留原有模型命令',()=>{
+ const opts={text:escortFailure.text,state:escortFailure.before,user:escortFailure.user,commands:escortFailure.commands};
+ assert.equal(has(run({...opts,code:escortBaseline}),'day6_saiham'),false);
+ const rows=run(opts);assert.ok(has(rows,'day6_monologue'));assert.ok(has(rows,'day6_saiham'));
+ assert.ok(rows.every(c=>opts.commands.some(old=>JSON.stringify(old)===JSON.stringify(c))));
+});
+for(const s of [
+ '希罗与运送赛哈姆的队伍消失在防线之外，离开了整个中央庭的管辖区域。',
+ '护送着赛哈姆的随行人员离开了中央庭整个区域。',
+ '希罗运送着昏迷的赛哈姆，离开整个中央庭辖区。',
+ '运送赛哈姆的队伍迈出大门。随后队伍离开整个中央庭的管辖区域。',
+])test('人员运送与完整区域实际离场关联：'+s,()=>{assert.ok(has(run({text:vehicleStory(s)}),'day6_saiham'));});
+for(const s of [
+ '运送赛哈姆的队伍停在大门口。',
+ '运送赛哈姆的队伍离开整个中央庭的管辖区域内的大厅。',
+ '运送赛哈姆的队伍准备离开整个中央庭的管辖区域。',
+ '如果运送赛哈姆的队伍离开整个中央庭的管辖区域，你会跟上。',
+ '昨天运送赛哈姆的队伍离开整个中央庭的管辖区域。',
+ '你回忆运送赛哈姆的队伍离开整个中央庭的管辖区域的情景。',
+ '“运送赛哈姆的队伍离开整个中央庭的管辖区域。”',
+ '运送赛哈姆的队伍尚未离开整个中央庭的管辖区域。',
+ '运送赛哈姆的队伍没有带走她，离开整个中央庭的管辖区域。',
+ '运送赛哈姆的队伍将她放在原地，离开整个中央庭的管辖区域。',
+ '运送赛哈姆的行李的队伍离开整个中央庭的管辖区域。',
+ '运送赛哈姆的照片的队伍离开整个中央庭的管辖区域。',
+ '运送赛哈姆的队伍离开整个中央庭的管辖区域。赛哈姆仍留在中央庭。',
+ '运送赛哈姆的队伍停在门口。你回寝室。随后队伍离开整个中央庭的管辖区域。',
+ '希罗在赛哈姆身边，带着工作人员离开整个中央庭的管辖区域。',
+])test('人员运送的非实际离场反例：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});
+
+for(const s of [
+ '运送赛哈姆的队伍将她留在门口，离开整个中央庭的管辖区域。',
+ '运送赛哈姆的队伍将她放回大厅，离开整个中央庭的管辖区域。',
+ '运送赛哈姆的队伍走到大门。随后另一支队伍离开整个中央庭的管辖区域。',
+])test('人员中途留场与另一队伍离场仍不得结算：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});

@@ -38,11 +38,9 @@
     const boarded=new RegExp('赛哈姆(?!的(?!身影))([^。！？\\n]{0,100}?)(?:登上|踏上|上了|抬上|送上|抱上|扶上|装入|送入)[^。！？\\n]{0,50}?('+transportName+')');
     const escortedBoarded=new RegExp('(?:押运着|护送着|抬着|推着)赛哈姆的(?:特遣人员|随行人员|护送人员|工作人员|队伍)[^。！？\\n]{0,60}(?:登上|踏上|上了)[^。！？\\n]{0,50}?('+transportName+')');
     const transportNames=new RegExp(transportName,'g');
-    const escortedPeople=/(?:运送|护送|押运)(?:着)?(?:(?:昏迷|受伤|失去意识)的)?赛哈姆的(?:队伍|一行人|特遣人员|随行人员|护送人员|工作人员)/;
-    const directEscort=/(?:希罗|随行人员|护送人员|工作人员|随从|一行人)[^。！？\n]{0,100}(?:带着|抬着|推着|护送着?|运送着?|押运着?)(?:(?:昏迷|受伤|失去意识)的)?赛哈姆(?!的)/;
-    const action='(?:载着|搭载着?|带着|带走|带离|护送|运送|押运|登上|踏上|上了|抬上|送上|抱上|扶上|装入|送入|驶离|驶出|飞离|飞出|离开|起飞|升空|升入)';
+    const action='(?:载着|搭载着?|带着|登上|踏上|上了|抬上|送上|抱上|扶上|装入|送入|驶离|驶出|飞离|飞出|离开|起飞|升空|升入)';
     const unrealTransport=new RegExp('(?:并未|没有|尚未|未曾|还没|不会|不曾|不)(?:真正|实际|已经|再)?'+action+'|(?:将(?!(?:(?:昏迷|受伤|失去意识)的)?赛哈姆)|会|预计|可能|应该|也许|昨天|昨日|此前|据说|听说)[^。！？\\n]{0,180}'+action+'|(?:计划|打算|准备|即将|将要|将会|声称|表示|如果|假如|要是|想象|回忆|回想)[^。！？\\n]{0,180}'+action);
-    const changedPassenger=new RegExp('下车|下机|离开(?:了)?'+transportName+'|(?:留(?:在|于)|放(?:在|回)|停在)[^。！？\\n]{0,12}(?:中央庭|原地|车外|机外|门口|大厅|主廊|走廊|病房|停机坪|登机口)|另(?:一|外一)(?:辆|架|支)|空车|空载');
+    const changedPassenger=new RegExp('下车|下机|离开(?:了)?'+transportName+'|(?:留(?:在|于)|放(?:在|回)|停在)[^。！？\\n]{0,12}(?:中央庭|原地|车外|机外)|另(?:一|外一)(?:辆|架)|空车|空载');
     const changedBoardingSubject=/希罗|随行人员|工作人员|护送人员|随从|其他人|另一人|他们|他(?:却|则|独自)|她(?:却|则|独自)|指挥使|安(?:托涅瓦)?|晏华|你|我|旁边|身旁|车旁|站在|站着|留在|停在|看着|望着|等待/;
     const exitEvent=/(?:驶离|驶出|飞离|飞出|离开)(?:了)?(?:整个|全部)?中央庭(?:(?:的)?(?:整个|全部)?(?:管辖区域|区域|辖区))?(?=\s*(?:$|[，,。！？；;：:]))/;
     const transportEvent=p=>{
@@ -51,9 +49,7 @@
         const m=re.exec(p);if(m)return {vehicle:m[1],end:m.index+m[0].length};
       }
       const m=boarded.exec(p);
-      if(m&&!changedBoardingSubject.test(m[1]))return {vehicle:m[2],end:m.index+m[0].length};
-      const people=escortedPeople.exec(p)||directEscort.exec(p);
-      return people?{vehicle:null,end:people.index+people[0].length}:null;
+      return m&&!changedBoardingSubject.test(m[1])?{vehicle:m[2],end:m.index+m[0].length}:null;
     };
     const normalizeVehicle=v=>v?.replace(/运输车辆|运输车队/,'运输车').replace(/押运飞行器|运输飞行器/,'飞行器');
     const actualTransportExit=(p,previous)=>{
