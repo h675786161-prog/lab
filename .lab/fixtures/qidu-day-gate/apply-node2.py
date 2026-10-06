@@ -126,7 +126,11 @@ insert = r'''  const hasDay6FixedResolution=text=>{
 '''
 js = js.replace(marker, insert + marker, 1)
 old = "    if(prior.day===6&&day6DecisionMade(user)&&hasMorningVoice(transcript)&&hasSaihamDeparture(transcript))addFlag('day6_saiham');"
-new = "    if(prior.day===6&&hasMorningVoice(transcript)&&hasDay6FixedResolution(transcript))addFlag('day6_saiham');"
+new = "    if(prior.day===6&&hasMorningVoice(transcript)&&hasDay6FixedResolution(transcript)){
+      addFlag('day6_saiham');
+      if(get(prior,'intel_flags.first_chimera_incident_known')!==true&&!commands.some(c=>String(c.args?.[0]||'').replace(/^['"]|['"]$/g,'')==='intel_flags.first_chimera_incident_known'&&parse(c.args?.at(-1))===true))
+        commands.push({type:'set',args:['intel_flags.first_chimera_incident_known','false','true'],reason:'已听完安托涅瓦关于十几年前第一活骸事故的亲历说明'});
+    }"
 assert old in js
 js = js.replace(old, new, 1)
 old = "      if(path==='morning_flags.day6_saiham'&&next===true)invalid||=!day6DecisionMade(user)||!enteringDay6||get(prior,'morning_flags.day6_monologue')!==true&&!commands.some(c=>String(c.args?.[0]||'').includes('day6_monologue'))&&!hasMorningVoice(transcript)||!hasSaihamDeparture(transcript);"
