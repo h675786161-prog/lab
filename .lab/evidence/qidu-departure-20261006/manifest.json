@@ -1,0 +1,32 @@
+{
+  "sourceCommit": "a76bb18a1dd96a237a033d87b00bc9cbb54aad0c",
+  "sourceModelRun": 37211901343,
+  "passedReplayRun": 37424255769,
+  "artifactId": 11393844998,
+  "artifactSha256": "c4451f7dfe98cfad0257f3291e917cfcd9b95170442b43381c732513008f0aaa",
+  "jobs": {
+    "id": 112140206842,
+    "conclusion": "success"
+  },
+  "previousRuns": [
+    {
+      "id": 37423386996,
+      "conclusion": "failure",
+      "note": "原守卫通过，修正守卫启动按钮竞态未进入剧情检查"
+    },
+    {
+      "id": 37423671545,
+      "conclusion": "failure",
+      "note": "首次设置窗口遮挡世界背面纸条，两项均未进入剧情检查"
+    }
+  ],
+  "codeScope": [
+    ".github/workflows/qidu-departure-replay.yml",
+    ".lab/fixtures/qidu-day-gate/departure-audit/full-guard-regression.cjs",
+    ".lab/fixtures/qidu-day-gate/departure-audit/full-guard-result.json",
+    ".lab/fixtures/qidu-day-gate/departure-audit/native-replay.mjs",
+    ".lab/fixtures/qidu-day-gate/departure-audit/replay-fixture.json"
+  ],
+  "formalCandidateModified": false,
+  "phoneCodeModified": false
+}

@@ -1,0 +1,182 @@
+{
+  "tested_commit": "a76bb18a1dd96a237a033d87b00bc9cbb54aad0c",
+  "workflow_run": "37424255769",
+  "source_model_run": "37211901343",
+  "candidate_version": "0.4.45",
+  "scope": "真实酒馆受控回放；不作为新的自然模型长篇验证，也不替代第16号提案0.4.41候选卡验收",
+  "prior_attempts": [
+    {
+      "run": "37423386996",
+      "baseline": "通过",
+      "fixed": "启动弹窗点击竞态，未进入剧情检查",
+      "classification": "测试脚本基础设施问题"
+    },
+    {
+      "run": "37423671545",
+      "baseline": "启动阻塞",
+      "fixed": "启动阻塞",
+      "classification": "首次设置窗口遮挡世界背面纸条，未进入剧情检查"
+    }
+  ],
+  "complete_guard_simulated_cases": 9,
+  "rows": [
+    {
+      "variant": "baseline",
+      "passed": true,
+      "model_calls": 0,
+      "local_replay_requests": 1,
+      "committed_monologue": true,
+      "committed_departure": false,
+      "clock_minutes": 480,
+      "page_errors": [],
+      "stale_commit_rejections": [],
+      "notification_sequence": [
+        {
+          "status": "ready",
+          "reason": "",
+          "committed_departure": false
+        },
+        {
+          "status": "empty",
+          "reason": "剧情生成中",
+          "committed_departure": false
+        },
+        {
+          "status": "empty",
+          "reason": "等待玩家消息变量提交",
+          "committed_departure": null
+        },
+        {
+          "status": "empty",
+          "reason": "等待回复变量提交",
+          "committed_departure": null
+        },
+        {
+          "status": "ready",
+          "reason": "",
+          "committed_departure": false
+        }
+      ],
+      "publications": [
+        {
+          "id": 1,
+          "committedFlags": {
+            "day6_monologue": false,
+            "day6_saiham": false,
+            "day6_seth": false,
+            "day5_monologue": false,
+            "day5_split": false,
+            "day4_monologue": false,
+            "day4_speech": false,
+            "day3_monologue": false,
+            "day3_ann_departure": false,
+            "day2_monologue": false
+          },
+          "result": true,
+          "status": "empty"
+        },
+        {
+          "id": 2,
+          "committedFlags": {
+            "day6_monologue": true,
+            "day6_saiham": false,
+            "day6_seth": false,
+            "day5_monologue": false,
+            "day5_split": false,
+            "day4_monologue": false,
+            "day4_speech": false,
+            "day3_monologue": false,
+            "day3_ann_departure": false,
+            "day2_monologue": false
+          },
+          "result": true,
+          "status": "ready",
+          "revision": "fa04af2f-f4c1-4457-9a3a-7048e85eb202:3"
+        }
+      ],
+      "native_reply_sha256": "5961507276cabde943f14f6870cb781b8b9107216b95a0a2a868d2ba661c5e65"
+    },
+    {
+      "variant": "fixed",
+      "passed": true,
+      "model_calls": 0,
+      "local_replay_requests": 1,
+      "committed_monologue": true,
+      "committed_departure": true,
+      "clock_minutes": 480,
+      "page_errors": [],
+      "stale_commit_rejections": [],
+      "notification_sequence": [
+        {
+          "status": "ready",
+          "reason": "",
+          "committed_departure": false
+        },
+        {
+          "status": "empty",
+          "reason": "剧情生成中",
+          "committed_departure": false
+        },
+        {
+          "status": "empty",
+          "reason": "等待玩家消息变量提交",
+          "committed_departure": null
+        },
+        {
+          "status": "empty",
+          "reason": "等待回复变量提交",
+          "committed_departure": null
+        },
+        {
+          "status": "ready",
+          "reason": "",
+          "committed_departure": true
+        }
+      ],
+      "publications": [
+        {
+          "id": 1,
+          "committedFlags": {
+            "day6_monologue": false,
+            "day6_saiham": false,
+            "day6_seth": false,
+            "day5_monologue": false,
+            "day5_split": false,
+            "day4_monologue": false,
+            "day4_speech": false,
+            "day3_monologue": false,
+            "day3_ann_departure": false,
+            "day2_monologue": false
+          },
+          "result": true,
+          "status": "empty"
+        },
+        {
+          "id": 2,
+          "committedFlags": {
+            "day6_monologue": true,
+            "day6_saiham": true,
+            "day6_seth": false,
+            "day5_monologue": false,
+            "day5_split": false,
+            "day4_monologue": false,
+            "day4_speech": false,
+            "day3_monologue": false,
+            "day3_ann_departure": false,
+            "day2_monologue": false
+          },
+          "result": true,
+          "status": "ready",
+          "revision": "7ac27a29-3352-4656-a572-461c1bff6b57:3"
+        }
+      ],
+      "native_reply_sha256": "5961507276cabde943f14f6870cb781b8b9107216b95a0a2a868d2ba661c5e65"
+    }
+  ],
+  "remaining": [
+    "原真实模型回复未记录完成原因，无法确认截断",
+    "同条晨间回复不扣巡查时间，需要单独后续提交验收",
+    "0.4.41候选卡自然生成、中止、重新生成和跨轮回仍需专项测试"
+  ],
+  "phone_modified": false
+}
