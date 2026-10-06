@@ -120,7 +120,6 @@ insert = r'''  const hasDay6LockedResolution=text=>{
       ||/赛哈姆[\s\S]{0,280}(?:被带离(?:了)?现场|被带走[^。\n]{0,120}(?:离开|现场)|随(?:着)?希罗[^。\n]{0,160}(?:离开(?:了)?现场|离去|撤离))/.test(t);
   };
 '''
-'''
 js = js.replace(marker, insert + marker, 1)
 
 old = "    if(prior.day===6&&day6DecisionMade(user)&&hasMorningVoice(transcript)&&hasSaihamDeparture(transcript))addFlag('day6_saiham');"
