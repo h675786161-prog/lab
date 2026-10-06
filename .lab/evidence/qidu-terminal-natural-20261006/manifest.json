@@ -1,0 +1,33 @@
+{
+  "testedCommit": "d898b9ffd8cfc4dc5a2cbe4533ffb44ee677dcb1",
+  "runId": 37428067500,
+  "jobId": 112152189036,
+  "productResult": "failed",
+  "failureCount": 6,
+  "officialDeliveryCommit": "4cd2f36b740ba46a2b5d11bfb18fe4a211b146cf",
+  "candidateSha256": "f5960e062eadfb3d57528dce928730aff3c479a2dd02d4c3b8cc7ad192ac05da",
+  "artifact": {
+    "id": 11396021351,
+    "sha256": "38c73ea9893a0cd508f39ae30a1648de0705e14601e344d7063aafcbef4f64b3",
+    "bytes": 439721
+  },
+  "runtime": {
+    "SillyTavern": "8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8",
+    "TavernHelper": "519599bc68247d8e759cc844a983f8f5252941a8",
+    "WorldBackstage": "f9babfa0ee0bd3003d3529fd171b83103cfee4c1",
+    "MVU": "183d8ade3b9a3369e824a55cb13b4ddf91aada50",
+    "mvuArtifactSha256": "43e38e31c3f86734cdd38c6047d22e871a043abbc2af9116ee2c54438462db6a",
+    "node": "22",
+    "playwright": "1.55.0",
+    "model": "gemini-3-flash-preview",
+    "maxTokens": 6000
+  },
+  "files": {
+    "README.md": "c66af98add1fa1db49eb4881d48ba284fbd2d611c6258f2a8fa94471a395ac07",
+    "checkpoint.json": "5c577c66b243a78bc0ce1a749516ace755f76e7fc68ca74e55d3146daf480ce5",
+    "morning.json": "0aa89dbccac6c4cd231de52c4e81e1ed7c4ebf3a76ded010349af25c192c762a",
+    "natural-live.json": "43752c10196710915b07acdbacb2e2910047bbdf3981faa95e5ae87fe4041a01",
+    "patrol.json": "41e48dd5eae57f0e7fa21f4668952d7874f14b35559aa55069adf67aac62fd2f",
+    "verify-evidence.mjs": "9527cbb65102d336dd13dab4f58dcc4e5b846345b2f7ee3b23d42d9d04917d9f"
+  }
+}
