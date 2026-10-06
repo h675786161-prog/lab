@@ -18,24 +18,26 @@
   const hasMorningVoice=text=>{
     const opening=narrative(text).slice(0,1000);
     const dream=/(?:梦境|梦中|梦里|睡梦|半梦半醒|意识(?:的)?深处|尚未醒|醒来之前|醒前|沉睡|小神)/;
-    const voice=/(?:声音|低语|呢喃|耳语|轻叹|自语|回响)/;
-    const excluded=/(?:回忆|回想|想起|记得|昨天|昨日|如果|假如|要是)[^。！？\n]{0,80}(?:梦|小神|低语|声音)|(?:没有|并未|未曾|尚未|不再)[^。！？\n]{0,24}(?:声音|低语|呢喃|耳语)/;
+    const voice=/(?:声音|低语|轻语|呢喃|耳语|轻叹|自语|回响)/;
+    const excluded=/(?:回忆|回想|想起|记得|昨天|昨日|如果|假如|要是)[^。！？\n]{0,80}(?:梦|小神|低语|声音)|(?:没有|并未|未曾|尚未|不再)[^。！？\n]{0,24}(?:声音|低语|轻语|呢喃|耳语)/;
     return opening.split(/[。！？\n]+/).some(p=>{
       if(excluded.test(p)||!voice.test(p))return false;
       if(dream.test(p))return true;
-      return /(?:黑暗|虚空|虚无|意识)/.test(p)&&/(?:醒来|苏醒|睁开|天花板|晨光)/.test(opening.slice(opening.indexOf(p)+p.length));
+      return /(?:黑暗|虚空|虚无|意识)/.test(opening.slice(Math.max(0,opening.indexOf(p)-160),opening.indexOf(p)+p.length))&&/(?:醒来|苏醒|睁开|天花板|晨光)/.test(opening.slice(opening.indexOf(p)+p.length));
     });
   };
   const hasSaihamDeparture=text=>{
     const visible=narrative(text),sentences=visible.split(/[。！？\n]+/);
     const complete=/(?:赛哈姆[^。！？\n]{0,100}(?:被(?:希罗)?(?:带|抬|推|护送)离(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道))|已经离开(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道))|随(?:着)?希罗[^。！？\n]{0,80}(?:离开|走出)(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道)))|(?:希罗|随从|护送人员|工作人员|几人|一行人|他)[^。！？\n]{0,100}(?:带着|抬着|推着|护送着)[^。！？\n]{0,120}赛哈姆[^。！？\n]{0,160}(?:离开|走出)(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道)))|(?:希罗|随从|随行人员|护送人员|工作人员|几人|一行人|他)[^。！？\n]{0,100}(?:将|把)赛哈姆[^。！？\n]{0,100}(?:带|抬|推|护送)(?:离|出)(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道))/;
-    const excluded=/(?:(?:没有|并未|尚未|还没|不会|未曾)(?:被(?:希罗|随从|护送人员)?)?(?:带着|抬着|推着|护送着|离开|带离|带出|走出|转移|带走)|(?:计划|打算|准备|即将|将要|将会|可能|声称|表示|如果|假如|要是|想象|回忆|回想)[^。！？\n]{0,180}(?:离开|带离|走出|转移|带走))/;
+    const escortedVehicle=/担架[^！？\n]{0,240}(?:一行人|希罗与随行队伍|护送队伍)[^！？\n]{0,240}(?:驶离|驶出)(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道))/;
+    const excluded=/(?:(?:没有|并未|尚未|还没|不会|未曾)(?:被(?:希罗|随从|护送人员)?)?(?:带着|抬着|推着|护送着|离开|带离|带出|走出|转移|带走|驶离|驶出)|(?:计划|打算|准备|即将|将要|将会|可能|声称|表示|如果|假如|要是|想象|回忆|回想)[^。！？\n]{0,180}(?:离开|带离|走出|转移|带走|驶离|驶出))/;
     const stay=/赛哈姆[^。！？\n]{0,100}(?:(?:仍|依旧|还)(?:留|在)[^。！？\n]{0,60}中央庭|(?:没有|并未|尚未|还没)(?:被)?(?:带走|带离|转移|离开))/;
     let lastComplete=-1,lastStay=-1;
     for(let i=0;i<sentences.length;i++){
       const p=sentences[i];
       if(stay.test(p))lastStay=i;
-      if(!excluded.test(p)&&complete.test(p))lastComplete=i;
+      const context=sentences.slice(Math.max(0,i-1),i+1).join('。');
+      if(!excluded.test(p)&&complete.test(p)||!excluded.test(context)&&escortedVehicle.test(context))lastComplete=i;
     }
     const observed=String(text||'').replace(/<f7d_choices>[\s\S]*?<\/f7d_choices>/gi,'');
     return /希罗/.test(observed)&&/活骸/.test(observed)&&lastComplete>=0&&lastComplete>lastStay;

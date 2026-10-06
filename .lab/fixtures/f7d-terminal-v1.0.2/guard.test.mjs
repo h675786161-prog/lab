@@ -65,3 +65,8 @@ test('随行人员将赛哈姆带离整个中央庭允许结算',()=>{const text
 test('被带离主廊不能冒充离开整个中央庭',()=>{const text=voice+'希罗处理赛哈姆的活骸化。赛哈姆被带离了中央庭主廊。';assert.equal(has(run({text}),'day6_saiham'),false);});
 test('主动带离主廊不能冒充离开整个中央庭',()=>{const text=voice+'希罗处理赛哈姆的活骸化。随行人员将赛哈姆带离了中央庭主廊。';assert.equal(has(run({text}),'day6_saiham'),false);});
 test('最新真实模型只离开主廊的错误完成命令被拒绝',()=>{const rows=run({text:fixture.latestNaturalFailure.text});assert.ok(has(rows,'day6_monologue'));assert.equal(has(rows,'day6_saiham'),false);});
+
+test('第二轮真实醒前轻语与担架护送驶离保留合法命令',()=>{const rows=run({text:fixture.secondNaturalFailure.text});assert.ok(has(rows,'day6_monologue'));assert.ok(has(rows,'day6_saiham'));});
+test('醒后普通轻语不得补晨间独白',()=>{const rows=run({text:'你睁开双眼，看见天花板。晨光中，工作人员在走廊轻语。'+left});assert.equal(has(rows,'day6_monologue'),false);});
+test('仅护送队伍驶离不能推定赛哈姆离开',()=>{const text=voice+'希罗处理赛哈姆的活骸化。希罗与随行队伍登上车，驶离了中央庭区域。';assert.equal(has(run({text}),'day6_saiham'),false);});
+test('准备或假设担架队伍驶离不算发生',()=>{for(const prefix of ['准备','如果']){const text=voice+'希罗处理赛哈姆的活骸化。'+prefix+'担架由一行人推上车，驶离中央庭区域。';assert.equal(has(run({text}),'day6_saiham'),false);}});

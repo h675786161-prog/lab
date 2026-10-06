@@ -35,11 +35,11 @@
       "bytes": 3577
     },
     "Qidu-v0.4.41-terminal-v1.0.2.json": {
-      "sha256": "81c14faa623ffad2fd6195f71994c8893027f23b463dc4a843b9c2e45eb46dbe",
-      "bytes": 1642267
+      "sha256": "1fc39f446b31efe33cbe15f1c2f94803887ba30ce5c9de7ca4c9894ef1abeeda",
+      "bytes": 1642760
     },
     "README.md": {
-      "sha256": "82dcafa5b5967923963b8a8d2133c8ee0cfce7991a9ea543b7909ba0d7fa929c",
+      "sha256": "d521b1f98d3cceb32c7994c10e752b92cbfcaca8ce7c44c9e5e8375d7c36f462",
       "bytes": 2433
     },
     "card-only-smoke.mjs": {
@@ -51,16 +51,16 @@
       "bytes": 11010
     },
     "guard.test.mjs": {
-      "sha256": "31d6375301cec3068720287c9bfa68549112ecc59ed156c24fdd2d8876c18560",
-      "bytes": 7517
+      "sha256": "30008c46ec64b50ff8ac675e6c706947457f8b607f9e8567b2ab24d9be2fe07a",
+      "bytes": 8450
     },
     "morning-guard.baseline.js": {
       "sha256": "de2b29cd7c2e8ed64c9b4420f116a1e065a2402c11396230066467918d407077",
       "bytes": 8957
     },
     "morning-guard.js": {
-      "sha256": "3c763d82db1f4961ffa51b35502239bf2f125f227a664c881b60531265326452",
-      "bytes": 12468
+      "sha256": "6be05399cf2adffc0dad57b025198ac4ec47562ef61cd79bebf8604162a3bc9f",
+      "bytes": 12953
     },
     "mvu-commit-hook.js": {
       "sha256": "062c4d9eb3e1a51f840c450347773f8cbd5957bed0e62b50e75004ebd78fec4e",
@@ -71,8 +71,8 @@
       "bytes": 15790
     },
     "replay-fixture.json": {
-      "sha256": "e2b8027189799df2d51331b18d8464be9c5d81a707bc1e8ad6da04bad83f1936",
-      "bytes": 21066
+      "sha256": "020b9495d874f0e908abb630cccf254f07e7f9e89093d7e50730e294bf3db543",
+      "bytes": 25976
     },
     "verify-delivery.mjs": {
       "sha256": "a6bd0d0fbb2e47f2d4807dc24ece7a2c9ccd0f6f960aa50ba6f9c4be130482db",
