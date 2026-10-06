@@ -167,6 +167,7 @@ auto = r'''
         const path=String(commands[i]?.args?.[0]||'').replace(/^['"]|['"]$/g,'');
         if(path==='clock_minutes')commands.splice(i,1);
       }
+      commands.push({type:'set',args:['clock_minutes',String(prior.clock_minutes),String(prior.clock_minutes)],reason:'本次玩家行动已在消息节点扣时，显式同步当前时刻，禁止回复再次扣时'});
     }else if((secondRegionTravel||secondRegionAction)&&prior.clock_minutes<1440&&!commands.some(c=>String(c.args?.[0]||'').replace(/^['"]|['"]$/g,'')==='clock_minutes')){
       commands.push({type:'set',args:['clock_minutes',String(prior.clock_minutes),String(Math.min(1440,prior.clock_minutes+80))],reason:secondRegionTravel?'第6天跨区前往第二地区消耗1节点':'第6天第二地区一次实际巡查消耗1节点'});
     }
@@ -219,6 +220,7 @@ assert 'day6RegionActionCount' in guard['content']
 assert 'next-old!==80' in guard['content']
 assert 'day6SecondRegionTravelIntent' in guard['content']
 assert 'alreadyChargedSecondRegion' in guard['content']
+assert '显式同步当前时刻' in guard['content']
 assert '跨区移动1次到10:40' in byid[104]['content']
 assert 'wenzi_injured' in guard['content']
 
