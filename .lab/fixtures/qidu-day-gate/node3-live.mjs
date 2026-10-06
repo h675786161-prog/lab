@@ -210,22 +210,54 @@ try{
     return {before,after:data.variables.stat_data,text:String(data.text||''),terminal:data.terminal,requests:requests.slice(requestStart)};
   };
 
+  const travelInput=branchCase==='east-first'
+    ?'安托涅瓦的报告结束了。我现在从中央庭出发前往中央城区。这一次只完成跨区移动、抵达和现场接触，不开始第一轮巡查。'
+    :'安托涅瓦的报告结束了。我现在从中央庭出发前往东方古街。这一次只完成跨区移动、抵达和现场接触，不开始第一轮巡查。';
+  const travel=await generateTurn(travelInput,'travel');
+  if(travel.after.clock_minutes!==640)throw Error(branchCase+' travel clock '+travel.after.clock_minutes+' expected 640');
+  if(travel.after.route_flags?.first_second_region!==first)throw Error(branchCase+' first_second_region mutated during travel');
+  if(travel.after.regions?.[target]?.liberated!==false)throw Error(branchCase+' target region liberated during travel');
+  if(travel.after.cores?.[target]==='purified')throw Error(branchCase+' target black core purified during travel');
+  if(!String(travel.after.location||'').startsWith(targetName))throw Error(branchCase+' travel did not arrive in target region: '+travel.after.location);
+  if(branchCase==='east-first'){
+    if(!/赛斯/.test(travel.text))throw Error('Central City arrival did not actually feature Seth');
+    if(travel.after.morning_flags?.day6_seth!==true)throw Error('Seth flag not committed on Central City arrival');
+    if(travel.after.route_flags?.oldstreet_delayed!==false)throw Error('east-first wrongly delayed Old Street during travel');
+    if(travel.after.route_flags?.wenzi_injured!==false)throw Error('east-first wrongly injured Wenzi during travel');
+    if(travel.after.route_flags?.wenzi_joined!==true)throw Error('east-first lost Wenzi joined state during travel');
+  }else{
+    if(!/雯梓/.test(travel.text))throw Error('Old Street arrival did not establish Wenzi');
+    if(travel.after.route_flags?.oldstreet_delayed!==true)throw Error('central-first lost Old Street delay during travel');
+    if(travel.after.route_flags?.wenzi_injured!==false)throw Error('Wenzi injured during travel before third patrol');
+    if(travel.after.route_flags?.wenzi_joined!==false)throw Error('delayed Wenzi incorrectly joined during travel');
+  }
+  rounds.push({case:branchCase,kind:'travel',round:0,user:travelInput,before:travel.before,after:travel.after,text:travel.text,terminal:travel.terminal,requests:travel.requests.map(r=>({model:r.model,source:r.source,chars:r.chars}))});
+  await page.screenshot({path:out+'/'+branchCase+'-travel.jpg',type:'jpeg',quality:88,fullPage:true});
+
+  const talk=branchCase==='east-first'
+    ?'我先不开始巡查，只问赛斯一句：你刚才看到的异常最先从哪个方向出现？'
+    :'我先不开始巡查，只问眼前的雯梓一句：五行阵现在最明显的异常表现在哪里？';
+  const q=await generateTurn(talk,'short-talk');
+  if(q.after.clock_minutes!==640)throw Error(branchCase+' short dialogue consumed time');
+  if(q.after.regions?.[target]?.liberated!==false)throw Error(branchCase+' short dialogue advanced liberation');
+  rounds.push({case:branchCase,kind:'short-talk',round:0,user:talk,before:q.before,after:q.after,text:q.text,terminal:q.terminal,requests:q.requests.map(r=>({model:r.model,source:r.source,chars:r.chars}))});
+  await page.screenshot({path:out+'/'+branchCase+'-short-talk.jpg',type:'jpeg',quality:85,fullPage:true});
+
   const inputs=[
     branchCase==='east-first'
-      ?'安托涅瓦的报告结束了。我现在前往中央城区进行第一轮巡查，先处理眼前真正发生的居民与治安问题。'
-      :'安托涅瓦的报告结束了。我现在前往东方古街进行第一轮巡查，先确认居民避难和五行阵当前的异常。',
-    '继续在当前地区进行下一轮巡查，沿着已经得到的现场线索推进，不跳过中间过程。',
+      ?'现在开始中央城区第一轮巡查，继续处理眼前居民、治安和怪物问题，只推进这一轮。'
+      :'现在开始东方古街第一轮巡查，继续确认居民防线和五行阵当前状态，只推进这一轮。',
+    '继续第二轮巡查，沿着已经得到的现场线索推进，不跳过中间过程。',
     '继续第三轮巡查，处理这一阶段真正发生的危机和人物状态。',
     '继续第四轮巡查，按当前线索深入，不替我一次性完成整区。',
     '继续第五轮巡查，逼近地区核心危机，但仍只执行这一轮行动。',
     '继续第六轮巡查，完成这个地区当前主线的核心冲突；如果已经真正满足条件，再结算地区解放，黑核不要顺手净化。'
   ];
 
-  let afterFirst=null;
   const texts=[];
   for(let i=0;i<inputs.length;i++){
     const turn=await generateTurn(inputs[i],'patrol-'+(i+1));
-    const expected=560+(i+1)*80;
+    const expected=640+(i+1)*80;
     if(turn.after.clock_minutes!==expected)throw Error(branchCase+' patrol '+(i+1)+' clock '+turn.after.clock_minutes+' expected '+expected);
     if(turn.after.route_flags?.first_second_region!==first)throw Error(branchCase+' first_second_region mutated on patrol '+(i+1));
     if(turn.after.regions?.[first]?.liberated!==true)throw Error(branchCase+' first region regressed');
@@ -236,7 +268,7 @@ try{
     texts.push(turn.text);
 
     if(branchCase==='east-first'){
-      if(i===0&&turn.after.morning_flags?.day6_seth!==true)throw Error('Seth flag not committed on first Central City patrol');
+      if(turn.after.morning_flags?.day6_seth!==true)throw Error('Seth flag regressed after Central City patrol '+(i+1));
       if(turn.after.route_flags?.oldstreet_delayed!==false)throw Error('east-first wrongly delayed Old Street');
       if(turn.after.route_flags?.wenzi_injured!==false)throw Error('east-first wrongly injured Wenzi');
       if(turn.after.route_flags?.wenzi_joined!==true)throw Error('east-first lost Wenzi joined state');
@@ -249,37 +281,26 @@ try{
 
     rounds.push({case:branchCase,kind:'patrol',round:i+1,user:inputs[i],before:turn.before,after:turn.after,text:turn.text,terminal:turn.terminal,requests:turn.requests.map(r=>({model:r.model,source:r.source,chars:r.chars}))});
     await page.screenshot({path:out+'/'+branchCase+'-patrol-'+(i+1)+'.jpg',type:'jpeg',quality:88,fullPage:true});
-
-    if(i===0){
-      afterFirst=turn.after;
-      const talk=branchCase==='east-first'
-        ?'我先不继续巡查，只问赛斯一句：你刚才看到的异常最先从哪个方向出现？'
-        :'我先不继续巡查，只问眼前的雯梓一句：五行阵现在最明显的异常表现在哪里？';
-      const q=await generateTurn(talk,'short-talk');
-      if(q.after.clock_minutes!==afterFirst.clock_minutes)throw Error(branchCase+' short dialogue consumed time');
-      if(q.after.regions?.[target]?.liberated!==false)throw Error(branchCase+' short dialogue advanced liberation');
-      rounds.push({case:branchCase,kind:'short-talk',round:1,user:talk,before:q.before,after:q.after,text:q.text,terminal:q.terminal,requests:q.requests.map(r=>({model:r.model,source:r.source,chars:r.chars}))});
-      await page.screenshot({path:out+'/'+branchCase+'-short-talk.jpg',type:'jpeg',quality:85,fullPage:true});
-    }
   }
 
   const full=texts.join('\n\n');
   if(branchCase==='east-first'){
-    if(!/赛斯/.test(texts[0]))throw Error('Central City first patrol did not actually feature Seth');
+    const sethMentions=[travel.text,...texts.slice(0,4)].filter(t=>/赛斯/.test(t)).length;
+    if(sethMentions<2)throw Error('Seth did not remain involved after Central City arrival');
     if(!/莱奥斯/.test(texts.slice(0,3).join('\n')))throw Error('Central City branch missed Leios by patrol 3');
     if(!/丽/.test(texts.slice(1,4).join('\n')))throw Error('Central City branch missed Li by patrol 4');
     if(!/妮维/.test(texts.slice(0,4).join('\n')))throw Error('Central City branch missed Nive by patrol 4');
     if(!/利维坦/.test(texts[5]))throw Error('Central City sixth patrol did not resolve Leviathan');
   }else{
-    if(!/雯梓/.test(texts[0]))throw Error('Old Street first patrol did not establish Wenzi');
+    if(!/雯梓/.test(travel.text))throw Error('Old Street arrival did not establish Wenzi');
     if(!/钟函谷/.test(texts.slice(0,2).join('\n')))throw Error('Old Street branch missed Zhong Hanggu by patrol 2');
     if(!/达尔维拉/.test(texts[2])||!/雯梓[\s\S]{0,500}(?:受伤|负伤|伤势|受创|流血|吐血)/.test(texts[2]))throw Error('Old Street third patrol did not show Darvilla causing Wenzi injury');
   }
 
   const final=rounds.filter(r=>r.kind==='patrol').at(-1).after;
-  if(final.clock_minutes!==1040)throw Error(branchCase+' six patrols did not end at 17:20');
+  if(final.clock_minutes!==1120)throw Error(branchCase+' travel plus six patrols did not end at 18:40');
   const snap=rounds.filter(r=>r.kind==='patrol').at(-1).terminal?.snapshot;
-  if(snap?.header?.timeLabel!=='17:20')throw Error(branchCase+' terminal time did not update to 17:20');
+  if(snap?.header?.timeLabel!=='18:40')throw Error(branchCase+' terminal time did not update to 18:40');
   if(!String(snap?.header?.location||'').startsWith(targetName))throw Error(branchCase+' terminal location not in target region: '+snap?.header?.location);
 
   await page.evaluate(()=>{
@@ -304,8 +325,9 @@ try{
       noEarlyLiberation:true,
       sixthLiberation:true,
       blackCoreNotPurified:true,
-      terminalAt1720:true,
-      sethFirstPatrol:branchCase==='east-first',
+      separateTravelNode:true,
+      terminalAt1840:true,
+      sethArrivalAndRecurring:branchCase==='east-first',
       niveByFourth:branchCase==='east-first',
       leviathanSixth:branchCase==='east-first',
       delayedWenziInjuryThird:branchCase==='central-first',
