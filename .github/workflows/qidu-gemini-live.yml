@@ -2,7 +2,7 @@ name: Qidu Gemini native live
 on:
   push:
     branches: [feature/qidu-day6-node2-3f-20261004]
-    paths: ['.github/workflows/qidu-gemini-live.yml', '.lab/fixtures/qidu-day-gate/native-live.mjs', '.lab/fixtures/qidu-day-gate/apply-node1.py']
+    paths: ['.github/workflows/qidu-gemini-live.yml', '.lab/fixtures/qidu-day-gate/native-live.mjs', '.lab/fixtures/qidu-day-gate/apply-node1.py', '.lab/fixtures/qidu-day-gate/apply-node2.py']
 concurrency:
   group: qidu-node2-day6-3f-20261004
   cancel-in-progress: true
@@ -17,8 +17,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Rebuild exact node1 candidate
-        run: python3 .lab/fixtures/qidu-day-gate/apply-node1.py
+      - name: Rebuild exact node2 candidate
+        run: python3 .lab/fixtures/qidu-day-gate/apply-node2.py
       - name: Prepare exact lab runtime
         run: |
           git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git /tmp/qidu-native
