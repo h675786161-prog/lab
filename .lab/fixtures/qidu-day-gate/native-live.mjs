@@ -166,8 +166,8 @@ try{
 
  const transcript=storyTexts.join('\n\n');
  const must=[
-   ['醒前小神/低语',/(?:小神|低语|呢喃|自语|声音)[\s\S]{0,500}(?:尚未醒|醒来|睁开|清晨|拍门|敲门)/],
-   ['安拍门叫醒',/安[\s\S]{0,240}(?:拍门|敲门|砸门)[\s\S]{0,240}(?:醒|起来|出事)/],
+   ['醒前小神/低语',/(?:低语|细语|呢喃|模糊而遥远的声音|自虚空中)[\s\S]{0,1400}(?:快醒醒|拍门|敲门|门板)/],
+   ['安拍门叫醒',/(?:安[\s\S]{0,360}(?:拍门|敲门|拍打)[\s\S]{0,360}(?:醒|起来|出事)|门板[^。\n]{0,120}被安[^。\n]{0,120}(?:拍打|敲响)[\s\S]{0,240}(?:醒|出事))/],
    ['赛哈姆活骸化',/赛哈姆[\s\S]{0,300}活骸/],
    ['安不敌',/安[\s\S]{0,800}(?:不敌|被逼退|被压制|落入下风|受创|震退|击退)/],
    ['罗纳克救场',/罗纳克[\s\S]{0,600}(?:救|挡|拦|接住|解围|顶住|迎上)/],
@@ -180,13 +180,14 @@ try{
    ['希罗要求保密',/希罗[\s\S]{0,800}(?:保密|隐瞒|不要告诉|别告诉)/],
    ['指挥使固定拒绝',/(?:你|指挥使)[\s\S]{0,400}(?:拒绝[^。\n]{0,50}(?:保密|隐瞒|希罗)|不(?:会|愿|肯)[^。\n]{0,50}(?:保密|隐瞒)|不会替[^。\n]{0,50}保密)/],
    ['希罗遗憾',/希罗[\s\S]{0,400}(?:遗憾|可惜)/],
-   ['赛哈姆实际离场',/(?:希罗|罗纳克|奥露西娅|几人|一行人)[\s\S]{0,600}(?:带着|抱起|抬着|推着|护送着)[\s\S]{0,400}赛哈姆[\s\S]{0,600}(?:离开|带离|走出)|赛哈姆[\s\S]{0,600}(?:被带离|被带走|随[^。\n]{0,100}希罗[^。\n]{0,100}离开)/]
+   ['赛哈姆实际离场',/(?:罗纳克|希罗|奥露西娅|一行人|三人)[\s\S]{0,900}赛哈姆[\s\S]{0,900}(?:撤离|离开|带离|带走|消失)|赛哈姆[\s\S]{0,1100}(?:撤离|离开|被带走|被带离|消失在[^。\n]{0,120}(?:警戒线|道路|雾气))/]
  ];
  const missing=must.filter(([,re])=>!re.test(transcript)).map(([name])=>name);
  if(missing.length)throw Error('Day-6 mandatory prose missing: '+missing.join(' / '));
  if(/(?:半年前|六个月前)[^。\n]{0,80}(?:黑门[^。\n]{0,30}(?:首次|第一次|出现|诞生)|灾害[^。\n]{0,30}(?:首次|第一次|开始|爆发)|神器使[^。\n]{0,30}(?:首次|第一次|出现|诞生))/.test(transcript))throw Error('wrong half-year origin chronology appeared in Day-6 prose');
  if(/(?:唯一|保证|必定)[^。\n]{0,80}(?:治愈|逆转|恢复正常)|(?:治愈|逆转)[^。\n]{0,80}(?:装置|设备)[^。\n]{0,80}(?:唯一|保证|必定)/.test(transcript))throw Error('invented guaranteed active-corpse cure');
  if(/(?:身体组织|组织)[^。\n]{0,100}(?:崩溃|坏死)|神经系统[^。\n]{0,100}(?:崩溃|坏死|不可逆)/.test(transcript))throw Error('invented active-corpse pathology stage');
+ if(/(?:过度抽取|耗竭过低|平衡被打破|达到(?:了)?阈值|突破(?:了)?临界|更深层(?:的)?幻力探索)/.test(transcript))throw Error('invented active-corpse causal mechanism or research theory');
  if(/(?:中央庭|安托涅瓦)[^。\n]{0,120}(?:粉饰无能|无能的规矩|习惯了[^。\n]{0,60}无能)/.test(transcript))throw Error('invented Hiro insult toward Central Court in canon explanation');
  if(/赛哈姆[^。\n]{0,100}(?:死亡|死去|断气|当场毙命)|赛哈姆[^。\n]{0,140}(?:恢复正常|完全恢复|变回正常)/.test(transcript))throw Error('Saiham was killed or fully restored during mandatory chain');
  if(/安托涅瓦[^。\n]{0,120}(?:截肢|双腿被切除|没有双腿|失去两条腿)/.test(transcript))throw Error('Antoneva disability was rewritten as amputation');
