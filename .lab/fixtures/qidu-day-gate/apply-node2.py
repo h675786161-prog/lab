@@ -13,42 +13,40 @@ card['data']['character_version'] = '0.4.47-node2-day6-hardflow-history'
 entries = card['data']['character_book']['entries']
 byid = {e.get('id'): e for e in entries}
 
-# Always-on history anchor.
-assert 5 not in byid
-base = copy.deepcopy(byid[4])
-base.update({
-    'id': 5,
-    'name': '05｜世界历史时间锚',
-    'comment': '05｜世界历史时间锚',
-    'keys': [],
-    'secondary_keys': [],
-    'content': '''【世界历史硬时间锚｜禁止改写】
+# Always-on chronology anchor.
+if 5 not in byid:
+    base = copy.deepcopy(byid[4])
+    base.update({
+        'id': 5,
+        'name': '05｜世界历史时间锚',
+        'comment': '05｜世界历史时间锚',
+        'keys': [],
+        'secondary_keys': [],
+        'content': '''【世界历史硬时间锚｜禁止改写】
 - 十几年前，黑门相关灾害最先在交界都市爆发；神器使也在这一历史阶段出现。黑门、灾害与神器使都不是半年前才第一次出现。
 - 此后灾害影响范围一度扩展到交界都市之外。约半年前发生的是“灾害范围终于被控制并压缩回交界都市”，交界都市正是最初爆发的城市。
 - 因此“半年前”只能修饰灾害范围被控制/压制到交界都市，绝不能写成“半年前黑门首次出现”“半年前灾害才开始”“半年前才有神器使”。
 - 没有更精确资料时只使用“十几年前”“约半年前”，不得自行编造具体年份、月份或全球灾害细节。''',
-    'enabled': True,
-    'constant': True,
-    'insertion_order': 6,
-    'priority': 100,
-})
-base['extensions']['display_index'] = 5
-entries.insert(5, base)
+        'enabled': True,
+        'constant': True,
+        'insertion_order': 6,
+        'priority': 100,
+    })
+    base['extensions']['display_index'] = 5
+    entries.insert(5, base)
+
 byid = {e.get('id'): e for e in entries}
 
-# Correct the Day-7 onboarding chronology.
 old = '苏醒后的新手说明只开放交界都市、黑门早在多年前就已存在、直到半年前才被逐步控制并压制到交界都市，以及神器使/指挥使/中央庭/战术终端等基础事实。'
 new = '苏醒后的新手说明只开放基础事实：十几年前黑门灾害最先在交界都市爆发、神器使也在那一时期出现；灾害影响后来一度扩展到交界都市之外，约半年前才终于把灾害范围控制并压缩回最初爆发的交界都市。另可说明神器使/指挥使/中央庭/战术终端等基础概念。不得把“半年前”写成黑门、灾害或神器使的首次出现时间。'
 assert old in byid[10]['content']
 byid[10]['content'] = byid[10]['content'].replace(old, new)
 
-# Correct Antoneva's persistent chronology.
 old = '黑门多年前已经存在，半年前才把灾害压制到交界都市。她看不到你的悬浮倒计时，对其含义没有已确认的知识。'
 new = '十几年前黑门灾害已经在交界都市爆发，神器使也在那一历史阶段出现；约半年前只是把已经扩展过的灾害范围重新控制并压缩回交界都市，并非黑门在半年前才出现。她看不到你的悬浮倒计时，对其含义没有已确认的知识。'
 assert old in byid[41]['content']
 byid[41]['content'] = byid[41]['content'].replace(old, new)
 
-# Day-6 becomes one mandatory morning chain.
 byid[11]['content'] = '''【第6天清晨强制剧情｜08:00｜0节点｜不可分支】
 这是第6天醒来后的完整强制晨间链。只要本链尚未全部结束，就暂停巡查、自由行动、地区剧情和普通任务推进，时钟始终锁在08:00。不得把其中任何一段改成可选支线，也不得用<f7d_choices>让{{user}}决定是否执行关键结果。若单次回复长度不足，可以分多轮续写，但下一轮必须从“尚未完成的下一个固定步骤”继续，不重演已完成步骤，也不开放其他行动。
 
@@ -80,7 +78,6 @@ byid[11]['content'] = '''【第6天清晨强制剧情｜08:00｜0节点｜不可
 
 【时限】第6天结束前若未解放高校与东方古街/中央城区之一，按失败结算；不得补做。'''
 
-# First active-corpse incident facts, used both on Day 6 and after the knowledge flag.
 first_chimera = '''【第一活骸事故精确披露】
 - 这段历史在第6天赛哈姆强制晨间链中，由{{user}}回到中央庭报告后，安托涅瓦固定披露；不再做“是否告诉她”的分支。
 - 时间必须明确为“十几年前”。这是早期灾害时代已经发生的事故，不得改成半年前或近期事件。
@@ -92,14 +89,12 @@ first_chimera = '''【第一活骸事故精确披露】
 for eid in (97, 98):
     byid[eid]['content'] = first_chimera
 
-# Global internal scene check.
 prompt = card['data']['extensions']['depth_prompt']['prompt']
 old = '2. 晨间/强制剧情优先；第6天起床前小神低语和赛哈姆活骸化及希罗介入不得跳；第6天首入中央城区演出赛斯。随后再排首轮主线、角色剧情、地区与自由行动。'
 new = '2. 晨间/强制剧情优先。第6天必须按固定链走完：小神醒前自语→安拍门叫醒并带你赶往事故现场→亲眼见赛哈姆活骸化→安迎战不敌→希罗带罗纳克、奥露西娅介入（罗纳克救场、奥露西娅完成压制，赛哈姆重伤存活）→希罗解释活骸并要求保密→指挥使固定拒绝→希罗遗憾并实际带走赛哈姆→指挥使回中央庭报告安托涅瓦→安托涅瓦讲十几年前第一活骸事故及双腿残废。整链完成前08:00锁定、不得开放自由选项；第6天首入中央城区再演出赛斯。随后才排首轮主线、角色剧情、地区与自由行动。'
 assert old in prompt
 card['data']['extensions']['depth_prompt']['prompt'] = prompt.replace(old, new)
 
-# MVU morning guard: Day-6 completion now requires the entire fixed chain.
 guard = next(s for s in card['data']['extensions']['tavern_helper']['scripts'] if '__F7D_MVU_GUARD__' in s.get('content', ''))
 js = guard['content']
 marker = "  const day6DecisionMade=user=>{"
@@ -107,45 +102,36 @@ assert marker in js
 insert = r'''  const hasDay6FixedResolution=text=>{
     const t=String(text||'');
     if(!hasSaihamDeparture(t))return false;
-    const annLost=/安[sS]{0,700}(?:不敌|被逼退|被压制|落入下风|受创)/.test(t);
+    const annLost=/安[\s\S]{0,700}(?:不敌|被逼退|被压制|落入下风|受创)/.test(t);
     const helpers=/罗纳克/.test(t)&&/奥露西娅/.test(t);
-    const refusal=/(?:你|指挥使)[^。
-]{0,100}(?:拒绝[^。
-]{0,30}(?:保密|隐瞒|希罗)|不(?:会|愿|肯)[^。
-]{0,30}(?:保密|隐瞒)|不会替[^。
-]{0,30}保密)/.test(t);
-    const reported=/(?:回到|返回|赶回)[^。
-]{0,100}中央庭[sS]{0,800}安托涅瓦/.test(t)&&/(?:报告|告诉|说明|讲述)[^。
-]{0,160}(?:赛哈姆|活骸|希罗)/.test(t);
-    const history=/(?:十几年前|十余年前)/.test(t)&&/(?:第一(?:名|个)[^。
-]{0,20}活骸|第一个活骸)/.test(t)&&/(?:双腿[^。
-]{0,80}(?:残废|无法行走|失去行走能力)|(?:残废|无法行走|失去行走能力)[^。
-]{0,80}双腿)/.test(t);
+    const refusal=/(?:你|指挥使)[^。\n]{0,100}(?:拒绝[^。\n]{0,30}(?:保密|隐瞒|希罗)|不(?:会|愿|肯)[^。\n]{0,30}(?:保密|隐瞒)|不会替[^。\n]{0,30}保密)/.test(t);
+    const reported=/(?:回到|返回|赶回)[^。\n]{0,100}中央庭[\s\S]{0,800}安托涅瓦/.test(t)&&/(?:报告|告诉|说明|讲述)[^。\n]{0,160}(?:赛哈姆|活骸|希罗)/.test(t);
+    const history=/(?:十几年前|十余年前)/.test(t)&&/(?:第一(?:名|个)[^。\n]{0,20}活骸|第一个活骸)/.test(t)&&/(?:双腿[^。\n]{0,80}(?:残废|无法行走|失去行走能力)|(?:残废|无法行走|失去行走能力)[^。\n]{0,80}双腿)/.test(t);
     return annLost&&helpers&&refusal&&reported&&history;
   };
 '''
 js = js.replace(marker, insert + marker, 1)
+
 old = "    if(prior.day===6&&day6DecisionMade(user)&&hasMorningVoice(transcript)&&hasSaihamDeparture(transcript))addFlag('day6_saiham');"
-new = "    if(prior.day===6&&hasMorningVoice(transcript)&&hasDay6FixedResolution(transcript)){
+new = r"""    if(prior.day===6&&hasMorningVoice(transcript)&&hasDay6FixedResolution(transcript)){
       addFlag('day6_saiham');
       if(get(prior,'intel_flags.first_chimera_incident_known')!==true&&!commands.some(c=>String(c.args?.[0]||'').replace(/^['"]|['"]$/g,'')==='intel_flags.first_chimera_incident_known'&&parse(c.args?.at(-1))===true))
         commands.push({type:'set',args:['intel_flags.first_chimera_incident_known','false','true'],reason:'已听完安托涅瓦关于十几年前第一活骸事故的亲历说明'});
-    }"
+    }"""
 assert old in js
 js = js.replace(old, new, 1)
+
 old = "      if(path==='morning_flags.day6_saiham'&&next===true)invalid||=!day6DecisionMade(user)||!enteringDay6||get(prior,'morning_flags.day6_monologue')!==true&&!commands.some(c=>String(c.args?.[0]||'').includes('day6_monologue'))&&!hasMorningVoice(transcript)||!hasSaihamDeparture(transcript);"
 new = "      if(path==='morning_flags.day6_saiham'&&next===true)invalid||=!enteringDay6||get(prior,'morning_flags.day6_monologue')!==true&&!commands.some(c=>String(c.args?.[0]||'').includes('day6_monologue'))&&!hasMorningVoice(transcript)||!hasDay6FixedResolution(transcript);"
 assert old in js
 guard['content'] = js.replace(old, new, 1)
 
-# State rule documents the new gate meaning.
 rule = byid[91]['content']
 old = '晨间完成标记仅在整段事件及其必要交谈实际结束、行动权交回玩家后登记；停在邀请、要求保密或等待回答时不算结束。'
 new = '晨间完成标记仅在整段事件及其必要交谈实际结束、行动权交回玩家后登记；第6天尤其必须连同“回中央庭报告安托涅瓦并听完十几年前第一活骸事故”一起完成，不能在赛哈姆刚离场时提前结束晨间锁。'
 assert old in rule
 byid[91]['content'] = rule.replace(old, new, 1)
 
-# Static acceptance.
 blob = json.dumps(card, ensure_ascii=False)
 assert '05｜世界历史时间锚' in blob
 assert '十几年前' in byid[11]['content']
