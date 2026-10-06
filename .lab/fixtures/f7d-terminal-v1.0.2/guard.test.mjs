@@ -57,3 +57,5 @@ test('被带离了中央庭的实际叙述允许结算',()=>{const text=voice+'�
 test('没有希罗或活骸叙述时不借普通离场结算',()=>{for(const text of [voice+'工作人员带着赛哈姆离开中央庭。',voice+'希罗带着赛哈姆离开中央庭。'])assert.equal(has(run({text}),'day6_saiham'),false);});
 test('错误操作类型不能绕过前置检查',()=>{const a=mon();a.type='insert';const b=departure();b.type='insert';assert.equal(run({commands:[a,b]}).length,0);});
 
+
+test('整块晨间旗标写入不能绕过逐项校验',()=>{const rows=run({commands:[{type:'set',args:['\"morning_flags\"',JSON.stringify({day6_monologue:true,day6_saiham:true})]}]});assert.equal(rows.length,0);});

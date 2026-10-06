@@ -35,8 +35,8 @@
       "bytes": 3577
     },
     "Qidu-v0.4.41-terminal-v1.0.2.json": {
-      "sha256": "edaad44c4399c84991d2d6a136a3a89957d102993124124d2f77a987817bb967",
-      "bytes": 1641528
+      "sha256": "624c93c6e53e24b62c785254dc6073f9a43cdac24e802ea72183578d1079b0f3",
+      "bytes": 1641544
     },
     "README.md": {
       "sha256": "4ba319080683f77f43eea28e02782d7fe155ffaa56fd7abbc60b1aea4926ec44",
@@ -51,16 +51,16 @@
       "bytes": 11010
     },
     "guard.test.mjs": {
-      "sha256": "6cd6715bbd98b72a28ce75550915fd9afc7c2cefa9dca3848581ca990137bee3",
-      "bytes": 6211
+      "sha256": "70c06103b390463dbac547540737fd722c31b82e65e464f7005531877cf7f8aa",
+      "bytes": 6429
     },
     "morning-guard.baseline.js": {
       "sha256": "de2b29cd7c2e8ed64c9b4420f116a1e065a2402c11396230066467918d407077",
       "bytes": 8957
     },
     "morning-guard.js": {
-      "sha256": "3d763c9a118977368d8088478001123325cc789111e9595acfe66bfd779d309a",
-      "bytes": 11735
+      "sha256": "eb1ad99dc63c54ed7e1ca7a2463f29d0e1b2ed046e35c810748a9a0c7d319f80",
+      "bytes": 11751
     },
     "mvu-commit-hook.js": {
       "sha256": "062c4d9eb3e1a51f840c450347773f8cbd5957bed0e62b50e75004ebd78fec4e",
