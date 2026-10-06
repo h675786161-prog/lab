@@ -117,3 +117,38 @@ test('车辆离场也必须通过独白前置且不能补命令',()=>{
  assert.equal(run({text,commands:[]}).length,0);
  assert.equal(has(run({text:'希罗解释活骸化。运输车辆载着赛哈姆驶离中央庭。'}),'day6_saiham'),false);
 });
+
+const scopeFailure=JSON.parse(fs.readFileSync(new URL('./scope-failure.json',import.meta.url),'utf8'));
+const scopeBaseline=fs.readFileSync(new URL('./morning-guard.scope-baseline.js',import.meta.url),'utf8');
+test('完整真实车队管辖区域正文修补前漏判，修补后保留原合法命令',()=>{
+ const args={text:scopeFailure.text,state:scopeFailure.before,user:scopeFailure.user,commands:scopeFailure.commands};
+ assert.equal(has(run({...args,code:scopeBaseline}),'day6_saiham'),false);
+ const out=run(args);assert.ok(has(out,'day6_monologue'));assert.ok(has(out,'day6_saiham'));
+ assert.ok(out.every(c=>scopeFailure.commands.some(old=>JSON.stringify(old)===JSON.stringify(c))));
+});
+for(const s of [
+ '希罗与随行车队带着赛哈姆彻底驶离了中央庭的管辖区域，消失在城市主干道的拐角处。',
+ '车队带着赛哈姆驶离中央庭辖区。',
+ '运输车辆载着赛哈姆驶出中央庭管辖区域。',
+ '运输车没有再停留，带着赛哈姆驶离中央庭的管辖区域。',
+ '车队带着赛哈姆驶离中央庭的管辖区域 ，消失在街角。',
+])test('车队实际离开完整辖区：'+s,()=>{assert.ok(has(run({text:vehicleStory(s)}),'day6_saiham'));});
+for(const s of [
+ '“车队带着赛哈姆驶离中央庭的管辖区域。”',
+ '车队准备带着赛哈姆驶离中央庭的管辖区域。',
+ '如果车队带着赛哈姆驶离中央庭的管辖区域，你会跟上。',
+ '你回忆车队带着赛哈姆驶离中央庭的管辖区域的情景。',
+ '昨天车队带着赛哈姆驶离了中央庭的管辖区域。',
+ '据说车队带着赛哈姆驶离了中央庭的管辖区域。',
+ '车队将带着赛哈姆驶离中央庭的管辖区域。',
+ '车队不带着赛哈姆驶离中央庭的管辖区域。',
+ '车队带着赛哈姆，尚未驶离中央庭的管辖区域。',
+ '车队带着赛哈姆驶离中央庭的管辖区域内的主廊。',
+ '车队带着赛哈姆驶离中央庭辖区内的通道。',
+ '车队带着赛哈姆驶离中央庭 的大厅。',
+ '车队带着赛哈姆驶离中央庭的管辖区域 内的主廊。',
+ '车队带着赛哈姆驶离中央庭的管辖区域的大厅。',
+ '车队带着赛哈姆的行李驶离中央庭的管辖区域。',
+ '车队带着希罗，从赛哈姆身边驶离中央庭的管辖区域。',
+ '车队带着赛哈姆驶离中央庭的管辖区域。赛哈姆仍留在中央庭。',
+])test('车队辖区反例仍不得结算：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});
