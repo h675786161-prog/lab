@@ -1,0 +1,895 @@
+{
+  "description": "赛哈姆实际接走后晨间结算与离线联系实机审计；失败记录保留，回放与自然结果分开",
+  "attempts": [
+    {
+      "number": 1,
+      "directory": "attempt-1",
+      "sourceCommit": "889adfe929491d9b29c537779bb5dcc5062d8101",
+      "cardSha256": "75b1d21f3d533b49ad4267ac8234ecd15cbd60cf775784c68b94441987c1e29f",
+      "runId": 37566433550,
+      "artifactId": 11458972053,
+      "artifactSha256": "fc356c82f03ff2e714cff5b7cf419176701c70b7c2dee18f098941a2bbb9da71",
+      "stages": [
+        "natural",
+        "replay-adjacent",
+        "replay-boarding",
+        "replay-continuation",
+        "replay-escort",
+        "replay-fact",
+        "replay-handoff",
+        "replay-scope",
+        "replay-transport",
+        "replay-vehicle"
+      ],
+      "naturalChecks": [
+        [
+          14,
+          15
+        ],
+        [
+          13,
+          14
+        ]
+      ],
+      "jobs": [
+        {
+          "id": 112615101999,
+          "name": "native-live",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 37566433550,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Prepare exact lab runtime",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Configure existing GG key in isolated server",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Prepare browser test dependency",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Validate delivery and guard regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verify minimal taken away fact and offline contact",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Replay recorded failure through native generation",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Replay recorded jurisdiction failure through native generation",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Replay recorded boarding failure through native generation",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Replay adjacent sentence boarding failure through native generation",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Replay passenger and air transport failure through native generation",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Replay personnel transport failure through native generation",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Replay completed handoff and offline fact",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Replay adjacent personnel handoff fact",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Natural model morning and continuous patrol",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 17
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 35
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 36
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 37
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "directory": "attempt-2",
+      "sourceCommit": "abe0d4bc548e2a8e549c73ef4073c4af7c089f58",
+      "cardSha256": "7e724c27a95281a85942f4313a58876b14bd2bbbb3bb3fa60142839f40fa8cc4",
+      "runId": 37567140193,
+      "artifactId": 11458848838,
+      "artifactSha256": "3252fe49731a0c8273a36acd9ead8ecf22f12ca61bacae9c7b396fd7b5429f15",
+      "stages": [
+        "natural",
+        "replay-adjacent",
+        "replay-boarding",
+        "replay-carrier",
+        "replay-continuation",
+        "replay-escort",
+        "replay-fact",
+        "replay-handoff",
+        "replay-scope",
+        "replay-transport",
+        "replay-vehicle"
+      ],
+      "naturalChecks": [
+        [
+          14,
+          15
+        ],
+        [
+          13,
+          14
+        ]
+      ],
+      "jobs": [
+        {
+          "id": 112617322858,
+          "name": "native-live",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 37567140193,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Prepare exact lab runtime",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Configure existing GG key in isolated server",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Prepare browser test dependency",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Validate delivery and guard regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verify minimal taken away fact and offline contact",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Replay recorded failure through native generation",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Replay recorded jurisdiction failure through native generation",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Replay recorded boarding failure through native generation",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Replay adjacent sentence boarding failure through native generation",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Replay passenger and air transport failure through native generation",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Replay personnel transport failure through native generation",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Replay completed handoff and offline fact",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Replay adjacent personnel handoff fact",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Replay carried person and Hiro following event",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Natural model morning and continuous patrol",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 18
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 37
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 38
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 39
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "directory": "attempt-3",
+      "sourceCommit": "334e4e8cf7be84fe678f8cdf21257d76cf0e6d3e",
+      "cardSha256": "d7373d412ef700d5f572b15f779799b683cafbe9bfa05ad2d51ce364b12406e1",
+      "runId": 37567956361,
+      "artifactId": 11459257362,
+      "artifactSha256": "db2cd75f71640834ca325518430bfa500ae774f436914c9d7212a42a8043aa15",
+      "stages": [
+        "natural",
+        "replay-adjacent",
+        "replay-carrier",
+        "replay-fact",
+        "replay-passive"
+      ],
+      "naturalChecks": [
+        [
+          13,
+          15
+        ],
+        [
+          13,
+          14
+        ]
+      ],
+      "jobs": [
+        {
+          "id": 112619903627,
+          "name": "native-live",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 37567956361,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Prepare exact lab runtime",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Configure existing GG key in isolated server",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Prepare browser test dependency",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Validate delivery and guard regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verify minimal taken away fact and offline contact",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Replay adjacent personnel handoff fact",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Replay carried person and Hiro following event",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Replay passive transfer and Hiro team departure event",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Natural model morning and continuous patrol",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 12
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 25
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 26
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 27
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "directory": "attempt-4",
+      "sourceCommit": "9e25866187c623dd259006213d6acfe3f8f83ffb",
+      "cardSha256": "c6bff1e4acc821baf639d749125f7477fe6f338cbb9eebbed9eb7cad6977151d",
+      "runId": 37568563476,
+      "artifactId": 11460295421,
+      "artifactSha256": "e84d6f4c0cde29c1cfbdeb7950be66325889254baecc15a3f3e8c1ee6e0e0a49",
+      "stages": [
+        "natural",
+        "replay-adjacent",
+        "replay-carrier",
+        "replay-fact",
+        "replay-passive",
+        "replay-wake"
+      ],
+      "naturalChecks": [
+        [
+          14,
+          15
+        ],
+        [
+          13,
+          14
+        ]
+      ],
+      "jobs": [
+        {
+          "id": 112621810021,
+          "name": "native-live",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 37568563476,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Prepare exact lab runtime",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Configure existing GG key in isolated server",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Prepare browser test dependency",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Validate delivery and guard regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verify minimal taken away fact and offline contact",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Replay adjacent personnel handoff fact",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Replay carried person and Hiro following event",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Replay passive transfer and Hiro team departure event",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Replay pre-wake voice and environmental residue failure",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Natural model morning and continuous patrol",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 13
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 27
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 28
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 29
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "directory": "attempt-5",
+      "sourceCommit": "3d0673227c6a1fce8f179d2f8885c2cfcecbce7a",
+      "cardSha256": "e78be46c76c556813f3831a5ec0aa06caa01c5179e6d0cccc0757ebbfe5b3a59",
+      "runId": 37569106116,
+      "artifactId": 11460206667,
+      "artifactSha256": "5daa4eba0df539dc6a59a46889a204ddc1d666b21b78216b5c91ce87fb6eef43",
+      "stages": [
+        "natural",
+        "replay-adjacent",
+        "replay-carrier",
+        "replay-fact",
+        "replay-passive",
+        "replay-signal",
+        "replay-wake"
+      ],
+      "naturalChecks": [
+        [
+          14,
+          15
+        ],
+        [
+          13,
+          14
+        ]
+      ],
+      "jobs": [
+        {
+          "id": 112623485445,
+          "name": "native-live",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 37569106116,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Prepare exact lab runtime",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Configure existing GG key in isolated server",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Prepare browser test dependency",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Validate delivery and guard regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verify minimal taken away fact and offline contact",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Replay adjacent personnel handoff fact",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Replay carried person and Hiro following event",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Replay passive transfer and Hiro team departure event",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Replay pre-wake voice and environmental residue failure",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Replay same sentence Hiro signal and medical departure",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Natural model morning and continuous patrol",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 14
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 29
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 30
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 31
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "directory": "attempt-6",
+      "sourceCommit": "547239ff2b33e1db0c8df692607701a1ff62531a",
+      "cardSha256": "c46252d540af42bfc6f8717273d94f054ce1f68fde13d6100280650276b7c713",
+      "runId": 37569855080,
+      "artifactId": 11460710477,
+      "artifactSha256": "de57f638fed0f8a6b23dc7a5feea899f72e311516c4695a7183cb166e9cffee1",
+      "stages": [
+        "natural",
+        "replay-fact",
+        "replay-modifier"
+      ],
+      "naturalChecks": [
+        [
+          14,
+          15
+        ],
+        [
+          13,
+          14
+        ]
+      ],
+      "jobs": [
+        {
+          "id": 112625791041,
+          "name": "native-live",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 37569855080,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Prepare exact lab runtime",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Configure existing GG key in isolated server",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Prepare browser test dependency",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Validate delivery and guard regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verify minimal taken away fact and offline contact",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Replay Hiro acknowledgement and patient modifiers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Natural model morning and continuous patrol",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 10
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "rawJsonCount": 168,
+  "stageBundleCount": 42
+}
