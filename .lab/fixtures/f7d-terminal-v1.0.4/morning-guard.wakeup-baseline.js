@@ -23,7 +23,7 @@
     return opening.split(/[。！？\n]+/).some(p=>{
       if(excluded.test(p)||!voice.test(p))return false;
       if(dream.test(p))return true;
-      const start=opening.indexOf(p),sound=start+(p.match(voice)?.index||0),wake=/(?:醒来|苏醒|睁开|惊醒|醒转|醒过来)/.exec(opening);
+      const start=opening.indexOf(p),sound=start+(p.match(voice)?.index||0),wake=/(?:醒来|苏醒|睁开)/.exec(opening);
       if(wake){
         if(wake.index<=sound||/(?:没有|并未|尚未|还没|未曾|不会|如果|假如|要是|准备|将要)[^，,。！？\n]{0,20}$/.test(opening.slice(Math.max(0,wake.index-30),wake.index)))return false;
         const context=opening.slice(Math.max(0,start-160),wake.index);

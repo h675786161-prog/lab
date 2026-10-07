@@ -594,3 +594,18 @@ for(const s of [
  '希罗微微一笑。\n\n他示意护卫。赛哈姆被带离寝室，但将她留在门口。',
  '希罗微微一笑。\n\n你离开大厅。\n\n他示意护卫。赛哈姆被带离寝室。',
 ])test('代词必须指向希罗且本人实际接走，不能跨其他事件：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});
+
+const wakeupFailure=JSON.parse(fs.readFileSync(new URL('./wakeup-failure.json',import.meta.url),'utf8'));
+const wakeupBaseline=fs.readFileSync(new URL('./morning-guard.wakeup-baseline.js',import.meta.url),'utf8');
+test('惊醒的完整自然正文原版过滤独白及接走，修后保留两条原命令',()=>{
+ const opts={text:wakeupFailure.text,state:wakeupFailure.before,user:wakeupFailure.user,commands:wakeupFailure.commands};assert.equal(has(run({...opts,code:wakeupBaseline}),'day6_monologue'),false);assert.equal(has(run({...opts,code:wakeupBaseline}),'day6_saiham'),false);const rows=run(opts);assert.ok(has(rows,'day6_monologue'));assert.ok(has(rows,'day6_saiham'));assert.ok(rows.every(c=>opts.commands.some(old=>JSON.stringify(old)===JSON.stringify(c))));
+});
+for(const action of ['惊醒','醒转','醒过来'])test('同一醒前声音与意识语境支持常见醒转动作：'+action,()=>{assert.ok(has(run({text:'意识沉溺于混沌。耳边传来低语。你从床上'+action+'。'+left}),'day6_monologue'));});
+for(const s of [
+ '你从床上惊醒。耳边传来工作人员的声音。',
+ '意识浮起，低语传来。你尚未惊醒。',
+ '意识浮起，低语传来。你准备醒转。',
+ '你回忆意识沉溺混沌时的低语，随后惊醒。',
+ '如果意识浮起时有低语，你会惊醒。',
+ '<f7d_choices>意识浮起，低语传来，随后惊醒。</f7d_choices>',
+])test('醒转词汇扩展仍拒绝醒后、计划、未醒、回忆和选项：'+s,()=>{assert.equal(has(run({text:s+left}),'day6_monologue'),false);});

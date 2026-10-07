@@ -63,8 +63,8 @@ jobs:
           node .lab/fixtures/f7d-terminal-v1.0.4/verify-delivery.mjs
       - name: Verify minimal taken away fact and offline contact
         run: F7D_REPLAY_FIXTURE=fact F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
-      - name: Replay adjacent Hiro pronoun and actual handoff
-        run: F7D_REPLAY_FIXTURE=pronoun F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
+      - name: Replay startled awakening and actual handoff
+        run: F7D_REPLAY_FIXTURE=wakeup F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
       - name: Natural model morning and continuous patrol
         run: node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
       - uses: actions/upload-artifact@v4
