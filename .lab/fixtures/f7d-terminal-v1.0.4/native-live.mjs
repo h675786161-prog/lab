@@ -5,7 +5,7 @@ import {chromium} from 'playwright';
 import {parseCompletionMetadata} from '../f7d-terminal-v1-natural/response-metadata.mjs';
 const root='.lab/fixtures/f7d-terminal-v1.0.4';
 const replayMode=process.env.F7D_REPLAY==='1';
-const replayFixture=['vehicle','scope','boarding','continuation','transport','escort','fact','handoff'].includes(process.env.F7D_REPLAY_FIXTURE)?process.env.F7D_REPLAY_FIXTURE:'fact';
+const replayFixture=['vehicle','scope','boarding','continuation','transport','escort','fact','handoff','adjacent'].includes(process.env.F7D_REPLAY_FIXTURE)?process.env.F7D_REPLAY_FIXTURE:'fact';
 const fixture=JSON.parse(await fs.readFile(root+'/replay-fixture.json','utf8'));
 if(replayMode)fixture.morning.replayText=JSON.parse(await fs.readFile(root+'/'+replayFixture+(replayFixture==='fact'?'-reply.json':'-failure.json'),'utf8')).text;
 const manifest=JSON.parse(await fs.readFile(root+'/manifest.json','utf8'));

@@ -369,3 +369,56 @@ for(const s of [
  '希罗准备示意人员将赛哈姆带走。',
  '希罗允许人员将赛哈姆带走。',
 ])test('随希罗的计划、否定和其他主体不算已接走：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});
+
+const adjacentFailure=JSON.parse(fs.readFileSync(new URL('./adjacent-failure.json',import.meta.url),'utf8'));
+const adjacentBaseline=fs.readFileSync(new URL('./morning-guard.adjacent-baseline.js',import.meta.url),'utf8');
+test('希罗人员抬起本人后同一行人离开，完整自然正文修前拒绝修后保留原命令',()=>{
+ const opts={text:adjacentFailure.text,state:adjacentFailure.before,user:adjacentFailure.user,commands:adjacentFailure.commands};
+ assert.equal(has(run({...opts,code:adjacentBaseline}),'day6_saiham'),false);
+ const rows=run(opts);assert.ok(has(rows,'day6_monologue'));assert.ok(has(rows,'day6_saiham'));
+ assert.ok(rows.every(c=>opts.commands.some(old=>JSON.stringify(old)===JSON.stringify(c))));
+});
+for(const s of [
+ '希罗示意随行人员小心抬起赛哈姆。一行人迅速穿过走廊离开。',
+ '希罗微微颔首，没有再多说一句劝诱的话，示意随行人员小心抬起赛哈姆。一行人迅速穿过走廊离开，脚步声渐渐远去。',
+ '希罗的黑衣人员抱起昏迷的赛哈姆。随后他们迅速离去。',
+ '希罗的人员将赛哈姆抬上担架。接着这支队伍一同撤离。',
+ '希罗的随从扶起受伤的赛哈姆。随行人员离开。',
+])test('紧邻两句实际接走不检查路线或地域：'+s,()=>{assert.ok(has(run({text:vehicleStory(s)}),'day6_saiham'));});
+for(const s of [
+ '希罗示意人员抬起赛哈姆。',
+ '希罗准备示意人员抬起赛哈姆。一行人离开。',
+ '希罗允许人员抬起赛哈姆。一行人离开。',
+ '如果希罗的人员抬起赛哈姆。一行人离开。',
+ '昨天希罗的人员抬起赛哈姆。一行人离开。',
+ '你回忆希罗的人员抬起赛哈姆。一行人离开。',
+ '据说希罗的人员抬起赛哈姆。一行人离开。',
+ '希罗的人员没有抬起赛哈姆。一行人离开。',
+ '希罗的人员尚未抬起赛哈姆。一行人离开。',
+ '希罗的人员会抬起赛哈姆。一行人离开。',
+ '希罗的人员抬起赛哈姆的行李。一行人离开。',
+ '希罗的人员抱起赛哈姆的照片。一行人离开。',
+ '希罗的人员抬起赛哈姆。随后希罗独自离开。',
+ '希罗的人员抬起赛哈姆。另一支队伍离开。',
+ '希罗的人员抬起赛哈姆。一行人看着安离开。',
+ '希罗的人员抬起赛哈姆。一行人准备离开。',
+ '希罗的人员抬起赛哈姆。一行人将会离开。',
+ '希罗的人员抬起赛哈姆。一行人尚未离开。',
+ '希罗的人员抬起赛哈姆。如果一行人离开，你会安心。',
+ '希罗的人员抬起赛哈姆。据说一行人离开。',
+ '希罗的人员抬起赛哈姆。一行人把她放回病房后离开。',
+ '希罗的人员抬起赛哈姆。一行人离开，但将赛哈姆留在门口。',
+ '希罗的人员抬起赛哈姆，随后又把她放下。一行人离开。',
+ '希罗的人员抬起赛哈姆。一行人抬着空担架离开。',
+ '希罗的人员抬起赛哈姆。你转身回房。一行人离开。',
+ '希罗的人员抬起赛哈姆。\n\n一行人离开。',
+ '“希罗的人员抬起赛哈姆。一行人离开。”',
+ '希罗的人员抬起赛哈姆。一行人离开。赛哈姆仍留在中央庭。',
+])test('紧邻接走拒绝未执行、否定、其他对象和留场：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});
+test('相邻接走不能补模型命令，不能绕过独白前置，也不能从选项或更新注释结算',()=>{
+ const text=vehicleStory('希罗的人员抬起赛哈姆。一行人离开。');
+ assert.equal(has(run({text,commands:[mon()]}),'day6_saiham'),false);
+ assert.equal(has(run({text,commands:[departure()]}),'day6_saiham'),false);
+ assert.equal(has(run({text:vehicleStory('<f7d_choices>希罗的人员抬起赛哈姆。一行人离开。</f7d_choices>')}),'day6_saiham'),false);
+ assert.equal(has(run({text:vehicleStory('<UpdateVariable> // 希罗的人员抬起赛哈姆。一行人离开。</UpdateVariable>')}),'day6_saiham'),false);
+});

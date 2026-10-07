@@ -28,24 +28,12 @@
   };
   const hasSaihamDeparture=text=>{
     const visible=narrative(text),sentences=visible.split(/[。！？\n]+/);
-    const adjacentPairs=new Set(visible.split(/\n/).flatMap(line=>{const rows=line.split(/[。！？]+/);return rows.slice(1).map((p,i)=>JSON.stringify([rows[i],p]));}));
     // 晨间完成以希罗已实际接走赛哈姆为准，不要求登车或越过区域边界的描写。
     const takenAway=/(?:赛哈姆(?:已经|已|最终)?(?:被|由)希罗(?:已经|已|亲自)?(?:带走|接走)|希罗(?:已经|已|亲自)?(?:将|把)(?:(?:昏迷|受伤|失去意识)的)?赛哈姆(?!的)[^。！？\n]{0,30}(?:带走|接走)|希罗(?:已经|已|亲自)?(?:带走|接走)(?:了)?(?:(?:昏迷|受伤|失去意识)的)?赛哈姆)(?!的)/;
     const pendingHandoff=/(?:没有|并未|尚未|未曾|还没|没|不会)(?:被希罗)?(?:真正|实际|已经|再)?(?:带走|接走)|(?:允许|同意|请求|要求|准备|计划|打算|即将|将要|将会|想要|需要|希望|会|可能|应该|也许|如果|假如|要是|昨天|昨日|据说|听说|回忆|回想|声称|表示)[^。！？\n]{0,100}(?:带走|接走)/;
     const followingHiro=/(?:随行人员|黑衣人员|人员|部下|随从)[^。！？\n]{0,40}(?:将|把)(?:(?:昏迷|受伤|失去意识)的)?赛哈姆(?!的)[^。！？\n]{0,50}(?:搬上|抬上|推上|抱上|送上)[^。！？\n]{0,80}(?:随(?:着)?希罗|跟(?:着)?希罗)[^。！？\n]{0,50}(?:撤离|离开|离去|离场)/;
     const orderedHandoff=/希罗[^。！？\n]{0,40}(?:示意|指示)(?:随行人员|黑衣人员|人员|部下|随从)[^。！？\n]{0,30}(?:将|把)赛哈姆(?!的)[^。！？\n]{0,30}(?:带走|接走)/;
     const pendingFollowing=/(?:计划|打算|准备|即将|将要|将会|可能|如果|假如|要是|回忆|回想|昨天|昨日|据说|听说|允许|同意)[^。！？\n]{0,180}(?:搬上|抬上|撤离|离开|带走|接走)|(?:没有|并未|尚未|还没|不会)[^。！？\n]{0,30}(?:搬上|抬上|撤离|离开|带走|接走)/;
-    // 紧邻两句组成一次接走事实：希罗的人员抬起本人，随后同一行人实际离开。
-    // 不跨空行、对白或其他事件寻找代词，也不要求离开某个地域。
-    const pickup=/希罗[^。！？\n]{0,120}(?:随行人员|黑衣人员|人员|部下|随从)[^。！？\n]{0,40}(?:(?:抬起|抱起|扶起|抬上|搬上)(?:了)?(?:(?:昏迷|受伤|失去意识)的)?赛哈姆(?!的)|(?:将|把)(?:(?:昏迷|受伤|失去意识)的)?赛哈姆(?!的)[^。！？\n]{0,30}(?:抬起|抱起|扶起|抬上|搬上))/;
-    const unrealPickup=/(?:计划|打算|准备|即将|将要|将会|可能|如果|假如|要是|回忆|回想|昨天|昨日|据说|听说|允许|同意|请求|要求|希望)[^。！？\n]{0,180}(?:抬起|抱起|扶起|抬上|搬上|离开|离去|撤离)|(?:没有|并未|尚未|还没|不会|不曾|拒绝)[^，,。！？\n]{0,30}(?:抬起|抱起|扶起|抬上|搬上|离开|离去|撤离)|(?:会|将)(?:抬起|抱起|扶起|抬上|搬上)/;
-    const groupExit=/^\s*(?:随后|接着|紧接着)?(?:一行人|他们|随行人员|这支队伍|护送队伍)([^。！？\n]{0,80}?)(?:离开|离去|撤离|离场)/;
-    const handoffBroken=/另(?:一|外一)(?:人|队|支|群)|其他人|空担架|空载|(?:赛哈姆|她|担架)[^。！？\n]{0,30}(?:仍在|留在|留于|放在|放回|放下|留下)|(?:把|将)(?:她|赛哈姆)[^。！？\n]{0,30}(?:放下|留下|放回|留在)/;
-    const adjacentHandoff=(p,previous)=>{
-      if(!previous||!pickup.test(previous)||unrealPickup.test(previous)||unrealPickup.test(p)||handoffBroken.test(previous+p))return false;
-      const exit=groupExit.exec(p);
-      return !!exit&&!/(?:希罗|安(?:托涅瓦)?|晏华|赛哈姆|你|我|独自|单独|看着|注视|目送|等待|准备|计划|打算|可能|应该|也许|据说|听说|回忆|回想|没有|并未|尚未|还没|不会|不曾|要|会)/.test(exit[1]);
-    };
     const complete=/(?:赛哈姆[^。！？\n]{0,100}(?:被(?:希罗)?(?:带|抬|推|护送)离(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道))|已经离开(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道))|随(?:着)?希罗[^。！？\n]{0,80}(?:离开|走出)(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道)))|(?:希罗|随从|护送人员|工作人员|几人|一行人|他)[^。！？\n]{0,100}(?:带着|抬着|推着|护送着)[^。！？\n]{0,120}赛哈姆[^。！？\n]{0,160}(?:离开|走出)(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道)))|(?:希罗|随从|随行人员|护送人员|工作人员|几人|一行人|他)[^。！？\n]{0,100}(?:将|把)赛哈姆[^。！？\n]{0,100}(?:带|抬|推|护送)(?:离|出)(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道))/;
     const escortedVehicle=/担架[^！？\n]{0,240}(?:一行人|希罗与随行队伍|护送队伍)[^！？\n]{0,240}(?:驶离|驶出)(?:了)?中央庭(?!的?(?:主廊|走廊|寝室|房间|会议室|办公室|庭院|大厅|病房|通道))/;
     // 同一运输事件须同时证明赛哈姆是乘员，以及该载具实际离开完整区域。
@@ -92,7 +80,7 @@
       if(stay.test(p))lastStay=i;
       const context=sentences.slice(Math.max(0,i-1),i+1).join('。');
       const transportExit=actualTransportExit(p,sentences[i-1]);
-      const actualHandoff=adjacentPairs.has(JSON.stringify([sentences[i-1],p]))&&adjacentHandoff(p,sentences[i-1])||!pendingHandoff.test(p)&&!pendingFollowing.test(p)&&(takenAway.test(p)||followingHiro.test(p)||orderedHandoff.test(p));
+      const actualHandoff=!pendingHandoff.test(p)&&!pendingFollowing.test(p)&&(takenAway.test(p)||followingHiro.test(p)||orderedHandoff.test(p));
       if(actualHandoff||(!excluded.test(p)&&(complete.test(p)||transportExit))||(!excluded.test(context)&&escortedVehicle.test(context)))lastComplete=i;
     }
     const observed=String(text||'').replace(/<f7d_choices>[\s\S]*?<\/f7d_choices>/gi,'');

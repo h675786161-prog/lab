@@ -27,16 +27,16 @@
   },
   "files": {
     "CONTRACT.md": {
-      "sha256": "080af46ab12d031deee65c16b5a50de0a696c46df5df7232d0720f726133dc20",
-      "bytes": 10411
+      "sha256": "67cceb7f10a4fb4f8a97ee9142d180d157371e20e8933aa3cf3d6b36402a973e",
+      "bytes": 10417
     },
     "INSTALL.md": {
       "sha256": "1b1b9e9d226eabcd74bfa5353e06408d3a13571df9116956cf03dabacfce52a8",
       "bytes": 3577
     },
     "Qidu-v0.4.41-terminal-v1.0.4.json": {
-      "sha256": "d50dca1452771fb7cc600d9fc6fdd9073afcd6e49534259116a9bcd85129ad85",
-      "bytes": 1651024
+      "sha256": "75b1d21f3d533b49ad4267ac8234ecd15cbd60cf775784c68b94441987c1e29f",
+      "bytes": 1653215
     },
     "README.md": {
       "sha256": "a178ccfba5805947f12284380d4e0b6f82e4071f5498f024b1bbadf6f6aa81db",
@@ -75,8 +75,8 @@
       "bytes": 489
     },
     "guard.test.mjs": {
-      "sha256": "2baa65476d5f96979bb08d90e2bb8af8c725dd67bd3e777da82a010e61383bec",
-      "bytes": 32326
+      "sha256": "3368c1a9b3d203b8ecba5ea498ce1d8ae347110a9ced3a1c6165597a2f427e9f",
+      "bytes": 36354
     },
     "handoff-failure.json": {
       "sha256": "b5ee59eeffc805bdea03afc03afe4c013ed8efe2b0fce79541837c787c0ec458",
@@ -107,8 +107,8 @@
       "bytes": 18489
     },
     "morning-guard.js": {
-      "sha256": "531d19d26ba668253c8ce97329917d68e68d5f6dd7d1e40226c7ef9d127f278f",
-      "bytes": 19432
+      "sha256": "6bc5746e4f6687226b784c7afdeee9d96263805d09105745444803ea1dfe6a95",
+      "bytes": 21601
     },
     "morning-guard.scope-baseline.js": {
       "sha256": "519c2d4090089980c67ccbed2d5803eff838da8848456edad21fdeaaf20f1dd8",
@@ -127,8 +127,8 @@
       "bytes": 2984
     },
     "native-live.mjs": {
-      "sha256": "b549e6e4175ce7869766e803725eda6338bfe244f7835d1378eb0746bf0d48c6",
-      "bytes": 18589
+      "sha256": "de4d00a05b8c816a8d400ab14da9abdd33cf28160eecf1306ca4d3328893cd71",
+      "bytes": 18600
     },
     "provider-isolation.test.mjs": {
       "sha256": "4b724be4c34d4c11059170ffe862173ae4e6ee9d9bb1cc20ddf75ff36b4c165c",
@@ -153,9 +153,17 @@
     "verify-delivery.mjs": {
       "sha256": "477e54dc5b87c47ef756927c3e429c0647dadfbd13dcd2b854cfb812f9930e8e",
       "bytes": 2046
+    },
+    "adjacent-failure.json": {
+      "sha256": "b519e9319b224fd6f2dafc713c166e5fd933800846af134f66191d60273d6f57",
+      "bytes": 10996
+    },
+    "morning-guard.adjacent-baseline.js": {
+      "sha256": "531d19d26ba668253c8ce97329917d68e68d5f6dd7d1e40226c7ef9d127f278f",
+      "bytes": 19432
     }
   },
-  "previousCandidateCommit": "46c062a370c76b49ed530020e5aface03720162b",
+  "previousCandidateCommit": "555fe2a4cdce04b561c080814aba351419ef40e1",
   "guardPatchCommit": "b0ff93060557dc24d3a3466cc2f52e2539ffb64b",
   "scopeFailureSourceCommit": "fc8007fd13aee835b3f6938c0ca1c82127bf1c13"
 }
