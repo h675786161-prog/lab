@@ -577,3 +577,20 @@ for(const s of [
  '希罗带着站在赛哈姆身旁的安离开。',
  '希罗将完全昏迷的赛哈姆留下后离开。',
 ])test('泛化修饰语不能把旁人、物品、未来和留场视作接走：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});
+
+const pronounFailure=JSON.parse(fs.readFileSync(new URL('./pronoun-failure.json',import.meta.url),'utf8'));
+const pronounBaseline=fs.readFileSync(new URL('./morning-guard.pronoun-baseline.js',import.meta.url),'utf8');
+test('希罗后紧接他示意护卫与本人被带离，完整自然正文修前拒绝修后保留原命令',()=>{
+ const opts={text:pronounFailure.text,state:pronounFailure.before,user:pronounFailure.user,commands:pronounFailure.commands};assert.equal(has(run({...opts,code:pronounBaseline}),'day6_saiham'),false);const rows=run(opts);assert.ok(has(rows,'day6_monologue'));assert.ok(has(rows,'day6_saiham'));assert.ok(rows.every(c=>opts.commands.some(old=>JSON.stringify(old)===JSON.stringify(c))));
+});
+test('相邻段落已明确希罗，代词指挥护卫实际带走可结算',()=>{assert.ok(has(run({text:vehicleStory('希罗微微一笑。\n\n他示意护卫。赛哈姆被带离寝室。')}),'day6_saiham'));});
+for(const s of [
+ '晏华微微一笑。\n\n他示意护卫。赛哈姆被带离寝室。',
+ '希罗微微一笑。晏华上前。\n\n他示意护卫。赛哈姆被带离寝室。',
+ '希罗向你致意。\n\n他示意护卫。赛哈姆被带离寝室。',
+ '希罗微微一笑。\n\n他准备示意护卫。赛哈姆被带离寝室。',
+ '希罗微微一笑。\n\n他示意护卫。赛哈姆尚未被带离寝室。',
+ '希罗微微一笑。\n\n他示意护卫。赛哈姆的行李被带离寝室。',
+ '希罗微微一笑。\n\n他示意护卫。赛哈姆被带离寝室，但将她留在门口。',
+ '希罗微微一笑。\n\n你离开大厅。\n\n他示意护卫。赛哈姆被带离寝室。',
+])test('代词必须指向希罗且本人实际接走，不能跨其他事件：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});
