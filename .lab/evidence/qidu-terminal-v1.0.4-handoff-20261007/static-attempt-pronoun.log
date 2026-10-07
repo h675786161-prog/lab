@@ -1,0 +1,2919 @@
+﻿2026-10-07T04:21:55.3283886Z Current runner version: '2.337.0'
+2026-10-07T04:21:55.3308484Z ##[group]Runner Image Provisioner
+2026-10-07T04:21:55.3309484Z Hosted Compute Agent
+2026-10-07T04:21:55.3310061Z Version: 20260901.588
+2026-10-07T04:21:55.3310765Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-07T04:21:55.3311496Z Build Date: 2026-09-01T19:56:44Z
+2026-10-07T04:21:55.3312210Z Worker ID: {f5965fe9-df88-4351-bd7c-892618b22d15}
+2026-10-07T04:21:55.3313045Z Azure Region: westus2
+2026-10-07T04:21:55.3313599Z ##[endgroup]
+2026-10-07T04:21:55.3315558Z ##[group]Operating System
+2026-10-07T04:21:55.3316210Z Ubuntu
+2026-10-07T04:21:55.3316795Z 24.04.5
+2026-10-07T04:21:55.3317357Z LTS
+2026-10-07T04:21:55.3317870Z ##[endgroup]
+2026-10-07T04:21:55.3318856Z ##[group]Runner Image
+2026-10-07T04:21:55.3319449Z Image: ubuntu-24.04
+2026-10-07T04:21:55.3320095Z Version: 20260927.320.1
+2026-10-07T04:21:55.3321365Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260927.320/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-07T04:21:55.3322958Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260927.320
+2026-10-07T04:21:55.3323917Z ##[endgroup]
+2026-10-07T04:21:55.3325276Z ##[group]GITHUB_TOKEN Permissions
+2026-10-07T04:21:55.3327393Z Contents: read
+2026-10-07T04:21:55.3328115Z Metadata: read
+2026-10-07T04:21:55.3328678Z ##[endgroup]
+2026-10-07T04:21:55.3330792Z Secret source: Actions
+2026-10-07T04:21:55.3331856Z Cache mode: write
+2026-10-07T04:21:55.3332518Z Prepare workflow directory
+2026-10-07T04:21:55.3670960Z Prepare all required actions
+2026-10-07T04:21:55.3720569Z Getting action download info
+2026-10-07T04:21:55.7447706Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-07T04:21:55.8557998Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-10-07T04:21:55.9768787Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-07T04:21:56.1910334Z Complete job name: native-live
+2026-10-07T04:21:56.2786278Z ##[group]Run actions/checkout@v4
+2026-10-07T04:21:56.2787175Z with:
+2026-10-07T04:21:56.2787627Z   repository: h675786161-prog/lab
+2026-10-07T04:21:56.2791196Z   token: ***
+2026-10-07T04:21:56.2791623Z   ssh-strict: true
+2026-10-07T04:21:56.2792053Z   ssh-user: git
+2026-10-07T04:21:56.2792501Z   persist-credentials: true
+2026-10-07T04:21:56.2792981Z   clean: true
+2026-10-07T04:21:56.2793419Z   sparse-checkout-cone-mode: true
+2026-10-07T04:21:56.2793940Z   fetch-depth: 1
+2026-10-07T04:21:56.2794379Z   fetch-tags: false
+2026-10-07T04:21:56.2794828Z   show-progress: true
+2026-10-07T04:21:56.2795542Z   lfs: false
+2026-10-07T04:21:56.2796491Z   submodules: false
+2026-10-07T04:21:56.2797240Z   set-safe-directory: true
+2026-10-07T04:21:56.2797872Z   allow-unsafe-pr-checkout: false
+2026-10-07T04:21:56.2798799Z ##[endgroup]
+2026-10-07T04:21:56.3819082Z Syncing repository: h675786161-prog/lab
+2026-10-07T04:21:56.3821595Z ##[group]Getting Git version info
+2026-10-07T04:21:56.3822732Z Working directory is '/home/runner/work/lab/lab'
+2026-10-07T04:21:56.3824302Z [command]/usr/bin/git version
+2026-10-07T04:21:56.3936365Z git version 2.55.0
+2026-10-07T04:21:56.3959414Z ##[endgroup]
+2026-10-07T04:21:56.3990401Z Temporarily overriding HOME='/home/runner/work/_temp/755e21b4-ff5a-41d2-948b-d86f2f328856' before making global git config changes
+2026-10-07T04:21:56.3993261Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-07T04:21:56.3997606Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/lab/lab
+2026-10-07T04:21:56.4065798Z Deleting the contents of '/home/runner/work/lab/lab'
+2026-10-07T04:21:56.4071638Z ##[group]Initializing the repository
+2026-10-07T04:21:56.4090385Z [command]/usr/bin/git init /home/runner/work/lab/lab
+2026-10-07T04:21:56.4200789Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-07T04:21:56.4205853Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-07T04:21:56.4208149Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-07T04:21:56.4209720Z hint: call:
+2026-10-07T04:21:56.4210472Z hint:
+2026-10-07T04:21:56.4211494Z hint: 	git config --global init.defaultBranch <name>
+2026-10-07T04:21:56.4212702Z hint:
+2026-10-07T04:21:56.4213800Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-07T04:21:56.4215978Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-07T04:21:56.4217370Z hint:
+2026-10-07T04:21:56.4218146Z hint: 	git branch -m <name>
+2026-10-07T04:21:56.4219119Z hint:
+2026-10-07T04:21:56.4220343Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-07T04:21:56.4222445Z Initialized empty Git repository in /home/runner/work/lab/lab/.git/
+2026-10-07T04:21:56.4227799Z [command]/usr/bin/git remote add origin https://github.com/h675786161-prog/lab
+2026-10-07T04:21:56.4316699Z ##[endgroup]
+2026-10-07T04:21:56.4346783Z ##[group]Disabling automatic garbage collection
+2026-10-07T04:21:56.4348087Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-07T04:21:56.4350772Z ##[endgroup]
+2026-10-07T04:21:56.4352232Z ##[group]Setting up auth
+2026-10-07T04:21:56.4353814Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-07T04:21:56.4380177Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-07T04:21:56.4781682Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-07T04:21:56.4823674Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-07T04:21:56.5073933Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-07T04:21:56.5111189Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-07T04:21:56.5337628Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-07T04:21:56.5379457Z ##[endgroup]
+2026-10-07T04:21:56.5380279Z ##[group]Fetching the repository
+2026-10-07T04:21:56.5389702Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +17fa5127ba9e3297dfd79907f04e2aa9e88136cc:refs/remotes/origin/audit/qidu-terminal-v1.0.4-20261007
+2026-10-07T04:21:57.5314696Z From https://github.com/h675786161-prog/lab
+2026-10-07T04:21:57.5336939Z  * [new ref]         17fa5127ba9e3297dfd79907f04e2aa9e88136cc -> origin/audit/qidu-terminal-v1.0.4-20261007
+2026-10-07T04:21:57.5348352Z ##[endgroup]
+2026-10-07T04:21:57.5349598Z ##[group]Determining the checkout info
+2026-10-07T04:21:57.5351102Z ##[endgroup]
+2026-10-07T04:21:57.5351993Z [command]/usr/bin/git sparse-checkout disable
+2026-10-07T04:21:57.5398532Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-07T04:21:57.5434869Z ##[group]Checking out the ref
+2026-10-07T04:21:57.5446387Z [command]/usr/bin/git checkout --progress --force -B audit/qidu-terminal-v1.0.4-20261007 refs/remotes/origin/audit/qidu-terminal-v1.0.4-20261007
+2026-10-07T04:21:57.6157027Z Switched to a new branch 'audit/qidu-terminal-v1.0.4-20261007'
+2026-10-07T04:21:57.6162908Z branch 'audit/qidu-terminal-v1.0.4-20261007' set up to track 'origin/audit/qidu-terminal-v1.0.4-20261007'.
+2026-10-07T04:21:57.6178188Z ##[endgroup]
+2026-10-07T04:21:57.6223150Z [command]/usr/bin/git log -1 --format=%H
+2026-10-07T04:21:57.6249820Z 17fa5127ba9e3297dfd79907f04e2aa9e88136cc
+2026-10-07T04:21:57.6629573Z ##[group]Run actions/setup-node@v4
+2026-10-07T04:21:57.6630287Z with:
+2026-10-07T04:21:57.6630756Z   node-version: 22
+2026-10-07T04:21:57.6631266Z   always-auth: false
+2026-10-07T04:21:57.6632007Z   check-latest: false
+2026-10-07T04:21:57.6637346Z   token: ***
+2026-10-07T04:21:57.6637849Z ##[endgroup]
+2026-10-07T04:21:57.8049731Z Found in cache @ /opt/hostedtoolcache/node/22.23.3/x64
+2026-10-07T04:21:57.8053352Z (node:2272) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T04:21:57.8056736Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T04:21:57.8059343Z ##[group]Environment details
+2026-10-07T04:21:58.2220910Z node: v22.23.3
+2026-10-07T04:21:58.2221803Z npm: 10.9.9
+2026-10-07T04:21:58.2222471Z yarn: 1.22.22
+2026-10-07T04:21:58.2224319Z ##[endgroup]
+2026-10-07T04:21:58.2411153Z ##[group]Run git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git /tmp/qidu-native
+2026-10-07T04:21:58.2415391Z [36;1mgit clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git /tmp/qidu-native[0m
+2026-10-07T04:21:58.2418788Z [36;1mgit -C /tmp/qidu-native fetch origin 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8 --depth=1[0m
+2026-10-07T04:21:58.2421281Z [36;1mgit -C /tmp/qidu-native checkout --detach FETCH_HEAD[0m
+2026-10-07T04:21:58.2422929Z [36;1mcd /tmp/qidu-native[0m
+2026-10-07T04:21:58.2424156Z [36;1mnpm ci --no-audit --no-fund[0m
+2026-10-07T04:21:58.2425842Z [36;1mmkdir -p public/scripts/extensions/third-party[0m
+2026-10-07T04:21:58.2428637Z [36;1mgit clone https://github.com/N0VI028/JS-Slash-Runner.git public/scripts/extensions/third-party/JS-Slash-Runner[0m
+2026-10-07T04:21:58.2432509Z [36;1mgit -C public/scripts/extensions/third-party/JS-Slash-Runner checkout 519599bc68247d8e759cc844a983f8f5252941a8[0m
+2026-10-07T04:21:58.2436640Z [36;1mgit clone https://github.com/h675786161-prog/world-backstage.git public/scripts/extensions/third-party/world-backstage-test[0m
+2026-10-07T04:21:58.2440746Z [36;1mgit -C public/scripts/extensions/third-party/world-backstage-test checkout f9babfa0ee0bd3003d3529fd171b83103cfee4c1[0m
+2026-10-07T04:21:58.2445555Z [36;1mcurl -fsSL https://raw.githubusercontent.com/MagicalAstrogy/MagVarUpdate/183d8ade3b9a3369e824a55cb13b4ddf91aada50/artifact/bundle.js -o public/f7d-mvu.js[0m
+2026-10-07T04:21:58.2448936Z [36;1msha256sum public/f7d-mvu.js[0m
+2026-10-07T04:21:58.2451400Z [36;1mtest "$(sha256sum public/f7d-mvu.js | cut -d' ' -f1)" = '43e38e31c3f86734cdd38c6047d22e871a043abbc2af9116ee2c54438462db6a'[0m
+2026-10-07T04:21:58.2454430Z [36;1mnohup node server.js --port 8000 > /tmp/qidu-native-server.log 2>&1 &[0m
+2026-10-07T04:21:58.2456419Z [36;1mfor i in $(seq 1 90); do[0m
+2026-10-07T04:21:58.2458061Z [36;1m  if curl -fsS http://127.0.0.1:8000/ >/dev/null; then break; fi[0m
+2026-10-07T04:21:58.2459760Z [36;1m  sleep 1[0m
+2026-10-07T04:21:58.2460776Z [36;1mdone[0m
+2026-10-07T04:21:58.2731934Z shell: /usr/bin/bash -e {0}
+2026-10-07T04:21:58.2733156Z ##[endgroup]
+2026-10-07T04:21:58.2883806Z Cloning into '/tmp/qidu-native'...
+2026-10-07T04:21:59.5077463Z From https://github.com/SillyTavern/SillyTavern
+2026-10-07T04:21:59.5078784Z  * branch              8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8 -> FETCH_HEAD
+2026-10-07T04:22:02.0608457Z HEAD is now at 8172dcd0 Update TTS model from Gemini 2.5 to 3.1 in TTS Extension (#5778)
+2026-10-07T04:22:06.9603149Z npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+2026-10-07T04:22:06.9988850Z npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+2026-10-07T04:22:10.3213395Z npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+2026-10-07T04:22:12.3136612Z 
+2026-10-07T04:22:12.3176508Z added 829 packages in 10s
+2026-10-07T04:22:12.3791899Z Cloning into 'public/scripts/extensions/third-party/JS-Slash-Runner'...
+2026-10-07T04:22:26.3697283Z Note: switching to '519599bc68247d8e759cc844a983f8f5252941a8'.
+2026-10-07T04:22:26.3697903Z 
+2026-10-07T04:22:26.3698692Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-07T04:22:26.3700798Z changes and commit them, and you can discard any commits you make in this
+2026-10-07T04:22:26.3702074Z state without impacting any branches by switching back to a branch.
+2026-10-07T04:22:26.3702709Z 
+2026-10-07T04:22:26.3703385Z If you want to create a new branch to retain commits you create, you may
+2026-10-07T04:22:26.3704418Z do so (now or later) by using -c with the switch command. Example:
+2026-10-07T04:22:26.3704798Z 
+2026-10-07T04:22:26.3704999Z   git switch -c <new-branch-name>
+2026-10-07T04:22:26.3705779Z 
+2026-10-07T04:22:26.3706009Z Or undo this operation with:
+2026-10-07T04:22:26.3706255Z 
+2026-10-07T04:22:26.3706670Z   git switch -
+2026-10-07T04:22:26.3706874Z 
+2026-10-07T04:22:26.3707297Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-07T04:22:26.3707725Z 
+2026-10-07T04:22:26.3707952Z HEAD is now at 519599bc [bot] Bundle
+2026-10-07T04:22:26.3728922Z Cloning into 'public/scripts/extensions/third-party/world-backstage-test'...
+2026-10-07T04:22:27.1971439Z Note: switching to 'f9babfa0ee0bd3003d3529fd171b83103cfee4c1'.
+2026-10-07T04:22:27.1975751Z 
+2026-10-07T04:22:27.1986550Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-07T04:22:27.1987581Z changes and commit them, and you can discard any commits you make in this
+2026-10-07T04:22:27.1988554Z state without impacting any branches by switching back to a branch.
+2026-10-07T04:22:27.1989089Z 
+2026-10-07T04:22:27.1989565Z If you want to create a new branch to retain commits you create, you may
+2026-10-07T04:22:27.1990235Z do so (now or later) by using -c with the switch command. Example:
+2026-10-07T04:22:27.1990552Z 
+2026-10-07T04:22:27.1990713Z   git switch -c <new-branch-name>
+2026-10-07T04:22:27.1990919Z 
+2026-10-07T04:22:27.1991047Z Or undo this operation with:
+2026-10-07T04:22:27.1991216Z 
+2026-10-07T04:22:27.1991317Z   git switch -
+2026-10-07T04:22:27.1991451Z 
+2026-10-07T04:22:27.1991830Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-07T04:22:27.1992204Z 
+2026-10-07T04:22:27.1992563Z HEAD is now at f9babfa Merge pull request #25 from h675786161-prog/release/2.5.8
+2026-10-07T04:22:27.3674244Z 43e38e31c3f86734cdd38c6047d22e871a043abbc2af9116ee2c54438462db6a  public/f7d-mvu.js
+2026-10-07T04:22:27.3766704Z curl: (7) Failed to connect to 127.0.0.1 port 8000 after 0 ms: Couldn't connect to server
+2026-10-07T04:22:28.3877503Z curl: (7) Failed to connect to 127.0.0.1 port 8000 after 0 ms: Couldn't connect to server
+2026-10-07T04:22:29.3977129Z curl: (7) Failed to connect to 127.0.0.1 port 8000 after 0 ms: Couldn't connect to server
+2026-10-07T04:22:30.4109414Z curl: (7) Failed to connect to 127.0.0.1 port 8000 after 0 ms: Couldn't connect to server
+2026-10-07T04:22:31.4196703Z curl: (7) Failed to connect to 127.0.0.1 port 8000 after 0 ms: Couldn't connect to server
+2026-10-07T04:22:32.4298768Z curl: (7) Failed to connect to 127.0.0.1 port 8000 after 0 ms: Couldn't connect to server
+2026-10-07T04:22:33.4381399Z curl: (7) Failed to connect to 127.0.0.1 port 8000 after 0 ms: Couldn't connect to server
+2026-10-07T04:22:34.4517535Z curl: (7) Failed to connect to 127.0.0.1 port 8000 after 0 ms: Couldn't connect to server
+2026-10-07T04:22:35.4578326Z curl: (7) Failed to connect to 127.0.0.1 port 8000 after 0 ms: Couldn't connect to server
+2026-10-07T04:22:36.4652597Z curl: (7) Failed to connect to 127.0.0.1 port 8000 after 0 ms: Couldn't connect to server
+2026-10-07T04:22:37.4745372Z curl: (7) Failed to connect to 127.0.0.1 port 8000 after 0 ms: Couldn't connect to server
+2026-10-07T04:22:38.4831395Z curl: (7) Failed to connect to 127.0.0.1 port 8000 after 0 ms: Couldn't connect to server
+2026-10-07T04:22:39.4914713Z curl: (7) Failed to connect to 127.0.0.1 port 8000 after 0 ms: Couldn't connect to server
+2026-10-07T04:22:40.4985905Z curl: (7) Failed to connect to 127.0.0.1 port 8000 after 0 ms: Couldn't connect to server
+2026-10-07T04:22:41.5061750Z curl: (7) Failed to connect to 127.0.0.1 port 8000 after 0 ms: Couldn't connect to server
+2026-10-07T04:22:42.5145243Z curl: (7) Failed to connect to 127.0.0.1 port 8000 after 0 ms: Couldn't connect to server
+2026-10-07T04:22:43.5416626Z ##[group]Run python - <<'PY'
+2026-10-07T04:22:43.5416970Z [36;1mpython - <<'PY'[0m
+2026-10-07T04:22:43.5417282Z [36;1mimport os,json,urllib.request,http.cookiejar[0m
+2026-10-07T04:22:43.5417626Z [36;1mkey=os.environ.get('GG_KEY')[0m
+2026-10-07T04:22:43.5417951Z [36;1mif not key:raise RuntimeError('GG secret missing')[0m
+2026-10-07T04:22:43.5418561Z [36;1mopener=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))[0m
+2026-10-07T04:22:43.5419302Z [36;1mwith opener.open('http://127.0.0.1:8000/csrf-token') as r: token=json.load(r)['token'][0m
+2026-10-07T04:22:43.5420348Z [36;1mreq=urllib.request.Request('http://127.0.0.1:8000/api/secrets/write',data=json.dumps({'key':'api_key_custom','value':key,'label':'GG live test'}).encode(),headers={'Content-Type':'application/json','X-CSRF-Token':token})[0m
+2026-10-07T04:22:43.5421249Z [36;1mwith opener.open(req) as r:[0m
+2026-10-07T04:22:43.5421694Z [36;1m if r.status!=200:raise RuntimeError('local secret configuration failed')[0m
+2026-10-07T04:22:43.5422186Z [36;1mprint('Existing GG key configured without disclosure')[0m
+2026-10-07T04:22:43.5422537Z [36;1mPY[0m
+2026-10-07T04:22:43.5487299Z shell: /usr/bin/bash -e {0}
+2026-10-07T04:22:43.5487554Z env:
+2026-10-07T04:22:43.5488071Z   GG_KEY: ***
+2026-10-07T04:22:43.5488278Z ##[endgroup]
+2026-10-07T04:22:43.6431176Z Existing GG key configured without disclosure
+2026-10-07T04:22:43.6552407Z ##[group]Run npm install --no-save --no-audit --no-fund playwright@1.55.0
+2026-10-07T04:22:43.6552984Z [36;1mnpm install --no-save --no-audit --no-fund playwright@1.55.0[0m
+2026-10-07T04:22:43.6553426Z [36;1mnpx playwright install --with-deps chromium[0m
+2026-10-07T04:22:43.6619792Z shell: /usr/bin/bash -e {0}
+2026-10-07T04:22:43.6620061Z ##[endgroup]
+2026-10-07T04:22:45.2330908Z 
+2026-10-07T04:22:45.2331575Z added 2 packages in 2s
+2026-10-07T04:22:46.0199967Z Installing dependencies...
+2026-10-07T04:22:46.0301340Z Switching to root user to install dependencies...
+2026-10-07T04:22:46.1064366Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-10-07T04:22:46.1361869Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+2026-10-07T04:22:46.1366517Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2026-10-07T04:22:46.1381801Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+2026-10-07T04:22:46.1424111Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+2026-10-07T04:22:46.1447806Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+2026-10-07T04:22:46.2620207Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main armhf Packages [12.6 kB]
+2026-10-07T04:22:46.2770941Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [519 kB]
+2026-10-07T04:22:46.2856430Z Get:9 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [463 kB]
+2026-10-07T04:22:46.3099632Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1375 kB]
+2026-10-07T04:22:46.3186820Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [306 kB]
+2026-10-07T04:22:46.3198294Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Components [181 kB]
+2026-10-07T04:22:46.3202795Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1701 kB]
+2026-10-07T04:22:46.3284953Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [341 kB]
+2026-10-07T04:22:46.3308230Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Components [388 kB]
+2026-10-07T04:22:46.3337002Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1730 kB]
+2026-10-07T04:22:46.3426620Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [396 kB]
+2026-10-07T04:22:46.3453994Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [13.3 kB]
+2026-10-07T04:22:46.3456216Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Components [940 B]
+2026-10-07T04:22:46.4109648Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-backports/main amd64 Components [5752 B]
+2026-10-07T04:22:46.4119512Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 Components [12.6 kB]
+2026-10-07T04:22:46.4197960Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1073 kB]
+2026-10-07T04:22:46.4253380Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [223 kB]
+2026-10-07T04:22:46.4269527Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Components [46.4 kB]
+2026-10-07T04:22:46.4278506Z Get:25 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1218 kB]
+2026-10-07T04:22:46.4339237Z Get:26 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [245 kB]
+2026-10-07T04:22:46.4356291Z Get:27 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Components [76.3 kB]
+2026-10-07T04:22:46.4367695Z Get:28 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1566 kB]
+2026-10-07T04:22:46.4442108Z Get:29 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [361 kB]
+2026-10-07T04:22:46.4464662Z Get:30 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [11.6 kB]
+2026-10-07T04:22:50.5973940Z Fetched 12.6 MB in 1s (9411 kB/s)
+2026-10-07T04:22:51.4085811Z Reading package lists...
+2026-10-07T04:22:51.4322092Z Reading package lists...
+2026-10-07T04:22:51.6125421Z Building dependency tree...
+2026-10-07T04:22:51.6132469Z Reading state information...
+2026-10-07T04:22:51.7454219Z libasound2t64 is already the newest version (1.2.11-1ubuntu0.3).
+2026-10-07T04:22:51.7455600Z libasound2t64 set to manually installed.
+2026-10-07T04:22:51.7456449Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+2026-10-07T04:22:51.7457279Z libatk-bridge2.0-0t64 set to manually installed.
+2026-10-07T04:22:51.7458092Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+2026-10-07T04:22:51.7458831Z libatk1.0-0t64 set to manually installed.
+2026-10-07T04:22:51.7459635Z libatspi2.0-0t64 is already the newest version (2.52.0-1build1).
+2026-10-07T04:22:51.7460459Z libatspi2.0-0t64 set to manually installed.
+2026-10-07T04:22:51.7461291Z libcairo2 is already the newest version (1.18.0-3build1).
+2026-10-07T04:22:51.7462080Z libcairo2 set to manually installed.
+2026-10-07T04:22:51.7462951Z libcups2t64 is already the newest version (2.4.7-1.2ubuntu7.14).
+2026-10-07T04:22:51.7463686Z libcups2t64 set to manually installed.
+2026-10-07T04:22:51.7464396Z libdbus-1-3 is already the newest version (1.14.10-4ubuntu4.1).
+2026-10-07T04:22:51.7465325Z libdbus-1-3 set to manually installed.
+2026-10-07T04:22:51.7465800Z libdrm2 is already the newest version (2.4.125-1ubuntu0.1~24.04.2).
+2026-10-07T04:22:51.7466233Z libdrm2 set to manually installed.
+2026-10-07T04:22:51.7466678Z libglib2.0-0t64 is already the newest version (2.80.0-6ubuntu3.9).
+2026-10-07T04:22:51.7467397Z libglib2.0-0t64 set to manually installed.
+2026-10-07T04:22:51.7467951Z libnspr4 is already the newest version (2:4.35-1.1build1).
+2026-10-07T04:22:51.7468355Z libnspr4 set to manually installed.
+2026-10-07T04:22:51.7468759Z libnss3 is already the newest version (2:3.98-1ubuntu0.2).
+2026-10-07T04:22:51.7469139Z libnss3 set to manually installed.
+2026-10-07T04:22:51.7469555Z libpango-1.0-0 is already the newest version (1.52.1+ds-1build1).
+2026-10-07T04:22:51.7470284Z libpango-1.0-0 set to manually installed.
+2026-10-07T04:22:51.7470701Z libx11-6 is already the newest version (2:1.8.7-1build1).
+2026-10-07T04:22:51.7471079Z libx11-6 set to manually installed.
+2026-10-07T04:22:51.7471773Z libxcb1 is already the newest version (1.15-1ubuntu2).
+2026-10-07T04:22:51.7472163Z libxcb1 set to manually installed.
+2026-10-07T04:22:51.7472829Z libxcomposite1 is already the newest version (1:0.4.5-1build3).
+2026-10-07T04:22:51.7473584Z libxcomposite1 set to manually installed.
+2026-10-07T04:22:51.7474362Z libxdamage1 is already the newest version (1:1.1.6-1build1).
+2026-10-07T04:22:51.7475307Z libxdamage1 set to manually installed.
+2026-10-07T04:22:51.7475991Z libxext6 is already the newest version (2:1.3.4-1build2).
+2026-10-07T04:22:51.7476392Z libxext6 set to manually installed.
+2026-10-07T04:22:51.7476802Z libxfixes3 is already the newest version (1:6.0.0-2build1).
+2026-10-07T04:22:51.7477200Z libxfixes3 set to manually installed.
+2026-10-07T04:22:51.7477614Z libxkbcommon0 is already the newest version (1.6.0-1build1).
+2026-10-07T04:22:51.7478237Z libxkbcommon0 set to manually installed.
+2026-10-07T04:22:51.7479035Z libxrandr2 is already the newest version (2:1.5.2-2build1).
+2026-10-07T04:22:51.7479768Z libxrandr2 set to manually installed.
+2026-10-07T04:22:51.7480416Z xvfb is already the newest version (2:21.1.12-1ubuntu1.8).
+2026-10-07T04:22:51.7480979Z fonts-noto-color-emoji is already the newest version (2.047-0ubuntu0.24.04.1).
+2026-10-07T04:22:51.7481567Z libfontconfig1 is already the newest version (2.15.0-1.1ubuntu2).
+2026-10-07T04:22:51.7481995Z libfontconfig1 set to manually installed.
+2026-10-07T04:22:51.7482426Z fonts-liberation is already the newest version (1:2.1.5-3).
+2026-10-07T04:22:51.7483325Z fonts-liberation set to manually installed.
+2026-10-07T04:22:51.7484382Z The following additional packages will be installed:
+2026-10-07T04:22:51.7485537Z   libgl1-mesa-dri libglx-mesa0 mesa-libgallium xfonts-encodings xfonts-utils
+2026-10-07T04:22:51.7486348Z Recommended packages:
+2026-10-07T04:22:51.7486842Z   fonts-ipafont-mincho fonts-tlwg-loma
+2026-10-07T04:22:51.7729502Z The following NEW packages will be installed:
+2026-10-07T04:22:51.7730472Z   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
+2026-10-07T04:22:51.7736498Z   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
+2026-10-07T04:22:51.7737236Z   xfonts-utils
+2026-10-07T04:22:51.7741183Z The following packages will be upgraded:
+2026-10-07T04:22:51.7746287Z   libfreetype6 libgbm1 libgl1-mesa-dri libglx-mesa0 mesa-libgallium
+2026-10-07T04:22:51.7909983Z 5 upgraded, 9 newly installed, 0 to remove and 24 not upgraded.
+2026-10-07T04:22:51.7910474Z Need to get 32.5 MB of archives.
+2026-10-07T04:22:51.7910931Z After this operation, 79.5 MB of additional disk space will be used.
+2026-10-07T04:22:51.7911463Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-10-07T04:22:51.9469590Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-ipafont-gothic all 00303-21ubuntu1 [3513 kB]
+2026-10-07T04:22:52.2380581Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5641 kB]
+2026-10-07T04:22:52.5524958Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [107 kB]
+2026-10-07T04:22:52.6909224Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-unifont all 1:15.1.01-1build1 [2993 kB]
+2026-10-07T04:22:52.8730370Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-wqy-zenhei all 0.9.45-8 [7472 kB]
+2026-10-07T04:22:53.3047905Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libfreetype6 amd64 2.13.2+dfsg-1ubuntu0.2 [403 kB]
+2026-10-07T04:22:53.4474005Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libgl1-mesa-dri amd64 25.2.8-0ubuntu0.24.04.4 [38.0 kB]
+2026-10-07T04:22:53.5849310Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libglx-mesa0 amd64 25.2.8-0ubuntu0.24.04.4 [110 kB]
+2026-10-07T04:22:53.7238424Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libgbm1 amd64 25.2.8-0ubuntu0.24.04.4 [34.2 kB]
+2026-10-07T04:22:53.8611885Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 mesa-libgallium amd64 25.2.8-0ubuntu0.24.04.4 [10.8 MB]
+2026-10-07T04:22:54.4596020Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings all 1:1.0.5-0ubuntu2 [578 kB]
+2026-10-07T04:22:54.6202499Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
+2026-10-07T04:22:54.7734904Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
+2026-10-07T04:22:54.9365546Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
+2026-10-07T04:22:55.1965681Z Fetched 32.5 MB in 3s (10.2 MB/s)
+2026-10-07T04:22:55.2190805Z Selecting previously unselected package fonts-ipafont-gothic.
+2026-10-07T04:22:55.2465017Z (Reading database ... 
+2026-10-07T04:22:55.2465928Z (Reading database ... 5%
+2026-10-07T04:22:55.2466626Z (Reading database ... 10%
+2026-10-07T04:22:55.2467302Z (Reading database ... 15%
+2026-10-07T04:22:55.2467784Z (Reading database ... 20%
+2026-10-07T04:22:55.2468218Z (Reading database ... 25%
+2026-10-07T04:22:55.2468647Z (Reading database ... 30%
+2026-10-07T04:22:55.2469150Z (Reading database ... 35%
+2026-10-07T04:22:55.2469780Z (Reading database ... 40%
+2026-10-07T04:22:55.2470211Z (Reading database ... 45%
+2026-10-07T04:22:55.2470651Z (Reading database ... 50%
+2026-10-07T04:22:55.2511580Z (Reading database ... 55%
+2026-10-07T04:22:55.3926641Z (Reading database ... 60%
+2026-10-07T04:22:55.5843231Z (Reading database ... 65%
+2026-10-07T04:22:55.7901756Z (Reading database ... 70%
+2026-10-07T04:22:55.9920906Z (Reading database ... 75%
+2026-10-07T04:22:56.1361938Z (Reading database ... 80%
+2026-10-07T04:22:56.3405965Z (Reading database ... 85%
+2026-10-07T04:22:56.5875460Z (Reading database ... 90%
+2026-10-07T04:22:56.7408010Z (Reading database ... 95%
+2026-10-07T04:22:56.7408456Z (Reading database ... 100%
+2026-10-07T04:22:56.7409034Z (Reading database ... 202296 files and directories currently installed.)
+2026-10-07T04:22:56.7449070Z Preparing to unpack .../00-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
+2026-10-07T04:22:56.7541199Z Unpacking fonts-ipafont-gothic (00303-21ubuntu1) ...
+2026-10-07T04:22:56.9774921Z Selecting previously unselected package fonts-freefont-ttf.
+2026-10-07T04:22:56.9898517Z Preparing to unpack .../01-fonts-freefont-ttf_20211204+svn4273-2_all.deb ...
+2026-10-07T04:22:56.9904558Z Unpacking fonts-freefont-ttf (20211204+svn4273-2) ...
+2026-10-07T04:22:57.0652654Z Selecting previously unselected package fonts-tlwg-loma-otf.
+2026-10-07T04:22:57.0775656Z Preparing to unpack .../02-fonts-tlwg-loma-otf_1%3a0.7.3-1_all.deb ...
+2026-10-07T04:22:57.0782015Z Unpacking fonts-tlwg-loma-otf (1:0.7.3-1) ...
+2026-10-07T04:22:57.0974735Z Selecting previously unselected package fonts-unifont.
+2026-10-07T04:22:57.1097613Z Preparing to unpack .../03-fonts-unifont_1%3a15.1.01-1build1_all.deb ...
+2026-10-07T04:22:57.1105955Z Unpacking fonts-unifont (1:15.1.01-1build1) ...
+2026-10-07T04:22:57.2106047Z Selecting previously unselected package fonts-wqy-zenhei.
+2026-10-07T04:22:57.2228908Z Preparing to unpack .../04-fonts-wqy-zenhei_0.9.45-8_all.deb ...
+2026-10-07T04:22:57.2327489Z Unpacking fonts-wqy-zenhei (0.9.45-8) ...
+2026-10-07T04:22:57.7065915Z Preparing to unpack .../05-libfreetype6_2.13.2+dfsg-1ubuntu0.2_amd64.deb ...
+2026-10-07T04:22:57.7093195Z Unpacking libfreetype6:amd64 (2.13.2+dfsg-1ubuntu0.2) over (2.13.2+dfsg-1ubuntu0.1) ...
+2026-10-07T04:22:57.7468828Z Preparing to unpack .../06-libgl1-mesa-dri_25.2.8-0ubuntu0.24.04.4_amd64.deb ...
+2026-10-07T04:22:57.7610967Z Unpacking libgl1-mesa-dri:amd64 (25.2.8-0ubuntu0.24.04.4) over (25.2.8-0ubuntu0.24.04.2) ...
+2026-10-07T04:22:57.8196867Z Preparing to unpack .../07-libglx-mesa0_25.2.8-0ubuntu0.24.04.4_amd64.deb ...
+2026-10-07T04:22:57.8218813Z Unpacking libglx-mesa0:amd64 (25.2.8-0ubuntu0.24.04.4) over (25.2.8-0ubuntu0.24.04.2) ...
+2026-10-07T04:22:57.8565912Z Preparing to unpack .../08-libgbm1_25.2.8-0ubuntu0.24.04.4_amd64.deb ...
+2026-10-07T04:22:57.8629260Z Unpacking libgbm1:amd64 (25.2.8-0ubuntu0.24.04.4) over (25.2.8-0ubuntu0.24.04.2) ...
+2026-10-07T04:22:57.8990328Z Preparing to unpack .../09-mesa-libgallium_25.2.8-0ubuntu0.24.04.4_amd64.deb ...
+2026-10-07T04:22:57.9013323Z Unpacking mesa-libgallium:amd64 (25.2.8-0ubuntu0.24.04.4) over (25.2.8-0ubuntu0.24.04.2) ...
+2026-10-07T04:22:58.0915293Z Selecting previously unselected package xfonts-encodings.
+2026-10-07T04:22:58.1038162Z Preparing to unpack .../10-xfonts-encodings_1%3a1.0.5-0ubuntu2_all.deb ...
+2026-10-07T04:22:58.1083633Z Unpacking xfonts-encodings (1:1.0.5-0ubuntu2) ...
+2026-10-07T04:22:58.1363116Z Selecting previously unselected package xfonts-utils.
+2026-10-07T04:22:58.1485609Z Preparing to unpack .../11-xfonts-utils_1%3a7.7+6build3_amd64.deb ...
+2026-10-07T04:22:58.1492393Z Unpacking xfonts-utils (1:7.7+6build3) ...
+2026-10-07T04:22:58.1868172Z Selecting previously unselected package xfonts-cyrillic.
+2026-10-07T04:22:58.1988619Z Preparing to unpack .../12-xfonts-cyrillic_1%3a1.0.5+nmu1_all.deb ...
+2026-10-07T04:22:58.1995635Z Unpacking xfonts-cyrillic (1:1.0.5+nmu1) ...
+2026-10-07T04:22:58.2312355Z Selecting previously unselected package xfonts-scalable.
+2026-10-07T04:22:58.2433678Z Preparing to unpack .../13-xfonts-scalable_1%3a1.0.3-1.3_all.deb ...
+2026-10-07T04:22:58.2440645Z Unpacking xfonts-scalable (1:1.0.3-1.3) ...
+2026-10-07T04:22:58.2867610Z Setting up mesa-libgallium:amd64 (25.2.8-0ubuntu0.24.04.4) ...
+2026-10-07T04:22:58.2888108Z Setting up libgbm1:amd64 (25.2.8-0ubuntu0.24.04.4) ...
+2026-10-07T04:22:58.2904337Z Setting up libgl1-mesa-dri:amd64 (25.2.8-0ubuntu0.24.04.4) ...
+2026-10-07T04:22:58.2976006Z Setting up fonts-wqy-zenhei (0.9.45-8) ...
+2026-10-07T04:22:58.3087830Z Setting up fonts-freefont-ttf (20211204+svn4273-2) ...
+2026-10-07T04:22:58.3105832Z Setting up fonts-tlwg-loma-otf (1:0.7.3-1) ...
+2026-10-07T04:22:58.3122654Z Setting up libfreetype6:amd64 (2.13.2+dfsg-1ubuntu0.2) ...
+2026-10-07T04:22:58.3141931Z Setting up xfonts-encodings (1:1.0.5-0ubuntu2) ...
+2026-10-07T04:22:58.3158239Z Setting up fonts-ipafont-gothic (00303-21ubuntu1) ...
+2026-10-07T04:22:58.3221395Z update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+2026-10-07T04:22:58.3235548Z Setting up fonts-unifont (1:15.1.01-1build1) ...
+2026-10-07T04:22:58.3267750Z Setting up libglx-mesa0:amd64 (25.2.8-0ubuntu0.24.04.4) ...
+2026-10-07T04:22:58.3286408Z Setting up xfonts-utils (1:7.7+6build3) ...
+2026-10-07T04:22:58.3324621Z Setting up xfonts-cyrillic (1:1.0.5+nmu1) ...
+2026-10-07T04:22:58.3643405Z Setting up xfonts-scalable (1:1.0.3-1.3) ...
+2026-10-07T04:22:58.3911371Z Processing triggers for libc-bin (2.39-0ubuntu8.9) ...
+2026-10-07T04:22:58.4395277Z Processing triggers for man-db (2.12.0-4build2) ...
+2026-10-07T04:22:58.4415618Z Not building database; man-db/auto-update is not 'true'.
+2026-10-07T04:22:58.4425945Z Processing triggers for fontconfig (2.15.0-1.1ubuntu2) ...
+2026-10-07T04:22:59.2123314Z 
+2026-10-07T04:22:59.2124465Z Running kernel seems to be up-to-date.
+2026-10-07T04:22:59.2124829Z 
+2026-10-07T04:22:59.2124986Z Restarting services...
+2026-10-07T04:22:59.2199221Z  systemctl restart php8.3-fpm.service
+2026-10-07T04:22:59.3301649Z 
+2026-10-07T04:22:59.3302261Z No containers need to be restarted.
+2026-10-07T04:22:59.3302541Z 
+2026-10-07T04:22:59.3302757Z No user sessions are running outdated binaries.
+2026-10-07T04:22:59.3303001Z 
+2026-10-07T04:22:59.3303315Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-10-07T04:23:00.1407957Z Downloading Chromium 140.0.7339.16 (playwright build v1187) from https://cdn.playwright.dev/dbazure/download/playwright/builds/chromium/1187/chromium-linux.zip
+2026-10-07T04:23:00.2866341Z |                                                                                |   0% of 173.7 MiB
+2026-10-07T04:23:00.4361881Z |■■■■■■■■                                                                        |  10% of 173.7 MiB
+2026-10-07T04:23:00.5176879Z |■■■■■■■■■■■■■■■■                                                                |  20% of 173.7 MiB
+2026-10-07T04:23:00.6028955Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 173.7 MiB
+2026-10-07T04:23:00.6663356Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 173.7 MiB
+2026-10-07T04:23:00.7275787Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 173.7 MiB
+2026-10-07T04:23:00.7861589Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 173.7 MiB
+2026-10-07T04:23:00.8562271Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 173.7 MiB
+2026-10-07T04:23:00.9582375Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 173.7 MiB
+2026-10-07T04:23:01.0220863Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 173.7 MiB
+2026-10-07T04:23:01.0795944Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 173.7 MiB
+2026-10-07T04:23:04.6517665Z Chromium 140.0.7339.16 (playwright build v1187) downloaded to /home/runner/.cache/ms-playwright/chromium-1187
+2026-10-07T04:23:04.6519431Z Downloading FFMPEG playwright build v1011 from https://cdn.playwright.dev/dbazure/download/playwright/builds/ffmpeg/1011/ffmpeg-linux.zip
+2026-10-07T04:23:04.7863789Z |                                                                                |   0% of 2.3 MiB
+2026-10-07T04:23:04.7981565Z |■■■■■■■■                                                                        |  10% of 2.3 MiB
+2026-10-07T04:23:04.8048372Z |■■■■■■■■■■■■■■■■                                                                |  20% of 2.3 MiB
+2026-10-07T04:23:04.8083148Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 2.3 MiB
+2026-10-07T04:23:04.8118766Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 2.3 MiB
+2026-10-07T04:23:04.8145993Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 2.3 MiB
+2026-10-07T04:23:04.8177742Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 2.3 MiB
+2026-10-07T04:23:04.8193204Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 2.3 MiB
+2026-10-07T04:23:04.8215721Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 2.3 MiB
+2026-10-07T04:23:04.8229305Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 2.3 MiB
+2026-10-07T04:23:04.8244006Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 2.3 MiB
+2026-10-07T04:23:04.8809268Z FFMPEG playwright build v1011 downloaded to /home/runner/.cache/ms-playwright/ffmpeg-1011
+2026-10-07T04:23:04.8811773Z Downloading Chromium Headless Shell 140.0.7339.16 (playwright build v1187) from https://cdn.playwright.dev/dbazure/download/playwright/builds/chromium/1187/chromium-headless-shell-linux.zip
+2026-10-07T04:23:05.0146284Z |                                                                                |   0% of 104.3 MiB
+2026-10-07T04:23:05.1136433Z |■■■■■■■■                                                                        |  10% of 104.3 MiB
+2026-10-07T04:23:05.1739758Z |■■■■■■■■■■■■■■■■                                                                |  20% of 104.3 MiB
+2026-10-07T04:23:05.2276284Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 104.3 MiB
+2026-10-07T04:23:05.2742047Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 104.3 MiB
+2026-10-07T04:23:05.3224711Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 104.3 MiB
+2026-10-07T04:23:05.3643109Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 104.3 MiB
+2026-10-07T04:23:05.4031535Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 104.3 MiB
+2026-10-07T04:23:05.4424089Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 104.3 MiB
+2026-10-07T04:23:05.4897261Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 104.3 MiB
+2026-10-07T04:23:05.5482083Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 104.3 MiB
+2026-10-07T04:23:07.4223701Z Chromium Headless Shell 140.0.7339.16 (playwright build v1187) downloaded to /home/runner/.cache/ms-playwright/chromium_headless_shell-1187
+2026-10-07T04:23:07.6810984Z ##[group]Run node --test .lab/fixtures/f7d-terminal-v1.0.4/guard.test.mjs
+2026-10-07T04:23:07.6811557Z [36;1mnode --test .lab/fixtures/f7d-terminal-v1.0.4/guard.test.mjs[0m
+2026-10-07T04:23:07.6812288Z [36;1mnode --test .lab/fixtures/f7d-terminal-v1.0.4/provider-isolation.test.mjs .lab/fixtures/f7d-terminal-v1.0.4/contact-offline.test.mjs[0m
+2026-10-07T04:23:07.6813032Z [36;1mnode .lab/fixtures/f7d-terminal-v1.0.4/verify-delivery.mjs[0m
+2026-10-07T04:23:07.6876278Z shell: /usr/bin/bash -e {0}
+2026-10-07T04:23:07.6876540Z ##[endgroup]
+2026-10-07T04:23:07.7353129Z TAP version 13
+2026-10-07T04:23:08.2401943Z # Subtest: 真实晨间声音描写原版漏判，修正版保留两个命令
+2026-10-07T04:23:08.2406221Z ok 1 - 真实晨间声音描写原版漏判，修正版保留两个命令
+2026-10-07T04:23:08.2406760Z   ---
+2026-10-07T04:23:08.2407181Z   duration_ms: 13.8815
+2026-10-07T04:23:08.2407626Z   type: 'test'
+2026-10-07T04:23:08.2408009Z   ...
+2026-10-07T04:23:08.2410446Z # Subtest: 命令正序与倒序结果一致
+2026-10-07T04:23:08.2412143Z ok 2 - 命令正序与倒序结果一致
+2026-10-07T04:23:08.2412894Z   ---
+2026-10-07T04:23:08.2413297Z   duration_ms: 4.436986
+2026-10-07T04:23:08.2413822Z   type: 'test'
+2026-10-07T04:23:08.2414216Z   ...
+2026-10-07T04:23:08.2415020Z # Subtest: 独白命令被删后离场命令也删，顺序不影响
+2026-10-07T04:23:08.2417023Z ok 3 - 独白命令被删后离场命令也删，顺序不影响
+2026-10-07T04:23:08.2418282Z   ---
+2026-10-07T04:23:08.2419165Z   duration_ms: 1.756526
+2026-10-07T04:23:08.2419614Z   type: 'test'
+2026-10-07T04:23:08.2420009Z   ...
+2026-10-07T04:23:08.2420757Z # Subtest: 没有模型更新命令时不自动补旗标
+2026-10-07T04:23:08.2421397Z ok 4 - 没有模型更新命令时不自动补旗标
+2026-10-07T04:23:08.2422295Z   ---
+2026-10-07T04:23:08.2422698Z   duration_ms: 0.642498
+2026-10-07T04:23:08.2423141Z   type: 'test'
+2026-10-07T04:23:08.2423529Z   ...
+2026-10-07T04:23:08.2424179Z # Subtest: 已有真实独白提交可在下一条回复结算离场
+2026-10-07T04:23:08.2425418Z ok 5 - 已有真实独白提交可在下一条回复结算离场
+2026-10-07T04:23:08.2425910Z   ---
+2026-10-07T04:23:08.2426278Z   duration_ms: 1.014663
+2026-10-07T04:23:08.2426701Z   type: 'test'
+2026-10-07T04:23:08.2427054Z   ...
+2026-10-07T04:23:08.2427792Z # Subtest: 只有独白描写但没有已提交或获准命令，离场不结算
+2026-10-07T04:23:08.2428605Z ok 6 - 只有独白描写但没有已提交或获准命令，离场不结算
+2026-10-07T04:23:08.2429102Z   ---
+2026-10-07T04:23:08.2429479Z   duration_ms: 0.990528
+2026-10-07T04:23:08.2429915Z   type: 'test'
+2026-10-07T04:23:08.2430301Z   ...
+2026-10-07T04:23:08.2433844Z # Subtest: 晨间同条回复的巡查耗时仍被拦住
+2026-10-07T04:23:08.2434821Z ok 7 - 晨间同条回复的巡查耗时仍被拦住
+2026-10-07T04:23:08.2435472Z   ---
+2026-10-07T04:23:08.2435815Z   duration_ms: 0.964148
+2026-10-07T04:23:08.2436344Z   type: 'test'
+2026-10-07T04:23:08.2436698Z   ...
+2026-10-07T04:23:08.2437462Z # Subtest: 晨间提交后的下一次巡查允许80分钟
+2026-10-07T04:23:08.2438536Z ok 8 - 晨间提交后的下一次巡查允许80分钟
+2026-10-07T04:23:08.2439091Z   ---
+2026-10-07T04:23:08.2439484Z   duration_ms: 1.741148
+2026-10-07T04:23:08.2439932Z   type: 'test'
+2026-10-07T04:23:08.2440320Z   ...
+2026-10-07T04:23:08.2441025Z # Subtest: 非第六天拒绝第六天旗标
+2026-10-07T04:23:08.2441873Z ok 9 - 非第六天拒绝第六天旗标
+2026-10-07T04:23:08.2442556Z   ---
+2026-10-07T04:23:08.2442954Z   duration_ms: 1.015193
+2026-10-07T04:23:08.2443429Z   type: 'test'
+2026-10-07T04:23:08.2443824Z   ...
+2026-10-07T04:23:08.2446324Z # Subtest: 回忆、假设、否定、日常声音或选项不冒充独白：你回想起昨天梦境中的声音。希罗处
+2026-10-07T04:23:08.2447338Z ok 10 - 回忆、假设、否定、日常声音或选项不冒充独白：你回想起昨天梦境中的声音。希罗处
+2026-10-07T04:23:08.2448065Z   ---
+2026-10-07T04:23:08.2448579Z   duration_ms: 1.243839
+2026-10-07T04:23:08.2449165Z   type: 'test'
+2026-10-07T04:23:08.2449654Z   ...
+2026-10-07T04:23:08.2450399Z # Subtest: 回忆、假设、否定、日常声音或选项不冒充独白：如果梦境中有声音，你会认真听。希
+2026-10-07T04:23:08.2451431Z ok 11 - 回忆、假设、否定、日常声音或选项不冒充独白：如果梦境中有声音，你会认真听。希
+2026-10-07T04:23:08.2452129Z   ---
+2026-10-07T04:23:08.2452677Z   duration_ms: 0.879981
+2026-10-07T04:23:08.2453311Z   type: 'test'
+2026-10-07T04:23:08.2453850Z   ...
+2026-10-07T04:23:08.2454808Z # Subtest: 回忆、假设、否定、日常声音或选项不冒充独白：梦境里没有任何声音。你睁开眼。希
+2026-10-07T04:23:08.2456308Z ok 12 - 回忆、假设、否定、日常声音或选项不冒充独白：梦境里没有任何声音。你睁开眼。希
+2026-10-07T04:23:08.2457345Z   ---
+2026-10-07T04:23:08.2457757Z   duration_ms: 0.773322
+2026-10-07T04:23:08.2458199Z   type: 'test'
+2026-10-07T04:23:08.2458568Z   ...
+2026-10-07T04:23:08.2459693Z # Subtest: 回忆、假设、否定、日常声音或选项不冒充独白：小神尚未低语。你还没有醒。希罗处
+2026-10-07T04:23:08.2460602Z ok 13 - 回忆、假设、否定、日常声音或选项不冒充独白：小神尚未低语。你还没有醒。希罗处
+2026-10-07T04:23:08.2461147Z   ---
+2026-10-07T04:23:08.2461512Z   duration_ms: 0.86334
+2026-10-07T04:23:08.2461938Z   type: 'test'
+2026-10-07T04:23:08.2462593Z   ...
+2026-10-07T04:23:08.2463318Z # Subtest: 回忆、假设、否定、日常声音或选项不冒充独白：你走在大厅，听到工作人员的声音。
+2026-10-07T04:23:08.2464181Z ok 14 - 回忆、假设、否定、日常声音或选项不冒充独白：你走在大厅，听到工作人员的声音。
+2026-10-07T04:23:08.2464735Z   ---
+2026-10-07T04:23:08.2465369Z   duration_ms: 1.275479
+2026-10-07T04:23:08.2465819Z   type: 'test'
+2026-10-07T04:23:08.2466180Z   ...
+2026-10-07T04:23:08.2517029Z # Subtest: 回忆、假设、否定、日常声音或选项不冒充独白：你醒来。<f7d_choices
+2026-10-07T04:23:08.2545537Z ok 15 - 回忆、假设、否定、日常声音或选项不冒充独白：你醒来。<f7d_choices
+2026-10-07T04:23:08.2550748Z   ---
+2026-10-07T04:23:08.2606092Z   duration_ms: 1.194568
+2026-10-07T04:23:08.2606813Z   type: 'test'
+2026-10-07T04:23:08.2607436Z   ...
+2026-10-07T04:23:08.2608498Z # Subtest: 对白、未发生、回忆或后续留场不结算离场：理赛哈姆的活骸化。“希罗带着赛哈姆离开了中央庭。”
+2026-10-07T04:23:08.2609695Z ok 16 - 对白、未发生、回忆或后续留场不结算离场：理赛哈姆的活骸化。“希罗带着赛哈姆离开了中央庭。”
+2026-10-07T04:23:08.2610496Z   ---
+2026-10-07T04:23:08.2611099Z   duration_ms: 1.094911
+2026-10-07T04:23:08.2611763Z   type: 'test'
+2026-10-07T04:23:08.2612355Z   ...
+2026-10-07T04:23:08.2613332Z # Subtest: 对白、未发生、回忆或后续留场不结算离场：。希罗处理赛哈姆的活骸化。赛哈姆尚未被带离中央庭。
+2026-10-07T04:23:08.2614635Z ok 17 - 对白、未发生、回忆或后续留场不结算离场：。希罗处理赛哈姆的活骸化。赛哈姆尚未被带离中央庭。
+2026-10-07T04:23:08.2615753Z   ---
+2026-10-07T04:23:08.2616347Z   duration_ms: 0.791015
+2026-10-07T04:23:08.2617177Z   type: 'test'
+2026-10-07T04:23:08.2617762Z   ...
+2026-10-07T04:23:08.2618768Z # Subtest: 对白、未发生、回忆或后续留场不结算离场：处理赛哈姆的活骸化。希罗准备带着赛哈姆离开中央庭。
+2026-10-07T04:23:08.2619943Z ok 18 - 对白、未发生、回忆或后续留场不结算离场：处理赛哈姆的活骸化。希罗准备带着赛哈姆离开中央庭。
+2026-10-07T04:23:08.2620746Z   ---
+2026-10-07T04:23:08.2621336Z   duration_ms: 0.808247
+2026-10-07T04:23:08.2621985Z   type: 'test'
+2026-10-07T04:23:08.2622568Z   ...
+2026-10-07T04:23:08.2623910Z # Subtest: 对白、未发生、回忆或后续留场不结算离场：活骸化。如果希罗带着赛哈姆离开中央庭，你会追上去。
+2026-10-07T04:23:08.2625385Z ok 19 - 对白、未发生、回忆或后续留场不结算离场：活骸化。如果希罗带着赛哈姆离开中央庭，你会追上去。
+2026-10-07T04:23:08.2626185Z   ---
+2026-10-07T04:23:08.2626771Z   duration_ms: 0.776408
+2026-10-07T04:23:08.2627426Z   type: 'test'
+2026-10-07T04:23:08.2628013Z   ...
+2026-10-07T04:23:08.2628986Z # Subtest: 对白、未发生、回忆或后续留场不结算离场：姆的活骸化。你回忆希罗带着赛哈姆离开中央庭的情景。
+2026-10-07T04:23:08.2630173Z ok 20 - 对白、未发生、回忆或后续留场不结算离场：姆的活骸化。你回忆希罗带着赛哈姆离开中央庭的情景。
+2026-10-07T04:23:08.2631028Z   ---
+2026-10-07T04:23:08.2631569Z   duration_ms: 0.771469
+2026-10-07T04:23:08.2632165Z   type: 'test'
+2026-10-07T04:23:08.2632734Z   ...
+2026-10-07T04:23:08.2633676Z # Subtest: 对白、未发生、回忆或后续留场不结算离场：。希罗带着赛哈姆离开了中央庭。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.2634846Z ok 21 - 对白、未发生、回忆或后续留场不结算离场：。希罗带着赛哈姆离开了中央庭。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.2635900Z   ---
+2026-10-07T04:23:08.2646028Z   duration_ms: 0.813007
+2026-10-07T04:23:08.2646655Z   type: 'test'
+2026-10-07T04:23:08.2647180Z   ...
+2026-10-07T04:23:08.2647942Z # Subtest: 早先留场随后实际离开允许结算
+2026-10-07T04:23:08.2648656Z ok 22 - 早先留场随后实际离开允许结算
+2026-10-07T04:23:08.2649032Z   ---
+2026-10-07T04:23:08.2649363Z   duration_ms: 0.818056
+2026-10-07T04:23:08.2649762Z   type: 'test'
+2026-10-07T04:23:08.2650006Z   ...
+2026-10-07T04:23:08.2650298Z # Subtest: 不纠缠的否定不误判为未离开
+2026-10-07T04:23:08.2650713Z ok 23 - 不纠缠的否定不误判为未离开
+2026-10-07T04:23:08.2651387Z   ---
+2026-10-07T04:23:08.2651719Z   duration_ms: 0.899728
+2026-10-07T04:23:08.2652108Z   type: 'test'
+2026-10-07T04:23:08.2652437Z   ...
+2026-10-07T04:23:08.2652893Z # Subtest: 被带离了中央庭的实际叙述允许结算
+2026-10-07T04:23:08.2653444Z ok 24 - 被带离了中央庭的实际叙述允许结算
+2026-10-07T04:23:08.2653818Z   ---
+2026-10-07T04:23:08.2654150Z   duration_ms: 0.833735
+2026-10-07T04:23:08.2654522Z   type: 'test'
+2026-10-07T04:23:08.2654845Z   ...
+2026-10-07T04:23:08.2655478Z # Subtest: 没有希罗或活骸叙述时不借普通离场结算
+2026-10-07T04:23:08.2656284Z ok 25 - 没有希罗或活骸叙述时不借普通离场结算
+2026-10-07T04:23:08.2656692Z   ---
+2026-10-07T04:23:08.2662987Z   duration_ms: 1.552616
+2026-10-07T04:23:08.2663458Z   type: 'test'
+2026-10-07T04:23:08.2663844Z   ...
+2026-10-07T04:23:08.2664433Z # Subtest: 错误操作类型不能绕过前置检查
+2026-10-07T04:23:08.2665267Z ok 26 - 错误操作类型不能绕过前置检查
+2026-10-07T04:23:08.2665708Z   ---
+2026-10-07T04:23:08.2666082Z   duration_ms: 0.705546
+2026-10-07T04:23:08.2666507Z   type: 'test'
+2026-10-07T04:23:08.2666886Z   ...
+2026-10-07T04:23:08.2667411Z # Subtest: 整块晨间旗标写入不能绕过逐项校验
+2026-10-07T04:23:08.2668073Z ok 27 - 整块晨间旗标写入不能绕过逐项校验
+2026-10-07T04:23:08.2668502Z   ---
+2026-10-07T04:23:08.2668867Z   duration_ms: 0.710505
+2026-10-07T04:23:08.2669289Z   type: 'test'
+2026-10-07T04:23:08.2669657Z   ...
+2026-10-07T04:23:08.2670240Z # Subtest: 活骸概念通过现场对白获知不要求旁白重复
+2026-10-07T04:23:08.2670856Z ok 28 - 活骸概念通过现场对白获知不要求旁白重复
+2026-10-07T04:23:08.2671278Z   ---
+2026-10-07T04:23:08.2671636Z   duration_ms: 0.951495
+2026-10-07T04:23:08.2672052Z   type: 'test'
+2026-10-07T04:23:08.2672410Z   ...
+2026-10-07T04:23:08.2672968Z # Subtest: 随行人员将赛哈姆带离整个中央庭允许结算
+2026-10-07T04:23:08.2673564Z ok 29 - 随行人员将赛哈姆带离整个中央庭允许结算
+2026-10-07T04:23:08.2673980Z   ---
+2026-10-07T04:23:08.2674359Z   duration_ms: 0.844716
+2026-10-07T04:23:08.2674793Z   type: 'test'
+2026-10-07T04:23:08.2675442Z   ...
+2026-10-07T04:23:08.2676041Z # Subtest: 仅写本人移出主廊而未关联希罗接走仍不结算
+2026-10-07T04:23:08.2676661Z ok 30 - 仅写本人移出主廊而未关联希罗接走仍不结算
+2026-10-07T04:23:08.2677098Z   ---
+2026-10-07T04:23:08.2677470Z   duration_ms: 0.832123
+2026-10-07T04:23:08.2677919Z   type: 'test'
+2026-10-07T04:23:08.2678291Z   ...
+2026-10-07T04:23:08.2678842Z # Subtest: 普通人员带离主廊而未关联希罗接走仍不结算
+2026-10-07T04:23:08.2679463Z ok 31 - 普通人员带离主廊而未关联希罗接走仍不结算
+2026-10-07T04:23:08.2679885Z   ---
+2026-10-07T04:23:08.2680241Z   duration_ms: 0.806074
+2026-10-07T04:23:08.2680659Z   type: 'test'
+2026-10-07T04:23:08.2681018Z   ...
+2026-10-07T04:23:08.2681665Z # Subtest: 用户新口径下希罗示意人员实际带离主廊已完成接走，无需整个区域离场
+2026-10-07T04:23:08.2682433Z ok 32 - 用户新口径下希罗示意人员实际带离主廊已完成接走，无需整个区域离场
+2026-10-07T04:23:08.2682921Z   ---
+2026-10-07T04:23:08.2683282Z   duration_ms: 1.076407
+2026-10-07T04:23:08.2683701Z   type: 'test'
+2026-10-07T04:23:08.2684068Z   ...
+2026-10-07T04:23:08.2684911Z # Subtest: 第二轮真实醒前轻语与担架护送驶离保留合法命令
+2026-10-07T04:23:08.2685901Z ok 33 - 第二轮真实醒前轻语与担架护送驶离保留合法命令
+2026-10-07T04:23:08.2686354Z   ---
+2026-10-07T04:23:08.2686724Z   duration_ms: 1.287521
+2026-10-07T04:23:08.2687151Z   type: 'test'
+2026-10-07T04:23:08.2687539Z   ...
+2026-10-07T04:23:08.2688041Z # Subtest: 醒后普通轻语不得补晨间独白
+2026-10-07T04:23:08.2688891Z ok 34 - 醒后普通轻语不得补晨间独白
+2026-10-07T04:23:08.2689303Z   ---
+2026-10-07T04:23:08.2689664Z   duration_ms: 0.933771
+2026-10-07T04:23:08.2690090Z   type: 'test'
+2026-10-07T04:23:08.2690452Z   ...
+2026-10-07T04:23:08.2690953Z # Subtest: 仅护送队伍驶离不能推定赛哈姆离开
+2026-10-07T04:23:08.2691527Z ok 35 - 仅护送队伍驶离不能推定赛哈姆离开
+2026-10-07T04:23:08.2691946Z   ---
+2026-10-07T04:23:08.2692309Z   duration_ms: 0.892155
+2026-10-07T04:23:08.2692718Z   type: 'test'
+2026-10-07T04:23:08.2693077Z   ...
+2026-10-07T04:23:08.2693586Z # Subtest: 准备或假设担架队伍驶离不算发生
+2026-10-07T04:23:08.2694168Z ok 36 - 准备或假设担架队伍驶离不算发生
+2026-10-07T04:23:08.2694571Z   ---
+2026-10-07T04:23:08.2694932Z   duration_ms: 1.648685
+2026-10-07T04:23:08.2695613Z   type: 'test'
+2026-10-07T04:23:08.2696002Z   ...
+2026-10-07T04:23:08.2696638Z # Subtest: 最新真实运输车正文原版拒绝，修正版保留模型已提出的合法命令
+2026-10-07T04:23:08.2697382Z ok 37 - 最新真实运输车正文原版拒绝，修正版保留模型已提出的合法命令
+2026-10-07T04:23:08.2697869Z   ---
+2026-10-07T04:23:08.2698236Z   duration_ms: 4.347629
+2026-10-07T04:23:08.2698649Z   type: 'test'
+2026-10-07T04:23:08.2699037Z   ...
+2026-10-07T04:23:08.2699781Z # Subtest: 车辆明确搭载人物实际离场：黑色运输车辆闭锁启动，载着赛哈姆与希罗彻底驶离了中央庭区域。
+2026-10-07T04:23:08.2700662Z ok 38 - 车辆明确搭载人物实际离场：黑色运输车辆闭锁启动，载着赛哈姆与希罗彻底驶离了中央庭区域。
+2026-10-07T04:23:08.2701181Z   ---
+2026-10-07T04:23:08.2701537Z   duration_ms: 0.97025
+2026-10-07T04:23:08.2701932Z   type: 'test'
+2026-10-07T04:23:08.2702273Z   ...
+2026-10-07T04:23:08.2702858Z # Subtest: 车辆明确搭载人物实际离场：运输车载着昏迷的赛哈姆，驶离了中央庭。
+2026-10-07T04:23:08.2703575Z ok 39 - 车辆明确搭载人物实际离场：运输车载着昏迷的赛哈姆，驶离了中央庭。
+2026-10-07T04:23:08.2704040Z   ---
+2026-10-07T04:23:08.2704377Z   duration_ms: 0.900219
+2026-10-07T04:23:08.2704770Z   type: 'test'
+2026-10-07T04:23:08.2705398Z   ...
+2026-10-07T04:23:08.2706136Z # Subtest: 车辆明确搭载人物实际离场：救护车搭载着失去意识的赛哈姆，驶出了中央庭区域。
+2026-10-07T04:23:08.2706934Z ok 40 - 车辆明确搭载人物实际离场：救护车搭载着失去意识的赛哈姆，驶出了中央庭区域。
+2026-10-07T04:23:08.2707425Z   ---
+2026-10-07T04:23:08.2707772Z   duration_ms: 0.883779
+2026-10-07T04:23:08.2708184Z   type: 'test'
+2026-10-07T04:23:08.2708523Z   ...
+2026-10-07T04:23:08.2709086Z # Subtest: 车辆明确搭载人物实际离场：车辆载着希罗和赛哈姆驶离中央庭。
+2026-10-07T04:23:08.2709793Z ok 41 - 车辆明确搭载人物实际离场：车辆载着希罗和赛哈姆驶离中央庭。
+2026-10-07T04:23:08.2710232Z   ---
+2026-10-07T04:23:08.2710578Z   duration_ms: 0.853411
+2026-10-07T04:23:08.2710964Z   type: 'test'
+2026-10-07T04:23:08.2711306Z   ...
+2026-10-07T04:23:08.2711904Z # Subtest: 车辆明确搭载人物实际离场：运输车辆没有再停留，载着赛哈姆驶离中央庭。
+2026-10-07T04:23:08.2712652Z ok 42 - 车辆明确搭载人物实际离场：运输车辆没有再停留，载着赛哈姆驶离中央庭。
+2026-10-07T04:23:08.2713109Z   ---
+2026-10-07T04:23:08.2713448Z   duration_ms: 0.845227
+2026-10-07T04:23:08.2713931Z   type: 'test'
+2026-10-07T04:23:08.2714265Z   ...
+2026-10-07T04:23:08.2714823Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：“运输车辆载着赛哈姆驶离中央庭。”
+2026-10-07T04:23:08.2716116Z ok 43 - 不借未发生或无人物关联的车辆叙述结算：“运输车辆载着赛哈姆驶离中央庭。”
+2026-10-07T04:23:08.2716589Z   ---
+2026-10-07T04:23:08.2716934Z   duration_ms: 0.911701
+2026-10-07T04:23:08.2717324Z   type: 'test'
+2026-10-07T04:23:08.2717651Z   ...
+2026-10-07T04:23:08.2718246Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：运输车辆准备载着赛哈姆驶离中央庭。
+2026-10-07T04:23:08.2719001Z ok 44 - 不借未发生或无人物关联的车辆叙述结算：运输车辆准备载着赛哈姆驶离中央庭。
+2026-10-07T04:23:08.2719668Z   ---
+2026-10-07T04:23:08.2719994Z   duration_ms: 0.856688
+2026-10-07T04:23:08.2720356Z   type: 'test'
+2026-10-07T04:23:08.2720671Z   ...
+2026-10-07T04:23:08.2721448Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：如果运输车辆载着赛哈姆驶离中央庭，你会跟上。
+2026-10-07T04:23:08.2722191Z ok 45 - 不借未发生或无人物关联的车辆叙述结算：如果运输车辆载着赛哈姆驶离中央庭，你会跟上。
+2026-10-07T04:23:08.2722637Z   ---
+2026-10-07T04:23:08.2722930Z   duration_ms: 1.886509
+2026-10-07T04:23:08.2723284Z   type: 'test'
+2026-10-07T04:23:08.2723592Z   ...
+2026-10-07T04:23:08.2724167Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：你回忆运输车辆载着赛哈姆驶离中央庭的情景。
+2026-10-07T04:23:08.2724877Z ok 46 - 不借未发生或无人物关联的车辆叙述结算：你回忆运输车辆载着赛哈姆驶离中央庭的情景。
+2026-10-07T04:23:08.2725568Z   ---
+2026-10-07T04:23:08.2725882Z   duration_ms: 0.888146
+2026-10-07T04:23:08.2726239Z   type: 'test'
+2026-10-07T04:23:08.2726556Z   ...
+2026-10-07T04:23:08.2727112Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：昨天运输车辆载着赛哈姆驶离了中央庭。
+2026-10-07T04:23:08.2727805Z ok 47 - 不借未发生或无人物关联的车辆叙述结算：昨天运输车辆载着赛哈姆驶离了中央庭。
+2026-10-07T04:23:08.2728282Z   ---
+2026-10-07T04:23:08.2728613Z   duration_ms: 0.833615
+2026-10-07T04:23:08.2728987Z   type: 'test'
+2026-10-07T04:23:08.2729302Z   ...
+2026-10-07T04:23:08.2729868Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：据说运输车辆载着赛哈姆驶离了中央庭。
+2026-10-07T04:23:08.2730597Z ok 48 - 不借未发生或无人物关联的车辆叙述结算：据说运输车辆载着赛哈姆驶离了中央庭。
+2026-10-07T04:23:08.2731061Z   ---
+2026-10-07T04:23:08.2731366Z   duration_ms: 0.810783
+2026-10-07T04:23:08.2731727Z   type: 'test'
+2026-10-07T04:23:08.2732035Z   ...
+2026-10-07T04:23:08.2732598Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：运输车辆尚未载着赛哈姆驶离中央庭。
+2026-10-07T04:23:08.2733344Z ok 49 - 不借未发生或无人物关联的车辆叙述结算：运输车辆尚未载着赛哈姆驶离中央庭。
+2026-10-07T04:23:08.2733787Z   ---
+2026-10-07T04:23:08.2734101Z   duration_ms: 0.759427
+2026-10-07T04:23:08.2734692Z   type: 'test'
+2026-10-07T04:23:08.2735008Z   ...
+2026-10-07T04:23:08.2742359Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：运输车辆载着赛哈姆，尚未驶离中央庭。
+2026-10-07T04:23:08.2743055Z ok 50 - 不借未发生或无人物关联的车辆叙述结算：运输车辆载着赛哈姆，尚未驶离中央庭。
+2026-10-07T04:23:08.2743478Z   ---
+2026-10-07T04:23:08.2743803Z   duration_ms: 0.840778
+2026-10-07T04:23:08.2744399Z   type: 'test'
+2026-10-07T04:23:08.2744701Z   ...
+2026-10-07T04:23:08.2745492Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：运输车辆将载着赛哈姆驶离中央庭。
+2026-10-07T04:23:08.2746203Z ok 51 - 不借未发生或无人物关联的车辆叙述结算：运输车辆将载着赛哈姆驶离中央庭。
+2026-10-07T04:23:08.2746669Z   ---
+2026-10-07T04:23:08.2747006Z   duration_ms: 0.796696
+2026-10-07T04:23:08.2747363Z   type: 'test'
+2026-10-07T04:23:08.2747658Z   ...
+2026-10-07T04:23:08.2748180Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：运输车辆载着赛哈姆，将驶离中央庭。
+2026-10-07T04:23:08.2748825Z ok 52 - 不借未发生或无人物关联的车辆叙述结算：运输车辆载着赛哈姆，将驶离中央庭。
+2026-10-07T04:23:08.2749242Z   ---
+2026-10-07T04:23:08.2749542Z   duration_ms: 0.842211
+2026-10-07T04:23:08.2749903Z   type: 'test'
+2026-10-07T04:23:08.2750208Z   ...
+2026-10-07T04:23:08.2750762Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：运输车辆预计载着赛哈姆驶离中央庭。
+2026-10-07T04:23:08.2751460Z ok 53 - 不借未发生或无人物关联的车辆叙述结算：运输车辆预计载着赛哈姆驶离中央庭。
+2026-10-07T04:23:08.2751901Z   ---
+2026-10-07T04:23:08.2752202Z   duration_ms: 0.789282
+2026-10-07T04:23:08.2755742Z   type: 'test'
+2026-10-07T04:23:08.2756124Z   ...
+2026-10-07T04:23:08.2756714Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：运输车辆不载着赛哈姆驶离中央庭。
+2026-10-07T04:23:08.2757427Z ok 54 - 不借未发生或无人物关联的车辆叙述结算：运输车辆不载着赛哈姆驶离中央庭。
+2026-10-07T04:23:08.2757878Z   ---
+2026-10-07T04:23:08.2758194Z   duration_ms: 0.998312
+2026-10-07T04:23:08.2758568Z   type: 'test'
+2026-10-07T04:23:08.2758897Z   ...
+2026-10-07T04:23:08.2759500Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：赛哈姆没有上车。运输车辆载着希罗驶离中央庭。
+2026-10-07T04:23:08.2760285Z ok 55 - 不借未发生或无人物关联的车辆叙述结算：赛哈姆没有上车。运输车辆载着希罗驶离中央庭。
+2026-10-07T04:23:08.2760785Z   ---
+2026-10-07T04:23:08.2761106Z   duration_ms: 1.315033
+2026-10-07T04:23:08.2761482Z   type: 'test'
+2026-10-07T04:23:08.2761785Z   ...
+2026-10-07T04:23:08.2762397Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：运输车辆载着赛哈姆的行李驶离中央庭。
+2026-10-07T04:23:08.2763140Z ok 56 - 不借未发生或无人物关联的车辆叙述结算：运输车辆载着赛哈姆的行李驶离中央庭。
+2026-10-07T04:23:08.2763620Z   ---
+2026-10-07T04:23:08.2763941Z   duration_ms: 1.201921
+2026-10-07T04:23:08.2764315Z   type: 'test'
+2026-10-07T04:23:08.2764638Z   ...
+2026-10-07T04:23:08.2765462Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：运输车辆载着希罗，从赛哈姆身边驶离中央庭。
+2026-10-07T04:23:08.2766323Z ok 57 - 不借未发生或无人物关联的车辆叙述结算：运输车辆载着希罗，从赛哈姆身边驶离中央庭。
+2026-10-07T04:23:08.2766751Z   ---
+2026-10-07T04:23:08.2767019Z   duration_ms: 1.401234
+2026-10-07T04:23:08.2767317Z   type: 'test'
+2026-10-07T04:23:08.2767577Z   ...
+2026-10-07T04:23:08.2768063Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：运输车辆驶离中央庭。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.2768810Z ok 58 - 不借未发生或无人物关联的车辆叙述结算：运输车辆驶离中央庭。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.2769305Z   ---
+2026-10-07T04:23:08.2769643Z   duration_ms: 1.300425
+2026-10-07T04:23:08.2770038Z   type: 'test'
+2026-10-07T04:23:08.2770362Z   ...
+2026-10-07T04:23:08.2770957Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：运输车辆载着赛哈姆驶离中央庭主廊。
+2026-10-07T04:23:08.2771954Z ok 59 - 不借未发生或无人物关联的车辆叙述结算：运输车辆载着赛哈姆驶离中央庭主廊。
+2026-10-07T04:23:08.2772429Z   ---
+2026-10-07T04:23:08.2772756Z   duration_ms: 1.394872
+2026-10-07T04:23:08.2773125Z   type: 'test'
+2026-10-07T04:23:08.2773446Z   ...
+2026-10-07T04:23:08.2774027Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：运输车辆载着赛哈姆驶离中央庭的大厅。
+2026-10-07T04:23:08.2774977Z ok 60 - 不借未发生或无人物关联的车辆叙述结算：运输车辆载着赛哈姆驶离中央庭的大厅。
+2026-10-07T04:23:08.2775852Z   ---
+2026-10-07T04:23:08.2776180Z   duration_ms: 1.252616
+2026-10-07T04:23:08.2776560Z   type: 'test'
+2026-10-07T04:23:08.2776883Z   ...
+2026-10-07T04:23:08.2777501Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：运输车辆载着赛哈姆驶离中央庭区域内的通道。
+2026-10-07T04:23:08.2778269Z ok 61 - 不借未发生或无人物关联的车辆叙述结算：运输车辆载着赛哈姆驶离中央庭区域内的通道。
+2026-10-07T04:23:08.2778751Z   ---
+2026-10-07T04:23:08.2779104Z   duration_ms: 1.207703
+2026-10-07T04:23:08.2779551Z   type: 'test'
+2026-10-07T04:23:08.2779880Z   ...
+2026-10-07T04:23:08.2780477Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：运输车辆载着赛哈姆驶离中央庭大门。
+2026-10-07T04:23:08.2781204Z ok 62 - 不借未发生或无人物关联的车辆叙述结算：运输车辆载着赛哈姆驶离中央庭大门。
+2026-10-07T04:23:08.2781697Z   ---
+2026-10-07T04:23:08.2782011Z   duration_ms: 1.16327
+2026-10-07T04:23:08.2782380Z   type: 'test'
+2026-10-07T04:23:08.2782698Z   ...
+2026-10-07T04:23:08.2783321Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：运输车辆载着赛哈姆驶离中央庭。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.2784147Z ok 63 - 不借未发生或无人物关联的车辆叙述结算：运输车辆载着赛哈姆驶离中央庭。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.2784673Z   ---
+2026-10-07T04:23:08.2785008Z   duration_ms: 0.910638
+2026-10-07T04:23:08.2785637Z   type: 'test'
+2026-10-07T04:23:08.2785967Z   ...
+2026-10-07T04:23:08.2786954Z # Subtest: 不借未发生或无人物关联的车辆叙述结算：<f7d_choices><f7d_choice>让运输车辆载着赛哈姆驶离中央庭</f7d_choice></f7d_choices>
+2026-10-07T04:23:08.2788276Z ok 64 - 不借未发生或无人物关联的车辆叙述结算：<f7d_choices><f7d_choice>让运输车辆载着赛哈姆驶离中央庭</f7d_choice></f7d_choices>
+2026-10-07T04:23:08.2788963Z   ---
+2026-10-07T04:23:08.2789300Z   duration_ms: 0.817384
+2026-10-07T04:23:08.2789671Z   type: 'test'
+2026-10-07T04:23:08.2789873Z   ...
+2026-10-07T04:23:08.2790167Z # Subtest: 车辆离场也必须通过独白前置且不能补命令
+2026-10-07T04:23:08.2790473Z ok 65 - 车辆离场也必须通过独白前置且不能补命令
+2026-10-07T04:23:08.2790718Z   ---
+2026-10-07T04:23:08.2790910Z   duration_ms: 2.185086
+2026-10-07T04:23:08.2791139Z   type: 'test'
+2026-10-07T04:23:08.2791333Z   ...
+2026-10-07T04:23:08.2791646Z # Subtest: 完整真实车队管辖区域正文修补前漏判，修补后保留原合法命令
+2026-10-07T04:23:08.2792017Z ok 66 - 完整真实车队管辖区域正文修补前漏判，修补后保留原合法命令
+2026-10-07T04:23:08.2792275Z   ---
+2026-10-07T04:23:08.2792466Z   duration_ms: 4.37505
+2026-10-07T04:23:08.2792684Z   type: 'test'
+2026-10-07T04:23:08.2792878Z   ...
+2026-10-07T04:23:08.2793270Z # Subtest: 车队实际离开完整辖区：希罗与随行车队带着赛哈姆彻底驶离了中央庭的管辖区域，消失在城市主干道的拐角处。
+2026-10-07T04:23:08.2793762Z ok 67 - 车队实际离开完整辖区：希罗与随行车队带着赛哈姆彻底驶离了中央庭的管辖区域，消失在城市主干道的拐角处。
+2026-10-07T04:23:08.2794054Z   ---
+2026-10-07T04:23:08.2794243Z   duration_ms: 0.95434
+2026-10-07T04:23:08.2794468Z   type: 'test'
+2026-10-07T04:23:08.2794658Z   ...
+2026-10-07T04:23:08.2794943Z # Subtest: 车队实际离开完整辖区：车队带着赛哈姆驶离中央庭辖区。
+2026-10-07T04:23:08.2799070Z ok 68 - 车队实际离开完整辖区：车队带着赛哈姆驶离中央庭辖区。
+2026-10-07T04:23:08.2799554Z   ---
+2026-10-07T04:23:08.2799910Z   duration_ms: 0.887876
+2026-10-07T04:23:08.2800576Z   type: 'test'
+2026-10-07T04:23:08.2800941Z   ...
+2026-10-07T04:23:08.2801560Z # Subtest: 车队实际离开完整辖区：运输车辆载着赛哈姆驶出中央庭管辖区域。
+2026-10-07T04:23:08.2802267Z ok 69 - 车队实际离开完整辖区：运输车辆载着赛哈姆驶出中央庭管辖区域。
+2026-10-07T04:23:08.2802721Z   ---
+2026-10-07T04:23:08.2803078Z   duration_ms: 0.869021
+2026-10-07T04:23:08.2803764Z   type: 'test'
+2026-10-07T04:23:08.2804111Z   ...
+2026-10-07T04:23:08.2829999Z # Subtest: 车队实际离开完整辖区：运输车没有再停留，带着赛哈姆驶离中央庭的管辖区域。
+2026-10-07T04:23:08.2866096Z ok 70 - 车队实际离开完整辖区：运输车没有再停留，带着赛哈姆驶离中央庭的管辖区域。
+2026-10-07T04:23:08.2895619Z   ---
+2026-10-07T04:23:08.2913745Z   duration_ms: 0.869862
+2026-10-07T04:23:08.2945785Z   type: 'test'
+2026-10-07T04:23:08.2961537Z   ...
+2026-10-07T04:23:08.2962234Z # Subtest: 车队实际离开完整辖区：车队带着赛哈姆驶离中央庭的管辖区域 ，消失在街角。
+2026-10-07T04:23:08.2962986Z ok 71 - 车队实际离开完整辖区：车队带着赛哈姆驶离中央庭的管辖区域 ，消失在街角。
+2026-10-07T04:23:08.2963442Z   ---
+2026-10-07T04:23:08.2963774Z   duration_ms: 0.843413
+2026-10-07T04:23:08.2964138Z   type: 'test'
+2026-10-07T04:23:08.2964460Z   ...
+2026-10-07T04:23:08.2965028Z # Subtest: 车队辖区反例仍不得结算：“车队带着赛哈姆驶离中央庭的管辖区域。”
+2026-10-07T04:23:08.2965840Z ok 72 - 车队辖区反例仍不得结算：“车队带着赛哈姆驶离中央庭的管辖区域。”
+2026-10-07T04:23:08.2966295Z   ---
+2026-10-07T04:23:08.2966628Z   duration_ms: 0.906781
+2026-10-07T04:23:08.2967018Z   type: 'test'
+2026-10-07T04:23:08.2967338Z   ...
+2026-10-07T04:23:08.2967913Z # Subtest: 车队辖区反例仍不得结算：车队准备带着赛哈姆驶离中央庭的管辖区域。
+2026-10-07T04:23:08.2968602Z ok 73 - 车队辖区反例仍不得结算：车队准备带着赛哈姆驶离中央庭的管辖区域。
+2026-10-07T04:23:08.2969047Z   ---
+2026-10-07T04:23:08.2969387Z   duration_ms: 0.853251
+2026-10-07T04:23:08.2969799Z   type: 'test'
+2026-10-07T04:23:08.2970172Z   ...
+2026-10-07T04:23:08.2970836Z # Subtest: 车队辖区反例仍不得结算：如果车队带着赛哈姆驶离中央庭的管辖区域，你会跟上。
+2026-10-07T04:23:08.2971650Z ok 74 - 车队辖区反例仍不得结算：如果车队带着赛哈姆驶离中央庭的管辖区域，你会跟上。
+2026-10-07T04:23:08.2972165Z   ---
+2026-10-07T04:23:08.2972806Z   duration_ms: 0.84169
+2026-10-07T04:23:08.2973459Z   type: 'test'
+2026-10-07T04:23:08.2973961Z   ...
+2026-10-07T04:23:08.2974916Z # Subtest: 车队辖区反例仍不得结算：你回忆车队带着赛哈姆驶离中央庭的管辖区域的情景。
+2026-10-07T04:23:08.2976423Z ok 75 - 车队辖区反例仍不得结算：你回忆车队带着赛哈姆驶离中央庭的管辖区域的情景。
+2026-10-07T04:23:08.2977274Z   ---
+2026-10-07T04:23:08.2977821Z   duration_ms: 0.869571
+2026-10-07T04:23:08.2978547Z   type: 'test'
+2026-10-07T04:23:08.3155577Z   ...
+2026-10-07T04:23:08.3192083Z # Subtest: 车队辖区反例仍不得结算：昨天车队带着赛哈姆驶离了中央庭的管辖区域。
+2026-10-07T04:23:08.3215776Z ok 76 - 车队辖区反例仍不得结算：昨天车队带着赛哈姆驶离了中央庭的管辖区域。
+2026-10-07T04:23:08.3245807Z   ---
+2026-10-07T04:23:08.3246620Z   duration_ms: 0.908415
+2026-10-07T04:23:08.3253181Z   type: 'test'
+2026-10-07T04:23:08.3253765Z   ...
+2026-10-07T04:23:08.3254654Z # Subtest: 车队辖区反例仍不得结算：据说车队带着赛哈姆驶离了中央庭的管辖区域。
+2026-10-07T04:23:08.3255837Z ok 77 - 车队辖区反例仍不得结算：据说车队带着赛哈姆驶离了中央庭的管辖区域。
+2026-10-07T04:23:08.3256509Z   ---
+2026-10-07T04:23:08.3257022Z   duration_ms: 0.844034
+2026-10-07T04:23:08.3257592Z   type: 'test'
+2026-10-07T04:23:08.3258108Z   ...
+2026-10-07T04:23:08.3258878Z # Subtest: 车队辖区反例仍不得结算：车队将带着赛哈姆驶离中央庭的管辖区域。
+2026-10-07T04:23:08.3259877Z ok 78 - 车队辖区反例仍不得结算：车队将带着赛哈姆驶离中央庭的管辖区域。
+2026-10-07T04:23:08.3260559Z   ---
+2026-10-07T04:23:08.3261436Z   duration_ms: 0.859242
+2026-10-07T04:23:08.3262089Z   type: 'test'
+2026-10-07T04:23:08.3262628Z   ...
+2026-10-07T04:23:08.3265860Z # Subtest: 车队辖区反例仍不得结算：车队不带着赛哈姆驶离中央庭的管辖区域。
+2026-10-07T04:23:08.3266835Z ok 79 - 车队辖区反例仍不得结算：车队不带着赛哈姆驶离中央庭的管辖区域。
+2026-10-07T04:23:08.3267512Z   ---
+2026-10-07T04:23:08.3268396Z   duration_ms: 0.791546
+2026-10-07T04:23:08.3268967Z   type: 'test'
+2026-10-07T04:23:08.3269479Z   ...
+2026-10-07T04:23:08.3270253Z # Subtest: 车队辖区反例仍不得结算：车队带着赛哈姆，尚未驶离中央庭的管辖区域。
+2026-10-07T04:23:08.3271147Z ok 80 - 车队辖区反例仍不得结算：车队带着赛哈姆，尚未驶离中央庭的管辖区域。
+2026-10-07T04:23:08.3271789Z   ---
+2026-10-07T04:23:08.3272307Z   duration_ms: 2.202669
+2026-10-07T04:23:08.3272976Z   type: 'test'
+2026-10-07T04:23:08.3273496Z   ...
+2026-10-07T04:23:08.3274306Z # Subtest: 车队辖区反例仍不得结算：车队带着赛哈姆驶离中央庭的管辖区域内的主廊。
+2026-10-07T04:23:08.3275843Z ok 81 - 车队辖区反例仍不得结算：车队带着赛哈姆驶离中央庭的管辖区域内的主廊。
+2026-10-07T04:23:08.3276403Z   ---
+2026-10-07T04:23:08.3276781Z   duration_ms: 0.793289
+2026-10-07T04:23:08.3277230Z   type: 'test'
+2026-10-07T04:23:08.3277590Z   ...
+2026-10-07T04:23:08.3278196Z # Subtest: 车队辖区反例仍不得结算：车队带着赛哈姆驶离中央庭辖区内的通道。
+2026-10-07T04:23:08.3278892Z ok 82 - 车队辖区反例仍不得结算：车队带着赛哈姆驶离中央庭辖区内的通道。
+2026-10-07T04:23:08.3279341Z   ---
+2026-10-07T04:23:08.3279682Z   duration_ms: 0.827122
+2026-10-07T04:23:08.3280076Z   type: 'test'
+2026-10-07T04:23:08.3280443Z   ...
+2026-10-07T04:23:08.3280986Z # Subtest: 车队辖区反例仍不得结算：车队带着赛哈姆驶离中央庭 的大厅。
+2026-10-07T04:23:08.3281630Z ok 83 - 车队辖区反例仍不得结算：车队带着赛哈姆驶离中央庭 的大厅。
+2026-10-07T04:23:08.3282079Z   ---
+2026-10-07T04:23:08.3282341Z   duration_ms: 0.809059
+2026-10-07T04:23:08.3282610Z   type: 'test'
+2026-10-07T04:23:08.3282834Z   ...
+2026-10-07T04:23:08.3283368Z # Subtest: 车队辖区反例仍不得结算：车队带着赛哈姆驶离中央庭的管辖区域 内的主廊。
+2026-10-07T04:23:08.3283821Z ok 84 - 车队辖区反例仍不得结算：车队带着赛哈姆驶离中央庭的管辖区域 内的主廊。
+2026-10-07T04:23:08.3284117Z   ---
+2026-10-07T04:23:08.3284340Z   duration_ms: 0.805994
+2026-10-07T04:23:08.3284595Z   type: 'test'
+2026-10-07T04:23:08.3284820Z   ...
+2026-10-07T04:23:08.3285668Z # Subtest: 车队辖区反例仍不得结算：车队带着赛哈姆驶离中央庭的管辖区域的大厅。
+2026-10-07T04:23:08.3286148Z ok 85 - 车队辖区反例仍不得结算：车队带着赛哈姆驶离中央庭的管辖区域的大厅。
+2026-10-07T04:23:08.3286459Z   ---
+2026-10-07T04:23:08.3286687Z   duration_ms: 0.828425
+2026-10-07T04:23:08.3286941Z   type: 'test'
+2026-10-07T04:23:08.3287269Z   ...
+2026-10-07T04:23:08.3287621Z # Subtest: 车队辖区反例仍不得结算：车队带着赛哈姆的行李驶离中央庭的管辖区域。
+2026-10-07T04:23:08.3288054Z ok 86 - 车队辖区反例仍不得结算：车队带着赛哈姆的行李驶离中央庭的管辖区域。
+2026-10-07T04:23:08.3288336Z   ---
+2026-10-07T04:23:08.3288538Z   duration_ms: 0.814149
+2026-10-07T04:23:08.3288772Z   type: 'test'
+2026-10-07T04:23:08.3288989Z   ...
+2026-10-07T04:23:08.3289347Z # Subtest: 车队辖区反例仍不得结算：车队带着希罗，从赛哈姆身边驶离中央庭的管辖区域。
+2026-10-07T04:23:08.3289788Z ok 87 - 车队辖区反例仍不得结算：车队带着希罗，从赛哈姆身边驶离中央庭的管辖区域。
+2026-10-07T04:23:08.3290082Z   ---
+2026-10-07T04:23:08.3290302Z   duration_ms: 0.795534
+2026-10-07T04:23:08.3290552Z   type: 'test'
+2026-10-07T04:23:08.3290765Z   ...
+2026-10-07T04:23:08.3291136Z # Subtest: 车队辖区反例仍不得结算：车队带着赛哈姆驶离中央庭的管辖区域。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.3291631Z ok 88 - 车队辖区反例仍不得结算：车队带着赛哈姆驶离中央庭的管辖区域。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.3291950Z   ---
+2026-10-07T04:23:08.3292174Z   duration_ms: 0.833214
+2026-10-07T04:23:08.3292424Z   type: 'test'
+2026-10-07T04:23:08.3292651Z   ...
+2026-10-07T04:23:08.3292976Z # Subtest: 真实登车驶离全文修前拒绝，修后保留原命令且顺序无关
+2026-10-07T04:23:08.3293356Z ok 89 - 真实登车驶离全文修前拒绝，修后保留原命令且顺序无关
+2026-10-07T04:23:08.3312485Z   ---
+2026-10-07T04:23:08.3312743Z   duration_ms: 9.530156
+2026-10-07T04:23:08.3313013Z   type: 'test'
+2026-10-07T04:23:08.3313255Z   ...
+2026-10-07T04:23:08.3313691Z # Subtest: 人物登车与同车实际离场关联：赛哈姆登上运输车，随车流驶离了中央庭区域。
+2026-10-07T04:23:08.3314142Z ok 90 - 人物登车与同车实际离场关联：赛哈姆登上运输车，随车流驶离了中央庭区域。
+2026-10-07T04:23:08.3314440Z   ---
+2026-10-07T04:23:08.3314658Z   duration_ms: 0.823786
+2026-10-07T04:23:08.3314917Z   type: 'test'
+2026-10-07T04:23:08.3315402Z   ...
+2026-10-07T04:23:08.3315819Z # Subtest: 人物登车与同车实际离场关联：随行人员将昏迷的赛哈姆抬上运输车，驶离中央庭的管辖区域。
+2026-10-07T04:23:08.3316293Z ok 91 - 人物登车与同车实际离场关联：随行人员将昏迷的赛哈姆抬上运输车，驶离中央庭的管辖区域。
+2026-10-07T04:23:08.3316604Z   ---
+2026-10-07T04:23:08.3316842Z   duration_ms: 0.831401
+2026-10-07T04:23:08.3317091Z   type: 'test'
+2026-10-07T04:23:08.3317309Z   ...
+2026-10-07T04:23:08.3317692Z # Subtest: 人物登车与同车实际离场关联：赛哈姆被送上早已等候的救护车，随后驶出了中央庭辖区。
+2026-10-07T04:23:08.3318150Z ok 92 - 人物登车与同车实际离场关联：赛哈姆被送上早已等候的救护车，随后驶出了中央庭辖区。
+2026-10-07T04:23:08.3318451Z   ---
+2026-10-07T04:23:08.3318690Z   duration_ms: 0.719632
+2026-10-07T04:23:08.3318931Z   type: 'test'
+2026-10-07T04:23:08.3319147Z   ...
+2026-10-07T04:23:08.3319596Z # Subtest: 人物登车与同车实际离场关联：希罗护送着赛哈姆的身影穿过广场，登上防区边缘的专用运输车，随车流驶离了中央庭区域。
+2026-10-07T04:23:08.3320148Z ok 93 - 人物登车与同车实际离场关联：希罗护送着赛哈姆的身影穿过广场，登上防区边缘的专用运输车，随车流驶离了中央庭区域。
+2026-10-07T04:23:08.3320475Z   ---
+2026-10-07T04:23:08.3320690Z   duration_ms: 0.747604
+2026-10-07T04:23:08.3320941Z   type: 'test'
+2026-10-07T04:23:08.3321155Z   ...
+2026-10-07T04:23:08.3321472Z # Subtest: 人物登车与同车实际离场关联：赛哈姆上了运输车，驶离中央庭。
+2026-10-07T04:23:08.3321856Z ok 94 - 人物登车与同车实际离场关联：赛哈姆上了运输车，驶离中央庭。
+2026-10-07T04:23:08.3322123Z   ---
+2026-10-07T04:23:08.3322338Z   duration_ms: 0.732447
+2026-10-07T04:23:08.3322765Z   type: 'test'
+2026-10-07T04:23:08.3322988Z   ...
+2026-10-07T04:23:08.3323365Z # Subtest: 人物登车与同车实际离场关联：赛哈姆没有再抵抗，被扶上救护车，驶离了中央庭区域。
+2026-10-07T04:23:08.3323827Z ok 95 - 人物登车与同车实际离场关联：赛哈姆没有再抵抗，被扶上救护车，驶离了中央庭区域。
+2026-10-07T04:23:08.3324126Z   ---
+2026-10-07T04:23:08.3324338Z   duration_ms: 0.757724
+2026-10-07T04:23:08.3324718Z   type: 'test'
+2026-10-07T04:23:08.3324931Z   ...
+2026-10-07T04:23:08.3325684Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆登上运输车，停在中央庭。
+2026-10-07T04:23:08.3326109Z ok 96 - 登车关联反例不能冒充人物离场：赛哈姆登上运输车，停在中央庭。
+2026-10-07T04:23:08.3326390Z   ---
+2026-10-07T04:23:08.3326612Z   duration_ms: 0.717578
+2026-10-07T04:23:08.3326864Z   type: 'test'
+2026-10-07T04:23:08.3327088Z   ...
+2026-10-07T04:23:08.3327449Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆没有登上运输车，车辆驶离中央庭区域。
+2026-10-07T04:23:08.3327893Z ok 97 - 登车关联反例不能冒充人物离场：赛哈姆没有登上运输车，车辆驶离中央庭区域。
+2026-10-07T04:23:08.3328190Z   ---
+2026-10-07T04:23:08.3328411Z   duration_ms: 0.714102
+2026-10-07T04:23:08.3328655Z   type: 'test'
+2026-10-07T04:23:08.3328867Z   ...
+2026-10-07T04:23:08.3329233Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆未曾上了运输车，车辆驶离中央庭区域。
+2026-10-07T04:23:08.3329867Z ok 98 - 登车关联反例不能冒充人物离场：赛哈姆未曾上了运输车，车辆驶离中央庭区域。
+2026-10-07T04:23:08.3330304Z   ---
+2026-10-07T04:23:08.3330689Z   duration_ms: 0.695447
+2026-10-07T04:23:08.3331052Z   type: 'test'
+2026-10-07T04:23:08.3331376Z   ...
+2026-10-07T04:23:08.3331972Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆被抬上运输车，尚未驶离中央庭区域。
+2026-10-07T04:23:08.3332665Z ok 99 - 登车关联反例不能冒充人物离场：赛哈姆被抬上运输车，尚未驶离中央庭区域。
+2026-10-07T04:23:08.3333103Z   ---
+2026-10-07T04:23:08.3333441Z   duration_ms: 0.697491
+2026-10-07T04:23:08.3333846Z   type: 'test'
+2026-10-07T04:23:08.3334185Z   ...
+2026-10-07T04:23:08.3334765Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆不会登上运输车，车辆驶离中央庭区域。
+2026-10-07T04:23:08.3335473Z ok 100 - 登车关联反例不能冒充人物离场：赛哈姆不会登上运输车，车辆驶离中央庭区域。
+2026-10-07T04:23:08.3335774Z   ---
+2026-10-07T04:23:08.3336008Z   duration_ms: 0.672063
+2026-10-07T04:23:08.3336269Z   type: 'test'
+2026-10-07T04:23:08.3336627Z   ...
+2026-10-07T04:23:08.3337185Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆登上运输车，将驶离中央庭区域。
+2026-10-07T04:23:08.3337889Z ok 101 - 登车关联反例不能冒充人物离场：赛哈姆登上运输车，将驶离中央庭区域。
+2026-10-07T04:23:08.3338358Z   ---
+2026-10-07T04:23:08.3338720Z   duration_ms: 0.71291
+2026-10-07T04:23:08.3339160Z   type: 'test'
+2026-10-07T04:23:08.3339497Z   ...
+2026-10-07T04:23:08.3340053Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆准备登上运输车，随后驶离中央庭区域。
+2026-10-07T04:23:08.3340804Z ok 102 - 登车关联反例不能冒充人物离场：赛哈姆准备登上运输车，随后驶离中央庭区域。
+2026-10-07T04:23:08.3341272Z   ---
+2026-10-07T04:23:08.3341603Z   duration_ms: 0.719222
+2026-10-07T04:23:08.3341991Z   type: 'test'
+2026-10-07T04:23:08.3342327Z   ...
+2026-10-07T04:23:08.3342964Z # Subtest: 登车关联反例不能冒充人物离场：如果赛哈姆登上运输车，随车流驶离中央庭区域，你会跟上。
+2026-10-07T04:23:08.3343748Z ok 103 - 登车关联反例不能冒充人物离场：如果赛哈姆登上运输车，随车流驶离中央庭区域，你会跟上。
+2026-10-07T04:23:08.3344237Z   ---
+2026-10-07T04:23:08.3344567Z   duration_ms: 0.668998
+2026-10-07T04:23:08.3344964Z   type: 'test'
+2026-10-07T04:23:08.3345515Z   ...
+2026-10-07T04:23:08.3346147Z # Subtest: 登车关联反例不能冒充人物离场：你回忆赛哈姆登上运输车，随车流驶离中央庭区域的情景。
+2026-10-07T04:23:08.3347149Z ok 104 - 登车关联反例不能冒充人物离场：你回忆赛哈姆登上运输车，随车流驶离中央庭区域的情景。
+2026-10-07T04:23:08.3347659Z   ---
+2026-10-07T04:23:08.3347999Z   duration_ms: 0.686501
+2026-10-07T04:23:08.3348385Z   type: 'test'
+2026-10-07T04:23:08.3348726Z   ...
+2026-10-07T04:23:08.3349310Z # Subtest: 登车关联反例不能冒充人物离场：昨天赛哈姆登上运输车，随车流驶离中央庭区域。
+2026-10-07T04:23:08.3350051Z ok 105 - 登车关联反例不能冒充人物离场：昨天赛哈姆登上运输车，随车流驶离中央庭区域。
+2026-10-07T04:23:08.3350733Z   ---
+2026-10-07T04:23:08.3351073Z   duration_ms: 0.699925
+2026-10-07T04:23:08.3351454Z   type: 'test'
+2026-10-07T04:23:08.3351789Z   ...
+2026-10-07T04:23:08.3352378Z # Subtest: 登车关联反例不能冒充人物离场：据说赛哈姆登上运输车，随车流驶离中央庭区域。
+2026-10-07T04:23:08.3353131Z ok 106 - 登车关联反例不能冒充人物离场：据说赛哈姆登上运输车，随车流驶离中央庭区域。
+2026-10-07T04:23:08.3353608Z   ---
+2026-10-07T04:23:08.3353939Z   duration_ms: 0.693674
+2026-10-07T04:23:08.3354335Z   type: 'test'
+2026-10-07T04:23:08.3354622Z   ...
+2026-10-07T04:23:08.3354992Z # Subtest: 登车关联反例不能冒充人物离场：“赛哈姆登上运输车，随车流驶离中央庭区域。”
+2026-10-07T04:23:08.3355691Z ok 107 - 登车关联反例不能冒充人物离场：“赛哈姆登上运输车，随车流驶离中央庭区域。”
+2026-10-07T04:23:08.3355985Z   ---
+2026-10-07T04:23:08.3356229Z   duration_ms: 0.663026
+2026-10-07T04:23:08.3356472Z   type: 'test'
+2026-10-07T04:23:08.3356686Z   ...
+2026-10-07T04:23:08.3357045Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆的行李被送上运输车，驶离中央庭区域。
+2026-10-07T04:23:08.3357490Z ok 108 - 登车关联反例不能冒充人物离场：赛哈姆的行李被送上运输车，驶离中央庭区域。
+2026-10-07T04:23:08.3357808Z   ---
+2026-10-07T04:23:08.3358027Z   duration_ms: 0.704574
+2026-10-07T04:23:08.3358279Z   type: 'test'
+2026-10-07T04:23:08.3358499Z   ...
+2026-10-07T04:23:08.3358854Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆的照片被送上运输车，驶离中央庭区域。
+2026-10-07T04:23:08.3359284Z ok 109 - 登车关联反例不能冒充人物离场：赛哈姆的照片被送上运输车，驶离中央庭区域。
+2026-10-07T04:23:08.3359579Z   ---
+2026-10-07T04:23:08.3359790Z   duration_ms: 0.706768
+2026-10-07T04:23:08.3360226Z   type: 'test'
+2026-10-07T04:23:08.3360582Z   ...
+2026-10-07T04:23:08.3361209Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆站在旁边，希罗登上运输车，驶离中央庭区域。
+2026-10-07T04:23:08.3362009Z ok 110 - 登车关联反例不能冒充人物离场：赛哈姆站在旁边，希罗登上运输车，驶离中央庭区域。
+2026-10-07T04:23:08.3362522Z   ---
+2026-10-07T04:23:08.3362878Z   duration_ms: 0.709353
+2026-10-07T04:23:08.3363302Z   type: 'test'
+2026-10-07T04:23:08.3363647Z   ...
+2026-10-07T04:23:08.3364299Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆留在大厅，随行人员登上运输车，驶离中央庭区域。
+2026-10-07T04:23:08.3365361Z ok 111 - 登车关联反例不能冒充人物离场：赛哈姆留在大厅，随行人员登上运输车，驶离中央庭区域。
+2026-10-07T04:23:08.3365879Z   ---
+2026-10-07T04:23:08.3366232Z   duration_ms: 0.673756
+2026-10-07T04:23:08.3366664Z   type: 'test'
+2026-10-07T04:23:08.3367014Z   ...
+2026-10-07T04:23:08.3367671Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆登上运输车，随后下车，车辆驶离中央庭区域。
+2026-10-07T04:23:08.3368530Z ok 112 - 登车关联反例不能冒充人物离场：赛哈姆登上运输车，随后下车，车辆驶离中央庭区域。
+2026-10-07T04:23:08.3369061Z   ---
+2026-10-07T04:23:08.3369435Z   duration_ms: 0.694265
+2026-10-07T04:23:08.3369857Z   type: 'test'
+2026-10-07T04:23:08.3370233Z   ...
+2026-10-07T04:23:08.3370924Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆登上运输车，但又被放在原地，车辆驶离中央庭区域。
+2026-10-07T04:23:08.3371776Z ok 113 - 登车关联反例不能冒充人物离场：赛哈姆登上运输车，但又被放在原地，车辆驶离中央庭区域。
+2026-10-07T04:23:08.3372313Z   ---
+2026-10-07T04:23:08.3372683Z   duration_ms: 0.699174
+2026-10-07T04:23:08.3373103Z   type: 'test'
+2026-10-07T04:23:08.3373724Z   ...
+2026-10-07T04:23:08.3374430Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆登上运输车，另一辆车驶离中央庭区域。
+2026-10-07T04:23:08.3375515Z ok 114 - 登车关联反例不能冒充人物离场：赛哈姆登上运输车，另一辆车驶离中央庭区域。
+2026-10-07T04:23:08.3376042Z   ---
+2026-10-07T04:23:08.3376405Z   duration_ms: 0.662225
+2026-10-07T04:23:08.3376809Z   type: 'test'
+2026-10-07T04:23:08.3377465Z   ...
+2026-10-07T04:23:08.3378088Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆登上运输车，空车驶离中央庭区域。
+2026-10-07T04:23:08.3378834Z ok 115 - 登车关联反例不能冒充人物离场：赛哈姆登上运输车，空车驶离中央庭区域。
+2026-10-07T04:23:08.3379317Z   ---
+2026-10-07T04:23:08.3379669Z   duration_ms: 0.689836
+2026-10-07T04:23:08.3380084Z   type: 'test'
+2026-10-07T04:23:08.3380451Z   ...
+2026-10-07T04:23:08.3381082Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆登上运输车，驶离中央庭区域内的通道。
+2026-10-07T04:23:08.3381873Z ok 116 - 登车关联反例不能冒充人物离场：赛哈姆登上运输车，驶离中央庭区域内的通道。
+2026-10-07T04:23:08.3382372Z   ---
+2026-10-07T04:23:08.3382730Z   duration_ms: 0.691901
+2026-10-07T04:23:08.3383144Z   type: 'test'
+2026-10-07T04:23:08.3383499Z   ...
+2026-10-07T04:23:08.3384169Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆登上运输车，驶离中央庭的管辖区域内的主廊。
+2026-10-07T04:23:08.3384980Z ok 117 - 登车关联反例不能冒充人物离场：赛哈姆登上运输车，驶离中央庭的管辖区域内的主廊。
+2026-10-07T04:23:08.3385747Z   ---
+2026-10-07T04:23:08.3386093Z   duration_ms: 0.683094
+2026-10-07T04:23:08.3386488Z   type: 'test'
+2026-10-07T04:23:08.3386834Z   ...
+2026-10-07T04:23:08.3387455Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆登上运输车，驶离中央庭 的大厅。
+2026-10-07T04:23:08.3388218Z ok 118 - 登车关联反例不能冒充人物离场：赛哈姆登上运输车，驶离中央庭 的大厅。
+2026-10-07T04:23:08.3388697Z   ---
+2026-10-07T04:23:08.3389047Z   duration_ms: 0.673185
+2026-10-07T04:23:08.3389454Z   type: 'test'
+2026-10-07T04:23:08.3389807Z   ...
+2026-10-07T04:23:08.3390376Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆登上运输车，驶离中央庭大门。
+2026-10-07T04:23:08.3391097Z ok 119 - 登车关联反例不能冒充人物离场：赛哈姆登上运输车，驶离中央庭大门。
+2026-10-07T04:23:08.3391572Z   ---
+2026-10-07T04:23:08.3391921Z   duration_ms: 0.695346
+2026-10-07T04:23:08.3392338Z   type: 'test'
+2026-10-07T04:23:08.3392698Z   ...
+2026-10-07T04:23:08.3393371Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆登上运输车，驶离中央庭区域。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.3394451Z ok 120 - 登车关联反例不能冒充人物离场：赛哈姆登上运输车，驶离中央庭区域。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.3394993Z   ---
+2026-10-07T04:23:08.3395698Z   duration_ms: 0.736483
+2026-10-07T04:23:08.3396189Z   type: 'test'
+2026-10-07T04:23:08.3396540Z   ...
+2026-10-07T04:23:08.3397206Z # Subtest: 登车关联反例不能冒充人物离场：赛哈姆没有登上运输车。希罗登上运输车，驶离中央庭区域。
+2026-10-07T04:23:08.3398063Z ok 121 - 登车关联反例不能冒充人物离场：赛哈姆没有登上运输车。希罗登上运输车，驶离中央庭区域。
+2026-10-07T04:23:08.3398570Z   ---
+2026-10-07T04:23:08.3398921Z   duration_ms: 0.687823
+2026-10-07T04:23:08.3399320Z   type: 'test'
+2026-10-07T04:23:08.3399678Z   ...
+2026-10-07T04:23:08.3400258Z # Subtest: 登车全文缺少模型离场命令仍不能自动补命令
+2026-10-07T04:23:08.3400864Z ok 122 - 登车全文缺少模型离场命令仍不能自动补命令
+2026-10-07T04:23:08.3401295Z   ---
+2026-10-07T04:23:08.3401651Z   duration_ms: 0.643309
+2026-10-07T04:23:08.3402063Z   type: 'test'
+2026-10-07T04:23:08.3402422Z   ...
+2026-10-07T04:23:08.3403000Z # Subtest: 相邻两句真实登车全文修前拒绝、修后保留模型命令
+2026-10-07T04:23:08.3403657Z ok 123 - 相邻两句真实登车全文修前拒绝、修后保留模型命令
+2026-10-07T04:23:08.3404101Z   ---
+2026-10-07T04:23:08.3404506Z   duration_ms: 3.616265
+2026-10-07T04:23:08.3404927Z   type: 'test'
+2026-10-07T04:23:08.3405554Z   ...
+2026-10-07T04:23:08.3406502Z # Subtest: 同一实际登车事件承接实际驶离：希罗与押运着赛哈姆的特遣人员踏上研究院运输车队。直到车门闭锁、引擎发动并彻底驶离整个中央庭区域，广场才平静下来。
+2026-10-07T04:23:08.3407677Z ok 124 - 同一实际登车事件承接实际驶离：希罗与押运着赛哈姆的特遣人员踏上研究院运输车队。直到车门闭锁、引擎发动并彻底驶离整个中央庭区域，广场才平静下来。
+2026-10-07T04:23:08.3408543Z   ---
+2026-10-07T04:23:08.3408908Z   duration_ms: 0.845167
+2026-10-07T04:23:08.3409327Z   type: 'test'
+2026-10-07T04:23:08.3409681Z   ...
+2026-10-07T04:23:08.3410361Z # Subtest: 同一实际登车事件承接实际驶离：赛哈姆登上运输车。随后车门闭锁，驶离了整个中央庭区域。
+2026-10-07T04:23:08.3411197Z ok 125 - 同一实际登车事件承接实际驶离：赛哈姆登上运输车。随后车门闭锁，驶离了整个中央庭区域。
+2026-10-07T04:23:08.3411737Z   ---
+2026-10-07T04:23:08.3412091Z   duration_ms: 0.728659
+2026-10-07T04:23:08.3412504Z   type: 'test'
+2026-10-07T04:23:08.3412860Z   ...
+2026-10-07T04:23:08.3413524Z # Subtest: 同一实际登车事件承接实际驶离：赛哈姆被送上救护车。该车驶出了中央庭的管辖区域。
+2026-10-07T04:23:08.3414345Z ok 126 - 同一实际登车事件承接实际驶离：赛哈姆被送上救护车。该车驶出了中央庭的管辖区域。
+2026-10-07T04:23:08.3414861Z   ---
+2026-10-07T04:23:08.3415553Z   duration_ms: 0.739891
+2026-10-07T04:23:08.3415985Z   type: 'test'
+2026-10-07T04:23:08.3416364Z   ...
+2026-10-07T04:23:08.3417024Z # Subtest: 同一实际登车事件承接实际驶离：赛哈姆踏上运输车，驶离整个中央庭区域。
+2026-10-07T04:23:08.3417801Z ok 127 - 同一实际登车事件承接实际驶离：赛哈姆踏上运输车，驶离整个中央庭区域。
+2026-10-07T04:23:08.3418298Z   ---
+2026-10-07T04:23:08.3418681Z   duration_ms: 0.729701
+2026-10-07T04:23:08.3419094Z   type: 'test'
+2026-10-07T04:23:08.3419447Z   ...
+2026-10-07T04:23:08.3420159Z # Subtest: 同一实际登车事件承接实际驶离：希罗与护送着赛哈姆的随行人员登上运输车，驶离整个中央庭区域。
+2026-10-07T04:23:08.3421066Z ok 128 - 同一实际登车事件承接实际驶离：希罗与护送着赛哈姆的随行人员登上运输车，驶离整个中央庭区域。
+2026-10-07T04:23:08.3421600Z   ---
+2026-10-07T04:23:08.3421974Z   duration_ms: 0.897394
+2026-10-07T04:23:08.3422410Z   type: 'test'
+2026-10-07T04:23:08.3422778Z   ...
+2026-10-07T04:23:08.3423488Z # Subtest: 相邻句关联仍拒绝非实际离场：赛哈姆没有登上运输车。随后车门闭锁，驶离整个中央庭区域。
+2026-10-07T04:23:08.3424344Z ok 129 - 相邻句关联仍拒绝非实际离场：赛哈姆没有登上运输车。随后车门闭锁，驶离整个中央庭区域。
+2026-10-07T04:23:08.3424876Z   ---
+2026-10-07T04:23:08.3425833Z   duration_ms: 0.982312
+2026-10-07T04:23:08.3426300Z   type: 'test'
+2026-10-07T04:23:08.3426670Z   ...
+2026-10-07T04:23:08.3427384Z # Subtest: 相邻句关联仍拒绝非实际离场：赛哈姆准备登上运输车。随后车门闭锁，驶离整个中央庭区域。
+2026-10-07T04:23:08.3428250Z ok 130 - 相邻句关联仍拒绝非实际离场：赛哈姆准备登上运输车。随后车门闭锁，驶离整个中央庭区域。
+2026-10-07T04:23:08.3428771Z   ---
+2026-10-07T04:23:08.3429360Z   duration_ms: 0.74515
+2026-10-07T04:23:08.3429769Z   type: 'test'
+2026-10-07T04:23:08.3430132Z   ...
+2026-10-07T04:23:08.3430924Z # Subtest: 相邻句关联仍拒绝非实际离场：如果赛哈姆登上运输车。随后车门闭锁，驶离整个中央庭区域。
+2026-10-07T04:23:08.3431776Z ok 131 - 相邻句关联仍拒绝非实际离场：如果赛哈姆登上运输车。随后车门闭锁，驶离整个中央庭区域。
+2026-10-07T04:23:08.3432302Z   ---
+2026-10-07T04:23:08.3432652Z   duration_ms: 0.700577
+2026-10-07T04:23:08.3433068Z   type: 'test'
+2026-10-07T04:23:08.3433428Z   ...
+2026-10-07T04:23:08.3434105Z # Subtest: 相邻句关联仍拒绝非实际离场：你回忆赛哈姆登上运输车。随后车门闭锁，驶离整个中央庭区域。
+2026-10-07T04:23:08.3434944Z ok 132 - 相邻句关联仍拒绝非实际离场：你回忆赛哈姆登上运输车。随后车门闭锁，驶离整个中央庭区域。
+2026-10-07T04:23:08.3435727Z   ---
+2026-10-07T04:23:08.3436087Z   duration_ms: 0.724301
+2026-10-07T04:23:08.3436523Z   type: 'test'
+2026-10-07T04:23:08.3436889Z   ...
+2026-10-07T04:23:08.3437559Z # Subtest: 相邻句关联仍拒绝非实际离场：昨天赛哈姆登上运输车。随后车门闭锁，驶离整个中央庭区域。
+2026-10-07T04:23:08.3438407Z ok 133 - 相邻句关联仍拒绝非实际离场：昨天赛哈姆登上运输车。随后车门闭锁，驶离整个中央庭区域。
+2026-10-07T04:23:08.3438931Z   ---
+2026-10-07T04:23:08.3439296Z   duration_ms: 0.721676
+2026-10-07T04:23:08.3439750Z   type: 'test'
+2026-10-07T04:23:08.3440114Z   ...
+2026-10-07T04:23:08.3440796Z # Subtest: 相邻句关联仍拒绝非实际离场：赛哈姆登上运输车。随后车门闭锁，将驶离整个中央庭区域。
+2026-10-07T04:23:08.3441623Z ok 134 - 相邻句关联仍拒绝非实际离场：赛哈姆登上运输车。随后车门闭锁，将驶离整个中央庭区域。
+2026-10-07T04:23:08.3442131Z   ---
+2026-10-07T04:23:08.3442467Z   duration_ms: 0.683686
+2026-10-07T04:23:08.3442874Z   type: 'test'
+2026-10-07T04:23:08.3443225Z   ...
+2026-10-07T04:23:08.3443898Z # Subtest: 相邻句关联仍拒绝非实际离场：赛哈姆登上运输车。随后车门闭锁，尚未驶离整个中央庭区域。
+2026-10-07T04:23:08.3444746Z ok 135 - 相邻句关联仍拒绝非实际离场：赛哈姆登上运输车。随后车门闭锁，尚未驶离整个中央庭区域。
+2026-10-07T04:23:08.3445590Z   ---
+2026-10-07T04:23:08.3445956Z   duration_ms: 0.68124
+2026-10-07T04:23:08.3446361Z   type: 'test'
+2026-10-07T04:23:08.3446737Z   ...
+2026-10-07T04:23:08.3447414Z # Subtest: 相邻句关联仍拒绝非实际离场：赛哈姆登上运输车。随后她下车，车辆驶离整个中央庭区域。
+2026-10-07T04:23:08.3448247Z ok 136 - 相邻句关联仍拒绝非实际离场：赛哈姆登上运输车。随后她下车，车辆驶离整个中央庭区域。
+2026-10-07T04:23:08.3448764Z   ---
+2026-10-07T04:23:08.3449135Z   duration_ms: 0.721496
+2026-10-07T04:23:08.3449560Z   type: 'test'
+2026-10-07T04:23:08.3449955Z   ...
+2026-10-07T04:23:08.3450640Z # Subtest: 相邻句关联仍拒绝非实际离场：赛哈姆登上运输车。随后另一辆汽车驶离整个中央庭区域。
+2026-10-07T04:23:08.3451477Z ok 137 - 相邻句关联仍拒绝非实际离场：赛哈姆登上运输车。随后另一辆汽车驶离整个中央庭区域。
+2026-10-07T04:23:08.3451994Z   ---
+2026-10-07T04:23:08.3452356Z   duration_ms: 0.754848
+2026-10-07T04:23:08.3452769Z   type: 'test'
+2026-10-07T04:23:08.3453136Z   ...
+2026-10-07T04:23:08.3453770Z # Subtest: 相邻句关联仍拒绝非实际离场：赛哈姆登上运输车。随后空车驶离整个中央庭区域。
+2026-10-07T04:23:08.3454665Z ok 138 - 相邻句关联仍拒绝非实际离场：赛哈姆登上运输车。随后空车驶离整个中央庭区域。
+2026-10-07T04:23:08.3455579Z   ---
+2026-10-07T04:23:08.3455971Z   duration_ms: 0.758074
+2026-10-07T04:23:08.3456394Z   type: 'test'
+2026-10-07T04:23:08.3456751Z   ...
+2026-10-07T04:23:08.3457627Z # Subtest: 相邻句关联仍拒绝非实际离场：赛哈姆登上救护车。运输车驶离整个中央庭区域。
+2026-10-07T04:23:08.3458441Z ok 139 - 相邻句关联仍拒绝非实际离场：赛哈姆登上救护车。运输车驶离整个中央庭区域。
+2026-10-07T04:23:08.3458944Z   ---
+2026-10-07T04:23:08.3459293Z   duration_ms: 0.871586
+2026-10-07T04:23:08.3459695Z   type: 'test'
+2026-10-07T04:23:08.3460045Z   ...
+2026-10-07T04:23:08.3460892Z # Subtest: 相邻句关联仍拒绝非实际离场：赛哈姆登上救护车，运输车驶离整个中央庭区域。
+2026-10-07T04:23:08.3461695Z ok 140 - 相邻句关联仍拒绝非实际离场：赛哈姆登上救护车，运输车驶离整个中央庭区域。
+2026-10-07T04:23:08.3462214Z   ---
+2026-10-07T04:23:08.3462441Z   duration_ms: 0.800283
+2026-10-07T04:23:08.3462696Z   type: 'test'
+2026-10-07T04:23:08.3462925Z   ...
+2026-10-07T04:23:08.3463360Z # Subtest: 相邻句关联仍拒绝非实际离场：赛哈姆站在旁边，希罗登上运输车。随后车门闭锁，驶离整个中央庭区域。
+2026-10-07T04:23:08.3463869Z ok 141 - 相邻句关联仍拒绝非实际离场：赛哈姆站在旁边，希罗登上运输车。随后车门闭锁，驶离整个中央庭区域。
+2026-10-07T04:23:08.3464178Z   ---
+2026-10-07T04:23:08.3464395Z   duration_ms: 0.795534
+2026-10-07T04:23:08.3464635Z   type: 'test'
+2026-10-07T04:23:08.3464858Z   ...
+2026-10-07T04:23:08.3465649Z # Subtest: 相邻句关联仍拒绝非实际离场：希罗与押运着赛哈姆的特遣人员准备踏上运输车队。直到车门闭锁并驶离整个中央庭区域，你才会安心。
+2026-10-07T04:23:08.3466262Z ok 142 - 相邻句关联仍拒绝非实际离场：希罗与押运着赛哈姆的特遣人员准备踏上运输车队。直到车门闭锁并驶离整个中央庭区域，你才会安心。
+2026-10-07T04:23:08.3466615Z   ---
+2026-10-07T04:23:08.3466832Z   duration_ms: 0.778683
+2026-10-07T04:23:08.3467074Z   type: 'test'
+2026-10-07T04:23:08.3467295Z   ...
+2026-10-07T04:23:08.3467701Z # Subtest: 相邻句关联仍拒绝非实际离场：赛哈姆的行李登上运输车。随后车门闭锁，驶离整个中央庭区域。
+2026-10-07T04:23:08.3468172Z ok 143 - 相邻句关联仍拒绝非实际离场：赛哈姆的行李登上运输车。随后车门闭锁，驶离整个中央庭区域。
+2026-10-07T04:23:08.3468484Z   ---
+2026-10-07T04:23:08.3468704Z   duration_ms: 0.788451
+2026-10-07T04:23:08.3468948Z   type: 'test'
+2026-10-07T04:23:08.3469164Z   ...
+2026-10-07T04:23:08.3469539Z # Subtest: 相邻句关联仍拒绝非实际离场：赛哈姆登上运输车。运输车停在原地。随后车辆驶离整个中央庭区域。
+2026-10-07T04:23:08.3470015Z ok 144 - 相邻句关联仍拒绝非实际离场：赛哈姆登上运输车。运输车停在原地。随后车辆驶离整个中央庭区域。
+2026-10-07T04:23:08.3470318Z   ---
+2026-10-07T04:23:08.3470548Z   duration_ms: 0.743848
+2026-10-07T04:23:08.3470836Z   type: 'test'
+2026-10-07T04:23:08.3471053Z   ...
+2026-10-07T04:23:08.3471624Z # Subtest: 相邻句关联仍拒绝非实际离场：赛哈姆登上运输车。你走进大厅。随后车辆驶离整个中央庭区域。
+2026-10-07T04:23:08.3472124Z ok 145 - 相邻句关联仍拒绝非实际离场：赛哈姆登上运输车。你走进大厅。随后车辆驶离整个中央庭区域。
+2026-10-07T04:23:08.3472433Z   ---
+2026-10-07T04:23:08.3472649Z   duration_ms: 0.74005
+2026-10-07T04:23:08.3472888Z   type: 'test'
+2026-10-07T04:23:08.3473114Z   ...
+2026-10-07T04:23:08.3473487Z # Subtest: 相邻句关联仍拒绝非实际离场：赛哈姆登上运输车。随后车辆驶离整个中央庭区域内的道路。
+2026-10-07T04:23:08.3473969Z ok 146 - 相邻句关联仍拒绝非实际离场：赛哈姆登上运输车。随后车辆驶离整个中央庭区域内的道路。
+2026-10-07T04:23:08.3474280Z   ---
+2026-10-07T04:23:08.3474496Z   duration_ms: 0.754557
+2026-10-07T04:23:08.3474742Z   type: 'test'
+2026-10-07T04:23:08.3474961Z   ...
+2026-10-07T04:23:08.3475651Z # Subtest: 相邻句关联仍拒绝非实际离场：赛哈姆登上运输车。“随后车门闭锁，驶离整个中央庭区域。”
+2026-10-07T04:23:08.3476140Z ok 147 - 相邻句关联仍拒绝非实际离场：赛哈姆登上运输车。“随后车门闭锁，驶离整个中央庭区域。”
+2026-10-07T04:23:08.3476444Z   ---
+2026-10-07T04:23:08.3476673Z   duration_ms: 0.753666
+2026-10-07T04:23:08.3476918Z   type: 'test'
+2026-10-07T04:23:08.3477134Z   ...
+2026-10-07T04:23:08.3477535Z # Subtest: 相邻句关联仍拒绝非实际离场：赛哈姆登上运输车。随后车辆驶离整个中央庭区域。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.3478067Z ok 148 - 相邻句关联仍拒绝非实际离场：赛哈姆登上运输车。随后车辆驶离整个中央庭区域。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.3478387Z   ---
+2026-10-07T04:23:08.3478598Z   duration_ms: 0.781167
+2026-10-07T04:23:08.3478852Z   type: 'test'
+2026-10-07T04:23:08.3479068Z   ...
+2026-10-07T04:23:08.3479415Z # Subtest: 相邻句关联仍拒绝非实际离场：赛哈姆将让希罗登上运输车，驶离中央庭区域。
+2026-10-07T04:23:08.3480053Z ok 149 - 相邻句关联仍拒绝非实际离场：赛哈姆将让希罗登上运输车，驶离中央庭区域。
+2026-10-07T04:23:08.3480346Z   ---
+2026-10-07T04:23:08.3480557Z   duration_ms: 0.720284
+2026-10-07T04:23:08.3480795Z   type: 'test'
+2026-10-07T04:23:08.3481011Z   ...
+2026-10-07T04:23:08.3481326Z # Subtest: 载具升空离场完整自然失败正文修前拒绝、修后保留原命令
+2026-10-07T04:23:08.3481919Z ok 150 - 载具升空离场完整自然失败正文修前拒绝、修后保留原命令
+2026-10-07T04:23:08.3482274Z   ---
+2026-10-07T04:23:08.3482665Z   duration_ms: 5.926283
+2026-10-07T04:23:08.3483091Z   type: 'test'
+2026-10-07T04:23:08.3483461Z   ...
+2026-10-07T04:23:08.3484173Z # Subtest: 载具与乘员前后语序明确实际离场：运输车载着希罗与赛哈姆，离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3485275Z ok 151 - 载具与乘员前后语序明确实际离场：运输车载着希罗与赛哈姆，离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3485841Z   ---
+2026-10-07T04:23:08.3486213Z   duration_ms: 0.837452
+2026-10-07T04:23:08.3486640Z   type: 'test'
+2026-10-07T04:23:08.3487007Z   ...
+2026-10-07T04:23:08.3487774Z # Subtest: 载具与乘员前后语序明确实际离场：载着希罗与赛哈姆的运输车升入高空，彻底离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3488777Z ok 152 - 载具与乘员前后语序明确实际离场：载着希罗与赛哈姆的运输车升入高空，彻底离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3489368Z   ---
+2026-10-07T04:23:08.3489737Z   duration_ms: 0.794903
+2026-10-07T04:23:08.3490159Z   type: 'test'
+2026-10-07T04:23:08.3490524Z   ...
+2026-10-07T04:23:08.3491189Z # Subtest: 载具与乘员前后语序明确实际离场：搭载着昏迷的赛哈姆的运输车离开中央庭的整个区域。
+2026-10-07T04:23:08.3492030Z ok 153 - 载具与乘员前后语序明确实际离场：搭载着昏迷的赛哈姆的运输车离开中央庭的整个区域。
+2026-10-07T04:23:08.3492543Z   ---
+2026-10-07T04:23:08.3492899Z   duration_ms: 0.793971
+2026-10-07T04:23:08.3493313Z   type: 'test'
+2026-10-07T04:23:08.3493667Z   ...
+2026-10-07T04:23:08.3494341Z # Subtest: 载具与乘员前后语序明确实际离场：救护车载着希罗与赛哈姆，离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3495438Z ok 154 - 载具与乘员前后语序明确实际离场：救护车载着希罗与赛哈姆，离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3496222Z   ---
+2026-10-07T04:23:08.3496597Z   duration_ms: 0.773282
+2026-10-07T04:23:08.3497003Z   type: 'test'
+2026-10-07T04:23:08.3497355Z   ...
+2026-10-07T04:23:08.3498087Z # Subtest: 载具与乘员前后语序明确实际离场：载着希罗与赛哈姆的救护车升入高空，彻底离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3499039Z ok 155 - 载具与乘员前后语序明确实际离场：载着希罗与赛哈姆的救护车升入高空，彻底离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3499804Z   ---
+2026-10-07T04:23:08.3500161Z   duration_ms: 0.754367
+2026-10-07T04:23:08.3500567Z   type: 'test'
+2026-10-07T04:23:08.3500927Z   ...
+2026-10-07T04:23:08.3501586Z # Subtest: 载具与乘员前后语序明确实际离场：搭载着昏迷的赛哈姆的救护车离开中央庭的整个区域。
+2026-10-07T04:23:08.3502428Z ok 156 - 载具与乘员前后语序明确实际离场：搭载着昏迷的赛哈姆的救护车离开中央庭的整个区域。
+2026-10-07T04:23:08.3502972Z   ---
+2026-10-07T04:23:08.3503333Z   duration_ms: 0.783492
+2026-10-07T04:23:08.3503765Z   type: 'test'
+2026-10-07T04:23:08.3504132Z   ...
+2026-10-07T04:23:08.3504824Z # Subtest: 载具与乘员前后语序明确实际离场：飞行器载着希罗与赛哈姆，离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3505967Z ok 157 - 载具与乘员前后语序明确实际离场：飞行器载着希罗与赛哈姆，离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3506506Z   ---
+2026-10-07T04:23:08.3506912Z   duration_ms: 0.778863
+2026-10-07T04:23:08.3507342Z   type: 'test'
+2026-10-07T04:23:08.3507705Z   ...
+2026-10-07T04:23:08.3508441Z # Subtest: 载具与乘员前后语序明确实际离场：载着希罗与赛哈姆的飞行器升入高空，彻底离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3509370Z ok 158 - 载具与乘员前后语序明确实际离场：载着希罗与赛哈姆的飞行器升入高空，彻底离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3509936Z   ---
+2026-10-07T04:23:08.3510286Z   duration_ms: 0.770688
+2026-10-07T04:23:08.3510698Z   type: 'test'
+2026-10-07T04:23:08.3511062Z   ...
+2026-10-07T04:23:08.3511731Z # Subtest: 载具与乘员前后语序明确实际离场：搭载着昏迷的赛哈姆的飞行器离开中央庭的整个区域。
+2026-10-07T04:23:08.3512603Z ok 159 - 载具与乘员前后语序明确实际离场：搭载着昏迷的赛哈姆的飞行器离开中央庭的整个区域。
+2026-10-07T04:23:08.3513140Z   ---
+2026-10-07T04:23:08.3513499Z   duration_ms: 0.767722
+2026-10-07T04:23:08.3513929Z   type: 'test'
+2026-10-07T04:23:08.3514307Z   ...
+2026-10-07T04:23:08.3515332Z # Subtest: 载具与乘员前后语序明确实际离场：押运飞行器载着希罗与赛哈姆，离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3516249Z ok 160 - 载具与乘员前后语序明确实际离场：押运飞行器载着希罗与赛哈姆，离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3516809Z   ---
+2026-10-07T04:23:08.3517218Z   duration_ms: 0.741493
+2026-10-07T04:23:08.3517630Z   type: 'test'
+2026-10-07T04:23:08.3517984Z   ...
+2026-10-07T04:23:08.3518737Z # Subtest: 载具与乘员前后语序明确实际离场：载着希罗与赛哈姆的押运飞行器升入高空，彻底离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3519700Z ok 161 - 载具与乘员前后语序明确实际离场：载着希罗与赛哈姆的押运飞行器升入高空，彻底离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3520260Z   ---
+2026-10-07T04:23:08.3520605Z   duration_ms: 0.772921
+2026-10-07T04:23:08.3520998Z   type: 'test'
+2026-10-07T04:23:08.3521355Z   ...
+2026-10-07T04:23:08.3521994Z # Subtest: 载具与乘员前后语序明确实际离场：搭载着昏迷的赛哈姆的押运飞行器离开中央庭的整个区域。
+2026-10-07T04:23:08.3522803Z ok 162 - 载具与乘员前后语序明确实际离场：搭载着昏迷的赛哈姆的押运飞行器离开中央庭的整个区域。
+2026-10-07T04:23:08.3523307Z   ---
+2026-10-07T04:23:08.3523649Z   duration_ms: 0.769465
+2026-10-07T04:23:08.3524057Z   type: 'test'
+2026-10-07T04:23:08.3524406Z   ...
+2026-10-07T04:23:08.3525034Z # Subtest: 载具与乘员前后语序明确实际离场：运输机载着希罗与赛哈姆，离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3526073Z ok 163 - 载具与乘员前后语序明确实际离场：运输机载着希罗与赛哈姆，离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3526582Z   ---
+2026-10-07T04:23:08.3527157Z   duration_ms: 0.765157
+2026-10-07T04:23:08.3527566Z   type: 'test'
+2026-10-07T04:23:08.3527912Z   ...
+2026-10-07T04:23:08.3528601Z # Subtest: 载具与乘员前后语序明确实际离场：载着希罗与赛哈姆的运输机升入高空，彻底离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3529489Z ok 164 - 载具与乘员前后语序明确实际离场：载着希罗与赛哈姆的运输机升入高空，彻底离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3530028Z   ---
+2026-10-07T04:23:08.3530730Z   duration_ms: 0.776048
+2026-10-07T04:23:08.3531170Z   type: 'test'
+2026-10-07T04:23:08.3531540Z   ...
+2026-10-07T04:23:08.3532238Z # Subtest: 载具与乘员前后语序明确实际离场：搭载着昏迷的赛哈姆的运输机离开中央庭的整个区域。
+2026-10-07T04:23:08.3533096Z ok 165 - 载具与乘员前后语序明确实际离场：搭载着昏迷的赛哈姆的运输机离开中央庭的整个区域。
+2026-10-07T04:23:08.3533633Z   ---
+2026-10-07T04:23:08.3534005Z   duration_ms: 0.735442
+2026-10-07T04:23:08.3534439Z   type: 'test'
+2026-10-07T04:23:08.3534812Z   ...
+2026-10-07T04:23:08.3535849Z # Subtest: 载具与乘员前后语序明确实际离场：直升机载着希罗与赛哈姆，离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3536720Z ok 166 - 载具与乘员前后语序明确实际离场：直升机载着希罗与赛哈姆，离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3537259Z   ---
+2026-10-07T04:23:08.3537638Z   duration_ms: 0.767081
+2026-10-07T04:23:08.3538101Z   type: 'test'
+2026-10-07T04:23:08.3538477Z   ...
+2026-10-07T04:23:08.3539253Z # Subtest: 载具与乘员前后语序明确实际离场：载着希罗与赛哈姆的直升机升入高空，彻底离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3540223Z ok 167 - 载具与乘员前后语序明确实际离场：载着希罗与赛哈姆的直升机升入高空，彻底离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3540783Z   ---
+2026-10-07T04:23:08.3541157Z   duration_ms: 0.769074
+2026-10-07T04:23:08.3541613Z   type: 'test'
+2026-10-07T04:23:08.3541992Z   ...
+2026-10-07T04:23:08.3542682Z # Subtest: 载具与乘员前后语序明确实际离场：搭载着昏迷的赛哈姆的直升机离开中央庭的整个区域。
+2026-10-07T04:23:08.3543519Z ok 168 - 载具与乘员前后语序明确实际离场：搭载着昏迷的赛哈姆的直升机离开中央庭的整个区域。
+2026-10-07T04:23:08.3544045Z   ---
+2026-10-07T04:23:08.3544402Z   duration_ms: 0.765327
+2026-10-07T04:23:08.3544828Z   type: 'test'
+2026-10-07T04:23:08.3545472Z   ...
+2026-10-07T04:23:08.3546184Z # Subtest: 载具与乘员前后语序明确实际离场：载具载着希罗与赛哈姆，离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3547049Z ok 169 - 载具与乘员前后语序明确实际离场：载具载着希罗与赛哈姆，离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3547590Z   ---
+2026-10-07T04:23:08.3547955Z   duration_ms: 0.760728
+2026-10-07T04:23:08.3548378Z   type: 'test'
+2026-10-07T04:23:08.3549015Z   ...
+2026-10-07T04:23:08.3549817Z # Subtest: 载具与乘员前后语序明确实际离场：载着希罗与赛哈姆的载具升入高空，彻底离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3550759Z ok 170 - 载具与乘员前后语序明确实际离场：载着希罗与赛哈姆的载具升入高空，彻底离开了中央庭整个管辖区域。
+2026-10-07T04:23:08.3551314Z   ---
+2026-10-07T04:23:08.3551686Z   duration_ms: 0.741834
+2026-10-07T04:23:08.3552362Z   type: 'test'
+2026-10-07T04:23:08.3552739Z   ...
+2026-10-07T04:23:08.3553420Z # Subtest: 载具与乘员前后语序明确实际离场：搭载着昏迷的赛哈姆的载具离开中央庭的整个区域。
+2026-10-07T04:23:08.3554270Z ok 171 - 载具与乘员前后语序明确实际离场：搭载着昏迷的赛哈姆的载具离开中央庭的整个区域。
+2026-10-07T04:23:08.3554792Z   ---
+2026-10-07T04:23:08.3555407Z   duration_ms: 0.769004
+2026-10-07T04:23:08.3555843Z   type: 'test'
+2026-10-07T04:23:08.3555994Z   ...
+2026-10-07T04:23:08.3556488Z # Subtest: 实际运输事件只在完整区域离场后结算：赛哈姆登上飞行器，飞离整个中央庭区域。
+2026-10-07T04:23:08.3556927Z ok 172 - 实际运输事件只在完整区域离场后结算：赛哈姆登上飞行器，飞离整个中央庭区域。
+2026-10-07T04:23:08.3557090Z   ---
+2026-10-07T04:23:08.3557276Z   duration_ms: 0.823356
+2026-10-07T04:23:08.3557442Z   type: 'test'
+2026-10-07T04:23:08.3557583Z   ...
+2026-10-07T04:23:08.3558154Z # Subtest: 实际运输事件只在完整区域离场后结算：赛哈姆被送入飞行器。该飞行器起飞并飞出了中央庭全部管辖区域。
+2026-10-07T04:23:08.3558670Z ok 173 - 实际运输事件只在完整区域离场后结算：赛哈姆被送入飞行器。该飞行器起飞并飞出了中央庭全部管辖区域。
+2026-10-07T04:23:08.3558819Z   ---
+2026-10-07T04:23:08.3558990Z   duration_ms: 0.792989
+2026-10-07T04:23:08.3559151Z   type: 'test'
+2026-10-07T04:23:08.3559320Z   ...
+2026-10-07T04:23:08.3559745Z # Subtest: 实际运输事件只在完整区域离场后结算：载着赛哈姆与希罗的载具离开中央庭。
+2026-10-07T04:23:08.3560162Z ok 174 - 实际运输事件只在完整区域离场后结算：载着赛哈姆与希罗的载具离开中央庭。
+2026-10-07T04:23:08.3560301Z   ---
+2026-10-07T04:23:08.3560470Z   duration_ms: 0.784373
+2026-10-07T04:23:08.3560642Z   type: 'test'
+2026-10-07T04:23:08.3560785Z   ...
+2026-10-07T04:23:08.3561293Z # Subtest: 实际运输事件只在完整区域离场后结算：载着赛哈姆的飞行器没有再停留，离开中央庭的管辖区域。
+2026-10-07T04:23:08.3561766Z ok 175 - 实际运输事件只在完整区域离场后结算：载着赛哈姆的飞行器没有再停留，离开中央庭的管辖区域。
+2026-10-07T04:23:08.3561914Z   ---
+2026-10-07T04:23:08.3562093Z   duration_ms: 0.746722
+2026-10-07T04:23:08.3562250Z   type: 'test'
+2026-10-07T04:23:08.3562404Z   ...
+2026-10-07T04:23:08.3563004Z # Subtest: 实际运输事件只在完整区域离场后结算：希罗与押运着赛哈姆的特遣人员登上飞行器。随后飞行器离开中央庭的整个辖区。
+2026-10-07T04:23:08.3563536Z ok 176 - 实际运输事件只在完整区域离场后结算：希罗与押运着赛哈姆的特遣人员登上飞行器。随后飞行器离开中央庭的整个辖区。
+2026-10-07T04:23:08.3563689Z   ---
+2026-10-07T04:23:08.3563865Z   duration_ms: 0.806344
+2026-10-07T04:23:08.3564018Z   type: 'test'
+2026-10-07T04:23:08.3564197Z   ...
+2026-10-07T04:23:08.3564706Z # Subtest: 实际运输事件只在完整区域离场后结算：运输车载着赛哈姆。随后车门闭锁，驶离中央庭整个管辖区域。
+2026-10-07T04:23:08.3565436Z ok 177 - 实际运输事件只在完整区域离场后结算：运输车载着赛哈姆。随后车门闭锁，驶离中央庭整个管辖区域。
+2026-10-07T04:23:08.3565602Z   ---
+2026-10-07T04:23:08.3565778Z   duration_ms: 0.775206
+2026-10-07T04:23:08.3565934Z   type: 'test'
+2026-10-07T04:23:08.3566080Z   ...
+2026-10-07T04:23:08.3566484Z # Subtest: 载具、乘员与离场边界反例：载着希罗与赛哈姆的载具升入高空。
+2026-10-07T04:23:08.3566853Z ok 178 - 载具、乘员与离场边界反例：载着希罗与赛哈姆的载具升入高空。
+2026-10-07T04:23:08.3567014Z   ---
+2026-10-07T04:23:08.3567190Z   duration_ms: 0.801676
+2026-10-07T04:23:08.3567351Z   type: 'test'
+2026-10-07T04:23:08.3567503Z   ...
+2026-10-07T04:23:08.3568235Z # Subtest: 载具、乘员与离场边界反例：载着希罗与赛哈姆的载具起飞，在中央庭上空盘旋。
+2026-10-07T04:23:08.3568680Z ok 179 - 载具、乘员与离场边界反例：载着希罗与赛哈姆的载具起飞，在中央庭上空盘旋。
+2026-10-07T04:23:08.3568831Z   ---
+2026-10-07T04:23:08.3569015Z   duration_ms: 0.978996
+2026-10-07T04:23:08.3569174Z   type: 'test'
+2026-10-07T04:23:08.3569331Z   ...
+2026-10-07T04:23:08.3569823Z # Subtest: 载具、乘员与离场边界反例：载着希罗与赛哈姆的载具离开中央庭整个管辖区域内的停机坪。
+2026-10-07T04:23:08.3570494Z ok 180 - 载具、乘员与离场边界反例：载着希罗与赛哈姆的载具离开中央庭整个管辖区域内的停机坪。
+2026-10-07T04:23:08.3570646Z   ---
+2026-10-07T04:23:08.3570822Z   duration_ms: 0.891653
+2026-10-07T04:23:08.3570979Z   type: 'test'
+2026-10-07T04:23:08.3571133Z   ...
+2026-10-07T04:23:08.3571612Z # Subtest: 载具、乘员与离场边界反例：载着希罗与赛哈姆的载具离开中央庭的整个区域 内的主廊。
+2026-10-07T04:23:08.3572065Z ok 181 - 载具、乘员与离场边界反例：载着希罗与赛哈姆的载具离开中央庭的整个区域 内的主廊。
+2026-10-07T04:23:08.3572224Z   ---
+2026-10-07T04:23:08.3572407Z   duration_ms: 0.768043
+2026-10-07T04:23:08.3572569Z   type: 'test'
+2026-10-07T04:23:08.3572721Z   ...
+2026-10-07T04:23:08.3573141Z # Subtest: 载具、乘员与离场边界反例：载着希罗与赛哈姆的载具离开中央庭主楼。
+2026-10-07T04:23:08.3573545Z ok 182 - 载具、乘员与离场边界反例：载着希罗与赛哈姆的载具离开中央庭主楼。
+2026-10-07T04:23:08.3573699Z   ---
+2026-10-07T04:23:08.3573876Z   duration_ms: 0.724863
+2026-10-07T04:23:08.3574033Z   type: 'test'
+2026-10-07T04:23:08.3574192Z   ...
+2026-10-07T04:23:08.3574592Z # Subtest: 载具、乘员与离场边界反例：载着希罗与赛哈姆的载具离开中央庭大门。
+2026-10-07T04:23:08.3574978Z ok 183 - 载具、乘员与离场边界反例：载着希罗与赛哈姆的载具离开中央庭大门。
+2026-10-07T04:23:08.3575395Z   ---
+2026-10-07T04:23:08.3575578Z   duration_ms: 2.329615
+2026-10-07T04:23:08.3575747Z   type: 'test'
+2026-10-07T04:23:08.3575900Z   ...
+2026-10-07T04:23:08.3576363Z # Subtest: 载具、乘员与离场边界反例：载着希罗与赛哈姆的载具准备离开中央庭整个管辖区域。
+2026-10-07T04:23:08.3576787Z ok 184 - 载具、乘员与离场边界反例：载着希罗与赛哈姆的载具准备离开中央庭整个管辖区域。
+2026-10-07T04:23:08.3576936Z   ---
+2026-10-07T04:23:08.3577100Z   duration_ms: 0.775356
+2026-10-07T04:23:08.3577253Z   type: 'test'
+2026-10-07T04:23:08.3577399Z   ...
+2026-10-07T04:23:08.3577816Z # Subtest: 载具、乘员与离场边界反例：载着希罗与赛哈姆的载具将离开中央庭整个管辖区域。
+2026-10-07T04:23:08.3578224Z ok 185 - 载具、乘员与离场边界反例：载着希罗与赛哈姆的载具将离开中央庭整个管辖区域。
+2026-10-07T04:23:08.3578379Z   ---
+2026-10-07T04:23:08.3578570Z   duration_ms: 0.814799
+2026-10-07T04:23:08.3578730Z   type: 'test'
+2026-10-07T04:23:08.3578881Z   ...
+2026-10-07T04:23:08.3579328Z # Subtest: 载具、乘员与离场边界反例：载着希罗与赛哈姆的载具尚未离开中央庭整个管辖区域。
+2026-10-07T04:23:08.3579759Z ok 186 - 载具、乘员与离场边界反例：载着希罗与赛哈姆的载具尚未离开中央庭整个管辖区域。
+2026-10-07T04:23:08.3579942Z   ---
+2026-10-07T04:23:08.3580120Z   duration_ms: 0.880572
+2026-10-07T04:23:08.3597877Z   type: 'test'
+2026-10-07T04:23:08.3598097Z   ...
+2026-10-07T04:23:08.3598688Z # Subtest: 载具、乘员与离场边界反例：载着希罗与赛哈姆的载具不会离开中央庭整个管辖区域。
+2026-10-07T04:23:08.3599166Z ok 187 - 载具、乘员与离场边界反例：载着希罗与赛哈姆的载具不会离开中央庭整个管辖区域。
+2026-10-07T04:23:08.3599334Z   ---
+2026-10-07T04:23:08.3599527Z   duration_ms: 0.787479
+2026-10-07T04:23:08.3599697Z   type: 'test'
+2026-10-07T04:23:08.3599871Z   ...
+2026-10-07T04:23:08.3600348Z # Subtest: 载具、乘员与离场边界反例：飞行器不载着赛哈姆，离开中央庭整个管辖区域。
+2026-10-07T04:23:08.3600772Z ok 188 - 载具、乘员与离场边界反例：飞行器不载着赛哈姆，离开中央庭整个管辖区域。
+2026-10-07T04:23:08.3600933Z   ---
+2026-10-07T04:23:08.3601118Z   duration_ms: 0.867969
+2026-10-07T04:23:08.3601549Z   type: 'test'
+2026-10-07T04:23:08.3601716Z   ...
+2026-10-07T04:23:08.3602192Z # Subtest: 载具、乘员与离场边界反例：飞行器没有搭载赛哈姆，离开中央庭整个管辖区域。
+2026-10-07T04:23:08.3602629Z ok 189 - 载具、乘员与离场边界反例：飞行器没有搭载赛哈姆，离开中央庭整个管辖区域。
+2026-10-07T04:23:08.3602795Z   ---
+2026-10-07T04:23:08.3602986Z   duration_ms: 0.781357
+2026-10-07T04:23:08.3603363Z   type: 'test'
+2026-10-07T04:23:08.3603522Z   ...
+2026-10-07T04:23:08.3604009Z # Subtest: 载具、乘员与离场边界反例：如果载着赛哈姆的飞行器离开中央庭区域，你会安心。
+2026-10-07T04:23:08.3604453Z ok 190 - 载具、乘员与离场边界反例：如果载着赛哈姆的飞行器离开中央庭区域，你会安心。
+2026-10-07T04:23:08.3604613Z   ---
+2026-10-07T04:23:08.3604801Z   duration_ms: 0.864332
+2026-10-07T04:23:08.3604968Z   type: 'test'
+2026-10-07T04:23:08.3605410Z   ...
+2026-10-07T04:23:08.3605905Z # Subtest: 载具、乘员与离场边界反例：你回忆载着赛哈姆的飞行器离开中央庭区域的情景。
+2026-10-07T04:23:08.3606337Z ok 191 - 载具、乘员与离场边界反例：你回忆载着赛哈姆的飞行器离开中央庭区域的情景。
+2026-10-07T04:23:08.3606500Z   ---
+2026-10-07T04:23:08.3606678Z   duration_ms: 0.824578
+2026-10-07T04:23:08.3606845Z   type: 'test'
+2026-10-07T04:23:08.3607018Z   ...
+2026-10-07T04:23:08.3607420Z # Subtest: 载具、乘员与离场边界反例：昨天载着赛哈姆的飞行器离开中央庭区域。
+2026-10-07T04:23:08.3607809Z ok 192 - 载具、乘员与离场边界反例：昨天载着赛哈姆的飞行器离开中央庭区域。
+2026-10-07T04:23:08.3607963Z   ---
+2026-10-07T04:23:08.3608134Z   duration_ms: 0.815041
+2026-10-07T04:23:08.3608304Z   type: 'test'
+2026-10-07T04:23:08.3608478Z   ...
+2026-10-07T04:23:08.3608871Z # Subtest: 载具、乘员与离场边界反例：据说载着赛哈姆的飞行器离开中央庭区域。
+2026-10-07T04:23:08.3609253Z ok 193 - 载具、乘员与离场边界反例：据说载着赛哈姆的飞行器离开中央庭区域。
+2026-10-07T04:23:08.3609407Z   ---
+2026-10-07T04:23:08.3609572Z   duration_ms: 0.775707
+2026-10-07T04:23:08.3609738Z   type: 'test'
+2026-10-07T04:23:08.3609886Z   ...
+2026-10-07T04:23:08.3610335Z # Subtest: 载具、乘员与离场边界反例：“载着希罗与赛哈姆的载具离开中央庭整个管辖区域。”
+2026-10-07T04:23:08.3610766Z ok 194 - 载具、乘员与离场边界反例：“载着希罗与赛哈姆的载具离开中央庭整个管辖区域。”
+2026-10-07T04:23:08.3610915Z   ---
+2026-10-07T04:23:08.3611088Z   duration_ms: 0.807817
+2026-10-07T04:23:08.3611255Z   type: 'test'
+2026-10-07T04:23:08.3611401Z   ...
+2026-10-07T04:23:08.3611803Z # Subtest: 载具、乘员与离场边界反例：载着赛哈姆的行李的飞行器离开中央庭区域。
+2026-10-07T04:23:08.3612413Z ok 195 - 载具、乘员与离场边界反例：载着赛哈姆的行李的飞行器离开中央庭区域。
+2026-10-07T04:23:08.3612577Z   ---
+2026-10-07T04:23:08.3612741Z   duration_ms: 0.801355
+2026-10-07T04:23:08.3612904Z   type: 'test'
+2026-10-07T04:23:08.3613057Z   ...
+2026-10-07T04:23:08.3613460Z # Subtest: 载具、乘员与离场边界反例：载着赛哈姆的照片的载具离开中央庭区域。
+2026-10-07T04:23:08.3613870Z ok 196 - 载具、乘员与离场边界反例：载着赛哈姆的照片的载具离开中央庭区域。
+2026-10-07T04:23:08.3614026Z   ---
+2026-10-07T04:23:08.3614191Z   duration_ms: 0.822494
+2026-10-07T04:23:08.3614364Z   type: 'test'
+2026-10-07T04:23:08.3614518Z   ...
+2026-10-07T04:23:08.3614949Z # Subtest: 载具、乘员与离场边界反例：飞行器载着希罗，从赛哈姆身边飞离中央庭区域。
+2026-10-07T04:23:08.3615632Z ok 197 - 载具、乘员与离场边界反例：飞行器载着希罗，从赛哈姆身边飞离中央庭区域。
+2026-10-07T04:23:08.3615790Z   ---
+2026-10-07T04:23:08.3615970Z   duration_ms: 0.763093
+2026-10-07T04:23:08.3616139Z   type: 'test'
+2026-10-07T04:23:08.3616289Z   ...
+2026-10-07T04:23:08.3616726Z # Subtest: 载具、乘员与离场边界反例：赛哈姆站在旁边，希罗登上飞行器，飞离中央庭区域。
+2026-10-07T04:23:08.3617138Z ok 198 - 载具、乘员与离场边界反例：赛哈姆站在旁边，希罗登上飞行器，飞离中央庭区域。
+2026-10-07T04:23:08.3617280Z   ---
+2026-10-07T04:23:08.3617390Z   duration_ms: 0.82598
+2026-10-07T04:23:08.3617485Z   type: 'test'
+2026-10-07T04:23:08.3617569Z   ...
+2026-10-07T04:23:08.3617821Z # Subtest: 载具、乘员与离场边界反例：赛哈姆登上飞行器，但又下机，飞行器离开中央庭区域。
+2026-10-07T04:23:08.3618054Z ok 199 - 载具、乘员与离场边界反例：赛哈姆登上飞行器，但又下机，飞行器离开中央庭区域。
+2026-10-07T04:23:08.3618320Z   ---
+2026-10-07T04:23:08.3618439Z   duration_ms: 0.799611
+2026-10-07T04:23:08.3618537Z   type: 'test'
+2026-10-07T04:23:08.3618628Z   ...
+2026-10-07T04:23:08.3618876Z # Subtest: 载具、乘员与离场边界反例：赛哈姆登上飞行器，另一架飞行器离开中央庭区域。
+2026-10-07T04:23:08.3619101Z ok 200 - 载具、乘员与离场边界反例：赛哈姆登上飞行器，另一架飞行器离开中央庭区域。
+2026-10-07T04:23:08.3619193Z   ---
+2026-10-07T04:23:08.3619297Z   duration_ms: 0.778833
+2026-10-07T04:23:08.3619401Z   type: 'test'
+2026-10-07T04:23:08.3619489Z   ...
+2026-10-07T04:23:08.3619731Z # Subtest: 载具、乘员与离场边界反例：赛哈姆登上飞行器。随后另一架飞行器离开中央庭区域。
+2026-10-07T04:23:08.3619964Z ok 201 - 载具、乘员与离场边界反例：赛哈姆登上飞行器。随后另一架飞行器离开中央庭区域。
+2026-10-07T04:23:08.3620048Z   ---
+2026-10-07T04:23:08.3620167Z   duration_ms: 0.820801
+2026-10-07T04:23:08.3620268Z   type: 'test'
+2026-10-07T04:23:08.3620356Z   ...
+2026-10-07T04:23:08.3620579Z # Subtest: 载具、乘员与离场边界反例：赛哈姆登上飞行器。运输车离开中央庭区域。
+2026-10-07T04:23:08.3620795Z ok 202 - 载具、乘员与离场边界反例：赛哈姆登上飞行器。运输车离开中央庭区域。
+2026-10-07T04:23:08.3620882Z   ---
+2026-10-07T04:23:08.3621007Z   duration_ms: 0.874551
+2026-10-07T04:23:08.3621109Z   type: 'test'
+2026-10-07T04:23:08.3621198Z   ...
+2026-10-07T04:23:08.3621436Z # Subtest: 载具、乘员与离场边界反例：赛哈姆登上飞行器，空载飞行器离开中央庭区域。
+2026-10-07T04:23:08.3621659Z ok 203 - 载具、乘员与离场边界反例：赛哈姆登上飞行器，空载飞行器离开中央庭区域。
+2026-10-07T04:23:08.3621750Z   ---
+2026-10-07T04:23:08.3621857Z   duration_ms: 1.019081
+2026-10-07T04:23:08.3621953Z   type: 'test'
+2026-10-07T04:23:08.3622043Z   ...
+2026-10-07T04:23:08.3622294Z # Subtest: 载具、乘员与离场边界反例：载着赛哈姆的飞行器离开中央庭区域。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.3622534Z ok 204 - 载具、乘员与离场边界反例：载着赛哈姆的飞行器离开中央庭区域。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.3622619Z   ---
+2026-10-07T04:23:08.3622729Z   duration_ms: 0.843293
+2026-10-07T04:23:08.3622956Z   type: 'test'
+2026-10-07T04:23:08.3623058Z   ...
+2026-10-07T04:23:08.3623301Z # Subtest: 载具、乘员与离场边界反例：飞行器离开中央庭区域，赛哈姆才登上该飞行器。
+2026-10-07T04:23:08.3623527Z ok 205 - 载具、乘员与离场边界反例：飞行器离开中央庭区域，赛哈姆才登上该飞行器。
+2026-10-07T04:23:08.3623617Z   ---
+2026-10-07T04:23:08.3623725Z   duration_ms: 0.767652
+2026-10-07T04:23:08.3623822Z   type: 'test'
+2026-10-07T04:23:08.3624010Z   ...
+2026-10-07T04:23:08.3624289Z # Subtest: 载具、乘员与离场边界反例：赛哈姆登上飞行器。飞行器停在原地。随后飞行器离开中央庭区域。
+2026-10-07T04:23:08.3624541Z ok 206 - 载具、乘员与离场边界反例：赛哈姆登上飞行器。飞行器停在原地。随后飞行器离开中央庭区域。
+2026-10-07T04:23:08.3624635Z   ---
+2026-10-07T04:23:08.3624747Z   duration_ms: 0.862128
+2026-10-07T04:23:08.3624842Z   type: 'test'
+2026-10-07T04:23:08.3624941Z   ...
+2026-10-07T04:23:08.3625918Z # Subtest: 载具、乘员与离场边界反例：赛哈姆登上飞行器。随后希罗独自离开中央庭区域。
+2026-10-07T04:23:08.3626401Z ok 207 - 载具、乘员与离场边界反例：赛哈姆登上飞行器。随后希罗独自离开中央庭区域。
+2026-10-07T04:23:08.3626556Z   ---
+2026-10-07T04:23:08.3626734Z   duration_ms: 0.836981
+2026-10-07T04:23:08.3626890Z   type: 'test'
+2026-10-07T04:23:08.3627036Z   ...
+2026-10-07T04:23:08.3627429Z # Subtest: 载具离场没有模型命令或独白前置仍不得补旗标
+2026-10-07T04:23:08.3627746Z ok 208 - 载具离场没有模型命令或独白前置仍不得补旗标
+2026-10-07T04:23:08.3627894Z   ---
+2026-10-07T04:23:08.3628063Z   duration_ms: 1.819083
+2026-10-07T04:23:08.3628212Z   type: 'test'
+2026-10-07T04:23:08.3628361Z   ...
+2026-10-07T04:23:08.3628708Z # Subtest: 徒步运送队伍全文修前拒绝、修后保留原有模型命令
+2026-10-07T04:23:08.3629049Z ok 209 - 徒步运送队伍全文修前拒绝、修后保留原有模型命令
+2026-10-07T04:23:08.3629201Z   ---
+2026-10-07T04:23:08.3629364Z   duration_ms: 4.390119
+2026-10-07T04:23:08.3629521Z   type: 'test'
+2026-10-07T04:23:08.3629668Z   ...
+2026-10-07T04:23:08.3630195Z # Subtest: 人员运送与完整区域实际离场关联：希罗与运送赛哈姆的队伍消失在防线之外，离开了整个中央庭的管辖区域。
+2026-10-07T04:23:08.3630781Z ok 210 - 人员运送与完整区域实际离场关联：希罗与运送赛哈姆的队伍消失在防线之外，离开了整个中央庭的管辖区域。
+2026-10-07T04:23:08.3630936Z   ---
+2026-10-07T04:23:08.3631103Z   duration_ms: 0.909166
+2026-10-07T04:23:08.3631270Z   type: 'test'
+2026-10-07T04:23:08.3631417Z   ...
+2026-10-07T04:23:08.3631899Z # Subtest: 人员运送与完整区域实际离场关联：护送着赛哈姆的随行人员离开了中央庭整个区域。
+2026-10-07T04:23:08.3632340Z ok 211 - 人员运送与完整区域实际离场关联：护送着赛哈姆的随行人员离开了中央庭整个区域。
+2026-10-07T04:23:08.3632488Z   ---
+2026-10-07T04:23:08.3632654Z   duration_ms: 0.893616
+2026-10-07T04:23:08.3632815Z   type: 'test'
+2026-10-07T04:23:08.3632958Z   ...
+2026-10-07T04:23:08.3633381Z # Subtest: 人员运送与完整区域实际离场关联：希罗运送着昏迷的赛哈姆，离开整个中央庭辖区。
+2026-10-07T04:23:08.3633819Z ok 212 - 人员运送与完整区域实际离场关联：希罗运送着昏迷的赛哈姆，离开整个中央庭辖区。
+2026-10-07T04:23:08.3633967Z   ---
+2026-10-07T04:23:08.3634127Z   duration_ms: 0.896201
+2026-10-07T04:23:08.3634286Z   type: 'test'
+2026-10-07T04:23:08.3634432Z   ...
+2026-10-07T04:23:08.3634919Z # Subtest: 人员运送与完整区域实际离场关联：运送赛哈姆的队伍迈出大门。随后队伍离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3635602Z ok 213 - 人员运送与完整区域实际离场关联：运送赛哈姆的队伍迈出大门。随后队伍离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3635702Z   ---
+2026-10-07T04:23:08.3635803Z   duration_ms: 0.861647
+2026-10-07T04:23:08.3635902Z   type: 'test'
+2026-10-07T04:23:08.3636001Z   ...
+2026-10-07T04:23:08.3636230Z # Subtest: 人员运送的非实际离场反例：运送赛哈姆的队伍停在大门口。
+2026-10-07T04:23:08.3636426Z ok 214 - 人员运送的非实际离场反例：运送赛哈姆的队伍停在大门口。
+2026-10-07T04:23:08.3636708Z   ---
+2026-10-07T04:23:08.3636821Z   duration_ms: 0.896472
+2026-10-07T04:23:08.3636920Z   type: 'test'
+2026-10-07T04:23:08.3637010Z   ...
+2026-10-07T04:23:08.3637257Z # Subtest: 人员运送的非实际离场反例：运送赛哈姆的队伍离开整个中央庭的管辖区域内的大厅。
+2026-10-07T04:23:08.3637492Z ok 215 - 人员运送的非实际离场反例：运送赛哈姆的队伍离开整个中央庭的管辖区域内的大厅。
+2026-10-07T04:23:08.3637713Z   ---
+2026-10-07T04:23:08.3637815Z   duration_ms: 0.929243
+2026-10-07T04:23:08.3637918Z   type: 'test'
+2026-10-07T04:23:08.3638017Z   ...
+2026-10-07T04:23:08.3638258Z # Subtest: 人员运送的非实际离场反例：运送赛哈姆的队伍准备离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3638488Z ok 216 - 人员运送的非实际离场反例：运送赛哈姆的队伍准备离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3638584Z   ---
+2026-10-07T04:23:08.3638685Z   duration_ms: 1.076678
+2026-10-07T04:23:08.3638787Z   type: 'test'
+2026-10-07T04:23:08.3638873Z   ...
+2026-10-07T04:23:08.3639132Z # Subtest: 人员运送的非实际离场反例：如果运送赛哈姆的队伍离开整个中央庭的管辖区域，你会跟上。
+2026-10-07T04:23:08.3639377Z ok 217 - 人员运送的非实际离场反例：如果运送赛哈姆的队伍离开整个中央庭的管辖区域，你会跟上。
+2026-10-07T04:23:08.3639471Z   ---
+2026-10-07T04:23:08.3639597Z   duration_ms: 1.01915
+2026-10-07T04:23:08.3639698Z   type: 'test'
+2026-10-07T04:23:08.3639793Z   ...
+2026-10-07T04:23:08.3640030Z # Subtest: 人员运送的非实际离场反例：昨天运送赛哈姆的队伍离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3640256Z ok 218 - 人员运送的非实际离场反例：昨天运送赛哈姆的队伍离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3640344Z   ---
+2026-10-07T04:23:08.3640472Z   duration_ms: 0.838064
+2026-10-07T04:23:08.3640571Z   type: 'test'
+2026-10-07T04:23:08.3640662Z   ...
+2026-10-07T04:23:08.3640920Z # Subtest: 人员运送的非实际离场反例：你回忆运送赛哈姆的队伍离开整个中央庭的管辖区域的情景。
+2026-10-07T04:23:08.3641161Z ok 219 - 人员运送的非实际离场反例：你回忆运送赛哈姆的队伍离开整个中央庭的管辖区域的情景。
+2026-10-07T04:23:08.3641253Z   ---
+2026-10-07T04:23:08.3641361Z   duration_ms: 0.873619
+2026-10-07T04:23:08.3641463Z   type: 'test'
+2026-10-07T04:23:08.3641552Z   ...
+2026-10-07T04:23:08.3641789Z # Subtest: 人员运送的非实际离场反例：“运送赛哈姆的队伍离开整个中央庭的管辖区域。”
+2026-10-07T04:23:08.3642011Z ok 220 - 人员运送的非实际离场反例：“运送赛哈姆的队伍离开整个中央庭的管辖区域。”
+2026-10-07T04:23:08.3642098Z   ---
+2026-10-07T04:23:08.3642206Z   duration_ms: 0.883308
+2026-10-07T04:23:08.3642306Z   type: 'test'
+2026-10-07T04:23:08.3642402Z   ...
+2026-10-07T04:23:08.3642636Z # Subtest: 人员运送的非实际离场反例：运送赛哈姆的队伍尚未离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3642862Z ok 221 - 人员运送的非实际离场反例：运送赛哈姆的队伍尚未离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3642950Z   ---
+2026-10-07T04:23:08.3643060Z   duration_ms: 0.860725
+2026-10-07T04:23:08.3643156Z   type: 'test'
+2026-10-07T04:23:08.3643255Z   ...
+2026-10-07T04:23:08.3643509Z # Subtest: 人员运送的非实际离场反例：运送赛哈姆的队伍没有带走她，离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3643749Z ok 222 - 人员运送的非实际离场反例：运送赛哈姆的队伍没有带走她，离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3643832Z   ---
+2026-10-07T04:23:08.3643939Z   duration_ms: 0.865494
+2026-10-07T04:23:08.3644040Z   type: 'test'
+2026-10-07T04:23:08.3644127Z   ...
+2026-10-07T04:23:08.3644380Z # Subtest: 人员运送的非实际离场反例：运送赛哈姆的队伍将她放在原地，离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3644620Z ok 223 - 人员运送的非实际离场反例：运送赛哈姆的队伍将她放在原地，离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3644714Z   ---
+2026-10-07T04:23:08.3644818Z   duration_ms: 0.799681
+2026-10-07T04:23:08.3644919Z   type: 'test'
+2026-10-07T04:23:08.3645003Z   ...
+2026-10-07T04:23:08.3645743Z # Subtest: 人员运送的非实际离场反例：运送赛哈姆的行李的队伍离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3645997Z ok 224 - 人员运送的非实际离场反例：运送赛哈姆的行李的队伍离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3646093Z   ---
+2026-10-07T04:23:08.3646201Z   duration_ms: 0.872707
+2026-10-07T04:23:08.3646295Z   type: 'test'
+2026-10-07T04:23:08.3646397Z   ...
+2026-10-07T04:23:08.3646781Z # Subtest: 人员运送的非实际离场反例：运送赛哈姆的照片的队伍离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3647005Z ok 225 - 人员运送的非实际离场反例：运送赛哈姆的照片的队伍离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3647100Z   ---
+2026-10-07T04:23:08.3647207Z   duration_ms: 0.920577
+2026-10-07T04:23:08.3647299Z   type: 'test'
+2026-10-07T04:23:08.3647392Z   ...
+2026-10-07T04:23:08.3647731Z # Subtest: 人员运送的非实际离场反例：运送赛哈姆的队伍离开整个中央庭的管辖区域。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.3647982Z ok 226 - 人员运送的非实际离场反例：运送赛哈姆的队伍离开整个中央庭的管辖区域。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.3648082Z   ---
+2026-10-07T04:23:08.3648187Z   duration_ms: 0.853452
+2026-10-07T04:23:08.3648279Z   type: 'test'
+2026-10-07T04:23:08.3648373Z   ...
+2026-10-07T04:23:08.3648683Z # Subtest: 人员运送的非实际离场反例：运送赛哈姆的队伍停在门口。你回寝室。随后队伍离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3648952Z ok 227 - 人员运送的非实际离场反例：运送赛哈姆的队伍停在门口。你回寝室。随后队伍离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3649045Z   ---
+2026-10-07T04:23:08.3649149Z   duration_ms: 0.883699
+2026-10-07T04:23:08.3649245Z   type: 'test'
+2026-10-07T04:23:08.3649341Z   ...
+2026-10-07T04:23:08.3649612Z # Subtest: 人员运送的非实际离场反例：希罗在赛哈姆身边，带着工作人员离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3649848Z ok 228 - 人员运送的非实际离场反例：希罗在赛哈姆身边，带着工作人员离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3649943Z   ---
+2026-10-07T04:23:08.3650048Z   duration_ms: 0.987382
+2026-10-07T04:23:08.3650141Z   type: 'test'
+2026-10-07T04:23:08.3650230Z   ...
+2026-10-07T04:23:08.3650513Z # Subtest: 人员中途留场与另一队伍离场仍不得结算：运送赛哈姆的队伍将她留在门口，离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3650770Z ok 229 - 人员中途留场与另一队伍离场仍不得结算：运送赛哈姆的队伍将她留在门口，离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3650867Z   ---
+2026-10-07T04:23:08.3650978Z   duration_ms: 1.091917
+2026-10-07T04:23:08.3651077Z   type: 'test'
+2026-10-07T04:23:08.3651172Z   ...
+2026-10-07T04:23:08.3651553Z # Subtest: 人员中途留场与另一队伍离场仍不得结算：运送赛哈姆的队伍将她放回大厅，离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3651811Z ok 230 - 人员中途留场与另一队伍离场仍不得结算：运送赛哈姆的队伍将她放回大厅，离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3651900Z   ---
+2026-10-07T04:23:08.3652007Z   duration_ms: 0.886283
+2026-10-07T04:23:08.3652101Z   type: 'test'
+2026-10-07T04:23:08.3652195Z   ...
+2026-10-07T04:23:08.3652496Z # Subtest: 人员中途留场与另一队伍离场仍不得结算：运送赛哈姆的队伍走到大门。随后另一支队伍离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3652783Z ok 231 - 人员中途留场与另一队伍离场仍不得结算：运送赛哈姆的队伍走到大门。随后另一支队伍离开整个中央庭的管辖区域。
+2026-10-07T04:23:08.3652879Z   ---
+2026-10-07T04:23:08.3652986Z   duration_ms: 0.853442
+2026-10-07T04:23:08.3653076Z   type: 'test'
+2026-10-07T04:23:08.3653170Z   ...
+2026-10-07T04:23:08.3653397Z # Subtest: 只凭已发生的接走事实结算，无需路线或载具：赛哈姆已经被希罗带走。
+2026-10-07T04:23:08.3653599Z ok 232 - 只凭已发生的接走事实结算，无需路线或载具：赛哈姆已经被希罗带走。
+2026-10-07T04:23:08.3653690Z   ---
+2026-10-07T04:23:08.3653794Z   duration_ms: 2.985168
+2026-10-07T04:23:08.3653887Z   type: 'test'
+2026-10-07T04:23:08.3653984Z   ...
+2026-10-07T04:23:08.3654202Z # Subtest: 只凭已发生的接走事实结算，无需路线或载具：希罗把赛哈姆带走救治。
+2026-10-07T04:23:08.3654634Z ok 233 - 只凭已发生的接走事实结算，无需路线或载具：希罗把赛哈姆带走救治。
+2026-10-07T04:23:08.3654797Z   ---
+2026-10-07T04:23:08.3654967Z   duration_ms: 1.550221
+2026-10-07T04:23:08.3655303Z   type: 'test'
+2026-10-07T04:23:08.3655462Z   ...
+2026-10-07T04:23:08.3655922Z # Subtest: 只凭已发生的接走事实结算，无需路线或载具：希罗已经接走了昏迷的赛哈姆。
+2026-10-07T04:23:08.3656531Z ok 234 - 只凭已发生的接走事实结算，无需路线或载具：希罗已经接走了昏迷的赛哈姆。
+2026-10-07T04:23:08.3656678Z   ---
+2026-10-07T04:23:08.3656840Z   duration_ms: 1.511369
+2026-10-07T04:23:08.3656999Z   type: 'test'
+2026-10-07T04:23:08.3657139Z   ...
+2026-10-07T04:23:08.3657514Z # Subtest: 只凭已发生的接走事实结算，无需路线或载具：赛哈姆由希罗接走。
+2026-10-07T04:23:08.3657871Z ok 235 - 只凭已发生的接走事实结算，无需路线或载具：赛哈姆由希罗接走。
+2026-10-07T04:23:08.3658018Z   ---
+2026-10-07T04:23:08.3658178Z   duration_ms: 1.530574
+2026-10-07T04:23:08.3658334Z   type: 'test'
+2026-10-07T04:23:08.3658480Z   ...
+2026-10-07T04:23:08.3658870Z # Subtest: 许可、未来、传闻、否定和物品不是接走事实：你允许希罗把赛哈姆带走。
+2026-10-07T04:23:08.3659240Z ok 236 - 许可、未来、传闻、否定和物品不是接走事实：你允许希罗把赛哈姆带走。
+2026-10-07T04:23:08.3659383Z   ---
+2026-10-07T04:23:08.3659569Z   duration_ms: 0.884049
+2026-10-07T04:23:08.3659728Z   type: 'test'
+2026-10-07T04:23:08.3659873Z   ...
+2026-10-07T04:23:08.3660246Z # Subtest: 许可、未来、传闻、否定和物品不是接走事实：希罗准备把赛哈姆带走。
+2026-10-07T04:23:08.3660629Z ok 237 - 许可、未来、传闻、否定和物品不是接走事实：希罗准备把赛哈姆带走。
+2026-10-07T04:23:08.3660768Z   ---
+2026-10-07T04:23:08.3660955Z   duration_ms: 0.796445
+2026-10-07T04:23:08.3661113Z   type: 'test'
+2026-10-07T04:23:08.3661256Z   ...
+2026-10-07T04:23:08.3661633Z # Subtest: 许可、未来、传闻、否定和物品不是接走事实：希罗会把赛哈姆带走。
+2026-10-07T04:23:08.3661997Z ok 238 - 许可、未来、传闻、否定和物品不是接走事实：希罗会把赛哈姆带走。
+2026-10-07T04:23:08.3662139Z   ---
+2026-10-07T04:23:08.3662305Z   duration_ms: 0.87412
+2026-10-07T04:23:08.3662463Z   type: 'test'
+2026-10-07T04:23:08.3662603Z   ...
+2026-10-07T04:23:08.3663026Z # Subtest: 许可、未来、传闻、否定和物品不是接走事实：如果希罗把赛哈姆带走，你会安心。
+2026-10-07T04:23:08.3663425Z ok 239 - 许可、未来、传闻、否定和物品不是接走事实：如果希罗把赛哈姆带走，你会安心。
+2026-10-07T04:23:08.3663564Z   ---
+2026-10-07T04:23:08.3663731Z   duration_ms: 0.898616
+2026-10-07T04:23:08.3664063Z   type: 'test'
+2026-10-07T04:23:08.3664206Z   ...
+2026-10-07T04:23:08.3664639Z # Subtest: 许可、未来、传闻、否定和物品不是接走事实：你回忆希罗把赛哈姆带走的情景。
+2026-10-07T04:23:08.3665205Z ok 240 - 许可、未来、传闻、否定和物品不是接走事实：你回忆希罗把赛哈姆带走的情景。
+2026-10-07T04:23:08.3665360Z   ---
+2026-10-07T04:23:08.3665532Z   duration_ms: 0.81526
+2026-10-07T04:23:08.3665877Z   type: 'test'
+2026-10-07T04:23:08.3666018Z   ...
+2026-10-07T04:23:08.3666421Z # Subtest: 许可、未来、传闻、否定和物品不是接走事实：昨天希罗把赛哈姆带走。
+2026-10-07T04:23:08.3666784Z ok 241 - 许可、未来、传闻、否定和物品不是接走事实：昨天希罗把赛哈姆带走。
+2026-10-07T04:23:08.3666936Z   ---
+2026-10-07T04:23:08.3667106Z   duration_ms: 0.842401
+2026-10-07T04:23:08.3667259Z   type: 'test'
+2026-10-07T04:23:08.3667404Z   ...
+2026-10-07T04:23:08.3667792Z # Subtest: 许可、未来、传闻、否定和物品不是接走事实：据说赛哈姆被希罗带走。
+2026-10-07T04:23:08.3668150Z ok 242 - 许可、未来、传闻、否定和物品不是接走事实：据说赛哈姆被希罗带走。
+2026-10-07T04:23:08.3668295Z   ---
+2026-10-07T04:23:08.3668462Z   duration_ms: 0.823005
+2026-10-07T04:23:08.3668611Z   type: 'test'
+2026-10-07T04:23:08.3668757Z   ...
+2026-10-07T04:23:08.3669151Z # Subtest: 许可、未来、传闻、否定和物品不是接走事实：赛哈姆尚未被希罗带走。
+2026-10-07T04:23:08.3669505Z ok 243 - 许可、未来、传闻、否定和物品不是接走事实：赛哈姆尚未被希罗带走。
+2026-10-07T04:23:08.3669649Z   ---
+2026-10-07T04:23:08.3669817Z   duration_ms: 0.881364
+2026-10-07T04:23:08.3669972Z   type: 'test'
+2026-10-07T04:23:08.3670122Z   ...
+2026-10-07T04:23:08.3670520Z # Subtest: 许可、未来、传闻、否定和物品不是接走事实：“赛哈姆被希罗带走了。”
+2026-10-07T04:23:08.3670896Z ok 244 - 许可、未来、传闻、否定和物品不是接走事实：“赛哈姆被希罗带走了。”
+2026-10-07T04:23:08.3671045Z   ---
+2026-10-07T04:23:08.3671210Z   duration_ms: 0.842322
+2026-10-07T04:23:08.3671358Z   type: 'test'
+2026-10-07T04:23:08.3671510Z   ...
+2026-10-07T04:23:08.3671897Z # Subtest: 许可、未来、传闻、否定和物品不是接走事实：希罗把赛哈姆的行李带走。
+2026-10-07T04:23:08.3672254Z ok 245 - 许可、未来、传闻、否定和物品不是接走事实：希罗把赛哈姆的行李带走。
+2026-10-07T04:23:08.3672399Z   ---
+2026-10-07T04:23:08.3672567Z   duration_ms: 0.795874
+2026-10-07T04:23:08.3672716Z   type: 'test'
+2026-10-07T04:23:08.3672859Z   ...
+2026-10-07T04:23:08.3673249Z # Subtest: 许可、未来、传闻、否定和物品不是接走事实：希罗把赛哈姆的照片带走。
+2026-10-07T04:23:08.3673635Z ok 246 - 许可、未来、传闻、否定和物品不是接走事实：希罗把赛哈姆的照片带走。
+2026-10-07T04:23:08.3673778Z   ---
+2026-10-07T04:23:08.3673948Z   duration_ms: 1.068833
+2026-10-07T04:23:08.3674100Z   type: 'test'
+2026-10-07T04:23:08.3674246Z   ...
+2026-10-07T04:23:08.3674685Z # Subtest: 许可、未来、传闻、否定和物品不是接走事实：希罗把赛哈姆带走。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.3675289Z ok 247 - 许可、未来、传闻、否定和物品不是接走事实：希罗把赛哈姆带走。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.3675470Z   ---
+2026-10-07T04:23:08.3675641Z   duration_ms: 1.327136
+2026-10-07T04:23:08.3675799Z   type: 'test'
+2026-10-07T04:23:08.3675949Z   ...
+2026-10-07T04:23:08.3676243Z # Subtest: 本轮接走旗标不能被模型撤销恢复通信
+2026-10-07T04:23:08.3676522Z ok 248 - 本轮接走旗标不能被模型撤销恢复通信
+2026-10-07T04:23:08.3676679Z   ---
+2026-10-07T04:23:08.3676842Z   duration_ms: 0.838454
+2026-10-07T04:23:08.3677000Z   type: 'test'
+2026-10-07T04:23:08.3677148Z   ...
+2026-10-07T04:23:08.3677501Z # Subtest: 接走事实仍需要真实独白前置且不能自动添加模型命令
+2026-10-07T04:23:08.3677831Z ok 249 - 接走事实仍需要真实独白前置且不能自动添加模型命令
+2026-10-07T04:23:08.3677986Z   ---
+2026-10-07T04:23:08.3678149Z   duration_ms: 1.501039
+2026-10-07T04:23:08.3678510Z   type: 'test'
+2026-10-07T04:23:08.3678666Z   ...
+2026-10-07T04:23:08.3679037Z # Subtest: 自然正文实际抬起并随希罗接走，修前漏判、修后保留原命令
+2026-10-07T04:23:08.3679382Z ok 250 - 自然正文实际抬起并随希罗接走，修前漏判、修后保留原命令
+2026-10-07T04:23:08.3679526Z   ---
+2026-10-07T04:23:08.3679690Z   duration_ms: 7.03411
+2026-10-07T04:23:08.3680053Z   type: 'test'
+2026-10-07T04:23:08.3680206Z   ...
+2026-10-07T04:23:08.3680714Z # Subtest: 实际随希罗接走不要求离开地域边界：黑衣人员将昏迷的赛哈姆搬上担架，随着希罗一同撤离了长廊。
+2026-10-07T04:23:08.3681178Z ok 251 - 实际随希罗接走不要求离开地域边界：黑衣人员将昏迷的赛哈姆搬上担架，随着希罗一同撤离了长廊。
+2026-10-07T04:23:08.3681330Z   ---
+2026-10-07T04:23:08.3681495Z   duration_ms: 0.874291
+2026-10-07T04:23:08.3681650Z   type: 'test'
+2026-10-07T04:23:08.3681803Z   ...
+2026-10-07T04:23:08.3682188Z # Subtest: 实际随希罗接走不要求离开地域边界：希罗示意随行人员将赛哈姆带走。
+2026-10-07T04:23:08.3682560Z ok 252 - 实际随希罗接走不要求离开地域边界：希罗示意随行人员将赛哈姆带走。
+2026-10-07T04:23:08.3682706Z   ---
+2026-10-07T04:23:08.3682867Z   duration_ms: 0.826422
+2026-10-07T04:23:08.3683023Z   type: 'test'
+2026-10-07T04:23:08.3683174Z   ...
+2026-10-07T04:23:08.3683670Z # Subtest: 随希罗的计划、否定和其他主体不算已接走：黑衣人员准备将赛哈姆抬上担架，随着希罗撤离长廊。
+2026-10-07T04:23:08.3684126Z ok 253 - 随希罗的计划、否定和其他主体不算已接走：黑衣人员准备将赛哈姆抬上担架，随着希罗撤离长廊。
+2026-10-07T04:23:08.3684278Z   ---
+2026-10-07T04:23:08.3684444Z   duration_ms: 0.892355
+2026-10-07T04:23:08.3684600Z   type: 'test'
+2026-10-07T04:23:08.3684765Z   ...
+2026-10-07T04:23:08.3685441Z # Subtest: 随希罗的计划、否定和其他主体不算已接走：如果人员将赛哈姆抬上担架，随着希罗撤离长廊，你会安心。
+2026-10-07T04:23:08.3685930Z ok 254 - 随希罗的计划、否定和其他主体不算已接走：如果人员将赛哈姆抬上担架，随着希罗撤离长廊，你会安心。
+2026-10-07T04:23:08.3686078Z   ---
+2026-10-07T04:23:08.3686245Z   duration_ms: 0.882486
+2026-10-07T04:23:08.3686403Z   type: 'test'
+2026-10-07T04:23:08.3686544Z   ...
+2026-10-07T04:23:08.3687007Z # Subtest: 随希罗的计划、否定和其他主体不算已接走：昨天人员将赛哈姆抬上担架，随着希罗撤离长廊。
+2026-10-07T04:23:08.3687437Z ok 255 - 随希罗的计划、否定和其他主体不算已接走：昨天人员将赛哈姆抬上担架，随着希罗撤离长廊。
+2026-10-07T04:23:08.3687582Z   ---
+2026-10-07T04:23:08.3687752Z   duration_ms: 0.835248
+2026-10-07T04:23:08.3687912Z   type: 'test'
+2026-10-07T04:23:08.3688053Z   ...
+2026-10-07T04:23:08.3688543Z # Subtest: 随希罗的计划、否定和其他主体不算已接走：人员将赛哈姆的行李抬上担架，随着希罗撤离长廊。
+2026-10-07T04:23:08.3688994Z ok 256 - 随希罗的计划、否定和其他主体不算已接走：人员将赛哈姆的行李抬上担架，随着希罗撤离长廊。
+2026-10-07T04:23:08.3689135Z   ---
+2026-10-07T04:23:08.3689305Z   duration_ms: 0.846429
+2026-10-07T04:23:08.3689460Z   type: 'test'
+2026-10-07T04:23:08.3689603Z   ...
+2026-10-07T04:23:08.3690075Z # Subtest: 随希罗的计划、否定和其他主体不算已接走：人员将赛哈姆抬上担架，随后希罗独自离开。
+2026-10-07T04:23:08.3690494Z ok 257 - 随希罗的计划、否定和其他主体不算已接走：人员将赛哈姆抬上担架，随后希罗独自离开。
+2026-10-07T04:23:08.3690636Z   ---
+2026-10-07T04:23:08.3690808Z   duration_ms: 0.771399
+2026-10-07T04:23:08.3690967Z   type: 'test'
+2026-10-07T04:23:08.3691108Z   ...
+2026-10-07T04:23:08.3691559Z # Subtest: 随希罗的计划、否定和其他主体不算已接走：人员将赛哈姆抬上担架，但尚未随着希罗撤离。
+2026-10-07T04:23:08.3691990Z ok 258 - 随希罗的计划、否定和其他主体不算已接走：人员将赛哈姆抬上担架，但尚未随着希罗撤离。
+2026-10-07T04:23:08.3692136Z   ---
+2026-10-07T04:23:08.3692308Z   duration_ms: 0.853803
+2026-10-07T04:23:08.3692464Z   type: 'test'
+2026-10-07T04:23:08.3692607Z   ...
+2026-10-07T04:23:08.3693217Z # Subtest: 随希罗的计划、否定和其他主体不算已接走：希罗准备示意人员将赛哈姆带走。
+2026-10-07T04:23:08.3693629Z ok 259 - 随希罗的计划、否定和其他主体不算已接走：希罗准备示意人员将赛哈姆带走。
+2026-10-07T04:23:08.3693773Z   ---
+2026-10-07T04:23:08.3693939Z   duration_ms: 0.862238
+2026-10-07T04:23:08.3694099Z   type: 'test'
+2026-10-07T04:23:08.3694242Z   ...
+2026-10-07T04:23:08.3694634Z # Subtest: 随希罗的计划、否定和其他主体不算已接走：希罗允许人员将赛哈姆带走。
+2026-10-07T04:23:08.3695401Z ok 260 - 随希罗的计划、否定和其他主体不算已接走：希罗允许人员将赛哈姆带走。
+2026-10-07T04:23:08.3695551Z   ---
+2026-10-07T04:23:08.3695725Z   duration_ms: 0.801505
+2026-10-07T04:23:08.3695883Z   type: 'test'
+2026-10-07T04:23:08.3696022Z   ...
+2026-10-07T04:23:08.3696426Z # Subtest: 希罗人员抬起本人后同一行人离开，完整自然正文修前拒绝修后保留原命令
+2026-10-07T04:23:08.3696805Z ok 261 - 希罗人员抬起本人后同一行人离开，完整自然正文修前拒绝修后保留原命令
+2026-10-07T04:23:08.3696947Z   ---
+2026-10-07T04:23:08.3697113Z   duration_ms: 3.893592
+2026-10-07T04:23:08.3697276Z   type: 'test'
+2026-10-07T04:23:08.3697420Z   ...
+2026-10-07T04:23:08.3697920Z # Subtest: 紧邻两句实际接走不检查路线或地域：希罗示意随行人员小心抬起赛哈姆。一行人迅速穿过走廊离开。
+2026-10-07T04:23:08.3698407Z ok 262 - 紧邻两句实际接走不检查路线或地域：希罗示意随行人员小心抬起赛哈姆。一行人迅速穿过走廊离开。
+2026-10-07T04:23:08.3698551Z   ---
+2026-10-07T04:23:08.3698722Z   duration_ms: 0.989225
+2026-10-07T04:23:08.3698875Z   type: 'test'
+2026-10-07T04:23:08.3699027Z   ...
+2026-10-07T04:23:08.3699695Z # Subtest: 紧邻两句实际接走不检查路线或地域：希罗微微颔首，没有再多说一句劝诱的话，示意随行人员小心抬起赛哈姆。一行人迅速穿过走廊离开，脚步声渐渐远去。
+2026-10-07T04:23:08.3700356Z ok 263 - 紧邻两句实际接走不检查路线或地域：希罗微微颔首，没有再多说一句劝诱的话，示意随行人员小心抬起赛哈姆。一行人迅速穿过走廊离开，脚步声渐渐远去。
+2026-10-07T04:23:08.3700506Z   ---
+2026-10-07T04:23:08.3700673Z   duration_ms: 0.880823
+2026-10-07T04:23:08.3700825Z   type: 'test'
+2026-10-07T04:23:08.3700974Z   ...
+2026-10-07T04:23:08.3701443Z # Subtest: 紧邻两句实际接走不检查路线或地域：希罗的黑衣人员抱起昏迷的赛哈姆。随后他们迅速离去。
+2026-10-07T04:23:08.3701877Z ok 264 - 紧邻两句实际接走不检查路线或地域：希罗的黑衣人员抱起昏迷的赛哈姆。随后他们迅速离去。
+2026-10-07T04:23:08.3702027Z   ---
+2026-10-07T04:23:08.3702197Z   duration_ms: 0.814629
+2026-10-07T04:23:08.3702350Z   type: 'test'
+2026-10-07T04:23:08.3702531Z   ...
+2026-10-07T04:23:08.3703007Z # Subtest: 紧邻两句实际接走不检查路线或地域：希罗的人员将赛哈姆抬上担架。接着这支队伍一同撤离。
+2026-10-07T04:23:08.3703638Z ok 265 - 紧邻两句实际接走不检查路线或地域：希罗的人员将赛哈姆抬上担架。接着这支队伍一同撤离。
+2026-10-07T04:23:08.3703797Z   ---
+2026-10-07T04:23:08.3703963Z   duration_ms: 0.90087
+2026-10-07T04:23:08.3704114Z   type: 'test'
+2026-10-07T04:23:08.3704259Z   ...
+2026-10-07T04:23:08.3704702Z # Subtest: 紧邻两句实际接走不检查路线或地域：希罗的随从扶起受伤的赛哈姆。随行人员离开。
+2026-10-07T04:23:08.3705314Z ok 266 - 紧邻两句实际接走不检查路线或地域：希罗的随从扶起受伤的赛哈姆。随行人员离开。
+2026-10-07T04:23:08.3705474Z   ---
+2026-10-07T04:23:08.3705640Z   duration_ms: 0.807736
+2026-10-07T04:23:08.3705795Z   type: 'test'
+2026-10-07T04:23:08.3705944Z   ...
+2026-10-07T04:23:08.3706354Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗示意人员抬起赛哈姆。
+2026-10-07T04:23:08.3706729Z ok 267 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗示意人员抬起赛哈姆。
+2026-10-07T04:23:08.3706877Z   ---
+2026-10-07T04:23:08.3707041Z   duration_ms: 0.891463
+2026-10-07T04:23:08.3707192Z   type: 'test'
+2026-10-07T04:23:08.3707338Z   ...
+2026-10-07T04:23:08.3707796Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗准备示意人员抬起赛哈姆。一行人离开。
+2026-10-07T04:23:08.3708214Z ok 268 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗准备示意人员抬起赛哈姆。一行人离开。
+2026-10-07T04:23:08.3708393Z   ---
+2026-10-07T04:23:08.3708566Z   duration_ms: 0.872908
+2026-10-07T04:23:08.3708714Z   type: 'test'
+2026-10-07T04:23:08.3708861Z   ...
+2026-10-07T04:23:08.3709298Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗允许人员抬起赛哈姆。一行人离开。
+2026-10-07T04:23:08.3709708Z ok 269 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗允许人员抬起赛哈姆。一行人离开。
+2026-10-07T04:23:08.3710165Z   ---
+2026-10-07T04:23:08.3710342Z   duration_ms: 0.789343
+2026-10-07T04:23:08.3710495Z   type: 'test'
+2026-10-07T04:23:08.3710638Z   ...
+2026-10-07T04:23:08.3711087Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：如果希罗的人员抬起赛哈姆。一行人离开。
+2026-10-07T04:23:08.3711505Z ok 270 - 紧邻接走拒绝未执行、否定、其他对象和留场：如果希罗的人员抬起赛哈姆。一行人离开。
+2026-10-07T04:23:08.3711656Z   ---
+2026-10-07T04:23:08.3711832Z   duration_ms: 0.830509
+2026-10-07T04:23:08.3711981Z   type: 'test'
+2026-10-07T04:23:08.3712128Z   ...
+2026-10-07T04:23:08.3712555Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：昨天希罗的人员抬起赛哈姆。一行人离开。
+2026-10-07T04:23:08.3712974Z ok 271 - 紧邻接走拒绝未执行、否定、其他对象和留场：昨天希罗的人员抬起赛哈姆。一行人离开。
+2026-10-07T04:23:08.3713120Z   ---
+2026-10-07T04:23:08.3713306Z   duration_ms: 0.845737
+2026-10-07T04:23:08.3713463Z   type: 'test'
+2026-10-07T04:23:08.3713614Z   ...
+2026-10-07T04:23:08.3714053Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：你回忆希罗的人员抬起赛哈姆。一行人离开。
+2026-10-07T04:23:08.3714483Z ok 272 - 紧邻接走拒绝未执行、否定、其他对象和留场：你回忆希罗的人员抬起赛哈姆。一行人离开。
+2026-10-07T04:23:08.3714627Z   ---
+2026-10-07T04:23:08.3714823Z   duration_ms: 0.819969
+2026-10-07T04:23:08.3714983Z   type: 'test'
+2026-10-07T04:23:08.3715351Z   ...
+2026-10-07T04:23:08.3715796Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：据说希罗的人员抬起赛哈姆。一行人离开。
+2026-10-07T04:23:08.3716212Z ok 273 - 紧邻接走拒绝未执行、否定、其他对象和留场：据说希罗的人员抬起赛哈姆。一行人离开。
+2026-10-07T04:23:08.3716368Z   ---
+2026-10-07T04:23:08.3716537Z   duration_ms: 0.795894
+2026-10-07T04:23:08.3716695Z   type: 'test'
+2026-10-07T04:23:08.3716844Z   ...
+2026-10-07T04:23:08.3717292Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员没有抬起赛哈姆。一行人离开。
+2026-10-07T04:23:08.3717709Z ok 274 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员没有抬起赛哈姆。一行人离开。
+2026-10-07T04:23:08.3717851Z   ---
+2026-10-07T04:23:08.3718019Z   duration_ms: 0.761721
+2026-10-07T04:23:08.3718361Z   type: 'test'
+2026-10-07T04:23:08.3718516Z   ...
+2026-10-07T04:23:08.3718964Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员尚未抬起赛哈姆。一行人离开。
+2026-10-07T04:23:08.3719382Z ok 275 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员尚未抬起赛哈姆。一行人离开。
+2026-10-07T04:23:08.3719523Z   ---
+2026-10-07T04:23:08.3719687Z   duration_ms: 0.813066
+2026-10-07T04:23:08.3720043Z   type: 'test'
+2026-10-07T04:23:08.3720192Z   ...
+2026-10-07T04:23:08.3720630Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员会抬起赛哈姆。一行人离开。
+2026-10-07T04:23:08.3721051Z ok 276 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员会抬起赛哈姆。一行人离开。
+2026-10-07T04:23:08.3721195Z   ---
+2026-10-07T04:23:08.3721360Z   duration_ms: 0.815441
+2026-10-07T04:23:08.3721519Z   type: 'test'
+2026-10-07T04:23:08.3721664Z   ...
+2026-10-07T04:23:08.3722099Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆的行李。一行人离开。
+2026-10-07T04:23:08.3722525Z ok 277 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆的行李。一行人离开。
+2026-10-07T04:23:08.3722671Z   ---
+2026-10-07T04:23:08.3722832Z   duration_ms: 0.970871
+2026-10-07T04:23:08.3722989Z   type: 'test'
+2026-10-07T04:23:08.3723160Z   ...
+2026-10-07T04:23:08.3723598Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抱起赛哈姆的照片。一行人离开。
+2026-10-07T04:23:08.3724032Z ok 278 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抱起赛哈姆的照片。一行人离开。
+2026-10-07T04:23:08.3724180Z   ---
+2026-10-07T04:23:08.3724339Z   duration_ms: 1.242807
+2026-10-07T04:23:08.3724521Z   type: 'test'
+2026-10-07T04:23:08.3724660Z   ...
+2026-10-07T04:23:08.3725278Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。随后希罗独自离开。
+2026-10-07T04:23:08.3725723Z ok 279 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。随后希罗独自离开。
+2026-10-07T04:23:08.3725863Z   ---
+2026-10-07T04:23:08.3726039Z   duration_ms: 1.250973
+2026-10-07T04:23:08.3726199Z   type: 'test'
+2026-10-07T04:23:08.3726339Z   ...
+2026-10-07T04:23:08.3726777Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。另一支队伍离开。
+2026-10-07T04:23:08.3727189Z ok 280 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。另一支队伍离开。
+2026-10-07T04:23:08.3727333Z   ---
+2026-10-07T04:23:08.3727501Z   duration_ms: 1.274336
+2026-10-07T04:23:08.3727657Z   type: 'test'
+2026-10-07T04:23:08.3727794Z   ...
+2026-10-07T04:23:08.3728262Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。一行人看着安离开。
+2026-10-07T04:23:08.3728686Z ok 281 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。一行人看着安离开。
+2026-10-07T04:23:08.3728828Z   ---
+2026-10-07T04:23:08.3728996Z   duration_ms: 0.855947
+2026-10-07T04:23:08.3729155Z   type: 'test'
+2026-10-07T04:23:08.3729317Z   ...
+2026-10-07T04:23:08.3729755Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。一行人准备离开。
+2026-10-07T04:23:08.3730172Z ok 282 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。一行人准备离开。
+2026-10-07T04:23:08.3730314Z   ---
+2026-10-07T04:23:08.3730482Z   duration_ms: 0.800372
+2026-10-07T04:23:08.3730716Z   type: 'test'
+2026-10-07T04:23:08.3730863Z   ...
+2026-10-07T04:23:08.3731306Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。一行人将会离开。
+2026-10-07T04:23:08.3731727Z ok 283 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。一行人将会离开。
+2026-10-07T04:23:08.3731867Z   ---
+2026-10-07T04:23:08.3732035Z   duration_ms: 0.802968
+2026-10-07T04:23:08.3732194Z   type: 'test'
+2026-10-07T04:23:08.3732336Z   ...
+2026-10-07T04:23:08.3732974Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。一行人尚未离开。
+2026-10-07T04:23:08.3733401Z ok 284 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。一行人尚未离开。
+2026-10-07T04:23:08.3733559Z   ---
+2026-10-07T04:23:08.3733669Z   duration_ms: 0.845417
+2026-10-07T04:23:08.3733768Z   type: 'test'
+2026-10-07T04:23:08.3733855Z   ...
+2026-10-07T04:23:08.3734335Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。如果一行人离开，你会安心。
+2026-10-07T04:23:08.3734603Z ok 285 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。如果一行人离开，你会安心。
+2026-10-07T04:23:08.3734692Z   ---
+2026-10-07T04:23:08.3734799Z   duration_ms: 0.78273
+2026-10-07T04:23:08.3734903Z   type: 'test'
+2026-10-07T04:23:08.3734994Z   ...
+2026-10-07T04:23:08.3735631Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。据说一行人离开。
+2026-10-07T04:23:08.3735872Z ok 286 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。据说一行人离开。
+2026-10-07T04:23:08.3735959Z   ---
+2026-10-07T04:23:08.3736068Z   duration_ms: 1.556844
+2026-10-07T04:23:08.3736172Z   type: 'test'
+2026-10-07T04:23:08.3736265Z   ...
+2026-10-07T04:23:08.3736567Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。一行人把她放回病房后离开。
+2026-10-07T04:23:08.3736836Z ok 287 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。一行人把她放回病房后离开。
+2026-10-07T04:23:08.3736928Z   ---
+2026-10-07T04:23:08.3737037Z   duration_ms: 1.284716
+2026-10-07T04:23:08.3737140Z   type: 'test'
+2026-10-07T04:23:08.3737234Z   ...
+2026-10-07T04:23:08.3737526Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。一行人离开，但将赛哈姆留在门口。
+2026-10-07T04:23:08.3737810Z ok 288 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。一行人离开，但将赛哈姆留在门口。
+2026-10-07T04:23:08.3737904Z   ---
+2026-10-07T04:23:08.3738016Z   duration_ms: 1.344228
+2026-10-07T04:23:08.3738113Z   type: 'test'
+2026-10-07T04:23:08.3738208Z   ...
+2026-10-07T04:23:08.3738481Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆，随后又把她放下。一行人离开。
+2026-10-07T04:23:08.3738735Z ok 289 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆，随后又把她放下。一行人离开。
+2026-10-07T04:23:08.3738831Z   ---
+2026-10-07T04:23:08.3738936Z   duration_ms: 3.04033
+2026-10-07T04:23:08.3739034Z   type: 'test'
+2026-10-07T04:23:08.3739128Z   ...
+2026-10-07T04:23:08.3739390Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。一行人抬着空担架离开。
+2026-10-07T04:23:08.3739795Z ok 290 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。一行人抬着空担架离开。
+2026-10-07T04:23:08.3739899Z   ---
+2026-10-07T04:23:08.3740007Z   duration_ms: 0.740552
+2026-10-07T04:23:08.3740104Z   type: 'test'
+2026-10-07T04:23:08.3740318Z   ...
+2026-10-07T04:23:08.3740805Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。你转身回房。一行人离开。
+2026-10-07T04:23:08.3741097Z ok 291 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。你转身回房。一行人离开。
+2026-10-07T04:23:08.3741197Z   ---
+2026-10-07T04:23:08.3741308Z   duration_ms: 0.779584
+2026-10-07T04:23:08.3741405Z   type: 'test'
+2026-10-07T04:23:08.3741504Z   ...
+2026-10-07T04:23:08.3742025Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。\\n\\n一行人离开。
+2026-10-07T04:23:08.3742299Z ok 292 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。\\n\\n一行人离开。
+2026-10-07T04:23:08.3742397Z   ---
+2026-10-07T04:23:08.3742508Z   duration_ms: 0.719371
+2026-10-07T04:23:08.3742600Z   type: 'test'
+2026-10-07T04:23:08.3742694Z   ...
+2026-10-07T04:23:08.3742956Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：“希罗的人员抬起赛哈姆。一行人离开。”
+2026-10-07T04:23:08.3743211Z ok 293 - 紧邻接走拒绝未执行、否定、其他对象和留场：“希罗的人员抬起赛哈姆。一行人离开。”
+2026-10-07T04:23:08.3743302Z   ---
+2026-10-07T04:23:08.3743412Z   duration_ms: 0.724962
+2026-10-07T04:23:08.3743508Z   type: 'test'
+2026-10-07T04:23:08.3743607Z   ...
+2026-10-07T04:23:08.3743894Z # Subtest: 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。一行人离开。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.3744341Z ok 294 - 紧邻接走拒绝未执行、否定、其他对象和留场：希罗的人员抬起赛哈姆。一行人离开。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.3744438Z   ---
+2026-10-07T04:23:08.3744548Z   duration_ms: 0.700046
+2026-10-07T04:23:08.3744645Z   type: 'test'
+2026-10-07T04:23:08.3744741Z   ...
+2026-10-07T04:23:08.3744990Z # Subtest: 相邻接走不能补模型命令，不能绕过独白前置，也不能从选项或更新注释结算
+2026-10-07T04:23:08.3745398Z ok 295 - 相邻接走不能补模型命令，不能绕过独白前置，也不能从选项或更新注释结算
+2026-10-07T04:23:08.3745497Z   ---
+2026-10-07T04:23:08.3745602Z   duration_ms: 2.565626
+2026-10-07T04:23:08.3745693Z   type: 'test'
+2026-10-07T04:23:08.3745891Z   ...
+2026-10-07T04:23:08.3746314Z # Subtest: 人员抬走后希罗随同离去，完整自然正文修前拒绝修后保留原有命令
+2026-10-07T04:23:08.3746676Z ok 296 - 人员抬走后希罗随同离去，完整自然正文修前拒绝修后保留原有命令
+2026-10-07T04:23:08.3746856Z   ---
+2026-10-07T04:23:08.3747020Z   duration_ms: 4.079118
+2026-10-07T04:23:08.3747176Z   type: 'test'
+2026-10-07T04:23:08.3747318Z   ...
+2026-10-07T04:23:08.3747662Z # Subtest: 实际抬走与希罗随后同行的事件语序：undefined
+2026-10-07T04:23:08.3747970Z ok 297 - 实际抬走与希罗随后同行的事件语序：undefined
+2026-10-07T04:23:08.3748090Z   ---
+2026-10-07T04:23:08.3748190Z   duration_ms: 0.873409
+2026-10-07T04:23:08.3748289Z   type: 'test'
+2026-10-07T04:23:08.3748387Z   ...
+2026-10-07T04:23:08.3748602Z # Subtest: 实际抬走与希罗随后同行的事件语序：部下将赛哈姆抱起并离开。
+2026-10-07T04:23:08.3748806Z ok 298 - 实际抬走与希罗随后同行的事件语序：部下将赛哈姆抱起并离开。
+2026-10-07T04:23:08.3748900Z   ---
+2026-10-07T04:23:08.3749002Z   duration_ms: 0.743997
+2026-10-07T04:23:08.3749104Z   type: 'test'
+2026-10-07T04:23:08.3749201Z   ...
+2026-10-07T04:23:08.3749429Z # Subtest: 实际抬走与希罗随后同行的事件语序：随从把受伤的赛哈姆扶起，一同撤离。
+2026-10-07T04:23:08.3749654Z ok 299 - 实际抬走与希罗随后同行的事件语序：随从把受伤的赛哈姆扶起，一同撤离。
+2026-10-07T04:23:08.3749751Z   ---
+2026-10-07T04:23:08.3749853Z   duration_ms: 0.703603
+2026-10-07T04:23:08.3750112Z   type: 'test'
+2026-10-07T04:23:08.3750215Z   ...
+2026-10-07T04:23:08.3750515Z # Subtest: 人员接走事件的计划、否定、留场和主体断开反例：部下准备将赛哈姆抬上担架，撤离。undefined
+2026-10-07T04:23:08.3750795Z ok 300 - 人员接走事件的计划、否定、留场和主体断开反例：部下准备将赛哈姆抬上担架，撤离。undefined
+2026-10-07T04:23:08.3750887Z   ---
+2026-10-07T04:23:08.3750987Z   duration_ms: 0.788531
+2026-10-07T04:23:08.3751208Z   type: 'test'
+2026-10-07T04:23:08.3751302Z   ...
+2026-10-07T04:23:08.3751579Z # Subtest: 人员接走事件的计划、否定、留场和主体断开反例：部下尚未将赛哈姆抬上担架，撤离。undefined
+2026-10-07T04:23:08.3751840Z ok 301 - 人员接走事件的计划、否定、留场和主体断开反例：部下尚未将赛哈姆抬上担架，撤离。undefined
+2026-10-07T04:23:08.3751938Z   ---
+2026-10-07T04:23:08.3752040Z   duration_ms: 0.726154
+2026-10-07T04:23:08.3752140Z   type: 'test'
+2026-10-07T04:23:08.3752229Z   ...
+2026-10-07T04:23:08.3752509Z # Subtest: 人员接走事件的计划、否定、留场和主体断开反例：昨天部下将赛哈姆抬上担架，撤离。undefined
+2026-10-07T04:23:08.3752775Z ok 302 - 人员接走事件的计划、否定、留场和主体断开反例：昨天部下将赛哈姆抬上担架，撤离。undefined
+2026-10-07T04:23:08.3752872Z   ---
+2026-10-07T04:23:08.3752975Z   duration_ms: 0.714643
+2026-10-07T04:23:08.3753087Z   type: 'test'
+2026-10-07T04:23:08.3753182Z   ...
+2026-10-07T04:23:08.3753456Z # Subtest: 人员接走事件的计划、否定、留场和主体断开反例：如果部下将赛哈姆抬上担架，撤离。undefined
+2026-10-07T04:23:08.3753721Z ok 303 - 人员接走事件的计划、否定、留场和主体断开反例：如果部下将赛哈姆抬上担架，撤离。undefined
+2026-10-07T04:23:08.3753815Z   ---
+2026-10-07T04:23:08.3753919Z   duration_ms: 0.6812
+2026-10-07T04:23:08.3754036Z   type: 'test'
+2026-10-07T04:23:08.3754127Z   ...
+2026-10-07T04:23:08.3754404Z # Subtest: 人员接走事件的计划、否定、留场和主体断开反例：据说部下将赛哈姆抬上担架，撤离。undefined
+2026-10-07T04:23:08.3754665Z ok 304 - 人员接走事件的计划、否定、留场和主体断开反例：据说部下将赛哈姆抬上担架，撤离。undefined
+2026-10-07T04:23:08.3754747Z   ---
+2026-10-07T04:23:08.3754853Z   duration_ms: 0.702581
+2026-10-07T04:23:08.3754952Z   type: 'test'
+2026-10-07T04:23:08.3755213Z   ...
+2026-10-07T04:23:08.3755528Z # Subtest: 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆的行李抬上担架，撤离。undefined
+2026-10-07T04:23:08.3755798Z ok 305 - 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆的行李抬上担架，撤离。undefined
+2026-10-07T04:23:08.3755888Z   ---
+2026-10-07T04:23:08.3755996Z   duration_ms: 0.704444
+2026-10-07T04:23:08.3756109Z   type: 'test'
+2026-10-07T04:23:08.3756195Z   ...
+2026-10-07T04:23:08.3756478Z # Subtest: 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆的照片抬上担架，撤离。undefined
+2026-10-07T04:23:08.3756767Z ok 306 - 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆的照片抬上担架，撤离。undefined
+2026-10-07T04:23:08.3756857Z   ---
+2026-10-07T04:23:08.3756962Z   duration_ms: 0.671332
+2026-10-07T04:23:08.3757077Z   type: 'test'
+2026-10-07T04:23:08.3757160Z   ...
+2026-10-07T04:23:08.3757434Z # Subtest: 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，等待。undefined
+2026-10-07T04:23:08.3757689Z ok 307 - 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，等待。undefined
+2026-10-07T04:23:08.3757778Z   ---
+2026-10-07T04:23:08.3757882Z   duration_ms: 0.70766
+2026-10-07T04:23:08.3757985Z   type: 'test'
+2026-10-07T04:23:08.3758075Z   ...
+2026-10-07T04:23:08.3758361Z # Subtest: 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，尚未撤离。undefined
+2026-10-07T04:23:08.3758636Z ok 308 - 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，尚未撤离。undefined
+2026-10-07T04:23:08.3758723Z   ---
+2026-10-07T04:23:08.3758838Z   duration_ms: 0.690388
+2026-10-07T04:23:08.3759076Z   type: 'test'
+2026-10-07T04:23:08.3759170Z   ...
+2026-10-07T04:23:08.3759471Z # Subtest: 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，随后你离开。undefined
+2026-10-07T04:23:08.3759749Z ok 309 - 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，随后你离开。undefined
+2026-10-07T04:23:08.3759845Z   ---
+2026-10-07T04:23:08.3760079Z   duration_ms: 0.710084
+2026-10-07T04:23:08.3760182Z   type: 'test'
+2026-10-07T04:23:08.3760272Z   ...
+2026-10-07T04:23:08.3760563Z # Subtest: 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，看着安离开。undefined
+2026-10-07T04:23:08.3760831Z ok 310 - 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，看着安离开。undefined
+2026-10-07T04:23:08.3760921Z   ---
+2026-10-07T04:23:08.3761028Z   duration_ms: 0.678155
+2026-10-07T04:23:08.3761139Z   type: 'test'
+2026-10-07T04:23:08.3761230Z   ...
+2026-10-07T04:23:08.3761517Z # Subtest: 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，空担架离开。undefined
+2026-10-07T04:23:08.3761786Z ok 311 - 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，空担架离开。undefined
+2026-10-07T04:23:08.3761875Z   ---
+2026-10-07T04:23:08.3761983Z   duration_ms: 0.688043
+2026-10-07T04:23:08.3762097Z   type: 'test'
+2026-10-07T04:23:08.3762186Z   ...
+2026-10-07T04:23:08.3762495Z # Subtest: 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，把她留在原地后离开。undefined
+2026-10-07T04:23:08.3762778Z ok 312 - 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，把她留在原地后离开。undefined
+2026-10-07T04:23:08.3762865Z   ---
+2026-10-07T04:23:08.3762986Z   duration_ms: 0.687763
+2026-10-07T04:23:08.3763091Z   type: 'test'
+2026-10-07T04:23:08.3763175Z   ...
+2026-10-07T04:23:08.3763471Z # Subtest: 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，离开。希罗准备随着医疗队伍离去。
+2026-10-07T04:23:08.3763744Z ok 313 - 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，离开。希罗准备随着医疗队伍离去。
+2026-10-07T04:23:08.3763838Z   ---
+2026-10-07T04:23:08.3763943Z   duration_ms: 0.665872
+2026-10-07T04:23:08.3764041Z   type: 'test'
+2026-10-07T04:23:08.3764140Z   ...
+2026-10-07T04:23:08.3764429Z # Subtest: 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，离开。希罗尚未随着医疗队伍离去。
+2026-10-07T04:23:08.3764698Z ok 314 - 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，离开。希罗尚未随着医疗队伍离去。
+2026-10-07T04:23:08.3764792Z   ---
+2026-10-07T04:23:08.3764911Z   duration_ms: 0.690699
+2026-10-07T04:23:08.3765006Z   type: 'test'
+2026-10-07T04:23:08.3765246Z   ...
+2026-10-07T04:23:08.3765704Z # Subtest: 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，离开。希罗独自离去。
+2026-10-07T04:23:08.3766042Z ok 315 - 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，离开。希罗独自离去。
+2026-10-07T04:23:08.3766209Z   ---
+2026-10-07T04:23:08.3766423Z   duration_ms: 0.692622
+2026-10-07T04:23:08.3766584Z   type: 'test'
+2026-10-07T04:23:08.3766732Z   ...
+2026-10-07T04:23:08.3767258Z # Subtest: 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，离开。希罗看着医疗队伍离去。
+2026-10-07T04:23:08.3767734Z ok 316 - 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，离开。希罗看着医疗队伍离去。
+2026-10-07T04:23:08.3767882Z   ---
+2026-10-07T04:23:08.3768050Z   duration_ms: 0.687974
+2026-10-07T04:23:08.3768201Z   type: 'test'
+2026-10-07T04:23:08.3768347Z   ...
+2026-10-07T04:23:08.3768888Z # Subtest: 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，离开。你返回房间。希罗随着医疗队伍离去。
+2026-10-07T04:23:08.3769336Z ok 317 - 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，离开。你返回房间。希罗随着医疗队伍离去。
+2026-10-07T04:23:08.3769435Z   ---
+2026-10-07T04:23:08.3769713Z   duration_ms: 0.686901
+2026-10-07T04:23:08.3769814Z   type: 'test'
+2026-10-07T04:23:08.3769909Z   ...
+2026-10-07T04:23:08.3770253Z # Subtest: 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，离开。\\n\\n希罗随着医疗队伍离去。
+2026-10-07T04:23:08.3770544Z ok 318 - 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，离开。\\n\\n希罗随着医疗队伍离去。
+2026-10-07T04:23:08.3770771Z   ---
+2026-10-07T04:23:08.3770885Z   duration_ms: 0.701969
+2026-10-07T04:23:08.3770986Z   type: 'test'
+2026-10-07T04:23:08.3771079Z   ...
+2026-10-07T04:23:08.3771414Z # Subtest: 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，离开。希罗随着医疗队伍离去。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.3771722Z ok 319 - 人员接走事件的计划、否定、留场和主体断开反例：部下将赛哈姆抬上担架，离开。希罗随着医疗队伍离去。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.3771817Z   ---
+2026-10-07T04:23:08.3771925Z   duration_ms: 0.70257
+2026-10-07T04:23:08.3772019Z   type: 'test'
+2026-10-07T04:23:08.3772118Z   ...
+2026-10-07T04:23:08.3772289Z # Subtest: 人员接走仍不能补命令或跳过晨间独白
+2026-10-07T04:23:08.3772446Z ok 320 - 人员接走仍不能补命令或跳过晨间独白
+2026-10-07T04:23:08.3772542Z   ---
+2026-10-07T04:23:08.3772668Z   duration_ms: 1.20061
+2026-10-07T04:23:08.3772767Z   type: 'test'
+2026-10-07T04:23:08.3772865Z   ...
+2026-10-07T04:23:08.3773298Z # Subtest: 人员接手下被动转移并由希罗带队离去，完整自然正文修前漏判修后保留原命令
+2026-10-07T04:23:08.3773711Z ok 321 - 人员接手下被动转移并由希罗带队离去，完整自然正文修前漏判修后保留原命令
+2026-10-07T04:23:08.3773863Z   ---
+2026-10-07T04:23:08.3774031Z   duration_ms: 4.53536
+2026-10-07T04:23:08.3774208Z   type: 'test'
+2026-10-07T04:23:08.3774356Z   ...
+2026-10-07T04:23:08.3775593Z # Subtest: 主被动接走事实不以地域为条件：黑暗与梦境的边缘，断续而稚嫩的声音从水底传来。你睁开双眼，寝室天花板映入眼帘。希罗解释了赛哈姆的活骸化。在医疗人员接手下，失控的赛哈姆被迅速固定并转移出走廊。希罗微微颔首，随即带着队伍撤离了现场。
+2026-10-07T04:23:08.3776574Z ok 322 - 主被动接走事实不以地域为条件：黑暗与梦境的边缘，断续而稚嫩的声音从水底传来。你睁开双眼，寝室天花板映入眼帘。希罗解释了赛哈姆的活骸化。在医疗人员接手下，失控的赛哈姆被迅速固定并转移出走廊。希罗微微颔首，随即带着队伍撤离了现场。
+2026-10-07T04:23:08.3776730Z   ---
+2026-10-07T04:23:08.3776901Z   duration_ms: 0.79351
+2026-10-07T04:23:08.3777050Z   type: 'test'
+2026-10-07T04:23:08.3777202Z   ...
+2026-10-07T04:23:08.3778048Z # Subtest: 主被动接走事实不以地域为条件：黑暗与梦境的边缘，断续而稚嫩的声音从水底传来。你睁开双眼，寝室天花板映入眼帘。希罗解释了赛哈姆的活骸化。随行人员接手，赛哈姆被抬走。希罗随后随着医疗队伍离去。
+2026-10-07T04:23:08.3779055Z ok 323 - 主被动接走事实不以地域为条件：黑暗与梦境的边缘，断续而稚嫩的声音从水底传来。你睁开双眼，寝室天花板映入眼帘。希罗解释了赛哈姆的活骸化。随行人员接手，赛哈姆被抬走。希罗随后随着医疗队伍离去。
+2026-10-07T04:23:08.3779220Z   ---
+2026-10-07T04:23:08.3779396Z   duration_ms: 0.7505
+2026-10-07T04:23:08.3779555Z   type: 'test'
+2026-10-07T04:23:08.3779701Z   ...
+2026-10-07T04:23:08.3780648Z # Subtest: 主被动接走事实不以地域为条件：黑暗与梦境的边缘，断续而稚嫩的声音从水底传来。你睁开双眼，寝室天花板映入眼帘。希罗解释了赛哈姆的活骸化。希罗将昏迷不醒的赛哈姆带走。
+2026-10-07T04:23:08.3781353Z ok 324 - 主被动接走事实不以地域为条件：黑暗与梦境的边缘，断续而稚嫩的声音从水底传来。你睁开双眼，寝室天花板映入眼帘。希罗解释了赛哈姆的活骸化。希罗将昏迷不醒的赛哈姆带走。
+2026-10-07T04:23:08.3781502Z   ---
+2026-10-07T04:23:08.3781678Z   duration_ms: 0.718901
+2026-10-07T04:23:08.3781832Z   type: 'test'
+2026-10-07T04:23:08.3781976Z   ...
+2026-10-07T04:23:08.3782747Z # Subtest: 主被动接走事实不以地域为条件：黑暗与梦境的边缘，断续而稚嫩的声音从水底传来。你睁开双眼，寝室天花板映入眼帘。希罗解释了赛哈姆的活骸化。希罗带着昏迷不醒的赛哈姆撤离现场。
+2026-10-07T04:23:08.3783535Z ok 325 - 主被动接走事实不以地域为条件：黑暗与梦境的边缘，断续而稚嫩的声音从水底传来。你睁开双眼，寝室天花板映入眼帘。希罗解释了赛哈姆的活骸化。希罗带着昏迷不醒的赛哈姆撤离现场。
+2026-10-07T04:23:08.3783697Z   ---
+2026-10-07T04:23:08.3783867Z   duration_ms: 0.697541
+2026-10-07T04:23:08.3784086Z   type: 'test'
+2026-10-07T04:23:08.3784240Z   ...
+2026-10-07T04:23:08.3784847Z # Subtest: 被动语序仍拒绝计划、否定、物品、留场和无同行：人员准备接手，赛哈姆将被转移出走廊。undefined
+2026-10-07T04:23:08.3785580Z ok 326 - 被动语序仍拒绝计划、否定、物品、留场和无同行：人员准备接手，赛哈姆将被转移出走廊。undefined
+2026-10-07T04:23:08.3785734Z   ---
+2026-10-07T04:23:08.3785972Z   duration_ms: 0.707329
+2026-10-07T04:23:08.3786129Z   type: 'test'
+2026-10-07T04:23:08.3786274Z   ...
+2026-10-07T04:23:08.3786871Z # Subtest: 被动语序仍拒绝计划、否定、物品、留场和无同行：人员接手，赛哈姆尚未被转移出走廊。undefined
+2026-10-07T04:23:08.3787388Z ok 327 - 被动语序仍拒绝计划、否定、物品、留场和无同行：人员接手，赛哈姆尚未被转移出走廊。undefined
+2026-10-07T04:23:08.3787562Z   ---
+2026-10-07T04:23:08.3787730Z   duration_ms: 0.703582
+2026-10-07T04:23:08.3787890Z   type: 'test'
+2026-10-07T04:23:08.3788064Z   ...
+2026-10-07T04:23:08.3788606Z # Subtest: 被动语序仍拒绝计划、否定、物品、留场和无同行：人员接手，赛哈姆没有被转移出走廊。undefined
+2026-10-07T04:23:08.3789121Z ok 328 - 被动语序仍拒绝计划、否定、物品、留场和无同行：人员接手，赛哈姆没有被转移出走廊。undefined
+2026-10-07T04:23:08.3789300Z   ---
+2026-10-07T04:23:08.3789679Z   duration_ms: 0.737666
+2026-10-07T04:23:08.3789885Z   type: 'test'
+2026-10-07T04:23:08.3790029Z   ...
+2026-10-07T04:23:08.3790613Z # Subtest: 被动语序仍拒绝计划、否定、物品、留场和无同行：如果人员接手，赛哈姆被转移出走廊。undefined
+2026-10-07T04:23:08.3791145Z ok 329 - 被动语序仍拒绝计划、否定、物品、留场和无同行：如果人员接手，赛哈姆被转移出走廊。undefined
+2026-10-07T04:23:08.3791294Z   ---
+2026-10-07T04:23:08.3791506Z   duration_ms: 0.675379
+2026-10-07T04:23:08.3791669Z   type: 'test'
+2026-10-07T04:23:08.3791843Z   ...
+2026-10-07T04:23:08.3792389Z # Subtest: 被动语序仍拒绝计划、否定、物品、留场和无同行：昨天人员接手，赛哈姆被转移出走廊。undefined
+2026-10-07T04:23:08.3792905Z ok 330 - 被动语序仍拒绝计划、否定、物品、留场和无同行：昨天人员接手，赛哈姆被转移出走廊。undefined
+2026-10-07T04:23:08.3793085Z   ---
+2026-10-07T04:23:08.3793249Z   duration_ms: 0.677554
+2026-10-07T04:23:08.3793432Z   type: 'test'
+2026-10-07T04:23:08.3793584Z   ...
+2026-10-07T04:23:08.3794124Z # Subtest: 被动语序仍拒绝计划、否定、物品、留场和无同行：据说人员接手，赛哈姆被转移出走廊。undefined
+2026-10-07T04:23:08.3794671Z ok 331 - 被动语序仍拒绝计划、否定、物品、留场和无同行：据说人员接手，赛哈姆被转移出走廊。undefined
+2026-10-07T04:23:08.3794817Z   ---
+2026-10-07T04:23:08.3795197Z   duration_ms: 0.694154
+2026-10-07T04:23:08.3795376Z   type: 'test'
+2026-10-07T04:23:08.3795523Z   ...
+2026-10-07T04:23:08.3796124Z # Subtest: 被动语序仍拒绝计划、否定、物品、留场和无同行：人员接手，赛哈姆的行李被转移出走廊。undefined
+2026-10-07T04:23:08.3796653Z ok 332 - 被动语序仍拒绝计划、否定、物品、留场和无同行：人员接手，赛哈姆的行李被转移出走廊。undefined
+2026-10-07T04:23:08.3797100Z   ---
+2026-10-07T04:23:08.3797264Z   duration_ms: 0.70202
+2026-10-07T04:23:08.3797449Z   type: 'test'
+2026-10-07T04:23:08.3797602Z   ...
+2026-10-07T04:23:08.3798164Z # Subtest: 被动语序仍拒绝计划、否定、物品、留场和无同行：人员接手，赛哈姆的照片被抬走。undefined
+2026-10-07T04:23:08.3798671Z ok 333 - 被动语序仍拒绝计划、否定、物品、留场和无同行：人员接手，赛哈姆的照片被抬走。undefined
+2026-10-07T04:23:08.3798817Z   ---
+2026-10-07T04:23:08.3799006Z   duration_ms: 0.669829
+2026-10-07T04:23:08.3799169Z   type: 'test'
+2026-10-07T04:23:08.3799340Z   ...
+2026-10-07T04:23:08.3799874Z # Subtest: 被动语序仍拒绝计划、否定、物品、留场和无同行：人员接手，赛哈姆被固定在病床上。undefined
+2026-10-07T04:23:08.3800387Z ok 334 - 被动语序仍拒绝计划、否定、物品、留场和无同行：人员接手，赛哈姆被固定在病床上。undefined
+2026-10-07T04:23:08.3800539Z   ---
+2026-10-07T04:23:08.3800751Z   duration_ms: 0.704413
+2026-10-07T04:23:08.3800912Z   type: 'test'
+2026-10-07T04:23:08.3801085Z   ...
+2026-10-07T04:23:08.3801620Z # Subtest: 被动语序仍拒绝计划、否定、物品、留场和无同行：人员接手，赛哈姆被转移到病房。undefined
+2026-10-07T04:23:08.3802125Z ok 335 - 被动语序仍拒绝计划、否定、物品、留场和无同行：人员接手，赛哈姆被转移到病房。undefined
+2026-10-07T04:23:08.3802303Z   ---
+2026-10-07T04:23:08.3802495Z   duration_ms: 0.710115
+2026-10-07T04:23:08.3802662Z   type: 'test'
+2026-10-07T04:23:08.3802839Z   ...
+2026-10-07T04:23:08.3803372Z # Subtest: 被动语序仍拒绝计划、否定、物品、留场和无同行：undefined希罗准备带着队伍撤离现场。
+2026-10-07T04:23:08.3803883Z ok 336 - 被动语序仍拒绝计划、否定、物品、留场和无同行：undefined希罗准备带着队伍撤离现场。
+2026-10-07T04:23:08.3804067Z   ---
+2026-10-07T04:23:08.3804232Z   duration_ms: 0.714312
+2026-10-07T04:23:08.3804412Z   type: 'test'
+2026-10-07T04:23:08.3804553Z   ...
+2026-10-07T04:23:08.3805297Z # Subtest: 被动语序仍拒绝计划、否定、物品、留场和无同行：undefined希罗尚未带着队伍撤离现场。
+2026-10-07T04:23:08.3805858Z ok 337 - 被动语序仍拒绝计划、否定、物品、留场和无同行：undefined希罗尚未带着队伍撤离现场。
+2026-10-07T04:23:08.3806007Z   ---
+2026-10-07T04:23:08.3806407Z   duration_ms: 0.673857
+2026-10-07T04:23:08.3806582Z   type: 'test'
+2026-10-07T04:23:08.3806753Z   ...
+2026-10-07T04:23:08.3807265Z # Subtest: 被动语序仍拒绝计划、否定、物品、留场和无同行：undefined希罗独自撤离现场。
+2026-10-07T04:23:08.3807745Z ok 338 - 被动语序仍拒绝计划、否定、物品、留场和无同行：undefined希罗独自撤离现场。
+2026-10-07T04:23:08.3807916Z   ---
+2026-10-07T04:23:08.3808277Z   duration_ms: 0.694876
+2026-10-07T04:23:08.3808482Z   type: 'test'
+2026-10-07T04:23:08.3808627Z   ...
+2026-10-07T04:23:08.3809171Z # Subtest: 被动语序仍拒绝计划、否定、物品、留场和无同行：undefined希罗带着另一支队伍离开。
+2026-10-07T04:23:08.3809692Z ok 339 - 被动语序仍拒绝计划、否定、物品、留场和无同行：undefined希罗带着另一支队伍离开。
+2026-10-07T04:23:08.3809839Z   ---
+2026-10-07T04:23:08.3810010Z   duration_ms: 0.699184
+2026-10-07T04:23:08.3810197Z   type: 'test'
+2026-10-07T04:23:08.3810340Z   ...
+2026-10-07T04:23:08.3810933Z # Subtest: 被动语序仍拒绝计划、否定、物品、留场和无同行：undefined希罗带着队伍离开。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.3811479Z ok 340 - 被动语序仍拒绝计划、否定、物品、留场和无同行：undefined希罗带着队伍离开。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.3811650Z   ---
+2026-10-07T04:23:08.3811846Z   duration_ms: 0.67601
+2026-10-07T04:23:08.3812005Z   type: 'test'
+2026-10-07T04:23:08.3812173Z   ...
+2026-10-07T04:23:08.3812798Z # Subtest: 被动语序仍拒绝计划、否定、物品、留场和无同行：人员接手，赛哈姆被转移出走廊。\\n\\nundefined
+2026-10-07T04:23:08.3813359Z ok 341 - 被动语序仍拒绝计划、否定、物品、留场和无同行：人员接手，赛哈姆被转移出走廊。\\n\\nundefined
+2026-10-07T04:23:08.3813511Z   ---
+2026-10-07T04:23:08.3813749Z   duration_ms: 0.698122
+2026-10-07T04:23:08.3813868Z   type: 'test'
+2026-10-07T04:23:08.3813960Z   ...
+2026-10-07T04:23:08.3814307Z # Subtest: 被动语序仍拒绝计划、否定、物品、留场和无同行：人员接手，赛哈姆被转移出走廊。你返回房间。undefined
+2026-10-07T04:23:08.3814611Z ok 342 - 被动语序仍拒绝计划、否定、物品、留场和无同行：人员接手，赛哈姆被转移出走廊。你返回房间。undefined
+2026-10-07T04:23:08.3814708Z   ---
+2026-10-07T04:23:08.3814820Z   duration_ms: 0.733027
+2026-10-07T04:23:08.3814928Z   type: 'test'
+2026-10-07T04:23:08.3815262Z   ...
+2026-10-07T04:23:08.3815743Z # Subtest: 直接接走的不同主体、许可和物品反例：希罗准备将赛哈姆带走。
+2026-10-07T04:23:08.3816203Z ok 343 - 直接接走的不同主体、许可和物品反例：希罗准备将赛哈姆带走。
+2026-10-07T04:23:08.3816379Z   ---
+2026-10-07T04:23:08.3816606Z   duration_ms: 0.732016
+2026-10-07T04:23:08.3816820Z   type: 'test'
+2026-10-07T04:23:08.3817029Z   ...
+2026-10-07T04:23:08.3817514Z # Subtest: 直接接走的不同主体、许可和物品反例：希罗允许你将赛哈姆带走。
+2026-10-07T04:23:08.3817983Z ok 344 - 直接接走的不同主体、许可和物品反例：希罗允许你将赛哈姆带走。
+2026-10-07T04:23:08.3818192Z   ---
+2026-10-07T04:23:08.3818388Z   duration_ms: 0.658548
+2026-10-07T04:23:08.3818639Z   type: 'test'
+2026-10-07T04:23:08.3818809Z   ...
+2026-10-07T04:23:08.3819360Z # Subtest: 直接接走的不同主体、许可和物品反例：希罗看着你带着赛哈姆撤离现场。
+2026-10-07T04:23:08.3819846Z ok 345 - 直接接走的不同主体、许可和物品反例：希罗看着你带着赛哈姆撤离现场。
+2026-10-07T04:23:08.3820018Z   ---
+2026-10-07T04:23:08.3820241Z   duration_ms: 0.686841
+2026-10-07T04:23:08.3820422Z   type: 'test'
+2026-10-07T04:23:08.3820614Z   ...
+2026-10-07T04:23:08.3821098Z # Subtest: 直接接走的不同主体、许可和物品反例：希罗将赛哈姆的行李带走。
+2026-10-07T04:23:08.3821568Z ok 346 - 直接接走的不同主体、许可和物品反例：希罗将赛哈姆的行李带走。
+2026-10-07T04:23:08.3821773Z   ---
+2026-10-07T04:23:08.3821960Z   duration_ms: 0.686681
+2026-10-07T04:23:08.3822172Z   type: 'test'
+2026-10-07T04:23:08.3822337Z   ...
+2026-10-07T04:23:08.3823198Z # Subtest: 直接接走的不同主体、许可和物品反例：希罗带着赛哈姆撤离现场。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.3823821Z ok 347 - 直接接走的不同主体、许可和物品反例：希罗带着赛哈姆撤离现场。赛哈姆仍留在中央庭。
+2026-10-07T04:23:08.3824000Z   ---
+2026-10-07T04:23:08.3824220Z   duration_ms: 0.661203
+2026-10-07T04:23:08.3824402Z   type: 'test'
+2026-10-07T04:23:08.3824596Z   ...
+2026-10-07T04:23:08.3825538Z # Subtest: 第三轮醒前语境和环境残留误判，修后全文保留两个模型命令
+2026-10-07T04:23:08.3825985Z ok 348 - 第三轮醒前语境和环境残留误判，修后全文保留两个模型命令
+2026-10-07T04:23:08.3826181Z   ---
+2026-10-07T04:23:08.3826361Z   duration_ms: 6.845659
+2026-10-07T04:23:08.3826562Z   type: 'test'
+2026-10-07T04:23:08.3826717Z   ...
+2026-10-07T04:23:08.3827478Z # Subtest: 声音在首次实际苏醒之前，意识语境可以紧随声音：在混沌与清醒的夹缝间，有模糊的声音传来。那声音散去，意识浮出水面，你睁开了眼睛。
+2026-10-07T04:23:08.3828171Z ok 349 - 声音在首次实际苏醒之前，意识语境可以紧随声音：在混沌与清醒的夹缝间，有模糊的声音传来。那声音散去，意识浮出水面，你睁开了眼睛。
+2026-10-07T04:23:08.3828332Z   ---
+2026-10-07T04:23:08.3828544Z   duration_ms: 0.805733
+2026-10-07T04:23:08.3828722Z   type: 'test'
+2026-10-07T04:23:08.3828899Z   ...
+2026-10-07T04:23:08.3829481Z # Subtest: 声音在首次实际苏醒之前，意识语境可以紧随声音：微弱的声音传来。意识猛然浮起，你睁开眼睛。
+2026-10-07T04:23:08.3830006Z ok 350 - 声音在首次实际苏醒之前，意识语境可以紧随声音：微弱的声音传来。意识猛然浮起，你睁开眼睛。
+2026-10-07T04:23:08.3830162Z   ---
+2026-10-07T04:23:08.3830371Z   duration_ms: 0.730743
+2026-10-07T04:23:08.3830541Z   type: 'test'
+2026-10-07T04:23:08.3830780Z   ...
+2026-10-07T04:23:08.3831342Z # Subtest: 声音在首次实际苏醒之前，意识语境可以紧随声音：意识浮起，一缕低语传来，你睁开眼睛。
+2026-10-07T04:23:08.3831834Z ok 351 - 声音在首次实际苏醒之前，意识语境可以紧随声音：意识浮起，一缕低语传来，你睁开眼睛。
+2026-10-07T04:23:08.3832009Z   ---
+2026-10-07T04:23:08.3832189Z   duration_ms: 0.761019
+2026-10-07T04:23:08.3832349Z   type: 'test'
+2026-10-07T04:23:08.3832520Z   ...
+2026-10-07T04:23:08.3833153Z # Subtest: 醒后、无意识语境、回忆、假设和未醒不冒充晨间前置：你睁开眼睛。意识还很模糊，工作人员的声音在走廊传来。
+2026-10-07T04:23:08.3833734Z ok 352 - 醒后、无意识语境、回忆、假设和未醒不冒充晨间前置：你睁开眼睛。意识还很模糊，工作人员的声音在走廊传来。
+2026-10-07T04:23:08.3833905Z   ---
+2026-10-07T04:23:08.3834087Z   duration_ms: 0.844595
+2026-10-07T04:23:08.3834277Z   type: 'test'
+2026-10-07T04:23:08.3834449Z   ...
+2026-10-07T04:23:08.3835016Z # Subtest: 醒后、无意识语境、回忆、假设和未醒不冒充晨间前置：工作人员的声音传来。你睁开眼睛。
+2026-10-07T04:23:08.3835789Z ok 353 - 醒后、无意识语境、回忆、假设和未醒不冒充晨间前置：工作人员的声音传来。你睁开眼睛。
+2026-10-07T04:23:08.3835944Z   ---
+2026-10-07T04:23:08.3836152Z   duration_ms: 0.728248
+2026-10-07T04:23:08.3836320Z   type: 'test'
+2026-10-07T04:23:08.3836495Z   ...
+2026-10-07T04:23:08.3837055Z # Subtest: 醒后、无意识语境、回忆、假设和未醒不冒充晨间前置：你回忆意识浮起前的声音。你睁开眼睛。
+2026-10-07T04:23:08.3837581Z ok 354 - 醒后、无意识语境、回忆、假设和未醒不冒充晨间前置：你回忆意识浮起前的声音。你睁开眼睛。
+2026-10-07T04:23:08.3837725Z   ---
+2026-10-07T04:23:08.3837928Z   duration_ms: 0.735482
+2026-10-07T04:23:08.3838092Z   type: 'test'
+2026-10-07T04:23:08.3838259Z   ...
+2026-10-07T04:23:08.3838803Z # Subtest: 醒后、无意识语境、回忆、假设和未醒不冒充晨间前置：如果意识浮起时有声音，你会睁开眼睛。
+2026-10-07T04:23:08.3839318Z ok 355 - 醒后、无意识语境、回忆、假设和未醒不冒充晨间前置：如果意识浮起时有声音，你会睁开眼睛。
+2026-10-07T04:23:08.3839469Z   ---
+2026-10-07T04:23:08.3839677Z   duration_ms: 0.710806
+2026-10-07T04:23:08.3839842Z   type: 'test'
+2026-10-07T04:23:08.3839984Z   ...
+2026-10-07T04:23:08.3840831Z # Subtest: 醒后、无意识语境、回忆、假设和未醒不冒充晨间前置：意识浮起，微弱的声音传来。你尚未睁开眼睛。
+2026-10-07T04:23:08.3841396Z ok 356 - 醒后、无意识语境、回忆、假设和未醒不冒充晨间前置：意识浮起，微弱的声音传来。你尚未睁开眼睛。
+2026-10-07T04:23:08.3841546Z   ---
+2026-10-07T04:23:08.3841758Z   duration_ms: 0.686541
+2026-10-07T04:23:08.3841968Z   type: 'test'
+2026-10-07T04:23:08.3842122Z   ...
+2026-10-07T04:23:08.3842706Z # Subtest: 醒后、无意识语境、回忆、假设和未醒不冒充晨间前置：意识浮起，微弱的声音传来。你准备睁开眼睛。
+2026-10-07T04:23:08.3843562Z ok 357 - 醒后、无意识语境、回忆、假设和未醒不冒充晨间前置：意识浮起，微弱的声音传来。你准备睁开眼睛。
+2026-10-07T04:23:08.3843727Z   ---
+2026-10-07T04:23:08.3843904Z   duration_ms: 0.684908
+2026-10-07T04:23:08.3844097Z   type: 'test'
+2026-10-07T04:23:08.3844244Z   ...
+2026-10-07T04:23:08.3845002Z # Subtest: 醒后、无意识语境、回忆、假设和未醒不冒充晨间前置：<f7d_choices>声音传来，意识浮起，你睁开眼睛。</f7d_choices>
+2026-10-07T04:23:08.3845992Z ok 358 - 醒后、无意识语境、回忆、假设和未醒不冒充晨间前置：<f7d_choices>声音传来，意识浮起，你睁开眼睛。</f7d_choices>
+2026-10-07T04:23:08.3846176Z   ---
+2026-10-07T04:23:08.3846362Z   duration_ms: 0.687222
+2026-10-07T04:23:08.3846554Z   type: 'test'
+2026-10-07T04:23:08.3846700Z   ...
+2026-10-07T04:23:08.3847277Z # Subtest: 环境留下痕迹不能误当作留下赛哈姆：希罗带着赛哈姆撤离现场，只留下地面上的弹痕。
+2026-10-07T04:23:08.3847755Z ok 359 - 环境留下痕迹不能误当作留下赛哈姆：希罗带着赛哈姆撤离现场，只留下地面上的弹痕。
+2026-10-07T04:23:08.3847913Z   ---
+2026-10-07T04:23:08.3848116Z   duration_ms: 0.73458
+2026-10-07T04:23:08.3848282Z   type: 'test'
+2026-10-07T04:23:08.3848437Z   ...
+2026-10-07T04:23:08.3849126Z # Subtest: 环境留下痕迹不能误当作留下赛哈姆：随着希罗一行人带着赛哈姆离开，庭院中的气息渐渐沉淀，只留下地面上焦黑的弹痕。
+2026-10-07T04:23:08.3849822Z ok 360 - 环境留下痕迹不能误当作留下赛哈姆：随着希罗一行人带着赛哈姆离开，庭院中的气息渐渐沉淀，只留下地面上焦黑的弹痕。
+2026-10-07T04:23:08.3849991Z   ---
+2026-10-07T04:23:08.3850204Z   duration_ms: 0.673506
+2026-10-07T04:23:08.3850369Z   type: 'test'
+2026-10-07T04:23:08.3850554Z   ...
+2026-10-07T04:23:08.3851091Z # Subtest: 环境留下痕迹不能误当作留下赛哈姆：希罗带着赛哈姆离开，只留下空气中的幻力余波。
+2026-10-07T04:23:08.3851580Z ok 361 - 环境留下痕迹不能误当作留下赛哈姆：希罗带着赛哈姆离开，只留下空气中的幻力余波。
+2026-10-07T04:23:08.3851769Z   ---
+2026-10-07T04:23:08.3851956Z   duration_ms: 0.685779
+2026-10-07T04:23:08.3852144Z   type: 'test'
+2026-10-07T04:23:08.3852304Z   ...
+2026-10-07T04:23:08.3853142Z # Subtest: 明确留下人物本人仍拒绝接走结算：希罗带着赛哈姆离开，但随后将赛哈姆留下。
+2026-10-07T04:23:08.3853679Z ok 362 - 明确留下人物本人仍拒绝接走结算：希罗带着赛哈姆离开，但随后将赛哈姆留下。
+2026-10-07T04:23:08.3853871Z   ---
+2026-10-07T04:23:08.3854054Z   duration_ms: 0.719192
+2026-10-07T04:23:08.3854247Z   type: 'test'
+2026-10-07T04:23:08.3854404Z   ...
+2026-10-07T04:23:08.3855011Z # Subtest: 明确留下人物本人仍拒绝接走结算：人员接手，赛哈姆被抬走。希罗带队离去，但赛哈姆仍被留下。
+2026-10-07T04:23:08.3855860Z ok 363 - 明确留下人物本人仍拒绝接走结算：人员接手，赛哈姆被抬走。希罗带队离去，但赛哈姆仍被留下。
+2026-10-07T04:23:08.3856060Z   ---
+2026-10-07T04:23:08.3856262Z   duration_ms: 0.687973
+2026-10-07T04:23:08.3856469Z   type: 'test'
+2026-10-07T04:23:08.3856637Z   ...
+2026-10-07T04:23:08.3857180Z # Subtest: 同句希罗挥手和医护实际抬走完整正文修前拒绝，修后保留原有模型命令
+2026-10-07T04:23:08.3857663Z ok 364 - 同句希罗挥手和医护实际抬走完整正文修前拒绝，修后保留原有模型命令
+2026-10-07T04:23:08.3857873Z   ---
+2026-10-07T04:23:08.3858071Z   duration_ms: 4.034776
+2026-10-07T04:23:08.3858277Z   type: 'test'
+2026-10-07T04:23:08.3858438Z   ...
+2026-10-07T04:23:08.3859150Z # Subtest: 同句指挥和本人实际接走无需运输细节：希罗挥了挥手，医疗人员迅速将赛哈姆抬上担架，在护卫的簇拥下撤离了庭院。
+2026-10-07T04:23:08.3859849Z ok 365 - 同句指挥和本人实际接走无需运输细节：希罗挥了挥手，医疗人员迅速将赛哈姆抬上担架，在护卫的簇拥下撤离了庭院。
+2026-10-07T04:23:08.3860057Z   ---
+2026-10-07T04:23:08.3860252Z   duration_ms: 0.744408
+2026-10-07T04:23:08.3860460Z   type: 'test'
+2026-10-07T04:23:08.3860625Z   ...
+2026-10-07T04:23:08.3861211Z # Subtest: 同句指挥和本人实际接走无需运输细节：希罗示意，部下把受伤的赛哈姆抱起并离开。
+2026-10-07T04:23:08.3862063Z ok 366 - 同句指挥和本人实际接走无需运输细节：希罗示意，部下把受伤的赛哈姆抱起并离开。
+2026-10-07T04:23:08.3862267Z   ---
+2026-10-07T04:23:08.3862469Z   duration_ms: 0.714944
+2026-10-07T04:23:08.3862681Z   type: 'test'
+2026-10-07T04:23:08.3862851Z   ...
+2026-10-07T04:23:08.3863490Z # Subtest: 同句接走仍拒绝未执行、其他对象、其他主体和留场：希罗挥手，人员准备将赛哈姆抬上担架，撤离。
+2026-10-07T04:23:08.3864067Z ok 367 - 同句接走仍拒绝未执行、其他对象、其他主体和留场：希罗挥手，人员准备将赛哈姆抬上担架，撤离。
+2026-10-07T04:23:08.3864275Z   ---
+2026-10-07T04:23:08.3864460Z   duration_ms: 0.734038
+2026-10-07T04:23:08.3864667Z   type: 'test'
+2026-10-07T04:23:08.3864832Z   ...
+2026-10-07T04:23:08.3865679Z # Subtest: 同句接走仍拒绝未执行、其他对象、其他主体和留场：希罗允许人员将赛哈姆抬上担架，撤离。
+2026-10-07T04:23:08.3866295Z ok 368 - 同句接走仍拒绝未执行、其他对象、其他主体和留场：希罗允许人员将赛哈姆抬上担架，撤离。
+2026-10-07T04:23:08.3866474Z   ---
+2026-10-07T04:23:08.3866693Z   duration_ms: 0.697071
+2026-10-07T04:23:08.3866884Z   type: 'test'
+2026-10-07T04:23:08.3867076Z   ...
+2026-10-07T04:23:08.3867683Z # Subtest: 同句接走仍拒绝未执行、其他对象、其他主体和留场：如果希罗挥手，人员将赛哈姆抬上担架，撤离。
+2026-10-07T04:23:08.3868336Z ok 369 - 同句接走仍拒绝未执行、其他对象、其他主体和留场：如果希罗挥手，人员将赛哈姆抬上担架，撤离。
+2026-10-07T04:23:08.3868504Z   ---
+2026-10-07T04:23:08.3868713Z   duration_ms: 0.67055
+2026-10-07T04:23:08.3868926Z   type: 'test'
+2026-10-07T04:23:08.3869094Z   ...
+2026-10-07T04:23:08.3869696Z # Subtest: 同句接走仍拒绝未执行、其他对象、其他主体和留场：希罗挥手，人员将赛哈姆的行李抬上担架，撤离。
+2026-10-07T04:23:08.3870296Z ok 370 - 同句接走仍拒绝未执行、其他对象、其他主体和留场：希罗挥手，人员将赛哈姆的行李抬上担架，撤离。
+2026-10-07T04:23:08.3870503Z   ---
+2026-10-07T04:23:08.3870692Z   duration_ms: 0.692852
+2026-10-07T04:23:08.3870897Z   type: 'test'
+2026-10-07T04:23:08.3871060Z   ...
+2026-10-07T04:23:08.3871696Z # Subtest: 同句接走仍拒绝未执行、其他对象、其他主体和留场：希罗挥手，人员将赛哈姆抬上担架，看着安离开。
+2026-10-07T04:23:08.3872568Z ok 371 - 同句接走仍拒绝未执行、其他对象、其他主体和留场：希罗挥手，人员将赛哈姆抬上担架，看着安离开。
+2026-10-07T04:23:08.3872770Z   ---
+2026-10-07T04:23:08.3873001Z   duration_ms: 0.705085
+2026-10-07T04:23:08.3873185Z   type: 'test'
+2026-10-07T04:23:08.3873378Z   ...
+2026-10-07T04:23:08.3874048Z # Subtest: 同句接走仍拒绝未执行、其他对象、其他主体和留场：希罗挥手，人员将赛哈姆抬上担架，随后希罗独自离开。
+2026-10-07T04:23:08.3874639Z ok 372 - 同句接走仍拒绝未执行、其他对象、其他主体和留场：希罗挥手，人员将赛哈姆抬上担架，随后希罗独自离开。
+2026-10-07T04:23:08.3875405Z   ---
+2026-10-07T04:23:08.3875600Z   duration_ms: 0.671713
+2026-10-07T04:23:08.3875825Z   type: 'test'
+2026-10-07T04:23:08.3876010Z   ...
+2026-10-07T04:23:08.3876813Z # Subtest: 同句接走仍拒绝未执行、其他对象、其他主体和留场：希罗挥手，人员将赛哈姆抬上担架，但将她留在原地后离开。
+2026-10-07T04:23:08.3877562Z ok 373 - 同句接走仍拒绝未执行、其他对象、其他主体和留场：希罗挥手，人员将赛哈姆抬上担架，但将她留在原地后离开。
+2026-10-07T04:23:08.3877779Z   ---
+2026-10-07T04:23:08.3878028Z   duration_ms: 0.689787
+2026-10-07T04:23:08.3878251Z   type: 'test'
+2026-10-07T04:23:08.3878450Z   ...
+2026-10-07T04:23:08.3879183Z # Subtest: 同句接走仍拒绝未执行、其他对象、其他主体和留场：希罗挥手，人员将赛哈姆抬上担架，尚未撤离。
+2026-10-07T04:23:08.3879841Z ok 374 - 同句接走仍拒绝未执行、其他对象、其他主体和留场：希罗挥手，人员将赛哈姆抬上担架，尚未撤离。
+2026-10-07T04:23:08.3880005Z   ---
+2026-10-07T04:23:08.3880217Z   duration_ms: 0.68587
+2026-10-07T04:23:08.3880388Z   type: 'test'
+2026-10-07T04:23:08.3880573Z   ...
+2026-10-07T04:23:08.3881084Z # Subtest: 致意动作与人物修饰语不应拦截已发生接走，完整自然正文修前拒绝修后保留原命令
+2026-10-07T04:23:08.3881575Z ok 375 - 致意动作与人物修饰语不应拦截已发生接走，完整自然正文修前拒绝修后保留原命令
+2026-10-07T04:23:08.3881795Z   ---
+2026-10-07T04:23:08.3881973Z   duration_ms: 5.567734
+2026-10-07T04:23:08.3882165Z   type: 'test'
+2026-10-07T04:23:08.3882323Z   ...
+2026-10-07T04:23:08.3882967Z # Subtest: 动作修饰、插入语和人物状态不改变接走事实：希罗向你微微致意后，便带着完全陷入昏迷的赛哈姆离开了现场。
+2026-10-07T04:23:08.3883528Z ok 376 - 动作修饰、插入语和人物状态不改变接走事实：希罗向你微微致意后，便带着完全陷入昏迷的赛哈姆离开了现场。
+2026-10-07T04:23:08.3883718Z   ---
+2026-10-07T04:23:08.3883895Z   duration_ms: 0.78303
+2026-10-07T04:23:08.3884095Z   type: 'test'
+2026-10-07T04:23:08.3884250Z   ...
+2026-10-07T04:23:08.3884863Z # Subtest: 动作修饰、插入语和人物状态不改变接走事实：希罗向你点头，带着身体虚弱且失去意识的赛哈姆撤离。
+2026-10-07T04:23:08.3885717Z ok 377 - 动作修饰、插入语和人物状态不改变接走事实：希罗向你点头，带着身体虚弱且失去意识的赛哈姆撤离。
+2026-10-07T04:23:08.3885928Z   ---
+2026-10-07T04:23:08.3886114Z   duration_ms: 0.711096
+2026-10-07T04:23:08.3886315Z   type: 'test'
+2026-10-07T04:23:08.3886477Z   ...
+2026-10-07T04:23:08.3887091Z # Subtest: 动作修饰、插入语和人物状态不改变接走事实：希罗朝安挥手告别，随即护送着昏睡的赛哈姆离开。
+2026-10-07T04:23:08.3887660Z ok 378 - 动作修饰、插入语和人物状态不改变接走事实：希罗朝安挥手告别，随即护送着昏睡的赛哈姆离开。
+2026-10-07T04:23:08.3887860Z   ---
+2026-10-07T04:23:08.3888032Z   duration_ms: 0.715755
+2026-10-07T04:23:08.3888224Z   type: 'test'
+2026-10-07T04:23:08.3888375Z   ...
+2026-10-07T04:23:08.3888942Z # Subtest: 动作修饰、插入语和人物状态不改变接走事实：希罗扶正眼镜，将尚在昏迷之中的赛哈姆带走。
+2026-10-07T04:23:08.3889480Z ok 379 - 动作修饰、插入语和人物状态不改变接走事实：希罗扶正眼镜，将尚在昏迷之中的赛哈姆带走。
+2026-10-07T04:23:08.3889693Z   ---
+2026-10-07T04:23:08.3889882Z   duration_ms: 0.671172
+2026-10-07T04:23:08.3890097Z   type: 'test'
+2026-10-07T04:23:08.3890262Z   ...
+2026-10-07T04:23:08.3890880Z # Subtest: 泛化修饰语不能把旁人、物品、未来和留场视作接走：希罗看着你带着完全昏迷的赛哈姆离开。
+2026-10-07T04:23:08.3891487Z ok 380 - 泛化修饰语不能把旁人、物品、未来和留场视作接走：希罗看着你带着完全昏迷的赛哈姆离开。
+2026-10-07T04:23:08.3891964Z   ---
+2026-10-07T04:23:08.3892238Z   duration_ms: 0.77206
+2026-10-07T04:23:08.3892495Z   type: 'test'
+2026-10-07T04:23:08.3892713Z   ...
+2026-10-07T04:23:08.3893371Z # Subtest: 泛化修饰语不能把旁人、物品、未来和留场视作接走：希罗与安交谈，你带着赛哈姆离开。
+2026-10-07T04:23:08.3894003Z ok 381 - 泛化修饰语不能把旁人、物品、未来和留场视作接走：希罗与安交谈，你带着赛哈姆离开。
+2026-10-07T04:23:08.3894564Z   ---
+2026-10-07T04:23:08.3894807Z   duration_ms: 0.707359
+2026-10-07T04:23:08.3895030Z   type: 'test'
+2026-10-07T04:23:08.3895455Z   ...
+2026-10-07T04:23:08.3896141Z # Subtest: 泛化修饰语不能把旁人、物品、未来和留场视作接走：希罗与安交谈，安随即带着赛哈姆离开。
+2026-10-07T04:23:08.3896653Z ok 382 - 泛化修饰语不能把旁人、物品、未来和留场视作接走：希罗与安交谈，安随即带着赛哈姆离开。
+2026-10-07T04:23:08.3896818Z   ---
+2026-10-07T04:23:08.3897045Z   duration_ms: 0.71829
+2026-10-07T04:23:08.3897228Z   type: 'test'
+2026-10-07T04:23:08.3897388Z   ...
+2026-10-07T04:23:08.3897962Z # Subtest: 泛化修饰语不能把旁人、物品、未来和留场视作接走：希罗准备带着完全昏迷的赛哈姆离开。
+2026-10-07T04:23:08.3898473Z ok 383 - 泛化修饰语不能把旁人、物品、未来和留场视作接走：希罗准备带着完全昏迷的赛哈姆离开。
+2026-10-07T04:23:08.3898628Z   ---
+2026-10-07T04:23:08.3901815Z   duration_ms: 0.669529
+2026-10-07T04:23:08.3902107Z   type: 'test'
+2026-10-07T04:23:08.3902261Z   ...
+2026-10-07T04:23:08.3902846Z # Subtest: 泛化修饰语不能把旁人、物品、未来和留场视作接走：希罗会把完全昏迷的赛哈姆带走。
+2026-10-07T04:23:08.3903292Z ok 384 - 泛化修饰语不能把旁人、物品、未来和留场视作接走：希罗会把完全昏迷的赛哈姆带走。
+2026-10-07T04:23:08.3903441Z   ---
+2026-10-07T04:23:08.3903645Z   duration_ms: 0.690117
+2026-10-07T04:23:08.3903811Z   type: 'test'
+2026-10-07T04:23:08.3903953Z   ...
+2026-10-07T04:23:08.3904397Z # Subtest: 泛化修饰语不能把旁人、物品、未来和留场视作接走：希罗带着赛哈姆的行李离开。
+2026-10-07T04:23:08.3904819Z ok 385 - 泛化修饰语不能把旁人、物品、未来和留场视作接走：希罗带着赛哈姆的行李离开。
+2026-10-07T04:23:08.3904966Z   ---
+2026-10-07T04:23:08.3905374Z   duration_ms: 0.689967
+2026-10-07T04:23:08.3905550Z   type: 'test'
+2026-10-07T04:23:08.3905694Z   ...
+2026-10-07T04:23:08.3906174Z # Subtest: 泛化修饰语不能把旁人、物品、未来和留场视作接走：希罗带着站在赛哈姆身旁的安离开。
+2026-10-07T04:23:08.3906609Z ok 386 - 泛化修饰语不能把旁人、物品、未来和留场视作接走：希罗带着站在赛哈姆身旁的安离开。
+2026-10-07T04:23:08.3906757Z   ---
+2026-10-07T04:23:08.3906936Z   duration_ms: 0.659821
+2026-10-07T04:23:08.3907331Z   type: 'test'
+2026-10-07T04:23:08.3907485Z   ...
+2026-10-07T04:23:08.3907963Z # Subtest: 泛化修饰语不能把旁人、物品、未来和留场视作接走：希罗将完全昏迷的赛哈姆留下后离开。
+2026-10-07T04:23:08.3908401Z ok 387 - 泛化修饰语不能把旁人、物品、未来和留场视作接走：希罗将完全昏迷的赛哈姆留下后离开。
+2026-10-07T04:23:08.3908549Z   ---
+2026-10-07T04:23:08.3908721Z   duration_ms: 0.680268
+2026-10-07T04:23:08.3909054Z   type: 'test'
+2026-10-07T04:23:08.3909199Z   ...
+2026-10-07T04:23:08.3909625Z # Subtest: 希罗后紧接他示意护卫与本人被带离，完整自然正文修前拒绝修后保留原命令
+2026-10-07T04:23:08.3910015Z ok 388 - 希罗后紧接他示意护卫与本人被带离，完整自然正文修前拒绝修后保留原命令
+2026-10-07T04:23:08.3910160Z   ---
+2026-10-07T04:23:08.3910331Z   duration_ms: 4.126416
+2026-10-07T04:23:08.3910492Z   type: 'test'
+2026-10-07T04:23:08.3910675Z   ...
+2026-10-07T04:23:08.3911050Z # Subtest: 相邻段落已明确希罗，代词指挥护卫实际带走可结算
+2026-10-07T04:23:08.3911402Z ok 389 - 相邻段落已明确希罗，代词指挥护卫实际带走可结算
+2026-10-07T04:23:08.3911549Z   ---
+2026-10-07T04:23:08.3911734Z   duration_ms: 0.822284
+2026-10-07T04:23:08.3919434Z   type: 'test'
+2026-10-07T04:23:08.3919617Z   ...
+2026-10-07T04:23:08.3920095Z # Subtest: 代词必须指向希罗且本人实际接走，不能跨其他事件：晏华微微一笑。\\n\\n他示意护卫。赛哈姆被带离寝室。
+2026-10-07T04:23:08.3920425Z ok 390 - 代词必须指向希罗且本人实际接走，不能跨其他事件：晏华微微一笑。\\n\\n他示意护卫。赛哈姆被带离寝室。
+2026-10-07T04:23:08.3920525Z   ---
+2026-10-07T04:23:08.3920643Z   duration_ms: 0.763394
+2026-10-07T04:23:08.3920754Z   type: 'test'
+2026-10-07T04:23:08.3920866Z   ...
+2026-10-07T04:23:08.3921206Z # Subtest: 代词必须指向希罗且本人实际接走，不能跨其他事件：希罗微微一笑。晏华上前。\\n\\n他示意护卫。赛哈姆被带离寝室。
+2026-10-07T04:23:08.3921520Z ok 391 - 代词必须指向希罗且本人实际接走，不能跨其他事件：希罗微微一笑。晏华上前。\\n\\n他示意护卫。赛哈姆被带离寝室。
+2026-10-07T04:23:08.3921615Z   ---
+2026-10-07T04:23:08.3921719Z   duration_ms: 0.730602
+2026-10-07T04:23:08.3921835Z   type: 'test'
+2026-10-07T04:23:08.3921929Z   ...
+2026-10-07T04:23:08.3922232Z # Subtest: 代词必须指向希罗且本人实际接走，不能跨其他事件：希罗向你致意。\\n\\n他示意护卫。赛哈姆被带离寝室。
+2026-10-07T04:23:08.3922520Z ok 392 - 代词必须指向希罗且本人实际接走，不能跨其他事件：希罗向你致意。\\n\\n他示意护卫。赛哈姆被带离寝室。
+2026-10-07T04:23:08.3922616Z   ---
+2026-10-07T04:23:08.3922720Z   duration_ms: 0.689166
+2026-10-07T04:23:08.3922822Z   type: 'test'
+2026-10-07T04:23:08.3922927Z   ...
+2026-10-07T04:23:08.3923245Z # Subtest: 代词必须指向希罗且本人实际接走，不能跨其他事件：希罗微微一笑。\\n\\n他准备示意护卫。赛哈姆被带离寝室。
+2026-10-07T04:23:08.3923595Z not ok 393 - 代词必须指向希罗且本人实际接走，不能跨其他事件：希罗微微一笑。\\n\\n他准备示意护卫。赛哈姆被带离寝室。
+2026-10-07T04:23:08.3923698Z   ---
+2026-10-07T04:23:08.3923813Z   duration_ms: 1.462728
+2026-10-07T04:23:08.3923934Z   type: 'test'
+2026-10-07T04:23:08.3924299Z   location: '/home/runner/work/lab/lab/.lab/fixtures/f7d-terminal-v1.0.4/guard.test.mjs:596:3'
+2026-10-07T04:23:08.3924442Z   failureType: 'testCodeFailure'
+2026-10-07T04:23:08.3924554Z   error: |-
+2026-10-07T04:23:08.3924712Z     Expected values to be strictly equal:
+2026-10-07T04:23:08.3924804Z     
+2026-10-07T04:23:08.3924913Z     true !== false
+2026-10-07T04:23:08.3925271Z     
+2026-10-07T04:23:08.3925463Z   code: 'ERR_ASSERTION'
+2026-10-07T04:23:08.3925647Z   name: 'AssertionError'
+2026-10-07T04:23:08.3925817Z   expected: false
+2026-10-07T04:23:08.3925970Z   actual: true
+2026-10-07T04:23:08.3926151Z   operator: 'strictEqual'
+2026-10-07T04:23:08.3926546Z   stack: |-
+2026-10-07T04:23:08.3927032Z     TestContext.<anonymous> (file:///home/runner/work/lab/lab/.lab/fixtures/f7d-terminal-v1.0.4/guard.test.mjs:596:49)
+2026-10-07T04:23:08.3927226Z     Test.runInAsyncScope (node:async_hooks:214:14)
+2026-10-07T04:23:08.3927413Z     Test.run (node:internal/test_runner/test:1047:25)
+2026-10-07T04:23:08.3927825Z     Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+2026-10-07T04:23:08.3928037Z     Test.postRun (node:internal/test_runner/test:1173:19)
+2026-10-07T04:23:08.3928216Z     Test.run (node:internal/test_runner/test:1101:12)
+2026-10-07T04:23:08.3928519Z     async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+2026-10-07T04:23:08.3928619Z   ...
+2026-10-07T04:23:08.3928999Z # Subtest: 代词必须指向希罗且本人实际接走，不能跨其他事件：希罗微微一笑。\\n\\n他示意护卫。赛哈姆尚未被带离寝室。
+2026-10-07T04:23:08.3929531Z ok 394 - 代词必须指向希罗且本人实际接走，不能跨其他事件：希罗微微一笑。\\n\\n他示意护卫。赛哈姆尚未被带离寝室。
+2026-10-07T04:23:08.3929711Z   ---
+2026-10-07T04:23:08.3929911Z   duration_ms: 0.749547
+2026-10-07T04:23:08.3930093Z   type: 'test'
+2026-10-07T04:23:08.3930259Z   ...
+2026-10-07T04:23:08.3930961Z # Subtest: 代词必须指向希罗且本人实际接走，不能跨其他事件：希罗微微一笑。\\n\\n他示意护卫。赛哈姆的行李被带离寝室。
+2026-10-07T04:23:08.3931560Z ok 395 - 代词必须指向希罗且本人实际接走，不能跨其他事件：希罗微微一笑。\\n\\n他示意护卫。赛哈姆的行李被带离寝室。
+2026-10-07T04:23:08.3931727Z   ---
+2026-10-07T04:23:08.3931948Z   duration_ms: 0.706568
+2026-10-07T04:23:08.3932111Z   type: 'test'
+2026-10-07T04:23:08.3932275Z   ...
+2026-10-07T04:23:08.3932960Z # Subtest: 代词必须指向希罗且本人实际接走，不能跨其他事件：希罗微微一笑。\\n\\n他示意护卫。赛哈姆被带离寝室，但将她留在门口。
+2026-10-07T04:23:08.3933597Z ok 396 - 代词必须指向希罗且本人实际接走，不能跨其他事件：希罗微微一笑。\\n\\n他示意护卫。赛哈姆被带离寝室，但将她留在门口。
+2026-10-07T04:23:08.3933774Z   ---
+2026-10-07T04:23:08.3933974Z   duration_ms: 0.742465
+2026-10-07T04:23:08.3934142Z   type: 'test'
+2026-10-07T04:23:08.3934299Z   ...
+2026-10-07T04:23:08.3935008Z # Subtest: 代词必须指向希罗且本人实际接走，不能跨其他事件：希罗微微一笑。\\n\\n你离开大厅。\\n\\n他示意护卫。赛哈姆被带离寝室。
+2026-10-07T04:23:08.3935969Z ok 397 - 代词必须指向希罗且本人实际接走，不能跨其他事件：希罗微微一笑。\\n\\n你离开大厅。\\n\\n他示意护卫。赛哈姆被带离寝室。
+2026-10-07T04:23:08.3936176Z   ---
+2026-10-07T04:23:08.3936365Z   duration_ms: 0.72931
+2026-10-07T04:23:08.3936535Z   type: 'test'
+2026-10-07T04:23:08.3936698Z   ...
+2026-10-07T04:23:08.3961836Z 1..397
+2026-10-07T04:23:08.3962025Z # tests 397
+2026-10-07T04:23:08.3962202Z # suites 0
+2026-10-07T04:23:08.3962378Z # pass 396
+2026-10-07T04:23:08.3962575Z # fail 1
+2026-10-07T04:23:08.3962767Z # cancelled 0
+2026-10-07T04:23:08.3962953Z # skipped 0
+2026-10-07T04:23:08.3963294Z # todo 0
+2026-10-07T04:23:08.3963507Z # duration_ms 673.519158
+2026-10-07T04:23:08.4028107Z ##[error]Process completed with exit code 1.
+2026-10-07T04:23:08.4121167Z ##[group]Run actions/upload-artifact@v4
+2026-10-07T04:23:08.4121271Z with:
+2026-10-07T04:23:08.4121387Z   name: qidu-terminal-v1-0-4-live
+2026-10-07T04:23:08.4121548Z   path: .lab/fixtures/f7d-terminal-v1.0.4/results/**
+
+2026-10-07T04:23:08.4121650Z   if-no-files-found: warn
+2026-10-07T04:23:08.4121739Z   compression-level: 6
+2026-10-07T04:23:08.4121830Z   overwrite: false
+2026-10-07T04:23:08.4121926Z   include-hidden-files: false
+2026-10-07T04:23:08.4122014Z ##[endgroup]
+2026-10-07T04:23:08.5775042Z (node:3394) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T04:23:08.5776832Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T04:23:08.5801030Z ##[warning]No files were found with the provided path: .lab/fixtures/f7d-terminal-v1.0.4/results/**. No artifacts will be uploaded.
+2026-10-07T04:23:08.6197629Z Post job cleanup.
+2026-10-07T04:23:08.7100134Z [command]/usr/bin/git version
+2026-10-07T04:23:08.7147106Z git version 2.55.0
+2026-10-07T04:23:08.7185966Z Temporarily overriding HOME='/home/runner/work/_temp/0c20ad66-6474-4ab2-8d00-77bfa224a102' before making global git config changes
+2026-10-07T04:23:08.7187450Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-07T04:23:08.7192898Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/lab/lab
+2026-10-07T04:23:08.7231716Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-07T04:23:08.7267871Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-07T04:23:08.7521810Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-07T04:23:08.7554620Z http.https://github.com/.extraheader
+2026-10-07T04:23:08.7567145Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-07T04:23:08.7612010Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-07T04:23:08.7910120Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-07T04:23:08.7949621Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-07T04:23:08.8342788Z Cleaning up orphan processes
+2026-10-07T04:23:08.8740543Z Terminate orphan process: pid (2414) (node)
+2026-10-07T04:23:08.8873161Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

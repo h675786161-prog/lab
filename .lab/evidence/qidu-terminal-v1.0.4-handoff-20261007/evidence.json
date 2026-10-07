@@ -888,8 +888,148 @@
           ]
         }
       ]
+    },
+    {
+      "number": 7,
+      "directory": "attempt-7",
+      "sourceCommit": "ab22264021b18423204d8eba5b2e94d9dd468e84",
+      "cardSha256": "a5e5d6d48ed6b00f7f003d08a4d84f53b5224f026cd7b3035574a893e17edb80",
+      "runId": 37571273057,
+      "artifactId": 11460786425,
+      "artifactSha256": "354507a92a27cb0785b9c22f9f2f9a029e73c2d13f15e15b2f6828d306a66b99",
+      "stages": [
+        "natural",
+        "replay-fact",
+        "replay-pronoun"
+      ],
+      "naturalChecks": [
+        [
+          13,
+          15
+        ],
+        [
+          13,
+          14
+        ]
+      ],
+      "jobs": [
+        {
+          "id": 112630233499,
+          "name": "native-live",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 37571273057,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Prepare exact lab runtime",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Configure existing GG key in isolated server",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Prepare browser test dependency",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Validate delivery and guard regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verify minimal taken away fact and offline contact",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Replay adjacent Hiro pronoun and actual handoff",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Natural model morning and continuous patrol",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 10
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            }
+          ]
+        }
+      ]
     }
   ],
-  "rawJsonCount": 168,
-  "stageBundleCount": 42
+  "rawJsonCount": 180,
+  "stageBundleCount": 45,
+  "staticOnlyAttempts": [
+    {
+      "sourceCommit": "17fa5127ba9e3297dfd79907f04e2aa9e88136cc",
+      "cardSha256": "f31a40a91676d219ed22abcc43553f913ccfb4c223bfbfe230ab78509ea74717",
+      "runId": 37571093333,
+      "jobId": 112629663704,
+      "tests": 397,
+      "passed": 396,
+      "failed": 1,
+      "failure": "新增“他准备示意护卫”反例被错误接受；收紧执行动作后再测",
+      "naturalGenerationExecuted": false,
+      "artifactPresent": false
+    }
+  ],
+  "evidenceIntegrity": {
+    "sixAttemptVerificationRunId": 37571179735,
+    "jobId": 112629940520,
+    "sourceCommit": "c84fa24c16cacff80cbaadd17335fc28c557ae4b",
+    "conclusion": "success"
+  }
 }
