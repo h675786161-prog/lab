@@ -1,0 +1,252 @@
+{
+  "temperature": 0.55,
+  "openai_max_context": 32768,
+  "openai_max_tokens": 850,
+  "stream_openai": false,
+  "prompts": [
+    {
+      "identifier": "main",
+      "name": "LAB角色扮演边界",
+      "system_prompt": true,
+      "role": "system",
+      "content": "只扮演角色卡内人物、NPC与外部场景。玩家的动作、语言、内心由玩家决定。尊重已经发生的事实与先后；NPC只知道实际获知的信息。每轮自然回复100至180个汉字。"
+    },
+    {
+      "identifier": "personaDescription",
+      "name": "📌💤Persona Description",
+      "enabled": true,
+      "injection_position": 0,
+      "injection_depth": 4,
+      "injection_order": 100,
+      "role": "system",
+      "system_prompt": true,
+      "marker": true,
+      "forbid_overrides": false
+    },
+    {
+      "identifier": "worldInfoBefore",
+      "name": "📌💤World Info (before)",
+      "enabled": true,
+      "injection_position": 0,
+      "injection_depth": 4,
+      "injection_order": 100,
+      "role": "system",
+      "system_prompt": true,
+      "marker": true,
+      "forbid_overrides": false
+    },
+    {
+      "identifier": "charDescription",
+      "name": "📌💤Char Description",
+      "enabled": true,
+      "injection_position": 0,
+      "injection_depth": 4,
+      "injection_order": 100,
+      "role": "system",
+      "system_prompt": true,
+      "marker": true,
+      "forbid_overrides": false
+    },
+    {
+      "identifier": "charPersonality",
+      "name": "📌💤Char Personality",
+      "enabled": true,
+      "injection_position": 0,
+      "injection_depth": 4,
+      "injection_order": 100,
+      "role": "system",
+      "system_prompt": true,
+      "marker": true,
+      "forbid_overrides": false
+    },
+    {
+      "identifier": "scenario",
+      "name": "📌💤Scenario",
+      "enabled": true,
+      "injection_position": 0,
+      "injection_depth": 4,
+      "injection_order": 100,
+      "role": "system",
+      "system_prompt": true,
+      "marker": true,
+      "forbid_overrides": false
+    },
+    {
+      "identifier": "worldInfoAfter",
+      "name": "📌💤World Info (after)",
+      "enabled": true,
+      "injection_position": 0,
+      "injection_depth": 4,
+      "injection_order": 100,
+      "role": "system",
+      "system_prompt": true,
+      "marker": true,
+      "forbid_overrides": false
+    },
+    {
+      "identifier": "dialogueExamples",
+      "name": "Chat Examples",
+      "enabled": true,
+      "role": "system",
+      "system_prompt": true,
+      "marker": true,
+      "forbid_overrides": false
+    },
+    {
+      "identifier": "chatHistory",
+      "name": "Chat History",
+      "enabled": true,
+      "role": "system",
+      "system_prompt": true,
+      "marker": true,
+      "forbid_overrides": false
+    },
+    {
+      "identifier": "5f841a47-d996-4891-a371-57aac4d68a4a",
+      "name": "⌨️克制白描文风@电波系",
+      "enabled": false,
+      "injection_position": 0,
+      "injection_depth": 4,
+      "injection_order": 100,
+      "role": "system",
+      "content": "# 文风概述\n此文风旨在捕捉白先勇的瑰丽与沧桑，及汪曾祺的闲适与冲淡。它是一种克制、留白、于不动声色中见深情的叙事方式。叙事者如同一位冷静的旁观者，通过对器物、景致、食物与人物行为的精准描摹，让情感与意蕴在文字的缝隙间自然流淌，营造出一种“言有尽而意无穷”的境界。\n\n1. 语言：简练与意象\n-   以名词和动词为骨架，削减形容词与副词的过度使用。语言追求洗练、精准，如工笔画般勾勒轮廓。\n-   多用意象说话。角色的心境，不说破，而是借由一杯冷掉的茶、一阶湿滑的青苔、或是一阵风的气味来烘托。\n\n    示例\n    “他没有回答。只是拿起那只缺了一角的青瓷杯，用指腹一遍遍地摩挲着杯沿粗糙的豁口。”\n\n2. 叙事：客观与疏离\n-   叙事视角保持一种克制的距离感，如同隔着一层薄雾观察。不直接介入角色的内心，而是通过其细微的动作、神态和简短的对话来呈现其内在世界。\n-   情节的推进是缓慢的，重心在于氛围的营造和情绪的沉淀，而非强烈的戏剧冲突。\n\n    示例\n    “雨停了。檐下的水珠，一颗一颗，不紧不慢地砸在石板上，溅起小小的水花。他坐在窗边，一坐就是一下午。”\n\n3. 情感：内敛与蕴藉\n-   情感是深藏于水面之下的潜流，从不激烈地喷涌而出。巨大的悲伤或喜悦，往往通过极其平淡的、甚至不合时宜的日常行为来表现。\n-   对话简短，充满潜台词与未尽之语。沉默与停顿，本身就是一种表达。\n\n    示例\n    “她听说消息后，沉默了很久，然后起身走进厨房，开始不疾不徐地淘米、切菜。锅里的水开了，咕嘟咕嘟地响。”\n\n# 要点\n-   文风：白描，客观，意象化。\n-   声口：平静，疏离，偶有温情，饱含生活质感。\n-   场景：日常，充满细节，富有时代感。\n-   氛围：怀旧，静谧，略带一丝物是人非的惘然。\n-   主题：时代变迁，人情世故，饮食男女，平淡生活中的诗意。\n\n# 文学参考\n-   白先勇 – 《台北人》、《寂寞的十七岁》\n-   汪曾祺 – 《受戒》、《大淖记事》\n-   沈从文 – 《边城》\n-   阿城 – 《棋王》",
+      "system_prompt": false,
+      "marker": false,
+      "forbid_overrides": false
+    },
+    {
+      "identifier": "59a054d3-7276-47a5-b0cc-30e6d5183e90",
+      "name": "📷第三人称",
+      "enabled": true,
+      "injection_position": 0,
+      "injection_depth": 4,
+      "injection_order": 100,
+      "role": "system",
+      "content": "<POV>\n- 全程采用第三人称叙述。  \n- {{user}} 和{{char}} 始终称为“他”或“她”（依设定性别）。  \n</POV>\n---\n{{setvar::POV::第三人称}}",
+      "system_prompt": false,
+      "marker": false,
+      "forbid_overrides": false
+    },
+    {
+      "identifier": "a8571e41-7604-4a15-9481-a42f838e34d5",
+      "name": "📌🍏语言设置",
+      "enabled": true,
+      "injection_position": 0,
+      "injection_depth": 4,
+      "injection_order": 100,
+      "role": "system",
+      "content": "## 输出语言\n👄所有输出语言要求如下：\n- 写作视角：\"{{getvar::POV}}\"\n- ECoT: \"zh-CN\"\n- 正文: \"zh-CN\"\n{{getvar::双语对白}}\n",
+      "system_prompt": false,
+      "marker": false,
+      "forbid_overrides": false
+    }
+  ],
+  "prompt_order": [
+    {
+      "character_id": 100000,
+      "order": [
+        {
+          "identifier": "main",
+          "enabled": true
+        },
+        {
+          "identifier": "personaDescription",
+          "enabled": true
+        },
+        {
+          "identifier": "worldInfoBefore",
+          "enabled": true
+        },
+        {
+          "identifier": "charDescription",
+          "enabled": true
+        },
+        {
+          "identifier": "charPersonality",
+          "enabled": true
+        },
+        {
+          "identifier": "scenario",
+          "enabled": true
+        },
+        {
+          "identifier": "worldInfoAfter",
+          "enabled": true
+        },
+        {
+          "identifier": "dialogueExamples",
+          "enabled": true
+        },
+        {
+          "identifier": "chatHistory",
+          "enabled": true
+        },
+        {
+          "identifier": "5f841a47-d996-4891-a371-57aac4d68a4a",
+          "enabled": true
+        },
+        {
+          "identifier": "59a054d3-7276-47a5-b0cc-30e6d5183e90",
+          "enabled": true
+        },
+        {
+          "identifier": "a8571e41-7604-4a15-9481-a42f838e34d5",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "character_id": 100001,
+      "order": [
+        {
+          "identifier": "main",
+          "enabled": true
+        },
+        {
+          "identifier": "personaDescription",
+          "enabled": true
+        },
+        {
+          "identifier": "worldInfoBefore",
+          "enabled": true
+        },
+        {
+          "identifier": "charDescription",
+          "enabled": true
+        },
+        {
+          "identifier": "charPersonality",
+          "enabled": true
+        },
+        {
+          "identifier": "scenario",
+          "enabled": true
+        },
+        {
+          "identifier": "worldInfoAfter",
+          "enabled": true
+        },
+        {
+          "identifier": "dialogueExamples",
+          "enabled": true
+        },
+        {
+          "identifier": "chatHistory",
+          "enabled": true
+        },
+        {
+          "identifier": "5f841a47-d996-4891-a371-57aac4d68a4a",
+          "enabled": true
+        },
+        {
+          "identifier": "59a054d3-7276-47a5-b0cc-30e6d5183e90",
+          "enabled": true
+        },
+        {
+          "identifier": "a8571e41-7604-4a15-9481-a42f838e34d5",
+          "enabled": true
+        }
+      ]
+    }
+  ]
+}
