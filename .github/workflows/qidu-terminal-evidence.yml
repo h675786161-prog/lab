@@ -1,4 +1,4 @@
-name: Read isolated handoff evidence
+name: Verify isolated handoff evidence
 on:
   push:
     branches: [audit/qidu-terminal-v1.0.4-20261007]
@@ -7,47 +7,13 @@ permissions:
   contents: read
   actions: read
 jobs:
-  read-evidence:
-    name: Evidence ${{ matrix.attempt }} ${{ matrix.stage }}
+  verify-evidence:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    strategy:
-      max-parallel: 3
-      fail-fast: false
-      matrix:
-        include: [{"attempt":5,"stage":"replay-fact","artifact":11460206667,"digest":"5daa4eba0df539dc6a59a46889a204ddc1d666b21b78216b5c91ce87fb6eef43"},{"attempt":5,"stage":"replay-adjacent","artifact":11460206667,"digest":"5daa4eba0df539dc6a59a46889a204ddc1d666b21b78216b5c91ce87fb6eef43"},{"attempt":5,"stage":"replay-carrier","artifact":11460206667,"digest":"5daa4eba0df539dc6a59a46889a204ddc1d666b21b78216b5c91ce87fb6eef43"},{"attempt":5,"stage":"replay-passive","artifact":11460206667,"digest":"5daa4eba0df539dc6a59a46889a204ddc1d666b21b78216b5c91ce87fb6eef43"},{"attempt":5,"stage":"replay-wake","artifact":11460206667,"digest":"5daa4eba0df539dc6a59a46889a204ddc1d666b21b78216b5c91ce87fb6eef43"},{"attempt":5,"stage":"replay-signal","artifact":11460206667,"digest":"5daa4eba0df539dc6a59a46889a204ddc1d666b21b78216b5c91ce87fb6eef43"},{"attempt":5,"stage":"natural","artifact":11460206667,"digest":"5daa4eba0df539dc6a59a46889a204ddc1d666b21b78216b5c91ce87fb6eef43"},{"attempt":6,"stage":"replay-fact","artifact":11460710477,"digest":"de57f638fed0f8a6b23dc7a5feea899f72e311516c4695a7183cb166e9cffee1"},{"attempt":6,"stage":"replay-modifier","artifact":11460710477,"digest":"de57f638fed0f8a6b23dc7a5feea899f72e311516c4695a7183cb166e9cffee1"},{"attempt":6,"stage":"natural","artifact":11460710477,"digest":"de57f638fed0f8a6b23dc7a5feea899f72e311516c4695a7183cb166e9cffee1"}]
     steps:
-      - name: Verify artifact and read exact stage
-        env:
-          GH_TOKEN: ${{ github.token }}
-          ARTIFACT_ID: ${{ matrix.artifact }}
-          ARTIFACT_SHA: ${{ matrix.digest }}
-          STAGE: ${{ matrix.stage }}
-        run: |
-          python - <<'PY'
-          import os,json,urllib.request,hashlib,zipfile,io
-          repo=os.environ['GITHUB_REPOSITORY']; aid=os.environ['ARTIFACT_ID']; stage=os.environ['STAGE']
-          req=urllib.request.Request(f'https://api.github.com/repos/{repo}/actions/artifacts/{aid}/zip',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'})
-          class NoRedirect(urllib.request.HTTPRedirectHandler):
-           def redirect_request(self,*args): return None
-          try:
-           response=urllib.request.build_opener(NoRedirect).open(req)
-           blob=response.read()
-          except urllib.error.HTTPError as e:
-           if e.code not in (301,302,303,307,308): raise
-           blob=urllib.request.urlopen(e.headers['Location']).read()
-          assert hashlib.sha256(blob).hexdigest()==os.environ['ARTIFACT_SHA'], 'ZIP digest mismatch'
-          z=zipfile.ZipFile(io.BytesIO(blob))
-          names=z.namelist()
-          raw={}
-          for name in ['morning.json','patrol.json','terminal-live.json','checkpoint.json']:
-           matches=[n for n in names if n.endswith(stage+'/'+name)]
-           assert len(matches)==1, (stage,name,len(matches))
-           b=z.read(matches[0]); raw[name]={'content':b.decode(),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
-          terminal=json.loads(raw['terminal-live.json']['content'])
-          data={'rawFiles':raw,'terminal':terminal}
-          payload=json.dumps({'stage':stage,'artifactId':int(aid),'data':data},ensure_ascii=False,separators=(',',':'))
-          for i in range(0,len(payload),4096):
-           print('F7D_DATA_CHUNK '+json.dumps(payload[i:i+4096],ensure_ascii=False))
-          
-          PY
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify raw JSON hashes and exact scene summaries
+        run: node .lab/evidence/qidu-terminal-v1.0.4-handoff-20261007/verify.mjs
