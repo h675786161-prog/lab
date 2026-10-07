@@ -10,7 +10,25 @@ await fs.mkdir(out, { recursive: true });
 const browser = await chromium.launch({ headless: true, executablePath: process.env.LAB_CHROME,
     args: ['--no-sandbox', '--disable-dev-shm-usage'] });
 const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
-const pageErrors = [], requestAudit = [], replies = [], checks = [];
+const pageErrors = [], requestAudit = [], responseAudit = [], replies = [], checks = [];
+const pendingResponses = new Set();
+page.on('response', response => {
+    if (!response.url().endsWith('/api/backends/chat-completions/generate')) return;
+    const pending = (async () => {
+        const raw = await response.text();
+        let data = {};
+        try { data = JSON.parse(raw); } catch {}
+        const choice = data.choices?.[0];
+        responseAudit.push({ status: response.status(), model: data.model,
+            finishReason: choice?.finish_reason,
+            contentLength: String(choice?.message?.content || '').length,
+            reasoningLength: String(choice?.message?.reasoning_content || choice?.message?.reasoning || '').length,
+            completionTokens: data.usage?.completion_tokens,
+            cloudflareChallenge: /just a moment|challenge-platform/i.test(raw) });
+    })().catch(error => responseAudit.push({ status: response.status(), auditError: error.name }));
+    pendingResponses.add(pending);
+    void pending.finally(() => pendingResponses.delete(pending));
+});
 page.on('pageerror', error => pageErrors.push(String(error.message)));
 page.on('dialog', dialog => dialog.accept());
 let lastRequestAt = 0;
@@ -25,6 +43,7 @@ await page.route('**/api/backends/chat-completions/generate', async route => {
     await route.continue();
 });
 async function persist(extra = {}) {
+    await Promise.allSettled([...pendingResponses]);
     const data = await page.evaluate(() => {
         const ctx = globalThis.SillyTavern?.getContext?.();
         return ctx ? { chat: ctx.chat.map((m, id) => ({ id, name: m.name, mes: m.mes,
@@ -35,7 +54,8 @@ async function persist(extra = {}) {
     await fs.writeFile(path.join(out, 'progress.json'), JSON.stringify({ caseId: testCase.id,
         candidate: process.env.LAB_WB_SHA, model: process.env.LAB_MODEL_ID,
         preset: 'MoM5.40KKMYUKI: 克制白描 + 第三人称 + 语言设置',
-        rounds: replies.length, requests: requestAudit.length, checks, pageErrors, ...data, ...extra }, null, 2));
+        rounds: replies.length, requests: requestAudit.length, responses: responseAudit,
+        checks, pageErrors, ...data, ...extra }, null, 2));
     await fs.writeFile(path.join(out, 'requests.json'), JSON.stringify(requestAudit, null, 2));
 }
 async function generate(input) {
@@ -119,7 +139,8 @@ try {
         await writeSecret(SECRET_KEYS.CUSTOM, key);
         Object.assign(oai_settings, { chat_completion_source: 'custom', custom_url: base,
             custom_model: model, custom_include_headers: 'User-Agent: SillyTavern/1.18.0\nAccept: application/json', stream_openai: false, openai_max_context: 32768,
-            openai_max_tokens: 850, temperature: 0.55, bypass_status_check: true });
+            openai_max_tokens: /step.*3[.-]5/i.test(model) ? 4096 : 850,
+            temperature: 0.55, bypass_status_check: true });
         script.setOnlineStatus(model);
         Object.assign(ready.extensionSettings.world_backstage, { enabled: true,
             worldSimulationEnabled: false, worldAutoEnabled: false, worldPromptInjection: false,
