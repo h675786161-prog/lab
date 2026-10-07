@@ -503,3 +503,37 @@ for(const s of [
  '希罗将赛哈姆的行李带走。',
  '希罗带着赛哈姆撤离现场。赛哈姆仍留在中央庭。',
 ])test('直接接走的不同主体、许可和物品反例：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});
+
+const wakeFailure=JSON.parse(fs.readFileSync(new URL('./wake-failure.json',import.meta.url),'utf8'));
+const wakeBaseline=fs.readFileSync(new URL('./morning-guard.wake-baseline.js',import.meta.url),'utf8');
+test('第三轮醒前语境和环境残留误判，修后全文保留两个模型命令',()=>{
+ const opts={text:wakeFailure.text,state:wakeFailure.before,user:wakeFailure.user,commands:wakeFailure.commands};
+ const before=run({...opts,code:wakeBaseline});assert.equal(has(before,'day6_monologue'),false);assert.equal(has(before,'day6_saiham'),false);
+ const prior=structuredClone(opts.state);prior.morning_flags.day6_monologue=true;
+ assert.equal(has(run({...opts,state:prior,code:wakeBaseline}),'day6_saiham'),false,'修前即使独白已完成，环境残留仍被误当作留下赛哈姆');
+ assert.ok(has(run({...opts,state:prior}),'day6_saiham'));
+ const rows=run(opts);assert.ok(has(rows,'day6_monologue'));assert.ok(has(rows,'day6_saiham'));assert.ok(rows.every(c=>opts.commands.some(old=>JSON.stringify(old)===JSON.stringify(c))));
+});
+for(const s of [
+ '在混沌与清醒的夹缝间，有模糊的声音传来。那声音散去，意识浮出水面，你睁开了眼睛。',
+ '微弱的声音传来。意识猛然浮起，你睁开眼睛。',
+ '意识浮起，一缕低语传来，你睁开眼睛。',
+])test('声音在首次实际苏醒之前，意识语境可以紧随声音：'+s,()=>{assert.ok(has(run({text:s+left}),'day6_monologue'));});
+for(const s of [
+ '你睁开眼睛。意识还很模糊，工作人员的声音在走廊传来。',
+ '工作人员的声音传来。你睁开眼睛。',
+ '你回忆意识浮起前的声音。你睁开眼睛。',
+ '如果意识浮起时有声音，你会睁开眼睛。',
+ '意识浮起，微弱的声音传来。你尚未睁开眼睛。',
+ '意识浮起，微弱的声音传来。你准备睁开眼睛。',
+ '<f7d_choices>声音传来，意识浮起，你睁开眼睛。</f7d_choices>',
+])test('醒后、无意识语境、回忆、假设和未醒不冒充晨间前置：'+s,()=>{assert.equal(has(run({text:s+left}),'day6_monologue'),false);});
+for(const s of [
+ '希罗带着赛哈姆撤离现场，只留下地面上的弹痕。',
+ '随着希罗一行人带着赛哈姆离开，庭院中的气息渐渐沉淀，只留下地面上焦黑的弹痕。',
+ '希罗带着赛哈姆离开，只留下空气中的幻力余波。',
+])test('环境留下痕迹不能误当作留下赛哈姆：'+s,()=>{assert.ok(has(run({text:vehicleStory(s)}),'day6_saiham'));});
+for(const s of [
+ '希罗带着赛哈姆离开，但随后将赛哈姆留下。',
+ '人员接手，赛哈姆被抬走。希罗带队离去，但赛哈姆仍被留下。',
+])test('明确留下人物本人仍拒绝接走结算：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});

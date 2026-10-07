@@ -23,13 +23,7 @@
     return opening.split(/[。！？\n]+/).some(p=>{
       if(excluded.test(p)||!voice.test(p))return false;
       if(dream.test(p))return true;
-      const start=opening.indexOf(p),sound=start+(p.match(voice)?.index||0),wake=/(?:醒来|苏醒|睁开)/.exec(opening);
-      if(wake){
-        if(wake.index<=sound||/(?:没有|并未|尚未|还没|未曾|不会|如果|假如|要是|准备|将要)[^，,。！？\n]{0,20}$/.test(opening.slice(Math.max(0,wake.index-30),wake.index)))return false;
-        const context=opening.slice(Math.max(0,start-160),wake.index);
-        if(/(?:黑暗|虚空|虚无|意识|混沌(?:与|和)清醒)/.test(context))return true;
-      }
-      return /(?:黑暗|虚空|虚无|意识)/.test(opening.slice(Math.max(0,start-160),start+p.length))&&/(?:醒来|苏醒|睁开|天花板|晨光)/.test(opening.slice(start+p.length));
+      return /(?:黑暗|虚空|虚无|意识)/.test(opening.slice(Math.max(0,opening.indexOf(p)-160),opening.indexOf(p)+p.length))&&/(?:醒来|苏醒|睁开|天花板|晨光)/.test(opening.slice(opening.indexOf(p)+p.length));
     });
   };
   const hasSaihamDeparture=text=>{
@@ -46,7 +40,7 @@
     const pickup=/希罗[^。！？\n]{0,120}(?:随行人员|黑衣人员|人员|部下|随从)[^。！？\n]{0,40}(?:(?:抬起|抱起|扶起|抬上|搬上)(?:了)?(?:(?:昏迷|受伤|失去意识)的)?赛哈姆(?!的)|(?:将|把)(?:(?:昏迷|受伤|失去意识)的)?赛哈姆(?!的)[^。！？\n]{0,30}(?:抬起|抱起|扶起|抬上|搬上))/;
     const unrealPickup=/(?:计划|打算|准备|即将|将要|将会|可能|如果|假如|要是|回忆|回想|昨天|昨日|据说|听说|允许|同意|请求|要求|希望)[^。！？\n]{0,180}(?:抬起|抱起|扶起|抬上|搬上|离开|离去|撤离)|(?:没有|并未|尚未|还没|不会|不曾|拒绝)[^，,。！？\n]{0,30}(?:抬起|抱起|扶起|抬上|搬上|离开|离去|撤离)|(?:会|将)(?:抬起|抱起|扶起|抬上|搬上)/;
     const groupExit=/^\s*(?:随后|接着|紧接着)?(?:一行人|他们|随行人员|这支队伍|护送队伍)([^。！？\n]{0,80}?)(?:离开|离去|撤离|离场)/;
-    const handoffBroken=/另(?:一|外一)(?:人|队|支|群)|其他人|空担架|空载|(?:赛哈姆|她|担架)[^，,。！？\n]{0,30}(?:仍在|留在|留于|放在|放回|放下)|(?:赛哈姆|她)(?:仍|依旧|还)?被留下|(?:把|将)(?:她|赛哈姆)[^，,。！？\n]{0,30}(?:放下|留下|放回|留在)/;
+    const handoffBroken=/另(?:一|外一)(?:人|队|支|群)|其他人|空担架|空载|(?:赛哈姆|她|担架)[^。！？\n]{0,30}(?:仍在|留在|留于|放在|放回|放下|留下)|(?:把|将)(?:她|赛哈姆)[^。！？\n]{0,30}(?:放下|留下|放回|留在)/;
     const adjacentHandoff=(p,previous)=>{
       if(!previous||!pickup.test(previous)||unrealPickup.test(previous)||unrealPickup.test(p)||handoffBroken.test(previous+p))return false;
       const exit=groupExit.exec(p);
