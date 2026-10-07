@@ -537,3 +537,22 @@ for(const s of [
  '希罗带着赛哈姆离开，但随后将赛哈姆留下。',
  '人员接手，赛哈姆被抬走。希罗带队离去，但赛哈姆仍被留下。',
 ])test('明确留下人物本人仍拒绝接走结算：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});
+const signalFailure=JSON.parse(fs.readFileSync(new URL('./signal-failure.json',import.meta.url),'utf8'));
+const signalBaseline=fs.readFileSync(new URL('./morning-guard.signal-baseline.js',import.meta.url),'utf8');
+test('同句希罗挥手和医护实际抬走完整正文修前拒绝，修后保留原有模型命令',()=>{
+ const opts={text:signalFailure.text,state:signalFailure.before,user:signalFailure.user,commands:signalFailure.commands};assert.equal(has(run({...opts,code:signalBaseline}),'day6_saiham'),false);const rows=run(opts);assert.ok(has(rows,'day6_monologue'));assert.ok(has(rows,'day6_saiham'));assert.ok(rows.every(c=>opts.commands.some(old=>JSON.stringify(old)===JSON.stringify(c))));
+});
+for(const s of [
+ '希罗挥了挥手，医疗人员迅速将赛哈姆抬上担架，在护卫的簇拥下撤离了庭院。',
+ '希罗示意，部下把受伤的赛哈姆抱起并离开。',
+])test('同句指挥和本人实际接走无需运输细节：'+s,()=>{assert.ok(has(run({text:vehicleStory(s)}),'day6_saiham'));});
+for(const s of [
+ '希罗挥手，人员准备将赛哈姆抬上担架，撤离。',
+ '希罗允许人员将赛哈姆抬上担架，撤离。',
+ '如果希罗挥手，人员将赛哈姆抬上担架，撤离。',
+ '希罗挥手，人员将赛哈姆的行李抬上担架，撤离。',
+ '希罗挥手，人员将赛哈姆抬上担架，看着安离开。',
+ '希罗挥手，人员将赛哈姆抬上担架，随后希罗独自离开。',
+ '希罗挥手，人员将赛哈姆抬上担架，但将她留在原地后离开。',
+ '希罗挥手，人员将赛哈姆抬上担架，尚未撤离。',
+])test('同句接走仍拒绝未执行、其他对象、其他主体和留场：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});

@@ -35,8 +35,8 @@
       "bytes": 3577
     },
     "Qidu-v0.4.41-terminal-v1.0.4.json": {
-      "sha256": "c6bff1e4acc821baf639d749125f7477fe6f338cbb9eebbed9eb7cad6977151d",
-      "bytes": 1656763
+      "sha256": "e78be46c76c556813f3831a5ec0aa06caa01c5179e6d0cccc0757ebbfe5b3a59",
+      "bytes": 1657982
     },
     "README.md": {
       "sha256": "a178ccfba5805947f12284380d4e0b6f82e4071f5498f024b1bbadf6f6aa81db",
@@ -75,8 +75,8 @@
       "bytes": 489
     },
     "guard.test.mjs": {
-      "sha256": "10a5360d44067e9bc48bda899491e2cf1e9108ca0b7da0a12dd87b45b8db8e17",
-      "bytes": 45487
+      "sha256": "bf1f5057ed2388947814a9251ea28906310b428397784933075a648095282c2f",
+      "bytes": 47269
     },
     "handoff-failure.json": {
       "sha256": "b5ee59eeffc805bdea03afc03afe4c013ed8efe2b0fce79541837c787c0ec458",
@@ -107,8 +107,8 @@
       "bytes": 18489
     },
     "morning-guard.js": {
-      "sha256": "db7ad51e7687962abdcf922f7aa8cd97e7a125f2e7d966a75f14470fbd9e8075",
-      "bytes": 25111
+      "sha256": "3aee96f5697c03121972b392deb41208228030ec89c589614bea4207edb0b2da",
+      "bytes": 25747
     },
     "morning-guard.scope-baseline.js": {
       "sha256": "519c2d4090089980c67ccbed2d5803eff838da8848456edad21fdeaaf20f1dd8",
@@ -127,8 +127,8 @@
       "bytes": 2984
     },
     "native-live.mjs": {
-      "sha256": "4940b1b51306b80a18c5fc29a34280ba8aec3b2c6d7b954da5284ad774a92ff4",
-      "bytes": 18627
+      "sha256": "2739f6242318b28e41acf4eea2baa1c1038a4cd124389a6663e51d8248bac6e4",
+      "bytes": 18636
     },
     "provider-isolation.test.mjs": {
       "sha256": "4b724be4c34d4c11059170ffe862173ae4e6ee9d9bb1cc20ddf75ff36b4c165c",
@@ -185,9 +185,17 @@
     "morning-guard.wake-baseline.js": {
       "sha256": "a821423251c7c8be8c9ddc18794aafe6d4ce24709868d0b43b673fb01f1d83d8",
       "bytes": 24579
+    },
+    "signal-failure.json": {
+      "sha256": "a9f41d76c6959fe890f12ab4b1ff3d8bf2ffc87db8e63662b942e878a7957452",
+      "bytes": 12013
+    },
+    "morning-guard.signal-baseline.js": {
+      "sha256": "db7ad51e7687962abdcf922f7aa8cd97e7a125f2e7d966a75f14470fbd9e8075",
+      "bytes": 25111
     }
   },
-  "previousCandidateCommit": "334e4e8cf7be84fe678f8cdf21257d76cf0e6d3e",
+  "previousCandidateCommit": "9e25866187c623dd259006213d6acfe3f8f83ffb",
   "guardPatchCommit": "b0ff93060557dc24d3a3466cc2f52e2539ffb64b",
   "scopeFailureSourceCommit": "fc8007fd13aee835b3f6938c0ca1c82127bf1c13"
 }
