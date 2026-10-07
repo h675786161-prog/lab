@@ -5,7 +5,7 @@ import {chromium} from 'playwright';
 import {parseCompletionMetadata} from '../f7d-terminal-v1-natural/response-metadata.mjs';
 const root='.lab/fixtures/f7d-terminal-v1.0.4';
 const replayMode=process.env.F7D_REPLAY==='1';
-const replayFixture=['vehicle','scope','boarding','continuation','transport','escort','fact','handoff','adjacent','carrier','passive','wake','signal'].includes(process.env.F7D_REPLAY_FIXTURE)?process.env.F7D_REPLAY_FIXTURE:'fact';
+const replayFixture=['vehicle','scope','boarding','continuation','transport','escort','fact','handoff','adjacent','carrier','passive','wake','signal','modifier'].includes(process.env.F7D_REPLAY_FIXTURE)?process.env.F7D_REPLAY_FIXTURE:'fact';
 const fixture=JSON.parse(await fs.readFile(root+'/replay-fixture.json','utf8'));
 if(replayMode)fixture.morning.replayText=JSON.parse(await fs.readFile(root+'/'+replayFixture+(replayFixture==='fact'?'-reply.json':'-failure.json'),'utf8')).text;
 const manifest=JSON.parse(await fs.readFile(root+'/manifest.json','utf8'));
@@ -27,7 +27,7 @@ page.on('request',r=>{
  if(!r.url().endsWith('/api/backends/chat-completions/generate'))return;
  const id=++sequence;requestIds.set(r,id);pending.add(r);
  try{const d=r.postDataJSON();const contents=(d.messages||[]).map(m=>typeof m.content==='string'?m.content:JSON.stringify(m.content)).join('\n');
-  requests.push({id,model:d.model,source:d.chat_completion_source,max_tokens:d.max_tokens,message_count:d.messages?.length,chars:contents.length,updateRulePresent:contents.includes('<UpdateVariable>'),currentStateMarkerPresent:contents.includes('status_current_variable'),unexpandedVariableMacro:contents.includes('{{get_message_variable::')});
+  requests.push({id,model:d.model,source:d.chat_completion_source,max_tokens:d.max_tokens,message_count:d.messages?.length,chars:contents.length,updateRulePresent:contents.includes('<UpdateVariable>'),currentStateMarkerPresent:contents.includes('status_current_variable'),unexpandedVariableMacro:contents.includes('{{get_message_variable::'),handoffClosureRulePresent:contents.includes('第六天接走事件已经实际完成时，正文收束必须用一句明确的事实确认')});
  }catch{requests.push({id,error:'请求体无法解析'});}
 });
 page.on('response',r=>{

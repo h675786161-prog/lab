@@ -63,9 +63,9 @@ test('整块晨间旗标写入不能绕过逐项校验',()=>{const rows=run({com
 
 test('活骸概念通过现场对白获知不要求旁白重复',()=>{const text=voice+'希罗说：“这是活骸化。”希罗带着赛哈姆离开了中央庭。';assert.ok(has(run({text}),'day6_saiham'));});
 test('随行人员将赛哈姆带离整个中央庭允许结算',()=>{const text=voice+'希罗处理赛哈姆的活骸化。随行人员将赛哈姆带离了中央庭。';assert.ok(has(run({text}),'day6_saiham'));});
-test('被带离主廊不能冒充离开整个中央庭',()=>{const text=voice+'希罗处理赛哈姆的活骸化。赛哈姆被带离了中央庭主廊。';assert.equal(has(run({text}),'day6_saiham'),false);});
-test('主动带离主廊不能冒充离开整个中央庭',()=>{const text=voice+'希罗处理赛哈姆的活骸化。随行人员将赛哈姆带离了中央庭主廊。';assert.equal(has(run({text}),'day6_saiham'),false);});
-test('最新真实模型只离开主廊的错误完成命令被拒绝',()=>{const rows=run({text:fixture.latestNaturalFailure.text});assert.ok(has(rows,'day6_monologue'));assert.equal(has(rows,'day6_saiham'),false);});
+test('仅写本人移出主廊而未关联希罗接走仍不结算',()=>{const text=voice+'希罗处理赛哈姆的活骸化。赛哈姆被带离了中央庭主廊。';assert.equal(has(run({text}),'day6_saiham'),false);});
+test('普通人员带离主廊而未关联希罗接走仍不结算',()=>{const text=voice+'希罗处理赛哈姆的活骸化。随行人员将赛哈姆带离了中央庭主廊。';assert.equal(has(run({text}),'day6_saiham'),false);});
+test('用户新口径下希罗示意人员实际带离主廊已完成接走，无需整个区域离场',()=>{const rows=run({text:fixture.latestNaturalFailure.text});assert.ok(has(rows,'day6_monologue'));assert.ok(has(rows,'day6_saiham'));});
 
 test('第二轮真实醒前轻语与担架护送驶离保留合法命令',()=>{const rows=run({text:fixture.secondNaturalFailure.text});assert.ok(has(rows,'day6_monologue'));assert.ok(has(rows,'day6_saiham'));});
 test('醒后普通轻语不得补晨间独白',()=>{const rows=run({text:'你睁开双眼，看见天花板。晨光中，工作人员在走廊轻语。'+left});assert.equal(has(rows,'day6_monologue'),false);});
@@ -556,3 +556,24 @@ for(const s of [
  '希罗挥手，人员将赛哈姆抬上担架，但将她留在原地后离开。',
  '希罗挥手，人员将赛哈姆抬上担架，尚未撤离。',
 ])test('同句接走仍拒绝未执行、其他对象、其他主体和留场：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});
+const modifierFailure=JSON.parse(fs.readFileSync(new URL('./modifier-failure.json',import.meta.url),'utf8'));
+const modifierBaseline=fs.readFileSync(new URL('./morning-guard.modifier-baseline.js',import.meta.url),'utf8');
+test('致意动作与人物修饰语不应拦截已发生接走，完整自然正文修前拒绝修后保留原命令',()=>{
+ const opts={text:modifierFailure.text,state:modifierFailure.before,user:modifierFailure.user,commands:modifierFailure.commands};assert.equal(has(run({...opts,code:modifierBaseline}),'day6_saiham'),false);const rows=run(opts);assert.ok(has(rows,'day6_monologue'));assert.ok(has(rows,'day6_saiham'));assert.ok(rows.every(c=>opts.commands.some(old=>JSON.stringify(old)===JSON.stringify(c))));
+});
+for(const s of [
+ '希罗向你微微致意后，便带着完全陷入昏迷的赛哈姆离开了现场。',
+ '希罗向你点头，带着身体虚弱且失去意识的赛哈姆撤离。',
+ '希罗朝安挥手告别，随即护送着昏睡的赛哈姆离开。',
+ '希罗扶正眼镜，将尚在昏迷之中的赛哈姆带走。',
+])test('动作修饰、插入语和人物状态不改变接走事实：'+s,()=>{assert.ok(has(run({text:vehicleStory(s)}),'day6_saiham'));});
+for(const s of [
+ '希罗看着你带着完全昏迷的赛哈姆离开。',
+ '希罗与安交谈，你带着赛哈姆离开。',
+ '希罗与安交谈，安随即带着赛哈姆离开。',
+ '希罗准备带着完全昏迷的赛哈姆离开。',
+ '希罗会把完全昏迷的赛哈姆带走。',
+ '希罗带着赛哈姆的行李离开。',
+ '希罗带着站在赛哈姆身旁的安离开。',
+ '希罗将完全昏迷的赛哈姆留下后离开。',
+])test('泛化修饰语不能把旁人、物品、未来和留场视作接走：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});

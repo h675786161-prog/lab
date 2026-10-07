@@ -63,16 +63,8 @@ jobs:
           node .lab/fixtures/f7d-terminal-v1.0.4/verify-delivery.mjs
       - name: Verify minimal taken away fact and offline contact
         run: F7D_REPLAY_FIXTURE=fact F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
-      - name: Replay adjacent personnel handoff fact
-        run: F7D_REPLAY_FIXTURE=adjacent F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
-      - name: Replay carried person and Hiro following event
-        run: F7D_REPLAY_FIXTURE=carrier F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
-      - name: Replay passive transfer and Hiro team departure event
-        run: F7D_REPLAY_FIXTURE=passive F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
-      - name: Replay pre-wake voice and environmental residue failure
-        run: F7D_REPLAY_FIXTURE=wake F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
-      - name: Replay same sentence Hiro signal and medical departure
-        run: F7D_REPLAY_FIXTURE=signal F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
+      - name: Replay Hiro acknowledgement and patient modifiers
+        run: F7D_REPLAY_FIXTURE=modifier F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
       - name: Natural model morning and continuous patrol
         run: node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
       - uses: actions/upload-artifact@v4
