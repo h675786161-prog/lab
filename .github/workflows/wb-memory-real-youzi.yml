@@ -30,6 +30,8 @@ jobs:
           repository: h675786161-prog/world-backstage
           ref: e2297ff9934ce43fd5b24ab1b5475ecab998e9f7
           path: wb-candidate
+      - name: Install Chinese screenshot fonts
+        run: sudo apt-get install -y fonts-noto-cjk > /tmp/wb-font-install.log 2>&1
       - name: Prepare exact isolated SillyTavern 1.18.0
         run: |
           git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$LAB_ST_DIR"

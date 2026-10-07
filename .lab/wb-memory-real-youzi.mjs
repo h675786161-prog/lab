@@ -40,12 +40,24 @@ async function persist(extra = {}) {
 }
 async function generate(input) {
     const before = await page.evaluate(() => globalThis.SillyTavern.getContext().chat.length);
-    await page.evaluate(async text => {
-        globalThis.worldBackstageHost.close();
-        document.querySelector('#send_textarea').value = text;
-        document.querySelector('#send_textarea').dispatchEvent(new Event('input', { bubbles: true }));
-        await globalThis.SillyTavern.getContext().generate('normal');
-    }, input);
+    let generationError;
+    for (let attempt = 0; attempt < 4; attempt++) {
+        try {
+            await page.evaluate(async ({ text, retry }) => {
+                globalThis.worldBackstageHost.close();
+                document.querySelector('#send_textarea').value = retry ? '' : text;
+                document.querySelector('#send_textarea').dispatchEvent(new Event('input', { bubbles: true }));
+                await globalThis.SillyTavern.getContext().generate('normal', retry ? { automatic_trigger: true } : {});
+            }, { text: input, retry: attempt > 0 });
+            generationError = null;
+            break;
+        } catch (error) {
+            generationError = error;
+            if (!/Forbidden|429|502|503|504|status/.test(String(error.message))) throw error;
+            console.log(`real ST ${testCase.id}: transient provider error, attempt ${attempt + 1}/4`);
+        }
+    }
+    if (generationError) throw generationError;
     const result = await page.evaluate(start => {
         const chat = globalThis.SillyTavern.getContext().chat;
         const m = chat.at(-1);
@@ -82,6 +94,8 @@ async function index() {
 try {
     await page.goto(process.env.LAB_ST_URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
     await page.waitForFunction(() => globalThis.__worldBackstageLoaded && globalThis.worldBackstageHost, null, { timeout: 60000 });
+    const onboardingSave = page.getByRole('button', { name: 'Save', exact: true });
+    if (await onboardingSave.count()) await onboardingSave.first().click({ timeout: 5000 }).catch(() => {});
     // Import the selected native preset through ST's own preset input; disable all
     // other MoM modules, including competing summaries and scripts.
     await page.locator('#main_api').evaluate(el => { el.value = 'openai'; el.dispatchEvent(new Event('change', { bubbles: true })); });
@@ -104,7 +118,7 @@ try {
         const { writeSecret, SECRET_KEYS } = await import('/scripts/secrets.js');
         await writeSecret(SECRET_KEYS.CUSTOM, key);
         Object.assign(oai_settings, { chat_completion_source: 'custom', custom_url: base,
-            custom_model: model, stream_openai: false, openai_max_context: 32768,
+            custom_model: model, custom_include_headers: 'User-Agent: SillyTavern/1.18.0\nAccept: application/json', stream_openai: false, openai_max_context: 32768,
             openai_max_tokens: 850, temperature: 0.55, bypass_status_check: true });
         script.setOnlineStatus(model);
         Object.assign(ready.extensionSettings.world_backstage, { enabled: true,
