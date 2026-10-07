@@ -28,7 +28,14 @@ jobs:
           import os,json,urllib.request,hashlib,zipfile,io
           repo=os.environ['GITHUB_REPOSITORY']; aid=os.environ['ARTIFACT_ID']; stage=os.environ['STAGE']
           req=urllib.request.Request(f'https://api.github.com/repos/{repo}/actions/artifacts/{aid}/zip',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'})
-          blob=urllib.request.urlopen(req).read()
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+           def redirect_request(self,*args): return None
+          try:
+           response=urllib.request.build_opener(NoRedirect).open(req)
+           blob=response.read()
+          except urllib.error.HTTPError as e:
+           if e.code not in (301,302,303,307,308): raise
+           blob=urllib.request.urlopen(e.headers['Location']).read()
           assert hashlib.sha256(blob).hexdigest()==os.environ['ARTIFACT_SHA'], 'ZIP digest mismatch'
           z=zipfile.ZipFile(io.BytesIO(blob))
           names=z.namelist()
