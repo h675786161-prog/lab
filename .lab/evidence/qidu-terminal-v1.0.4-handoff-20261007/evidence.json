@@ -1008,10 +1008,138 @@
           ]
         }
       ]
+    },
+    {
+      "number": 8,
+      "directory": "attempt-8",
+      "sourceCommit": "fe328cc5102332af3bd86ac3efb9be98e1470ddd",
+      "cardSha256": "62eeb793c51634b34a6b0768203cd23c284cfd967a08cf948307ff1ecc1c3209",
+      "runId": 37571684686,
+      "artifactId": 11461735238,
+      "artifactSha256": "4c72b4b44e694ce278bd2ac80f029baef1e8a565196af47cd487dbfc5ad6535e",
+      "stages": [
+        "natural",
+        "replay-fact",
+        "replay-wakeup"
+      ],
+      "naturalChecks": [
+        [
+          15,
+          15
+        ],
+        [
+          14,
+          14
+        ]
+      ],
+      "jobs": [
+        {
+          "id": 112631512107,
+          "name": "native-live",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 37571684686,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Prepare exact lab runtime",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Configure existing GG key in isolated server",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Prepare browser test dependency",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Validate delivery and guard regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verify minimal taken away fact and offline contact",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Replay startled awakening and actual handoff",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Natural model morning and continuous patrol",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            }
+          ]
+        }
+      ],
+      "guardTests": {
+        "passed": 407,
+        "total": 407
+      },
+      "providerTests": {
+        "passed": 36,
+        "total": 36
+      }
     }
   ],
-  "rawJsonCount": 180,
-  "stageBundleCount": 45,
+  "rawJsonCount": 192,
+  "stageBundleCount": 48,
   "staticOnlyAttempts": [
     {
       "sourceCommit": "17fa5127ba9e3297dfd79907f04e2aa9e88136cc",
@@ -1031,5 +1159,30 @@
     "jobId": 112629940520,
     "sourceCommit": "c84fa24c16cacff80cbaadd17335fc28c557ae4b",
     "conclusion": "success"
+  },
+  "finalCandidate": {
+    "sourceCommit": "fe328cc5102332af3bd86ac3efb9be98e1470ddd",
+    "cardSha256": "62eeb793c51634b34a6b0768203cd23c284cfd967a08cf948307ff1ecc1c3209",
+    "naturalRunId": 37571684686,
+    "focusedNaturalAcceptance": "passed",
+    "fullProductAcceptance": "pending",
+    "phoneInstalled": false
+  },
+  "scope": {
+    "from": "547239ff2b33e1db0c8df692607701a1ff62531a",
+    "to": "ab22264021b18423204d8eba5b2e94d9dd468e84",
+    "cardChangedPaths": [
+      "data.extensions.tavern_helper.scripts.3.content",
+      "data.character_book.entries.6.content"
+    ],
+    "nativeInputUnchanged": true,
+    "assertionSetUnchanged": true,
+    "requestMetadataOnlySinceSixth": true,
+    "finalSourceCommit": "fe328cc5102332af3bd86ac3efb9be98e1470ddd",
+    "finalVsSixthCardChangedPaths": [
+      "data.extensions.tavern_helper.scripts.3.content",
+      "data.character_book.entries.6.content"
+    ],
+    "finalWakeupChange": "仅扩展已实际醒转的词汇，保留前置语境、否定和非事实排除"
   }
 }
