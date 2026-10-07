@@ -2,7 +2,7 @@ name: World Backstage real Youzi memory safety
 on:
   push:
     branches: [test/memory-hide-safe-recall-20261007]
-    paths: ['.lab/wb-memory-real-youzi.mjs', '.lab/wb-memory-mom-selected.json', '.github/workflows/wb-memory-real-youzi.yml']
+    paths: ['.lab/wb-memory-real-youzi.mjs', '.lab/wb-youzi-select-model.mjs', '.lab/wb-memory-mom-selected.json', '.github/workflows/wb-memory-real-youzi.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -25,6 +25,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Select a different model from current Youzi catalog
+        env:
+          LAB_MODEL_KEY: ${{ secrets.YOUZI }}
+          LAB_MODEL_BASE_URL: https://cofi.date/v1
+        run: node .lab/wb-youzi-select-model.mjs
       - name: Checkout exact candidate
         uses: actions/checkout@v4
         with:
@@ -58,7 +63,6 @@ jobs:
         env:
           LAB_MODEL_KEY: ${{ secrets.YOUZI }}
           LAB_MODEL_BASE_URL: https://cofi.date/v1
-          LAB_MODEL_ID: agnes-3.0-flash
         run: node .lab/wb-memory-real-youzi.mjs
       - uses: actions/upload-artifact@v4
         if: always()
