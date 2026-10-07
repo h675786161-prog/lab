@@ -422,3 +422,43 @@ test('相邻接走不能补模型命令，不能绕过独白前置，也不能�
  assert.equal(has(run({text:vehicleStory('<f7d_choices>希罗的人员抬起赛哈姆。一行人离开。</f7d_choices>')}),'day6_saiham'),false);
  assert.equal(has(run({text:vehicleStory('<UpdateVariable> // 希罗的人员抬起赛哈姆。一行人离开。</UpdateVariable>')}),'day6_saiham'),false);
 });
+
+const carrierFailure=JSON.parse(fs.readFileSync(new URL('./carrier-failure.json',import.meta.url),'utf8'));
+const carrierBaseline=fs.readFileSync(new URL('./morning-guard.carrier-baseline.js',import.meta.url),'utf8');
+test('人员抬走后希罗随同离去，完整自然正文修前拒绝修后保留原有命令',()=>{
+ const opts={text:carrierFailure.text,state:carrierFailure.before,user:carrierFailure.user,commands:carrierFailure.commands};
+ assert.equal(has(run({...opts,code:carrierBaseline}),'day6_saiham'),false);
+ const rows=run(opts);assert.ok(has(rows,'day6_monologue'));assert.ok(has(rows,'day6_saiham'));
+ assert.ok(rows.every(c=>opts.commands.some(old=>JSON.stringify(old)===JSON.stringify(c))));
+});
+const carrierStory=(first='两名部下迅速上前，将昏迷不醒的赛哈姆抬上专用的维生担架，带着抑制设备快步撤离回廊。',last='希罗向你微微颔首，随即随着医疗队伍一同离去。')=>vehicleStory(first+last);
+for(const [first,last] of [
+ [undefined,undefined],
+ ['部下将赛哈姆抱起并离开。','希罗随后跟着护送队伍离去。'],
+ ['随从把受伤的赛哈姆扶起，一同撤离。','希罗随他们离开。'],
+])test('实际抬走与希罗随后同行的事件语序：'+first,()=>{assert.ok(has(run({text:carrierStory(first,last)}),'day6_saiham'));});
+for(const [first,last] of [
+ ['部下准备将赛哈姆抬上担架，撤离。',undefined],
+ ['部下尚未将赛哈姆抬上担架，撤离。',undefined],
+ ['昨天部下将赛哈姆抬上担架，撤离。',undefined],
+ ['如果部下将赛哈姆抬上担架，撤离。',undefined],
+ ['据说部下将赛哈姆抬上担架，撤离。',undefined],
+ ['部下将赛哈姆的行李抬上担架，撤离。',undefined],
+ ['部下将赛哈姆的照片抬上担架，撤离。',undefined],
+ ['部下将赛哈姆抬上担架，等待。',undefined],
+ ['部下将赛哈姆抬上担架，尚未撤离。',undefined],
+ ['部下将赛哈姆抬上担架，随后你离开。',undefined],
+ ['部下将赛哈姆抬上担架，看着安离开。',undefined],
+ ['部下将赛哈姆抬上担架，空担架离开。',undefined],
+ ['部下将赛哈姆抬上担架，把她留在原地后离开。',undefined],
+ ['部下将赛哈姆抬上担架，离开。','希罗准备随着医疗队伍离去。'],
+ ['部下将赛哈姆抬上担架，离开。','希罗尚未随着医疗队伍离去。'],
+ ['部下将赛哈姆抬上担架，离开。','希罗独自离去。'],
+ ['部下将赛哈姆抬上担架，离开。','希罗看着医疗队伍离去。'],
+ ['部下将赛哈姆抬上担架，离开。','你返回房间。希罗随着医疗队伍离去。'],
+ ['部下将赛哈姆抬上担架，离开。\n\n','希罗随着医疗队伍离去。'],
+ ['部下将赛哈姆抬上担架，离开。','希罗随着医疗队伍离去。赛哈姆仍留在中央庭。'],
+])test('人员接走事件的计划、否定、留场和主体断开反例：'+first+last,()=>{assert.equal(has(run({text:carrierStory(first,last)}),'day6_saiham'),false);});
+test('人员接走仍不能补命令或跳过晨间独白',()=>{
+ const text=carrierStory();assert.equal(has(run({text,commands:[mon()]}),'day6_saiham'),false);assert.equal(has(run({text,commands:[departure()]}),'day6_saiham'),false);
+});
