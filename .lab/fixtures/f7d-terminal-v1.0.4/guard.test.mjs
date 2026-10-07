@@ -462,3 +462,44 @@ for(const [first,last] of [
 test('人员接走仍不能补命令或跳过晨间独白',()=>{
  const text=carrierStory();assert.equal(has(run({text,commands:[mon()]}),'day6_saiham'),false);assert.equal(has(run({text,commands:[departure()]}),'day6_saiham'),false);
 });
+
+const passiveFailure=JSON.parse(fs.readFileSync(new URL('./passive-failure.json',import.meta.url),'utf8'));
+const passiveBaseline=fs.readFileSync(new URL('./morning-guard.passive-baseline.js',import.meta.url),'utf8');
+test('人员接手下被动转移并由希罗带队离去，完整自然正文修前漏判修后保留原命令',()=>{
+ const opts={text:passiveFailure.text,state:passiveFailure.before,user:passiveFailure.user,commands:passiveFailure.commands};
+ assert.equal(has(run({...opts,code:passiveBaseline}),'day6_saiham'),false);
+ const rows=run(opts);assert.ok(has(rows,'day6_monologue'));assert.ok(has(rows,'day6_saiham'));assert.ok(rows.every(c=>opts.commands.some(old=>JSON.stringify(old)===JSON.stringify(c))));
+});
+const passiveStory=(body='在医疗人员接手下，失控的赛哈姆被迅速固定并转移出走廊。',hiro='希罗微微颔首，随即带着队伍撤离了现场。')=>vehicleStory(body+hiro);
+for(const text of [
+ passiveStory(),
+ passiveStory('随行人员接手，赛哈姆被抬走。','希罗随后随着医疗队伍离去。'),
+ vehicleStory('希罗将昏迷不醒的赛哈姆带走。'),
+ vehicleStory('希罗带着昏迷不醒的赛哈姆撤离现场。'),
+])test('主被动接走事实不以地域为条件：'+text,()=>{assert.ok(has(run({text}),'day6_saiham'));});
+for(const [body,hiro] of [
+ ['人员准备接手，赛哈姆将被转移出走廊。',undefined],
+ ['人员接手，赛哈姆尚未被转移出走廊。',undefined],
+ ['人员接手，赛哈姆没有被转移出走廊。',undefined],
+ ['如果人员接手，赛哈姆被转移出走廊。',undefined],
+ ['昨天人员接手，赛哈姆被转移出走廊。',undefined],
+ ['据说人员接手，赛哈姆被转移出走廊。',undefined],
+ ['人员接手，赛哈姆的行李被转移出走廊。',undefined],
+ ['人员接手，赛哈姆的照片被抬走。',undefined],
+ ['人员接手，赛哈姆被固定在病床上。',undefined],
+ ['人员接手，赛哈姆被转移到病房。',undefined],
+ [undefined,'希罗准备带着队伍撤离现场。'],
+ [undefined,'希罗尚未带着队伍撤离现场。'],
+ [undefined,'希罗独自撤离现场。'],
+ [undefined,'希罗带着另一支队伍离开。'],
+ [undefined,'希罗带着队伍离开。赛哈姆仍留在中央庭。'],
+ ['人员接手，赛哈姆被转移出走廊。\n\n',undefined],
+ ['人员接手，赛哈姆被转移出走廊。你返回房间。',undefined],
+])test('被动语序仍拒绝计划、否定、物品、留场和无同行：'+body+hiro,()=>{assert.equal(has(run({text:passiveStory(body,hiro)}),'day6_saiham'),false);});
+for(const s of [
+ '希罗准备将赛哈姆带走。',
+ '希罗允许你将赛哈姆带走。',
+ '希罗看着你带着赛哈姆撤离现场。',
+ '希罗将赛哈姆的行李带走。',
+ '希罗带着赛哈姆撤离现场。赛哈姆仍留在中央庭。',
+])test('直接接走的不同主体、许可和物品反例：'+s,()=>{assert.equal(has(run({text:vehicleStory(s)}),'day6_saiham'),false);});

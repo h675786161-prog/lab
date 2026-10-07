@@ -50,18 +50,10 @@
     // 接走对象、执行者、实际离去、希罗同行分别校验，不依赖人员数量或担架名称。
     const carriedPerson=/(?:随行人员|黑衣人员|人员|部下|随从|护卫)[^。！？\n]{0,45}(?:将|把)(?:(?:昏迷(?:不醒|中)?|受伤|失去意识)的)?赛哈姆(?!的)[^，,。！？\n]{0,35}(?:抬起|抱起|扶起|抬上|搬上)/;
     const carrierExit=/(?:撤离|离开|离去|离场)/;
-    const hiroJoins=/希罗[^。！？\n]{0,60}(?:(?:随着|跟着|随|跟)(?:医疗队伍|护送队伍|这支队伍|这队人员|一行人|他们)|(?:带着|带领)(?:队伍|医疗队伍|护送队伍|随行人员))[^。！？\n]{0,30}(?:离去|离开|撤离|离场)/;
-    const unrealCarrier=/(?:计划|打算|准备|即将|将要|将会|可能|应该|也许|如果|假如|要是|回忆|回想|昨天|昨日|据说|听说|允许|同意|请求|要求|希望)[^。！？\n]{0,180}(?:抬起|抱起|扶起|抬上|搬上|转移出|带离|带走|接走|抬走|推走|运走|送走|离开|离去|撤离|随)|(?:没有|并未|尚未|还没|不会|不曾|拒绝)[^，,。！？\n]{0,30}(?:抬起|抱起|扶起|抬上|搬上|转移出|带离|带走|接走|抬走|推走|运走|送走|离开|离去|撤离|随)|(?:会|将)(?:抬起|抱起|扶起|抬上|搬上|转移出|带离|带走|接走|抬走|推走|运走|送走|随)/;
-    const passiveExit=/赛哈姆(?!的)[^，,。！？\n]{0,20}被[^，,。！？\n]{0,45}(?:转移出|带离|带走|接走|抬走|推走|运走|送走|护送(?:离开|离去))/;
-    const directHiro=/希罗([^，,。！？\n]{0,60})(?:(?:将|把)(?:(?:昏迷(?:不醒|中)?|受伤|失去意识)的)?赛哈姆(?!的)[^。！？\n]{0,35}(?:带走|接走|带离|抬走|送走)|(?:带着|护送着?)(?:(?:昏迷(?:不醒|中)?|受伤|失去意识)的)?赛哈姆(?!的)[^。！？\n]{0,60}(?:离去|离开|撤离))/;
-    const hiroFact=p=>{
-      if(unrealCarrier.test(p)||handoffBroken.test(p))return false;
-      const direct=directHiro.exec(p);
-      return !!direct&&!/(?:看着|望着|注视|目送|你|我|安(?:托涅瓦)?|晏华|其他人|另一人|会|要|将)/.test(direct[1]);
-    };
-    const personnelHandoff=(previous,p)=>{
+    const hiroJoins=/希罗[^。！？\n]{0,60}(?:随着|跟着|随|跟)(?:医疗队伍|护送队伍|这支队伍|这队人员|一行人|他们)[^。！？\n]{0,30}(?:离去|离开|撤离|离场)/;
+    const unrealCarrier=/(?:计划|打算|准备|即将|将要|将会|可能|应该|也许|如果|假如|要是|回忆|回想|昨天|昨日|据说|听说|允许|同意|请求|要求|希望)[^。！？\n]{0,180}(?:抬起|抱起|扶起|抬上|搬上|离开|离去|撤离|随)|(?:没有|并未|尚未|还没|不会|不曾|拒绝)[^，,。！？\n]{0,30}(?:抬起|抱起|扶起|抬上|搬上|离开|离去|撤离|随)|(?:会|将)(?:抬起|抱起|扶起|抬上|搬上|随)/;
+    const carrierThenHiro=(previous,p)=>{
       if(!previous||unrealCarrier.test(previous)||unrealCarrier.test(p)||handoffBroken.test(previous+p)||!hiroJoins.test(p))return false;
-      if(passiveExit.test(previous)&&/(?:医疗人员|压制人员|随行人员|黑衣人员|人员|部下|随从|护卫)/.test(previous))return true;
       const pickup=carriedPerson.exec(previous);if(!pickup)return false;
       const tail=previous.slice(pickup.index+pickup[0].length),exit=carrierExit.exec(tail);
       return !!exit&&!/(?:希罗|安(?:托涅瓦)?|晏华|你|我|独自|单独|看着|注视|目送|等待|另(?:一|外)|他们|她|他|要|会)/.test(tail.slice(0,exit.index));
@@ -112,7 +104,7 @@
       if(stay.test(p))lastStay=i;
       const context=sentences.slice(Math.max(0,i-1),i+1).join('。');
       const transportExit=actualTransportExit(p,sentences[i-1]);
-      const actualHandoff=hiroFact(p)||adjacentPairs.has(JSON.stringify([sentences[i-1],p]))&&(adjacentHandoff(p,sentences[i-1])||personnelHandoff(sentences[i-1],p))||!pendingHandoff.test(p)&&!pendingFollowing.test(p)&&(takenAway.test(p)||followingHiro.test(p)||orderedHandoff.test(p));
+      const actualHandoff=adjacentPairs.has(JSON.stringify([sentences[i-1],p]))&&(adjacentHandoff(p,sentences[i-1])||carrierThenHiro(sentences[i-1],p))||!pendingHandoff.test(p)&&!pendingFollowing.test(p)&&(takenAway.test(p)||followingHiro.test(p)||orderedHandoff.test(p));
       if(actualHandoff||(!excluded.test(p)&&(complete.test(p)||transportExit))||(!excluded.test(context)&&escortedVehicle.test(context)))lastComplete=i;
     }
     const observed=String(text||'').replace(/<f7d_choices>[\s\S]*?<\/f7d_choices>/gi,'');

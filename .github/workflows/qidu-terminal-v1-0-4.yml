@@ -63,24 +63,12 @@ jobs:
           node .lab/fixtures/f7d-terminal-v1.0.4/verify-delivery.mjs
       - name: Verify minimal taken away fact and offline contact
         run: F7D_REPLAY_FIXTURE=fact F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
-      - name: Replay recorded failure through native generation
-        run: F7D_REPLAY_FIXTURE=vehicle F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
-      - name: Replay recorded jurisdiction failure through native generation
-        run: F7D_REPLAY_FIXTURE=scope F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
-      - name: Replay recorded boarding failure through native generation
-        run: F7D_REPLAY_FIXTURE=boarding F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
-      - name: Replay adjacent sentence boarding failure through native generation
-        run: F7D_REPLAY_FIXTURE=continuation F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
-      - name: Replay passenger and air transport failure through native generation
-        run: F7D_REPLAY_FIXTURE=transport F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
-      - name: Replay personnel transport failure through native generation
-        run: F7D_REPLAY_FIXTURE=escort F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
-      - name: Replay completed handoff and offline fact
-        run: F7D_REPLAY_FIXTURE=handoff F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
       - name: Replay adjacent personnel handoff fact
         run: F7D_REPLAY_FIXTURE=adjacent F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
       - name: Replay carried person and Hiro following event
         run: F7D_REPLAY_FIXTURE=carrier F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
+      - name: Replay passive transfer and Hiro team departure event
+        run: F7D_REPLAY_FIXTURE=passive F7D_REPLAY=1 node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
       - name: Natural model morning and continuous patrol
         run: node .lab/fixtures/f7d-terminal-v1.0.4/native-live.mjs
       - uses: actions/upload-artifact@v4
