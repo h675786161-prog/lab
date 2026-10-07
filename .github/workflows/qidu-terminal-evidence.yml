@@ -1,4 +1,4 @@
-name: Verify isolated handoff evidence
+name: Read final handoff evidence
 on:
   push:
     branches: [audit/qidu-terminal-v1.0.4-20261007]
@@ -7,13 +7,59 @@ permissions:
   contents: read
   actions: read
 jobs:
-  verify-evidence:
+  read-evidence:
+    name: Evidence 7 ${{ matrix.stage }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    strategy:
+      max-parallel: 3
+      fail-fast: false
+      matrix:
+        stage: [replay-fact, replay-pronoun, natural]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: Verify raw JSON hashes and exact scene summaries
-        run: node .lab/evidence/qidu-terminal-v1.0.4-handoff-20261007/verify.mjs
+      - name: Verify artifact and read exact stage
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: '37571273057'
+          SOURCE_SHA: 'ab22264021b18423204d8eba5b2e94d9dd468e84'
+          STAGE: ${{ matrix.stage }}
+        run: |
+          python - <<'PY'
+          import os,json,urllib.request,hashlib,zipfile,io,time
+          repo=os.environ['GITHUB_REPOSITORY']; stage=os.environ['STAGE']
+          for retry in range(18):
+           meta_req=urllib.request.Request(f'https://api.github.com/repos/{repo}/actions/runs/'+os.environ['RUN_ID']+'/artifacts',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'})
+           artifacts=json.load(urllib.request.urlopen(meta_req))['artifacts']
+           if artifacts: break
+           time.sleep(10)
+          assert len(artifacts)==1, 'Artifact not ready'
+          artifact=artifacts[0]
+          assert artifact['workflow_run']['head_sha']==os.environ['SOURCE_SHA'], 'Wrong source artifact'
+          aid=str(artifact['id'])
+          expected_sha=artifact['digest'].removeprefix('sha256:')
+          print('F7D_ARTIFACT_META '+json.dumps({'id':int(aid),'digest':expected_sha}))
+          req=urllib.request.Request(f'https://api.github.com/repos/{repo}/actions/artifacts/{aid}/zip',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'})
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+           def redirect_request(self,*args): return None
+          try:
+           response=urllib.request.build_opener(NoRedirect).open(req)
+           blob=response.read()
+          except urllib.error.HTTPError as e:
+           if e.code not in (301,302,303,307,308): raise
+           blob=urllib.request.urlopen(e.headers['Location']).read()
+          assert hashlib.sha256(blob).hexdigest()==expected_sha, 'ZIP digest mismatch'
+          z=zipfile.ZipFile(io.BytesIO(blob))
+          names=z.namelist()
+          raw={}
+          for name in ['morning.json','patrol.json','terminal-live.json','checkpoint.json']:
+           matches=[n for n in names if n.endswith(stage+'/'+name)]
+           assert len(matches)==1, (stage,name,len(matches))
+           b=z.read(matches[0]); raw[name]={'content':b.decode(),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+          terminal=json.loads(raw['terminal-live.json']['content'])
+          data={'rawFiles':raw,'terminal':terminal}
+          payload=json.dumps({'stage':stage,'artifactId':int(aid),'data':data},ensure_ascii=False,separators=(',',':'))
+          for i in range(0,len(payload),4096):
+           print('F7D_DATA_CHUNK '+json.dumps(payload[i:i+4096],ensure_ascii=False))
+          
+          
+          PY
