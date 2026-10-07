@@ -35,8 +35,8 @@
       "bytes": 3577
     },
     "Qidu-v0.4.41-terminal-v1.0.4.json": {
-      "sha256": "f31a40a91676d219ed22abcc43553f913ccfb4c223bfbfe230ab78509ea74717",
-      "bytes": 1659377
+      "sha256": "a5e5d6d48ed6b00f7f003d08a4d84f53b5224f026cd7b3035574a893e17edb80",
+      "bytes": 1659608
     },
     "README.md": {
       "sha256": "a178ccfba5805947f12284380d4e0b6f82e4071f5498f024b1bbadf6f6aa81db",
@@ -107,8 +107,8 @@
       "bytes": 18489
     },
     "morning-guard.js": {
-      "sha256": "02d72835dbced3c23f663a8326660a6a656a1f2488e50d9913b7365aa53c98eb",
-      "bytes": 26810
+      "sha256": "32ec71f79c4476a3fdf753bdd4242a263aee81a4b9fef207cfc2d27e8a65fd5a",
+      "bytes": 27039
     },
     "morning-guard.scope-baseline.js": {
       "sha256": "519c2d4090089980c67ccbed2d5803eff838da8848456edad21fdeaaf20f1dd8",
@@ -211,7 +211,7 @@
       "bytes": 25832
     }
   },
-  "previousCandidateCommit": "547239ff2b33e1db0c8df692607701a1ff62531a",
+  "previousCandidateCommit": "17fa5127ba9e3297dfd79907f04e2aa9e88136cc",
   "guardPatchCommit": "b0ff93060557dc24d3a3466cc2f52e2539ffb64b",
   "scopeFailureSourceCommit": "fc8007fd13aee835b3f6938c0ca1c82127bf1c13"
 }

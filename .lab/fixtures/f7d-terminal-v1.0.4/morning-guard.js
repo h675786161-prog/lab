@@ -86,7 +86,8 @@
     for(let p=1;p<paragraphs.length;p++){
       const paragraph=paragraphs[p],previous=paragraphs[p-1];
       const lastActor=[...previous.matchAll(/希罗|晏华|赛斯|安托涅瓦|指挥使|你|我/g)].at(-1)?.[0];
-      if(lastActor!=='希罗'||!/^他[^。！？\n]{0,80}(?:示意|指示|招手|挥手)[^。！？\n]{0,20}(?:护卫|随行人员|医疗人员|部下)/.test(paragraph.trim())||unrealCarrier.test(paragraph)||handoffBroken.test(paragraph))continue;
+      const cue=/^他([^。！？\n]{0,80})(?:示意|指示|招手|挥手)[^。！？\n]{0,20}(?:护卫|随行人员|医疗人员|部下)/.exec(paragraph.trim());
+      if(lastActor!=='希罗'||!cue||/(?:准备|打算|将要|将会|即将|可能|应该|也许|会|如果|假如|要是|回忆|回想)/.test(cue[1])||/(?:没有|并未|尚未|还没|不会|不曾|将)[^，,。！？\n]{0,20}$/.test(cue[1])||unrealCarrier.test(paragraph)||handoffBroken.test(paragraph))continue;
       const rows=paragraph.split(/[。！？\n]+/);
       if(rows.length<=3&&passiveExit.test(rows[1]||'')&&!/(?:晏华|赛斯|安托涅瓦|指挥使|你|我)/.test(rows[0]))pronounHandoffs.add(rows[1]);
     }
