@@ -1,0 +1,165 @@
+name: Yellow Mi Real Data Integration
+
+on:
+  push:
+    branches: [qa/yellowmi-real-data-20261010]
+    paths:
+      - '.github/workflows/yellowmi-real-data.yml'
+      - '.github/qa/yellowmi-real-data.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      ST_DIR: /tmp/yellowmi-real-sillytavern
+      ECHO_DIR: /tmp/yellowmi-real-extension
+      WB_DIR: /tmp/yellowmi-real-world-backstage
+      QA_DIR: /tmp/yellowmi-real-qa
+      EVIDENCE: ${{ github.workspace }}/lab-evidence/yellowmi-real-data
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      ECHO_SHA: 7c6d1a8c0f0f6f566bdc44bb0662769e54ebdf1c
+      WB_SHA: e11f384c0634316888b9cb9d8da7c0f8ac4ed591
+      ST_URL: http://127.0.0.1:8041/
+      MODEL_BASE_URL: https://cofi.date/v1
+      MODEL_ID: agnes-3.0-flash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone exact runtime and extensions
+        run: |
+          set -euo pipefail
+          mkdir -p "$EVIDENCE"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          git clone --filter=blob:none --no-checkout https://github.com/Lenore-111/yellowmi-24-pro-max-plus.git "$ECHO_DIR"
+          git -C "$ECHO_DIR" fetch origin "$ECHO_SHA" --depth=1
+          git -C "$ECHO_DIR" checkout --detach "$ECHO_SHA"
+          git clone --filter=blob:none --no-checkout https://github.com/h675786161-prog/world-backstage.git "$WB_DIR"
+          git -C "$WB_DIR" fetch origin "$WB_SHA" --depth=1
+          git -C "$WB_DIR" checkout --detach "$WB_SHA"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+          test "$(git -C "$ECHO_DIR" rev-parse HEAD)" = "$ECHO_SHA"
+          test "$(git -C "$WB_DIR" rev-parse HEAD)" = "$WB_SHA"
+          git -C "$ST_DIR" rev-parse HEAD | tee "$EVIDENCE/sillytavern-sha.txt"
+          git -C "$ECHO_DIR" rev-parse HEAD | tee "$EVIDENCE/yellowmi-sha.txt"
+          git -C "$WB_DIR" rev-parse HEAD | tee "$EVIDENCE/world-backstage-sha.txt"
+
+      - name: Static and existing regression checks
+        run: |
+          set -euo pipefail
+          find "$ECHO_DIR/src" -name '*.js' -print0 | xargs -0 -n1 node --check
+          node --check "$ECHO_DIR/index.js"
+          node --test "$ECHO_DIR/tests/phone-game-regression.test.mjs" | tee "$EVIDENCE/yellowmi-node-regression.log"
+          node --check "$WB_DIR/phone-bridge-host.js"
+          node --test "$WB_DIR/tests/phone-bridge-host.test.mjs" | tee "$EVIDENCE/world-backstage-phone-bridge-regression.log"
+
+      - name: Install runtime and exact extensions
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-cjk >/dev/null
+          fc-cache -f >/dev/null
+          cd "$ST_DIR" && npm ci
+          ECHO_EXT="$ST_DIR/public/scripts/extensions/third-party/echo-phone"
+          WB_EXT="$ST_DIR/public/scripts/extensions/third-party/world-backstage"
+          rm -rf "$ECHO_EXT" "$WB_EXT"
+          mkdir -p "$(dirname "$ECHO_EXT")"
+          cp -a "$ECHO_DIR" "$ECHO_EXT"
+          cp -a "$WB_DIR" "$WB_EXT"
+          mkdir -p "$QA_DIR" && cd "$QA_DIR" && npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          echo "CHROME_BIN=$CHROME_BIN" >> "$GITHUB_ENV"
+          "$CHROME_BIN" --version | tee "$EVIDENCE/chrome-version.txt"
+          fc-match 'Noto Sans CJK SC' | tee "$EVIDENCE/cjk-font.txt"
+
+      - name: Bootstrap a clean real SillyTavern user profile
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8041 --disableCsrf > "$EVIDENCE/sillytavern-bootstrap.log" 2>&1 & echo $! > /tmp/yellowmi-bootstrap.pid
+          for i in $(seq 1 90); do
+            if curl -fsS --max-time 2 "$ST_URL" >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          curl -fsS "$ST_URL" >/dev/null
+          sleep 2
+          kill "$(cat /tmp/yellowmi-bootstrap.pid)" 2>/dev/null || true
+          wait "$(cat /tmp/yellowmi-bootstrap.pid)" 2>/dev/null || true
+          SETTINGS="$(find "$ST_DIR/data" -type f -name settings.json | head -n1)"
+          test -n "$SETTINGS" && test -f "$SETTINGS"
+          echo "SETTINGS_PATH=$SETTINGS" >> "$GITHUB_ENV"
+          dirname "$SETTINGS" | tee "$EVIDENCE/user-data-dir.txt"
+          jq '.firstRun=false | .main_api="openai" | .oai_settings.chat_completion_source="custom" | .oai_settings.custom_url=env.MODEL_BASE_URL | .oai_settings.custom_model=env.MODEL_ID | .oai_settings.streaming=false' "$SETTINGS" > "$SETTINGS.tmp"
+          mv "$SETTINGS.tmp" "$SETTINGS"
+          jq '{firstRun,main_api,oai_settings:{chat_completion_source:.oai_settings.chat_completion_source,custom_url:.oai_settings.custom_url,custom_model:.oai_settings.custom_model,streaming:.oai_settings.streaming}}' "$SETTINGS" > "$EVIDENCE/model-settings-redacted.json"
+
+      - name: Configure real host model secret without logging it
+        env:
+          LAB_MODEL_KEY: ${{ secrets.YOUZI }}
+        run: |
+          set -euo pipefail
+          test -n "${LAB_MODEL_KEY:-}"
+          ROOT="$(dirname "$SETTINGS_PATH")"
+          ROOT="$ROOT" LAB_MODEL_KEY="$LAB_MODEL_KEY" node - <<'NODE'
+          const fs=require('fs'), path=require('path');
+          const root=process.env.ROOT;
+          const out={api_key_custom:[{id:'yellowmi-real-data-youzi',value:process.env.LAB_MODEL_KEY,label:'Yellow Mi real-data QA',active:true}]};
+          fs.writeFileSync(path.join(root,'secrets.json'),JSON.stringify(out,null,2));
+          NODE
+          echo "custom model secret configured: yes" > "$EVIDENCE/model-secret-status.txt"
+
+      - name: Start exact real SillyTavern runtime
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8041 --disableCsrf > "$EVIDENCE/sillytavern-runtime.log" 2>&1 & echo $! > /tmp/yellowmi-st.pid
+          for i in $(seq 1 90); do
+            if curl -fsS --max-time 2 "$ST_URL" >/dev/null 2>&1; then exit 0; fi
+            if ! kill -0 "$(cat /tmp/yellowmi-st.pid)" 2>/dev/null; then cat "$EVIDENCE/sillytavern-runtime.log"; exit 1; fi
+            sleep 1
+          done
+          cat "$EVIDENCE/sillytavern-runtime.log"; exit 1
+
+      - name: Real browser and real model data audit
+        env:
+          ST_URL: ${{ env.ST_URL }}
+          EVIDENCE: ${{ env.EVIDENCE }}
+          CHROME_BIN: ${{ env.CHROME_BIN }}
+        run: |
+          set -euo pipefail
+          cp "${{ github.workspace }}/.github/qa/yellowmi-real-data.mjs" "$QA_DIR/audit.mjs"
+          cd "$QA_DIR"
+          node audit.mjs | tee "$EVIDENCE/real-data-browser-run.log"
+
+      - name: Record no-fake-data declaration
+        if: always()
+        run: |
+          cat > "$EVIDENCE/data-source-declaration.txt" <<'TXT'
+          Character source: SillyTavern pinned runtime built-in default character Seraphina.
+          Chat source: a real chat opened from that built-in card in the running SillyTavern UI.
+          Model source: SillyTavern host generateRaw configured through the repository YOUZI secret and custom OpenAI-compatible connection.
+          Post source: Yellow Mi requested generation through the real host model; no post rows are injected by the QA script.
+          World/SIM source: only World Backstage data actually produced by the real chat/runtime is inspected. No phone surface people, posts, conversations, moments, SIM, or world state is injected.
+          Any missing world/social/SIM data remains blocked rather than synthesized.
+          TXT
+
+      - name: Stop runtime
+        if: always()
+        run: if [ -f /tmp/yellowmi-st.pid ]; then kill "$(cat /tmp/yellowmi-st.pid)" 2>/dev/null || true; fi
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: yellowmi-real-data-${{ env.ECHO_SHA }}
+          path: lab-evidence/yellowmi-real-data/
+          if-no-files-found: error
