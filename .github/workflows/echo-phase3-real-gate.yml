@@ -52,7 +52,10 @@ jobs:
           git -C "$ECHO_DIR" rev-parse HEAD | tee "$LAB_EVIDENCE_DIR/echo-commit.txt"
           cd "$ECHO_DIR"
           npm run check
-          EXT_DIR="$ST_DIR/public/scripts/extensions/third-party/echo-performance" TARGET_DIR="$ECHO_DIR" ST_DIR="$ST_DIR" bash .lab/install.sh
+          EXT_DIR="$ST_DIR/public/scripts/extensions/third-party/echo-performance"
+          TARGET_DIR="$ECHO_DIR"
+          export EXT_DIR TARGET_DIR ST_DIR
+          bash .lab/install.sh
           test -f "$EXT_DIR/src/dom-compact.js"
 
       - name: Prepare real Chrome and Playwright Core
