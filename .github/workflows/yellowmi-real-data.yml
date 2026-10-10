@@ -141,11 +141,13 @@ jobs:
           from pathlib import Path
           p = Path('/tmp/yellowmi-real-qa/audit.mjs')
           s = p.read_text()
-          old = """  const afterNarrative = await sendNarrative('用一句简短自然的话回应我：今天过得怎么样？');
-          report.stChat.afterNarrative = afterNarrative;
-          report.stChat.realNarrativeGeneration = afterNarrative.chatLength >= selected.chatLength + 2;
-          await page.screenshot({ path:path.join(EVIDENCE,'01-real-seraphina-chat.png'), fullPage:true });"""
-          new = """  const hostModelSmoke = await page.evaluate(async () => {
+          start_marker = "  const afterNarrative = await sendNarrative("
+          end_marker = "  await openPhone();"
+          start = s.find(start_marker)
+          end = s.find(end_marker, start)
+          if start < 0 or end < 0:
+              raise SystemExit(f'narrative anchors missing: start={start} end={end}')
+          replacement = """  const hostModelSmoke = await page.evaluate(async () => {
             const ctx = globalThis.SillyTavern?.getContext?.();
             if (typeof ctx?.generateRaw !== 'function') throw new Error('generateRaw unavailable');
             return String(await ctx.generateRaw({ prompt:'只回复 OK', systemPrompt:'这是连接验证。只回复 OK。', responseLength:20, trimNames:false }) || '');
@@ -153,10 +155,10 @@ jobs:
           report.stChat.hostModelSmoke = hostModelSmoke.slice(0,200);
           report.stChat.realHostModelGeneration = Boolean(hostModelSmoke.trim());
           report.stChat.realNarrativeGeneration = false;
-          await page.screenshot({ path:path.join(EVIDENCE,'01-real-seraphina-chat.png'), fullPage:true });"""
-          if old not in s:
-              raise SystemExit('expected narrative block not found')
-          p.write_text(s.replace(old, new))
+          await page.screenshot({ path:path.join(EVIDENCE,'01-real-seraphina-chat.png'), fullPage:true });
+
+"""
+          p.write_text(s[:start] + replacement + s[end:])
           PY
           cd "$QA_DIR"
           node audit.mjs | tee "$EVIDENCE/real-data-browser-run.log"
