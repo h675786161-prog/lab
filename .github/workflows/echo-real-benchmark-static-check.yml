@@ -1,0 +1,34 @@
+name: Echo Real Benchmark Static Check
+
+on:
+  push:
+    branches:
+      - echo-performance-real-benchmark
+    paths:
+      - '.lab/echo-real-stack-benchmark.mjs'
+      - 'fixtures/echo-performance-real/**'
+      - '.github/workflows/echo-real-benchmark-static-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check benchmark runner syntax
+        run: node --check .lab/echo-real-stack-benchmark.mjs
+      - name: Check fixture tools
+        run: |
+          python3 -m py_compile fixtures/echo-performance-real/build_fixtures.py
+          python3 -m py_compile fixtures/echo-performance-real/audit_world_backstage.py
+      - name: Guard against accidentally committing private raw fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          if find fixtures/echo-performance-real -type f \( -name '*.jsonl' -o -name '新建文件夹.zip' \) -print -quit | grep -q .; then
+            echo 'Private raw Echo fixture data must not be committed to the public Lab repository.' >&2
+            exit 1
+          fi
