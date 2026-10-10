@@ -1,0 +1,121 @@
+name: Echo Phase 3 World Backstage Compatibility V2
+
+on:
+  push:
+    branches:
+      - qa/echo-phase3-20261010
+    paths:
+      - '.github/workflows/echo-phase3-world-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  world-v2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ST_DIR: /tmp/echo-p3-world-v2-st
+      ECHO_DIR: /tmp/echo-p3-world-v2-echo
+      QA_DIR: /tmp/echo-p3-world-v2-qa
+      LAB_ST_URL: http://127.0.0.1:8039/
+      LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence/echo-phase3-world-v2
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      ECHO_BRANCH: feature/echo-performance-long-chat
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare exact SillyTavern Echo and World Backstage
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+          cd "$ST_DIR" && npm ci
+          git clone --depth=1 --branch "$ECHO_BRANCH" https://github.com/Lenore-111/echo-performance.git "$ECHO_DIR"
+          git -C "$ECHO_DIR" rev-parse HEAD | tee "$LAB_EVIDENCE_DIR/echo-commit.txt"
+          cd "$ECHO_DIR" && npm run check
+          EXT_DIR="$ST_DIR/public/scripts/extensions/third-party/echo-performance"
+          TARGET_DIR="$ECHO_DIR"
+          export EXT_DIR TARGET_DIR ST_DIR
+          bash "$ECHO_DIR/.lab/install.sh"
+          WB_DIR="$ST_DIR/public/scripts/extensions/third-party/world-backstage"
+          git clone --depth=1 https://github.com/h675786161-prog/world-backstage.git "$WB_DIR"
+          git -C "$WB_DIR" rev-parse HEAD | tee "$LAB_EVIDENCE_DIR/world-backstage-commit.txt"
+
+      - name: Prepare Chrome
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$QA_DIR" && cd "$QA_DIR"
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          echo "LAB_CHROME=$CHROME_BIN" >> "$GITHUB_ENV"
+          echo "LAB_PLAYWRIGHT_CORE_ENTRY=$QA_DIR/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
+          "$CHROME_BIN" --version | tee "$LAB_EVIDENCE_DIR/chrome-version.txt"
+
+      - name: Start real SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8039 --disableCsrf > "$LAB_EVIDENCE_DIR/runtime.log" 2>&1 &
+          echo $! > /tmp/echo-p3-world-v2.pid
+          for i in $(seq 1 90); do
+            if curl -fsS --max-time 2 "$LAB_ST_URL" >/dev/null 2>&1; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+
+      - name: Build real 1000 floor fixture
+        shell: bash
+        env:
+          ECHO_MODE: baseline
+          ECHO_COUNTS: '1000'
+          ECHO_REPEATS: '1'
+          LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence/echo-phase3-world-v2/fixture
+        run: |
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          node "$ECHO_DIR/.lab/benchmark.mjs"
+
+      - name: Run World Backstage OFF ON compatibility v2
+        id: world
+        continue-on-error: true
+        shell: bash
+        env:
+          LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence/echo-phase3-world-v2/world
+        run: |
+          set +e
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          node "$ECHO_DIR/.lab/phase3-world-v2.mjs" 2>&1 | tee "$LAB_EVIDENCE_DIR/run.log"
+          STATUS=${PIPESTATUS[0]}
+          echo "$STATUS" > "$LAB_EVIDENCE_DIR/exit-code.txt"
+          exit "$STATUS"
+
+      - name: Stop runtime
+        if: always()
+        shell: bash
+        run: |
+          if [ -f /tmp/echo-p3-world-v2.pid ]; then kill "$(cat /tmp/echo-p3-world-v2.pid)" 2>/dev/null || true; fi
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: echo-phase3-world-v2
+          path: lab-evidence/echo-phase3-world-v2/
+          if-no-files-found: error
+
+      - name: Preserve compatibility verdict
+        if: always()
+        shell: bash
+        run: |
+          W="$(cat "$LAB_EVIDENCE_DIR/world/exit-code.txt" 2>/dev/null || echo 99)"
+          echo "world_exit=$W"
+          test "$W" = 0
