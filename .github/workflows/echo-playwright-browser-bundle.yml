@@ -1,0 +1,41 @@
+name: Echo Playwright Browser Bundle
+
+on:
+  push:
+    branches:
+      - echo-performance-real-benchmark
+    paths:
+      - '.github/workflows/echo-playwright-browser-bundle.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Playwright Chromium 1.55.0
+        shell: bash
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: /tmp/echo-pw-browsers
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/echo-pw-tools
+          cd /tmp/echo-pw-tools
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright@1.55.0
+          npx playwright install chromium
+          find "$PLAYWRIGHT_BROWSERS_PATH" -maxdepth 3 -type f -name 'chrome' -o -name 'headless_shell' | sort
+          tar -C /tmp -czf "$GITHUB_WORKSPACE/echo-playwright-browser.tar.gz" echo-pw-browsers
+          ls -lh "$GITHUB_WORKSPACE/echo-playwright-browser.tar.gz"
+      - name: Upload browser bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: echo-playwright-browser
+          path: echo-playwright-browser.tar.gz
+          compression-level: 0
+          retention-days: 7
+          if-no-files-found: error
