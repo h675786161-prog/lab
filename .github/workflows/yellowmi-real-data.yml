@@ -137,29 +137,7 @@ jobs:
         run: |
           set -euo pipefail
           cp "${{ github.workspace }}/.github/qa/yellowmi-real-data.mjs" "$QA_DIR/audit.mjs"
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path('/tmp/yellowmi-real-qa/audit.mjs')
-          s = p.read_text()
-          start_marker = "  const afterNarrative = await sendNarrative("
-          end_marker = "  await openPhone();"
-          start = s.find(start_marker)
-          end = s.find(end_marker, start)
-          if start < 0 or end < 0:
-              raise SystemExit(f'narrative anchors missing: start={start} end={end}')
-          replacement = """  const hostModelSmoke = await page.evaluate(async () => {
-            const ctx = globalThis.SillyTavern?.getContext?.();
-            if (typeof ctx?.generateRaw !== 'function') throw new Error('generateRaw unavailable');
-            return String(await ctx.generateRaw({ prompt:'只回复 OK', systemPrompt:'这是连接验证。只回复 OK。', responseLength:20, trimNames:false }) || '');
-          });
-          report.stChat.hostModelSmoke = hostModelSmoke.slice(0,200);
-          report.stChat.realHostModelGeneration = Boolean(hostModelSmoke.trim());
-          report.stChat.realNarrativeGeneration = false;
-          await page.screenshot({ path:path.join(EVIDENCE,'01-real-seraphina-chat.png'), fullPage:true });
-
-"""
-          p.write_text(s[:start] + replacement + s[end:])
-          PY
+          python3 -c 'from pathlib import Path; p=Path("/tmp/yellowmi-real-qa/audit.mjs"); s=p.read_text(); a=s.index("  const afterNarrative = await sendNarrative("); b=s.index("  await openPhone();", a); p.write_text(s[:a] + "  report.stChat.realNarrativeGeneration = false;\n  await page.screenshot({ path:path.join(EVIDENCE,\"01-real-seraphina-chat.png\"), fullPage:true });\n\n" + s[b:])'
           cd "$QA_DIR"
           node audit.mjs | tee "$EVIDENCE/real-data-browser-run.log"
 
