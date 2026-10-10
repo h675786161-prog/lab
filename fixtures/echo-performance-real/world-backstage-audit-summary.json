@@ -1,0 +1,32 @@
+{
+  "source": "real-heavy-259 / original uploaded chat",
+  "measurement": "compact UTF-8 JSON; aggregate only; no chat content committed",
+  "world_backstage_v1": {
+    "bytes": 23779986,
+    "branchOverridesBytes": 20923122,
+    "branchOverridesCount": 79,
+    "branchOverridesRatio": 0.879862671071379,
+    "overrideBytes": {
+      "min": 22687,
+      "median": 311577,
+      "max": 359775,
+      "sum": 20921823
+    }
+  },
+  "crossSnapshotListElementRepetition": {
+    "events": {"byteRepeatRatio": 0.570761348717072, "elements": 5799, "uniqueElements": 2484},
+    "worldFacts": {"byteRepeatRatio": 0.6006252270977375, "elements": 11106, "uniqueElements": 4342},
+    "publicImpactLedger": {"byteRepeatRatio": 0.9444545520280089, "elements": 5071, "uniqueElements": 284},
+    "people": {"byteRepeatRatio": 0.5721733455196452, "elements": 1076, "uniqueElements": 395},
+    "audit": {"byteRepeatRatio": 0.5429596867045536, "elements": 3119, "uniqueElements": 1425},
+    "consistencyConflicts": {"byteRepeatRatio": 0.23932666110886702, "elements": 2452, "uniqueElements": 1864},
+    "echoes": {"byteRepeatRatio": 0.9603518280980258, "elements": 1193, "uniqueElements": 44},
+    "foregroundFacts": {"byteRepeatRatio": 0.9178323305662037, "elements": 529, "uniqueElements": 44}
+  },
+  "interpretation": [
+    "The original metadata row is retained once in long-DOM fixtures.",
+    "Element repetition indicates storage duplication across branch snapshots; it is not a measured CPU cost or a promised compression ratio.",
+    "No World Backstage production code is modified by the Echo performance branch.",
+    "If browser profiling confirms parse/stringify/save/load cost is material, optimize it in a separate World Backstage Storage Optimization track."
+  ]
+}
