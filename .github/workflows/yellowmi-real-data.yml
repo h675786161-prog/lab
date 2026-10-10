@@ -138,6 +138,7 @@ jobs:
           set -euo pipefail
           cp "${{ github.workspace }}/.github/qa/yellowmi-real-data.mjs" "$QA_DIR/audit.mjs"
           python3 -c 'from pathlib import Path; p=Path("/tmp/yellowmi-real-qa/audit.mjs"); s=p.read_text(); a=s.index("  const afterNarrative = await sendNarrative("); b=s.index("  await openPhone();", a); p.write_text(s[:a] + "  report.stChat.realNarrativeGeneration = false;\n  await page.screenshot({ path:path.join(EVIDENCE,\"01-real-seraphina-chat.png\"), fullPage:true });\n\n" + s[b:])'
+          python3 -c 'from pathlib import Path; p=Path("/tmp/yellowmi-real-qa/audit.mjs"); s=p.read_text(); old="  await target.click({ timeout: 10000 });"; new="  if (await target.isVisible().catch(()=>false)) { report.stChat.characterActivation=\"visible-click\"; await target.click({ timeout:10000 }); } else { report.stChat.characterActivation=\"host-dom-event-fallback\"; await target.evaluate(el=>el.click()); }"; assert old in s; p.write_text(s.replace(old,new))'
           cd "$QA_DIR"
           node audit.mjs | tee "$EVIDENCE/real-data-browser-run.log"
 
@@ -146,7 +147,7 @@ jobs:
         run: |
           cat > "$EVIDENCE/data-source-declaration.txt" <<'TXT'
           Character source: SillyTavern pinned runtime built-in default character Seraphina.
-          Chat source: a real chat opened from that built-in card in the running SillyTavern UI.
+          Chat source: a real chat opened from that built-in card in the running SillyTavern UI. If the host character drawer was hidden in headless layout, the QA may invoke the same character DOM activation handler and records that fallback; this setup action is not counted as a phone UI click.
           Model source: SillyTavern host generateRaw configured through the repository YOUZI secret and custom OpenAI-compatible connection.
           Post source: Yellow Mi requested generation through the real host model; no post rows are injected by the QA script.
           World/SIM source: only World Backstage data actually produced by the real chat/runtime is inspected. No phone surface people, posts, conversations, moments, SIM, or world state is injected.
