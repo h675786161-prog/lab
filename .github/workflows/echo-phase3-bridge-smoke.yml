@@ -90,7 +90,7 @@ jobs:
           mkdir -p "$LAB_EVIDENCE_DIR"
           node "$ECHO_DIR/.lab/benchmark.mjs"
 
-      - name: Run focused 1000-floor native bridge smoke v3
+      - name: Run focused 1000-floor native bridge smoke v4
         id: bridge
         continue-on-error: true
         shell: bash
@@ -99,7 +99,21 @@ jobs:
         run: |
           set +e
           mkdir -p "$LAB_EVIDENCE_DIR"
-          node "$ECHO_DIR/.lab/phase3-bridge-smoke-v3.mjs" 2>&1 | tee "$LAB_EVIDENCE_DIR/run.log"
+          node "$ECHO_DIR/.lab/phase3-bridge-smoke-v4.mjs" 2>&1 | tee "$LAB_EVIDENCE_DIR/run.log"
+          STATUS=${PIPESTATUS[0]}
+          echo "$STATUS" > "$LAB_EVIDENCE_DIR/exit-code.txt"
+          exit "$STATUS"
+
+      - name: Compare MutationObserver errors Echo OFF versus ON
+        id: observer
+        continue-on-error: true
+        shell: bash
+        env:
+          LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence/echo-phase3b/observer
+        run: |
+          set +e
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          node "$ECHO_DIR/.lab/phase3-observer-compare.mjs" 2>&1 | tee "$LAB_EVIDENCE_DIR/run.log"
           STATUS=${PIPESTATUS[0]}
           echo "$STATUS" > "$LAB_EVIDENCE_DIR/exit-code.txt"
           exit "$STATUS"
@@ -128,7 +142,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: echo-phase3b-native-bridge-smoke-v3
+          name: echo-phase3b-native-bridge-smoke-v4
           path: lab-evidence/echo-phase3b/
           if-no-files-found: error
 
@@ -137,7 +151,9 @@ jobs:
         shell: bash
         run: |
           B="$(cat "$LAB_EVIDENCE_DIR/bridge/exit-code.txt" 2>/dev/null || echo 99)"
+          O="$(cat "$LAB_EVIDENCE_DIR/observer/exit-code.txt" 2>/dev/null || echo 99)"
           L="$(cat "$LAB_EVIDENCE_DIR/lifecycle/exit-code.txt" 2>/dev/null || echo 99)"
-          echo "bridge_exit=$B lifecycle_exit=$L"
+          echo "bridge_exit=$B observer_exit=$O lifecycle_exit=$L"
           test "$B" = 0
+          test "$O" = 0
           test "$L" = 0
