@@ -1,0 +1,139 @@
+name: Echo Phase 3 Full Regression
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  full-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      ST_DIR: /tmp/echo-p3-full-st
+      ECHO_DIR: /tmp/echo-p3-full-echo
+      QA_DIR: /tmp/echo-p3-full-qa
+      LAB_ST_URL: http://127.0.0.1:8039/
+      LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence/echo-phase3-full
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      ECHO_BRANCH: feature/echo-performance-long-chat
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare exact SillyTavern and Echo
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+          cd "$ST_DIR" && npm ci
+          git clone --depth=1 --branch "$ECHO_BRANCH" https://github.com/Lenore-111/echo-performance.git "$ECHO_DIR"
+          git -C "$ECHO_DIR" rev-parse HEAD | tee "$LAB_EVIDENCE_DIR/echo-commit.txt"
+          cd "$ECHO_DIR" && npm run check
+          EXT_DIR="$ST_DIR/public/scripts/extensions/third-party/echo-performance"
+          TARGET_DIR="$ECHO_DIR"
+          export EXT_DIR TARGET_DIR ST_DIR
+          bash "$ECHO_DIR/.lab/install.sh"
+
+      - name: Prepare Chrome
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$QA_DIR" && cd "$QA_DIR"
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          echo "LAB_CHROME=$CHROME_BIN" >> "$GITHUB_ENV"
+          echo "LAB_PLAYWRIGHT_CORE_ENTRY=$QA_DIR/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
+          "$CHROME_BIN" --version > "$LAB_EVIDENCE_DIR/chrome-version.txt"
+
+      - name: Start real SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8039 --disableCsrf > "$LAB_EVIDENCE_DIR/runtime.log" 2>&1 &
+          echo $! > /tmp/echo-p3-full.pid
+          for i in $(seq 1 90); do
+            if curl -fsS --max-time 2 "$LAB_ST_URL" >/dev/null 2>&1; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+
+      - name: Build real 200 500 1000 fixtures
+        shell: bash
+        env:
+          ECHO_MODE: baseline
+          ECHO_COUNTS: 200,500,1000
+          ECHO_REPEATS: 1
+          LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence/echo-phase3-full/fixture
+        run: |
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          node "$ECHO_DIR/.lab/benchmark.mjs"
+
+      - name: Run 3-repeat OFF ON metrics
+        shell: bash
+        env:
+          LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence/echo-phase3-full/metrics
+        run: |
+          set -euo pipefail
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          node "$ECHO_DIR/.lab/phase3-metrics.mjs" 2>&1 | tee "$LAB_EVIDENCE_DIR/run.log"
+
+      - name: Enforce Phase 3A regression gates
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const p=process.env.LAB_EVIDENCE_DIR+'/metrics/summary.json';
+          const s=JSON.parse(fs.readFileSync(p,'utf8'));
+          const get=(count,enabled)=>s.rows.find(r=>r.count===count&&r.enabled===enabled);
+          for(const count of [200,500,1000]){
+            for(const enabled of [false,true]){const r=get(count,enabled);if(!r||r.repeats<3)throw new Error(`missing repeats ${count} ${enabled}`);}
+          }
+          const off=get(1000,false), on=get(1000,true);
+          const gates={
+            live:on.liveMes>=100&&on.liveMes<=180,
+            chatDom:on.chatElements<off.chatElements*0.45,
+            pageDom:on.pageNodes<off.pageNodes*0.60,
+            wheel:(on.wheelP95Ms??Infinity)<50,
+            drift:(on.driftP95Px??Infinity)<=8,
+          };
+          console.log(JSON.stringify({gates,off,on},null,2));
+          if(!Object.values(gates).every(Boolean))process.exit(2);
+          NODE
+
+      - name: Re-run 1000-floor bridge smoke
+        shell: bash
+        env:
+          LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence/echo-phase3-full/bridge
+        run: |
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          node "$ECHO_DIR/.lab/phase3-bridge-smoke-v4.mjs" 2>&1 | tee "$LAB_EVIDENCE_DIR/run.log"
+
+      - name: Re-run generation lifecycle
+        shell: bash
+        env:
+          LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence/echo-phase3-full/lifecycle
+        run: |
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          node "$ECHO_DIR/.lab/phase3-lifecycle.mjs" 2>&1 | tee "$LAB_EVIDENCE_DIR/run.log"
+
+      - name: Stop runtime
+        if: always()
+        shell: bash
+        run: |
+          if [ -f /tmp/echo-p3-full.pid ]; then kill "$(cat /tmp/echo-p3-full.pid)" 2>/dev/null || true; fi
+
+      - name: Upload full regression evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: echo-phase3-full-regression
+          path: lab-evidence/echo-phase3-full/
+          if-no-files-found: error
