@@ -1,0 +1,94 @@
+name: Echo Phase 3 World Backstage Memory Compatibility
+
+on:
+  push:
+    branches: [qa/echo-phase3-20261010]
+    paths: ['.github/workflows/echo-phase3-world-memory.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  world-memory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      ST_DIR: /tmp/echo-p3-world-memory-st
+      ECHO_DIR: /tmp/echo-p3-world-memory-echo
+      QA_DIR: /tmp/echo-p3-world-memory-qa
+      LAB_ST_URL: http://127.0.0.1:8039/
+      LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence/echo-phase3-world-memory
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare exact SillyTavern Echo and World Backstage
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          cd "$ST_DIR" && npm ci
+          git clone --depth=1 --branch feature/echo-performance-long-chat https://github.com/Lenore-111/echo-performance.git "$ECHO_DIR"
+          git -C "$ECHO_DIR" rev-parse HEAD | tee "$LAB_EVIDENCE_DIR/echo-commit.txt"
+          EXT_DIR="$ST_DIR/public/scripts/extensions/third-party/echo-performance" TARGET_DIR="$ECHO_DIR"; export EXT_DIR TARGET_DIR ST_DIR
+          bash "$ECHO_DIR/.lab/install.sh"
+          git clone --depth=1 https://github.com/h675786161-prog/world-backstage.git "$ST_DIR/public/scripts/extensions/third-party/world-backstage"
+          git -C "$ST_DIR/public/scripts/extensions/third-party/world-backstage" rev-parse HEAD | tee "$LAB_EVIDENCE_DIR/world-backstage-commit.txt"
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('/tmp/echo-p3-world-memory-echo/.lab/phase3-world-rerun.mjs')
+          s = p.read_text()
+          old = "enabled: true, memorySystemEnabled: true, injectionMemory: true, memoryAutoIndexInterval: 10"
+          new = "enabled: true, worldSimulationEnabled: false, worldAutoEnabled: false, autoSync: false, memorySystemEnabled: true, injectionMemory: true, memoryAutoIndexInterval: 10"
+          if old not in s:
+              raise SystemExit('expected test settings fragment not found')
+          p.write_text(s.replace(old, new))
+          PY
+          node --check "$ECHO_DIR/.lab/phase3-world-rerun.mjs"
+      - name: Prepare Chrome
+        shell: bash
+        run: |
+          mkdir -p "$QA_DIR" && cd "$QA_DIR"
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          echo "LAB_CHROME=$CHROME_BIN" >> "$GITHUB_ENV"
+          echo "LAB_PLAYWRIGHT_CORE_ENTRY=$QA_DIR/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
+      - name: Start real SillyTavern
+        shell: bash
+        run: |
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8039 --disableCsrf > "$LAB_EVIDENCE_DIR/runtime.log" 2>&1 &
+          echo $! > /tmp/echo-p3-world-memory.pid
+          for i in $(seq 1 90); do if curl -fsS --max-time 2 "$LAB_ST_URL" >/dev/null 2>&1; then exit 0; fi; sleep 1; done
+          exit 1
+      - name: Build real 1000-floor fixture
+        shell: bash
+        env:
+          ECHO_MODE: baseline
+          ECHO_COUNTS: 1000
+          ECHO_REPEATS: 1
+          LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence/echo-phase3-world-memory/fixture
+        run: |
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          node "$ECHO_DIR/.lab/benchmark.mjs"
+      - name: Run isolated memory auto-index and auto-hide compatibility
+        shell: bash
+        env:
+          LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence/echo-phase3-world-memory/world
+        run: |
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          node "$ECHO_DIR/.lab/phase3-world-rerun.mjs" 2>&1 | tee "$LAB_EVIDENCE_DIR/world.log"
+      - name: Stop runtime
+        if: always()
+        run: kill "$(cat /tmp/echo-p3-world-memory.pid)" 2>/dev/null || true
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: echo-phase3-world-memory
+          path: lab-evidence/echo-phase3-world-memory/
+          if-no-files-found: error
