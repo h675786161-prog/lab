@@ -1,0 +1,201 @@
+name: Yellow Mi UI Closure Real SillyTavern
+
+on:
+  push:
+    branches:
+      - qa/yellowmi-ui-closure-20261010
+    paths:
+      - '.github/workflows/yellowmi-ui-closure.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      ST_DIR: /tmp/yellowmi-sillytavern
+      ECHO_DIR: /tmp/yellowmi-extension
+      QA_DIR: /tmp/yellowmi-qa
+      EVIDENCE: ${{ github.workspace }}/lab-evidence/yellowmi-ui-closure
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      ECHO_BRANCH: fix/ui-closure-20261010
+      ST_URL: http://127.0.0.1:8039/
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone exact SillyTavern and target Yellow Mi branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$EVIDENCE"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          git clone --depth=1 --branch "$ECHO_BRANCH" https://github.com/Lenore-111/yellowmi-24-pro-max-plus.git "$ECHO_DIR"
+          git -C "$ST_DIR" rev-parse HEAD | tee "$EVIDENCE/sillytavern-sha.txt"
+          git -C "$ECHO_DIR" rev-parse HEAD | tee "$EVIDENCE/yellowmi-sha.txt"
+
+      - name: Static checks and existing regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          find "$ECHO_DIR/src" -name '*.js' -print0 | xargs -0 -n1 node --check
+          node --check "$ECHO_DIR/index.js"
+          node --test "$ECHO_DIR/tests/phone-game-regression.test.mjs" | tee "$EVIDENCE/node-regression.log"
+
+      - name: Install dependencies and extension
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"
+          npm ci
+          EXT_DIR="$ST_DIR/public/scripts/extensions/third-party/echo-phone"
+          rm -rf "$EXT_DIR"
+          mkdir -p "$(dirname "$EXT_DIR")"
+          cp -a "$ECHO_DIR" "$EXT_DIR"
+          mkdir -p "$QA_DIR"
+          cd "$QA_DIR"
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          echo "CHROME_BIN=$CHROME_BIN" >> "$GITHUB_ENV"
+          "$CHROME_BIN" --version | tee "$EVIDENCE/chrome-version.txt"
+
+      - name: Start real SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8039 --disableCsrf > "$EVIDENCE/sillytavern-runtime.log" 2>&1 &
+          echo $! > /tmp/yellowmi-st.pid
+          for i in $(seq 1 90); do
+            if curl -fsS --max-time 2 "$ST_URL" >/dev/null 2>&1; then exit 0; fi
+            if ! kill -0 "$(cat /tmp/yellowmi-st.pid)" 2>/dev/null; then
+              cat "$EVIDENCE/sillytavern-runtime.log"
+              exit 1
+            fi
+            sleep 1
+          done
+          cat "$EVIDENCE/sillytavern-runtime.log"
+          exit 1
+
+      - name: Real Chromium UI audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$QA_DIR/audit.mjs" <<'EOF'
+          import { chromium } from 'playwright-core';
+          import fs from 'node:fs';
+          import path from 'node:path';
+
+          const evidence = process.env.EVIDENCE;
+          const browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true, args: ['--no-sandbox'] });
+          const viewports = [
+            ['phone',390,844],['narrow',320,640],['tablet',820,1180],['desktop',1440,1000],['landscape',844,390],
+          ];
+          const sequence = ['wechat','weibo','rednote','wallet','delivery','music','phone','messages','appstore'];
+          const report = { yellowmiSha: fs.readFileSync(path.join(evidence,'yellowmi-sha.txt'),'utf8').trim(), runs: [], consoleErrors: [] };
+
+          for (const [name,width,height] of viewports) {
+            const context = await browser.newContext({ viewport: { width, height } });
+            const page = await context.newPage();
+            const run = { name, width, height, apps: {}, shell: {}, notes: [] };
+            page.on('pageerror', error => report.consoleErrors.push({ viewport:name, type:'pageerror', text:String(error) }));
+            page.on('console', msg => { if (msg.type() === 'error') report.consoleErrors.push({ viewport:name, type:'console', text:msg.text() }); });
+            await page.goto(process.env.ST_URL, { waitUntil:'domcontentloaded', timeout:60000 });
+            await page.waitForTimeout(4500);
+
+            const launcher = page.locator('#world-phone-launcher');
+            run.shell.launcher = await launcher.count() > 0;
+            if (!run.shell.launcher) {
+              run.notes.push('手机入口未出现；当前真实酒馆初始页面未加载扩展。');
+              await page.screenshot({ path:path.join(evidence,`${name}-no-launcher.png`), fullPage:true });
+              report.runs.push(run); await context.close(); continue;
+            }
+            await launcher.click({ timeout:10000 });
+            await page.waitForTimeout(500);
+            const unlock = page.locator('#world-phone-stage [data-unlock]');
+            if (await unlock.count()) { try { await unlock.click({ timeout:3000 }); await page.waitForTimeout(300); } catch {} }
+            run.shell.stageVisible = await page.locator('#world-phone-stage.is-open').count() > 0;
+            run.shell.bounds = await page.locator('#world-phone-stage .wp-screen-glass').evaluate(el => { const r=el.getBoundingClientRect(); return {x:r.x,y:r.y,width:r.width,height:r.height,scrollWidth:el.scrollWidth,scrollHeight:el.scrollHeight}; }).catch(()=>null);
+
+            for (const app of sequence) {
+              const entry = page.locator(`#world-phone-stage .wp-app[data-app="${app}"]`).first();
+              if (!await entry.count()) { run.apps[app] = { entry:false, status:'入口不存在或当前环境未提供' }; continue; }
+              try {
+                await entry.click({ timeout:5000 });
+                await page.waitForTimeout(250);
+                const root = page.locator('#world-phone-stage .wp-native-app').last();
+                const appResult = { entry:true, opened:await root.count()>0, overflow:false, actions:[] };
+                appResult.overflow = await page.locator('#world-phone-stage .wp-screen-glass').evaluate(el => el.scrollWidth > el.clientWidth + 2).catch(()=>false);
+
+                if (app === 'wechat') {
+                  const discover = page.locator('#world-phone-stage [data-pg-view="moments"]').first();
+                  if (await discover.count()) { await discover.click(); await page.waitForTimeout(120); appResult.actions.push('发现'); }
+                  const moments = page.locator('#world-phone-stage [data-pg-open-moments]').first();
+                  if (await moments.count()) { await moments.click(); await page.waitForTimeout(120); appResult.actions.push('朋友圈'); }
+                  const backMoments = page.locator('#world-phone-stage [data-pg-discovery-back]').first();
+                  if (await backMoments.count()) { await backMoments.click(); appResult.actions.push('返回发现'); }
+                  const contacts = page.locator('#world-phone-stage [data-pg-view="relations"]').first();
+                  if (await contacts.count()) { await contacts.click(); await page.waitForTimeout(120); appResult.actions.push('通讯录'); }
+                  if (!await page.locator('#world-phone-stage [data-pg-contact]').count()) appResult.actions.push('联系人详情：无真实人物数据，未验证');
+                }
+                if (app === 'rednote') {
+                  if (!await page.locator('#world-phone-stage [data-pg-post]').count()) appResult.actions.push('笔记详情：无真实人物/帖子数据，未验证');
+                }
+                if (app === 'delivery') {
+                  const merchant = page.locator('#world-phone-stage [data-pg-delivery-merchant]').first();
+                  if (await merchant.count()) { await merchant.click(); await page.waitForTimeout(120); appResult.actions.push('商家'); }
+                  const add = page.locator('#world-phone-stage [data-pg-delivery-add]').first();
+                  if (await add.count()) { await add.click(); await page.waitForTimeout(120); appResult.actions.push('商品→购物车'); }
+                  const checkout = page.locator('#world-phone-stage [data-pg-delivery-go="checkout"]').first();
+                  if (await checkout.count() && await checkout.isEnabled()) { await checkout.click(); await page.waitForTimeout(120); appResult.actions.push('结算'); }
+                  else appResult.actions.push('结算/下单：无真实收礼角色或余额条件不足，未验证');
+                }
+
+                run.apps[app] = appResult;
+                await page.screenshot({ path:path.join(evidence,`${name}-${app}.png`) });
+                const back = page.locator('#world-phone-stage [data-app-back]').first();
+                if (await back.count()) { await back.click(); await page.waitForTimeout(150); }
+                else {
+                  const home = page.locator('#world-phone-stage .wp-app[data-app="settings"]').first();
+                  if (!await home.count()) run.notes.push(`${app}: 未找到标准返回桌面按钮`);
+                }
+              } catch (error) {
+                run.apps[app] = { entry:true, opened:false, status:String(error) };
+                const homeBack = page.locator('#world-phone-stage [data-app-back]').first();
+                if (await homeBack.count()) { try { await homeBack.click(); } catch {} }
+              }
+            }
+            await page.screenshot({ path:path.join(evidence,`${name}-final.png`) });
+            report.runs.push(run);
+            await context.close();
+          }
+          await browser.close();
+          fs.writeFileSync(path.join(evidence,'ui-audit.json'), JSON.stringify(report,null,2));
+          if (report.consoleErrors.some(item => !/favicon|extensions\/version/i.test(item.text))) {
+            console.error(JSON.stringify(report.consoleErrors,null,2));
+            process.exitCode = 2;
+          }
+          EOF
+          cd "$QA_DIR"
+          EVIDENCE="$EVIDENCE" CHROME_BIN="$CHROME_BIN" ST_URL="$ST_URL" node audit.mjs | tee "$EVIDENCE/ui-audit.log"
+
+      - name: Stop runtime
+        if: always()
+        shell: bash
+        run: |
+          if [ -f /tmp/yellowmi-st.pid ]; then kill "$(cat /tmp/yellowmi-st.pid)" 2>/dev/null || true; fi
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: yellowmi-ui-closure-${{ github.sha }}
+          path: lab-evidence/yellowmi-ui-closure/
+          if-no-files-found: error
