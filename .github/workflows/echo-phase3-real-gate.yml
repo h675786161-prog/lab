@@ -1,4 +1,5 @@
 name: Echo Phase 3 Real SillyTavern Gate
+# 2026-10-11 regression rerun: current Echo feature HEAD after profiler/status-hot-path changes.
 
 on:
   push:
