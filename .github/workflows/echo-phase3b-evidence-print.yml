@@ -1,0 +1,36 @@
+name: Echo Phase 3B Evidence Print
+
+on:
+  push:
+    branches:
+      - qa/echo-phase3-20261010
+    paths:
+      - '.github/workflows/echo-phase3b-evidence-print.yml'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  print-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download focused artifact and print bridge JSON
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_ID: '11663226962'
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/h675786161-prog/lab/actions/artifacts/$ARTIFACT_ID/zip" -o /tmp/evidence.zip
+          mkdir -p /tmp/evidence
+          unzip -q /tmp/evidence.zip -d /tmp/evidence
+          find /tmp/evidence -maxdepth 4 -type f -print
+          echo '===== BRIDGE V2 JSON ====='
+          cat /tmp/evidence/bridge/bridge-smoke-v2.json
+          echo '===== BRIDGE EXIT ====='
+          cat /tmp/evidence/bridge/exit-code.txt
+          echo '===== LIFECYCLE EXIT ====='
+          cat /tmp/evidence/lifecycle/exit-code.txt
