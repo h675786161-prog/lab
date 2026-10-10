@@ -90,7 +90,7 @@ jobs:
           mkdir -p "$LAB_EVIDENCE_DIR"
           node "$ECHO_DIR/.lab/benchmark.mjs"
 
-      - name: Run focused 1000-floor native bridge smoke v4
+      - name: Run focused 1000-floor native bridge smoke v5 collect-all
         id: bridge
         continue-on-error: true
         shell: bash
@@ -99,7 +99,7 @@ jobs:
         run: |
           set +e
           mkdir -p "$LAB_EVIDENCE_DIR"
-          node "$ECHO_DIR/.lab/phase3-bridge-smoke-v4.mjs" 2>&1 | tee "$LAB_EVIDENCE_DIR/run.log"
+          node "$ECHO_DIR/.lab/phase3-bridge-smoke-v5.mjs" 2>&1 | tee "$LAB_EVIDENCE_DIR/run.log"
           STATUS=${PIPESTATUS[0]}
           echo "$STATUS" > "$LAB_EVIDENCE_DIR/exit-code.txt"
           exit "$STATUS"
@@ -142,7 +142,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: echo-phase3b-native-bridge-smoke-v4
+          name: echo-phase3b-native-bridge-smoke-v5
           path: lab-evidence/echo-phase3b/
           if-no-files-found: error
 
