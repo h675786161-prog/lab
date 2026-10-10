@@ -10,6 +10,29 @@ const viewports = [
 const sequence = ['wechat','weibo','rednote','wallet','delivery','music','phone','messages','appstore'];
 const report = { yellowmiSha: fs.readFileSync(path.join(evidence,'yellowmi-sha.txt'),'utf8').trim(), runs: [], consoleErrors: [] };
 
+async function dismissHostPopups(page, run, viewportName) {
+  for (let pass = 0; pass < 5; pass++) {
+    const dialog = page.locator('dialog[open].popup').last();
+    if (!await dialog.count()) return;
+    if (pass === 0) await page.screenshot({ path:path.join(evidence,`${viewportName}-host-popup.png`), fullPage:true });
+    const text = (await dialog.innerText().catch(() => '')).replace(/\s+/g,' ').trim().slice(0,220);
+    const buttons = dialog.locator('button:visible');
+    const labels = await buttons.allTextContents();
+    run.notes.push(`宿主弹窗：${text || '(无文字)'}；按钮=${labels.map(x=>x.trim()).filter(Boolean).join('|') || '(无按钮文字)'}`);
+    let target = -1;
+    for (let i = 0; i < labels.length; i++) {
+      if (/关闭|close|确定|ok|知道|got it|稍后|later|取消|cancel|继续|continue|跳过|skip/i.test(labels[i])) { target = i; break; }
+    }
+    if (target < 0 && labels.length) target = labels.length - 1;
+    if (target >= 0) {
+      try { await buttons.nth(target).click({ timeout:3000 }); await page.waitForTimeout(250); continue; } catch {}
+    }
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(250);
+    if (await dialog.count()) throw new Error('无法通过真实点击或 Escape 关闭 SillyTavern 宿主弹窗');
+  }
+}
+
 for (const [name,width,height] of viewports) {
   const context = await browser.newContext({ viewport: { width, height } });
   const page = await context.newPage();
@@ -18,6 +41,7 @@ for (const [name,width,height] of viewports) {
   page.on('console', msg => { if (msg.type() === 'error') report.consoleErrors.push({ viewport:name, type:'console', text:msg.text() }); });
   await page.goto(process.env.ST_URL, { waitUntil:'domcontentloaded', timeout:60000 });
   await page.waitForTimeout(4500);
+  await dismissHostPopups(page, run, name);
 
   const launcher = page.locator('#world-phone-launcher');
   run.shell.launcher = await launcher.count() > 0;
