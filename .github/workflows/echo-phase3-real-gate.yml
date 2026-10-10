@@ -1,5 +1,5 @@
 name: Echo Phase 3 Real SillyTavern Gate
-# 2026-10-11 regression rerun: current Echo feature HEAD after profiler/status-hot-path changes.
+# 2026-10-11 rerun after fixing Echo installer to include src/profiler.js.
 
 on:
   push:
@@ -58,6 +58,7 @@ jobs:
           export EXT_DIR TARGET_DIR ST_DIR
           bash .lab/install.sh
           test -f "$EXT_DIR/src/dom-compact.js"
+          test -f "$EXT_DIR/src/profiler.js"
 
       - name: Prepare real Chrome and Playwright Core
         shell: bash
