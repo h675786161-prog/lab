@@ -1,0 +1,94 @@
+name: Yellow Mi Provider Reachability
+
+on:
+  push:
+    branches: [qa/yellowmi-real-data-20261010]
+    paths:
+      - '.github/workflows/yellowmi-provider-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      GG_KEY: ${{ secrets.GG }}
+      PIAOMIAO_KEY: ${{ secrets.PIAOMIAO }}
+      YOUZI_KEY: ${{ secrets.YOUZI }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe providers without logging secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p provider-evidence
+          python - <<'PY'
+          import json, os, re, time, urllib.request, urllib.error
+
+          providers = [
+            ('GG', 'https://gcli.ggchan.dev', os.environ.get('GG_KEY','')),
+            ('PIAOMIAO', 'https://claudeapi.cc.cd', os.environ.get('PIAOMIAO_KEY','')),
+            ('YOUZI', 'https://cofi.date', os.environ.get('YOUZI_KEY','')),
+          ]
+          prefer = [
+            re.compile(r'gemini.*flash', re.I), re.compile(r'gemini.*pro', re.I),
+            re.compile(r'claude.*sonnet', re.I), re.compile(r'claude', re.I),
+            re.compile(r'flash', re.I), re.compile(r'pro', re.I),
+          ]
+          out=[]
+          for index,(name,base,key) in enumerate(providers):
+            if index: time.sleep(4)
+            row={'provider':name,'base':base,'secret_present':bool(key),'models_status':None,'chat_status':None,'candidate':None,'ok':False}
+            if not key:
+              row['error']='missing_secret'; out.append(row); continue
+            headers={'Authorization':'Bearer '+key,'Accept':'application/json','Content-Type':'application/json','User-Agent':'YellowMi-RealData-QA/1.0'}
+            try:
+              req=urllib.request.Request(base+'/v1/models',headers=headers)
+              with urllib.request.urlopen(req,timeout=25) as r:
+                raw=r.read(2_000_000); row['models_status']=r.status
+              data=json.loads(raw.decode('utf-8','replace'))
+              seq=(data.get('data') or data.get('models') or []) if isinstance(data,dict) else []
+              ids=[]
+              for item in seq:
+                mid=(item.get('id') or item.get('name') or item.get('model')) if isinstance(item,dict) else str(item)
+                if mid: ids.append(str(mid))
+              row['model_count']=len(ids); row['models_sample']=ids[:30]
+              cand=None
+              for pat in prefer:
+                cand=next((m for m in ids if pat.search(m)),None)
+                if cand: break
+              cand=cand or (ids[0] if ids else None)
+              row['candidate']=cand
+              if not cand:
+                row['error']='no_models'; out.append(row); continue
+              payload=json.dumps({'model':cand,'messages':[{'role':'user','content':'Reply with exactly OK'}],'max_tokens':8,'temperature':0}).encode()
+              req=urllib.request.Request(base+'/v1/chat/completions',data=payload,headers=headers,method='POST')
+              with urllib.request.urlopen(req,timeout=40) as r:
+                body=r.read(300000); row['chat_status']=r.status
+              parsed=json.loads(body.decode('utf-8','replace'))
+              text=''
+              try: text=str(parsed['choices'][0]['message']['content'] or '')
+              except Exception: pass
+              row['chat_excerpt']=text[:120]; row['ok']=200 <= int(row['chat_status']) < 300 and bool(text.strip())
+            except urllib.error.HTTPError as e:
+              row['http_error']=e.code
+              body=e.read(3000).decode('utf-8','replace')
+              row['error_excerpt']=body[:300]
+            except Exception as e:
+              row['error']=type(e).__name__+': '+str(e)[:300]
+            out.append(row)
+            print(name, 'models=',row.get('models_status'),'chat=',row.get('chat_status'),'ok=',row['ok'],'candidate=',row.get('candidate'))
+          chosen=next(({'provider':r['provider'],'base':r['base'],'model':r['candidate']} for r in out if r.get('ok')),None)
+          with open('provider-evidence/yellowmi-provider-probe.json','w',encoding='utf-8') as f:
+            json.dump({'results':out,'chosen':chosen},f,ensure_ascii=False,indent=2)
+          PY
+      - name: Upload probe evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: yellowmi-provider-reachability
+          path: provider-evidence/
+          if-no-files-found: error
