@@ -1,0 +1,86 @@
+name: Yellow Mi UI Final Exact SHA R3
+
+on:
+  push:
+    branches: [qa/yellowmi-ui-closure-20261010]
+    paths: ['.github/workflows/yellowmi-ui-final-r3.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      ST_DIR: /tmp/yellowmi-sillytavern
+      ECHO_DIR: /tmp/yellowmi-extension
+      QA_DIR: /tmp/yellowmi-qa
+      EVIDENCE: ${{ github.workspace }}/lab-evidence/yellowmi-ui-final-r3
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      ECHO_SHA: 7c6d1a8c0f0f6f566bdc44bb0662769e54ebdf1c
+      ST_URL: http://127.0.0.1:8039/
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone exact sources
+        run: |
+          set -euo pipefail
+          mkdir -p "$EVIDENCE"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          git clone --filter=blob:none --no-checkout https://github.com/Lenore-111/yellowmi-24-pro-max-plus.git "$ECHO_DIR"
+          git -C "$ECHO_DIR" fetch origin "$ECHO_SHA" --depth=1
+          git -C "$ECHO_DIR" checkout --detach "$ECHO_SHA"
+          test "$(git -C "$ECHO_DIR" rev-parse HEAD)" = "$ECHO_SHA"
+          git -C "$ST_DIR" rev-parse HEAD | tee "$EVIDENCE/sillytavern-sha.txt"
+          git -C "$ECHO_DIR" rev-parse HEAD | tee "$EVIDENCE/yellowmi-sha.txt"
+      - name: Static checks and regression
+        run: |
+          set -euo pipefail
+          find "$ECHO_DIR/src" -name '*.js' -print0 | xargs -0 -n1 node --check
+          node --check "$ECHO_DIR/index.js"
+          node --test "$ECHO_DIR/tests/phone-game-regression.test.mjs" | tee "$EVIDENCE/node-regression.log"
+      - name: Install runtime, CJK font and browser tools
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-cjk >/dev/null
+          fc-cache -f >/dev/null
+          cd "$ST_DIR" && npm ci
+          EXT_DIR="$ST_DIR/public/scripts/extensions/third-party/echo-phone"
+          rm -rf "$EXT_DIR" && mkdir -p "$(dirname "$EXT_DIR")" && cp -a "$ECHO_DIR" "$EXT_DIR"
+          mkdir -p "$QA_DIR" && cd "$QA_DIR" && npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"; echo "CHROME_BIN=$CHROME_BIN" >> "$GITHUB_ENV"
+          "$CHROME_BIN" --version | tee "$EVIDENCE/chrome-version.txt"
+          fc-match 'Noto Sans CJK SC' | tee "$EVIDENCE/cjk-font.txt"
+      - name: Start real SillyTavern
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"; nohup node server.js --listen --port 8039 --disableCsrf > "$EVIDENCE/sillytavern-runtime.log" 2>&1 & echo $! > /tmp/yellowmi-st.pid
+          for i in $(seq 1 90); do
+            if curl -fsS --max-time 2 "$ST_URL" >/dev/null 2>&1; then exit 0; fi
+            if ! kill -0 "$(cat /tmp/yellowmi-st.pid)" 2>/dev/null; then cat "$EVIDENCE/sillytavern-runtime.log"; exit 1; fi
+            sleep 1
+          done
+          cat "$EVIDENCE/sillytavern-runtime.log"; exit 1
+      - name: Real Chromium final audit
+        run: |
+          set -euo pipefail
+          cp "${{ github.workspace }}/.github/qa/yellowmi-ui-final.mjs" "$QA_DIR/audit.mjs"
+          sed -i "/const page = await context.newPage();/a\\  page.setDefaultTimeout(2500);" "$QA_DIR/audit.mjs"
+          cd "$QA_DIR"
+          EVIDENCE="$EVIDENCE" CHROME_BIN="$CHROME_BIN" ST_URL="$ST_URL" node audit.mjs | tee "$EVIDENCE/ui-audit.log"
+      - name: Stop runtime
+        if: always()
+        run: if [ -f /tmp/yellowmi-st.pid ]; then kill "$(cat /tmp/yellowmi-st.pid)" 2>/dev/null || true; fi
+      - name: Upload exact-SHA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: yellowmi-ui-final-${{ env.ECHO_SHA }}-r3
+          path: lab-evidence/yellowmi-ui-final-r3/
+          if-no-files-found: error
