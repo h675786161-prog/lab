@@ -1,0 +1,116 @@
+name: Echo Private Benchmark Runtime Bundle
+
+on:
+  push:
+    branches:
+      - echo-performance-real-benchmark
+    paths:
+      - '.github/workflows/echo-private-runtime-bundle.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      ST_DIR: /tmp/echo-private-runtime/st
+      ECHO_DIR: /tmp/echo-private-runtime/echo-performance
+      QA_DIR: /tmp/echo-private-runtime/qa-tools
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      ECHO_BRANCH: feature/echo-performance-long-chat
+      TAVERN_HELPER_COMMIT: c0196caee03955aa39e00db1a2623b2591bd3c6f
+      PROMPT_TEMPLATE_COMMIT: d6f520d149aba146305b0b781ddd691d449c28d2
+      WORLD_BACKSTAGE_COMMIT: b4cfc7519102bdc93e33932093b52d31505a5fe2
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build exact SillyTavern runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/echo-private-runtime
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+          npm --prefix "$ST_DIR" ci
+          rm -rf "$ST_DIR/.git"
+
+      - name: Install exact Echo build
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth=1 --branch "$ECHO_BRANCH" https://github.com/Lenore-111/echo-performance.git "$ECHO_DIR"
+          ECHO_COMMIT="$(git -C "$ECHO_DIR" rev-parse HEAD)"
+          npm --prefix "$ECHO_DIR" run check
+          EXT_DIR="$ST_DIR/public/scripts/extensions/third-party/echo-performance"
+          TARGET_DIR="$ECHO_DIR"
+          export EXT_DIR TARGET_DIR ST_DIR
+          bash "$ECHO_DIR/.lab/install.sh"
+          test -f "$EXT_DIR/src/profiler.js"
+          printf '%s\n' "$ECHO_COMMIT" > /tmp/echo-private-runtime/echo-commit.txt
+          rm -rf "$ECHO_DIR/.git"
+
+      - name: Install pinned real-stack extensions
+        shell: bash
+        run: |
+          set -euo pipefail
+          EXT_ROOT="$ST_DIR/public/scripts/extensions/third-party"
+          clone_exact() {
+            local repo="$1" commit="$2" dest="$3"
+            git clone --filter=blob:none --no-checkout "$repo" "$dest"
+            git -C "$dest" fetch origin "$commit" --depth=1
+            git -C "$dest" checkout --detach "$commit"
+            test "$(git -C "$dest" rev-parse HEAD)" = "$commit"
+            rm -rf "$dest/.git"
+          }
+          clone_exact https://github.com/N0VI028/JS-Slash-Runner.git "$TAVERN_HELPER_COMMIT" "$EXT_ROOT/JS-Slash-Runner"
+          clone_exact https://github.com/zonde306/ST-Prompt-Template.git "$PROMPT_TEMPLATE_COMMIT" "$EXT_ROOT/ST-Prompt-Template"
+          clone_exact https://github.com/h675786161-prog/world-backstage.git "$WORLD_BACKSTAGE_COMMIT" "$EXT_ROOT/world-backstage"
+
+      - name: Install Playwright Core runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$QA_DIR"
+          cd "$QA_DIR"
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+
+      - name: Record runtime manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          ECHO_COMMIT="$(cat /tmp/echo-private-runtime/echo-commit.txt)"
+          cat > /tmp/echo-private-runtime/runtime-manifest.json <<JSON
+          {
+            "sillyTavern": "$ST_COMMIT",
+            "echoPerformance": "$ECHO_COMMIT",
+            "tavernHelper": "$TAVERN_HELPER_COMMIT",
+            "promptTemplate": "$PROMPT_TEMPLATE_COMMIT",
+            "worldBackstage": "$WORLD_BACKSTAGE_COMMIT",
+            "playwrightCore": "1.55.0",
+            "node": "$(node --version)"
+          }
+          JSON
+          cat /tmp/echo-private-runtime/runtime-manifest.json
+
+      - name: Pack public runtime only
+        shell: bash
+        run: |
+          set -euo pipefail
+          tar -C /tmp -czf "$GITHUB_WORKSPACE/echo-private-runtime.tar.gz" echo-private-runtime
+          ls -lh "$GITHUB_WORKSPACE/echo-private-runtime.tar.gz"
+
+      - name: Upload runtime bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: echo-private-runtime
+          path: echo-private-runtime.tar.gz
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 7
