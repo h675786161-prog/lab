@@ -14,7 +14,7 @@ permissions:
 jobs:
   phase3-real-gate:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     env:
       ST_DIR: /tmp/echo-phase3-sillytavern
       ECHO_DIR: /tmp/echo-performance
@@ -123,6 +123,8 @@ jobs:
           exit 1
 
       - name: Run Phase 3 real-browser hard gate
+        id: hard_gate
+        continue-on-error: true
         shell: bash
         run: |
           set +e
@@ -130,6 +132,23 @@ jobs:
           STATUS=${PIPESTATUS[0]}
           echo "$STATUS" > "$LAB_EVIDENCE_DIR/phase3-gate-exit-code.txt"
           exit "$STATUS"
+
+      - name: Run three-repeat OFF ON real-browser metrics
+        shell: bash
+        env:
+          LAB_EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence/echo-phase3/metrics
+        run: |
+          set -euo pipefail
+          mkdir -p "$LAB_EVIDENCE_DIR"
+          node "$ECHO_DIR/.lab/phase3-metrics.mjs" 2>&1 | tee "$LAB_EVIDENCE_DIR/metrics.log"
+
+      - name: Preserve hard gate verdict
+        if: always()
+        shell: bash
+        run: |
+          STATUS="$(cat "$LAB_EVIDENCE_DIR/phase3-gate-exit-code.txt" 2>/dev/null || echo 99)"
+          echo "hard_gate_exit_code=$STATUS"
+          if [ "$STATUS" != "0" ]; then exit "$STATUS"; fi
 
       - name: Stop isolated runtime
         if: always()
