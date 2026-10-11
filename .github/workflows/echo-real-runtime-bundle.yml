@@ -1,0 +1,92 @@
+name: Echo Real Stack Runtime Bundle
+
+on:
+  push:
+    branches:
+      - echo-performance-real-benchmark
+    paths:
+      - '.github/workflows/echo-real-runtime-bundle.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bundle-real-stack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      ST_DIR: /tmp/echo-real-stack
+      ST_SHA: 06bde939fb1e9c4c8d8641d810f0a916b5bce127
+      ASSISTANT_SHA: c0196caee03955aa39e00db1a2623b2591bd3c6f
+      PROMPT_TEMPLATE_SHA: d6f520d149aba146305b0b781ddd691d449c28d2
+      WORLD_BACKSTAGE_SHA: b4cfc7519102bdc93e33932093b52d31505a5fe2
+      ECHO_SHA: c179285aee81b792a33803f9647c654e5e0811d1
+
+    steps:
+      - name: Checkout Lab benchmark branch
+        uses: actions/checkout@v4
+
+      - name: Assemble pinned SillyTavern real stack
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_SHA" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_SHA"
+
+          EXT="$ST_DIR/public/scripts/extensions/third-party"
+          mkdir -p "$EXT"
+
+          clone_pinned() {
+            local repo="$1" dest="$2" sha="$3"
+            git clone --filter=blob:none --no-checkout "$repo" "$dest"
+            git -C "$dest" fetch origin "$sha" --depth=1
+            git -C "$dest" checkout --detach "$sha"
+          }
+
+          clone_pinned https://github.com/N0VI028/JS-Slash-Runner.git "$EXT/JS-Slash-Runner" "$ASSISTANT_SHA"
+          clone_pinned https://github.com/zonde306/ST-Prompt-Template.git "$EXT/ST-Prompt-Template" "$PROMPT_TEMPLATE_SHA"
+          clone_pinned https://github.com/h675786161-prog/world-backstage.git "$EXT/world-backstage" "$WORLD_BACKSTAGE_SHA"
+          clone_pinned https://github.com/Lenore-111/echo-performance.git "$EXT/echo-performance" "$ECHO_SHA"
+
+          test -f "$EXT/JS-Slash-Runner/manifest.json"
+          test -f "$EXT/ST-Prompt-Template/manifest.json"
+          test -f "$EXT/world-backstage/manifest.json"
+          test -f "$EXT/echo-performance/manifest.json"
+
+      - name: Install exact runtime dependencies
+        working-directory: /tmp/echo-real-stack
+        run: npm ci
+
+      - name: Record pinned stack versions
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$ST_DIR/echo-real-stack-versions.json" <<JSON
+          {
+            "sillyTavern": "$ST_SHA",
+            "assistant": "$ASSISTANT_SHA",
+            "promptTemplate": "$PROMPT_TEMPLATE_SHA",
+            "worldBackstage": "$WORLD_BACKSTAGE_SHA",
+            "echoPerformance": "$ECHO_SHA"
+          }
+          JSON
+          node --version > "$ST_DIR/echo-real-stack-node.txt"
+          npm --version > "$ST_DIR/echo-real-stack-npm.txt"
+
+      - name: Strip VCS metadata only
+        shell: bash
+        run: |
+          set -euo pipefail
+          find "$ST_DIR" -type d -name .git -prune -exec rm -rf {} +
+
+      - name: Upload runnable real stack
+        uses: actions/upload-artifact@v4
+        with:
+          name: echo-real-stack-runtime-c179285a
+          path: /tmp/echo-real-stack/
+          include-hidden-files: true
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 7
