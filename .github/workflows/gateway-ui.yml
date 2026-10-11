@@ -1,0 +1,30 @@
+name: Gateway mobile UI lab
+on:
+  push:
+    branches: [qa/gateway-mobile-20261012]
+    paths: ['.github/workflows/gateway-ui.yml', '.lab/gateway-ui-qa.cjs']
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: h675786161-prog/ling-ai-gateway
+          ref: 4b37991baf6149a392ae54083eca6bd5f6c562d2
+          path: gateway
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --prefix /tmp/gateway-browser playwright-core@1.55.0
+      - name: Browser checks against isolated UI with fixture API
+        working-directory: gateway
+        run: node ../.lab/gateway-ui-qa.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gateway-mobile-ui-evidence
+          path: gateway/lab-evidence/
