@@ -1,0 +1,53 @@
+name: Echo QA Browser Bundle
+
+on:
+  push:
+    branches:
+      - echo-performance-real-benchmark
+    paths:
+      - '.github/workflows/echo-browser-bundle.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bundle-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install pinned Playwright Chromium
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/echo-browser
+          cd /tmp/echo-browser
+          npm init -y >/dev/null
+          npm install --no-audit --no-fund playwright@1.55.0
+          PLAYWRIGHT_BROWSERS_PATH=/tmp/echo-browser/browsers npx playwright install chromium
+          node - <<'NODE'
+          const { chromium } = require('playwright');
+          const fs = require('fs');
+          fs.writeFileSync('browser-info.json', JSON.stringify({
+            playwright: require('playwright/package.json').version,
+            executablePath: chromium.executablePath(),
+          }, null, 2));
+          NODE
+      - name: Upload browser bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: echo-qa-browser-playwright-1.55.0
+          path: |
+            /tmp/echo-browser/node_modules/
+            /tmp/echo-browser/browsers/
+            /tmp/echo-browser/browser-info.json
+            /tmp/echo-browser/package.json
+            /tmp/echo-browser/package-lock.json
+          include-hidden-files: true
+          compression-level: 1
+          retention-days: 7
+          if-no-files-found: error
