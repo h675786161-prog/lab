@@ -22,7 +22,7 @@ jobs:
       QA_DIR: /tmp/yellowmi-feed-local-qa
       EVIDENCE: ${{ github.workspace }}/lab-evidence/yellowmi-feed-control-local
       ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
-      ECHO_SHA: bd290e45b51841b7f7bae10bcb03092ad8d6246d
+      ECHO_SHA: a60ce6d19e1d76b3d2289fdbf493dfbfa1dbd91b
       ST_URL: http://127.0.0.1:8041/
       MODEL_BASE_URL: http://127.0.0.1:9050/v1
       MODEL_ID: yellowmi-local-qa
