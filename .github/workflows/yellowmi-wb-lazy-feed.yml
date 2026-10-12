@@ -1,0 +1,132 @@
+name: Yellow Mi + World Backstage Lazy Feed QA
+
+on:
+  push:
+    branches: [qa/yellowmi-wb-lazy-feed-20261013]
+    paths:
+      - '.github/workflows/yellowmi-wb-lazy-feed.yml'
+      - '.github/qa/yellowmi-wb-lazy-feed.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  paired-lazy-feed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      ST_DIR: /tmp/paired-lazy-st
+      WB_DIR: /tmp/paired-lazy-wb
+      YM_DIR: /tmp/paired-lazy-yellowmi
+      QA_DIR: /tmp/paired-lazy-qa
+      EVIDENCE: ${{ github.workspace }}/lab-evidence/paired-lazy-feed
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      WB_SHA: c010994514701769651f4c1b7daf3a88dda9c1c4
+      YM_SHA: 5931adf7b268598abfb163a6c48978279496658d
+      ST_URL: http://127.0.0.1:8043/
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone exact SillyTavern and paired extensions
+        run: |
+          set -euo pipefail
+          mkdir -p "$EVIDENCE"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          git clone --filter=blob:none --no-checkout https://github.com/h675786161-prog/world-backstage.git "$WB_DIR"
+          git -C "$WB_DIR" fetch origin "$WB_SHA" --depth=1
+          git -C "$WB_DIR" checkout --detach "$WB_SHA"
+          git clone --filter=blob:none --no-checkout https://github.com/Lenore-111/yellowmi-24-pro-max-plus.git "$YM_DIR"
+          git -C "$YM_DIR" fetch origin "$YM_SHA" --depth=1
+          git -C "$YM_DIR" checkout --detach "$YM_SHA"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+          test "$(git -C "$WB_DIR" rev-parse HEAD)" = "$WB_SHA"
+          test "$(git -C "$YM_DIR" rev-parse HEAD)" = "$YM_SHA"
+          printf '%s\n' "$ST_COMMIT" > "$EVIDENCE/sillytavern-sha.txt"
+          printf '%s\n' "$WB_SHA" > "$EVIDENCE/world-backstage-sha.txt"
+          printf '%s\n' "$YM_SHA" > "$EVIDENCE/yellowmi-sha.txt"
+
+      - name: Regression and syntax gates
+        run: |
+          set -euo pipefail
+          cd "$WB_DIR"
+          npm test | tee "$EVIDENCE/world-backstage-tests.log"
+          npm run check | tee "$EVIDENCE/world-backstage-check.log"
+          find "$YM_DIR/src" -name '*.js' -print0 | xargs -0 -n1 node --check
+          node --check "$YM_DIR/index.js"
+          node --import "$YM_DIR/scripts/test-host-register.mjs" --test "$YM_DIR"/tests/*.test.mjs | tee "$EVIDENCE/yellowmi-tests.log"
+
+      - name: Install real SillyTavern runtime and both extensions
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-cjk >/dev/null
+          cd "$ST_DIR" && npm ci
+          ROOT="$ST_DIR/public/scripts/extensions/third-party"
+          mkdir -p "$ROOT"
+          rm -rf "$ROOT/world-backstage" "$ROOT/echo-phone"
+          cp -a "$WB_DIR" "$ROOT/world-backstage"
+          cp -a "$YM_DIR" "$ROOT/echo-phone"
+          mkdir -p "$QA_DIR" && cd "$QA_DIR" && npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          echo "CHROME_BIN=$CHROME_BIN" >> "$GITHUB_ENV"
+          "$CHROME_BIN" --version | tee "$EVIDENCE/chrome-version.txt"
+
+      - name: Bootstrap clean SillyTavern profile
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8043 --disableCsrf > "$EVIDENCE/bootstrap.log" 2>&1 & echo $! > /tmp/paired-lazy-bootstrap.pid
+          for i in $(seq 1 90); do
+            if curl -fsS --max-time 2 "$ST_URL" >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          curl -fsS "$ST_URL" >/dev/null
+          sleep 2
+          kill "$(cat /tmp/paired-lazy-bootstrap.pid)" 2>/dev/null || true
+          wait "$(cat /tmp/paired-lazy-bootstrap.pid)" 2>/dev/null || true
+          SETTINGS="$(find "$ST_DIR/data" -type f -name settings.json | head -n1)"
+          test -n "$SETTINGS" && test -f "$SETTINGS"
+          jq '.firstRun=false' "$SETTINGS" > "$SETTINGS.tmp"
+          mv "$SETTINGS.tmp" "$SETTINGS"
+
+      - name: Start exact real SillyTavern runtime
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8043 --disableCsrf > "$EVIDENCE/runtime.log" 2>&1 & echo $! > /tmp/paired-lazy-st.pid
+          for i in $(seq 1 90); do
+            if curl -fsS --max-time 2 "$ST_URL" >/dev/null 2>&1; then exit 0; fi
+            if ! kill -0 "$(cat /tmp/paired-lazy-st.pid)" 2>/dev/null; then cat "$EVIDENCE/runtime.log"; exit 1; fi
+            sleep 1
+          done
+          cat "$EVIDENCE/runtime.log"; exit 1
+
+      - name: Real browser paired lazy-feed audit
+        env:
+          ST_URL: ${{ env.ST_URL }}
+          EVIDENCE: ${{ env.EVIDENCE }}
+          CHROME_BIN: ${{ env.CHROME_BIN }}
+        run: |
+          set -euo pipefail
+          cp "${{ github.workspace }}/.github/qa/yellowmi-wb-lazy-feed.mjs" "$QA_DIR/audit.mjs"
+          cd "$QA_DIR"
+          node audit.mjs | tee "$EVIDENCE/browser-run.log"
+
+      - name: Stop runtime
+        if: always()
+        run: |
+          if [ -f /tmp/paired-lazy-st.pid ]; then kill "$(cat /tmp/paired-lazy-st.pid)" 2>/dev/null || true; fi
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: yellowmi-wb-lazy-feed-${{ env.YM_SHA }}-${{ env.WB_SHA }}
+          path: lab-evidence/paired-lazy-feed/
+          if-no-files-found: error
