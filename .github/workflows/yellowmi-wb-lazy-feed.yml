@@ -23,7 +23,7 @@ jobs:
       EVIDENCE: ${{ github.workspace }}/lab-evidence/paired-lazy-feed
       ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
       WB_SHA: c010994514701769651f4c1b7daf3a88dda9c1c4
-      YM_SHA: 5931adf7b268598abfb163a6c48978279496658d
+      YM_SHA: 609e8f1f169c2c54ed84da98576e34e6c0735a49
       ST_URL: http://127.0.0.1:8043/
 
     steps:
