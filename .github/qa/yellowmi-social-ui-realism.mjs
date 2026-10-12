@@ -23,6 +23,7 @@ async function setGameMode(){await openApp('settings');const b=page.locator('#wo
 async function refresh(platform){const tools=page.locator('#world-phone-stage .echo-feed-tools').first();if(await tools.count())await tools.locator('summary').click();const b=page.locator(`#world-phone-stage [data-pg-refresh="${platform}"]`).first();await b.click();await page.waitForFunction(p=>{const x=document.querySelector(`#world-phone-stage [data-pg-refresh="${p}"]`);return x&&!x.disabled&&!String(x.textContent||'').includes('更新中');},platform,{timeout:60000});await sleep(300);if(await tools.count()&&await tools.getAttribute('open')!==null)await tools.locator('summary').click().catch(()=>{});}
 async function noHorizontalOverflow(label){const v=await page.evaluate(()=>{const s=document.querySelector('#world-phone-stage .wp-screen');const root=document.querySelector('#world-phone-stage [data-phone-game-app]');return{screenClient:s?.clientWidth||0,screenScroll:s?.scrollWidth||0,rootClient:root?.clientWidth||0,rootScroll:root?.scrollWidth||0};});check(v.screenScroll<=v.screenClient+1&&v.rootScroll<=v.rootClient+1,`${label} has no horizontal overflow`,v);}
 async function shot(app,width){await page.setViewportSize({width,height:844});await sleep(200);await noHorizontalOverflow(`${app} ${width}`);await page.screenshot({path:path.join(EVIDENCE,`${app}-${width}.png`),fullPage:true});}
+async function reopenPhoneSession(){await page.setViewportSize({width:390,height:844});await page.reload({waitUntil:'domcontentloaded',timeout:60000});await sleep(4200);await dismissHostPopups();await selectSeraphina();await openPhone();await setGameMode();}
 
 try{
   await page.goto(ST_URL,{waitUntil:'domcontentloaded',timeout:60000});await sleep(4200);await dismissHostPopups();await selectSeraphina();await openPhone();await setGameMode();
@@ -40,7 +41,7 @@ try{
   check(await page.locator('#world-phone-stage .echo-real-social-nav button').count()===4,'RedNote bottom nav has four app-level destinations');
   await shot('rednote',390);await shot('rednote',320);
 
-  await page.setViewportSize({width:390,height:844});await openApp('weibo');
+  await reopenPhoneSession();await openApp('weibo');
   check(await page.locator('#world-phone-stage .echo-wb-channel').count()===1,'Weibo uses channel-style top navigation');
   check((await page.locator('#world-phone-stage .echo-wb-channel').innerText()).includes('推荐')&&(await page.locator('#world-phone-stage .echo-wb-channel').innerText()).includes('关注'),'Weibo shows 推荐 / 关注 channels');
   await refresh('weibo');
