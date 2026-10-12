@@ -1,0 +1,148 @@
+name: Yellow Mi Social UI Realism QA
+
+on:
+  push:
+    branches: [qa/yellowmi-social-ui-realism-20261013]
+    paths:
+      - '.github/workflows/yellowmi-social-ui-realism.yml'
+      - '.github/qa/yellowmi-social-ui-realism.mjs'
+      - '.github/qa/yellowmi-social-ui-upstream.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  social-ui-realism:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      ST_DIR: /tmp/yellowmi-social-ui-st
+      ECHO_DIR: /tmp/yellowmi-social-ui-extension
+      QA_DIR: /tmp/yellowmi-social-ui-qa
+      EVIDENCE: ${{ github.workspace }}/lab-evidence/yellowmi-social-ui
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+      ECHO_SHA: d85d3ddb29d69aba37bab129e3bbf4ee209405c4
+      ST_URL: http://127.0.0.1:8042/
+      MODEL_BASE_URL: http://127.0.0.1:9051/v1
+      MODEL_ID: yellowmi-social-ui
+      UPSTREAM_PORT: 9051
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone exact SillyTavern and Yellow Mi
+        run: |
+          set -euo pipefail
+          mkdir -p "$EVIDENCE"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          git clone --filter=blob:none --no-checkout https://github.com/Lenore-111/yellowmi-24-pro-max-plus.git "$ECHO_DIR"
+          git -C "$ECHO_DIR" fetch origin "$ECHO_SHA" --depth=1
+          git -C "$ECHO_DIR" checkout --detach "$ECHO_SHA"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+          test "$(git -C "$ECHO_DIR" rev-parse HEAD)" = "$ECHO_SHA"
+          git -C "$ST_DIR" rev-parse HEAD | tee "$EVIDENCE/sillytavern-sha.txt"
+          git -C "$ECHO_DIR" rev-parse HEAD | tee "$EVIDENCE/yellowmi-sha.txt"
+
+      - name: Yellow Mi regression and syntax gate
+        run: |
+          set -euo pipefail
+          find "$ECHO_DIR/src" -name '*.js' -print0 | xargs -0 -n1 node --check
+          node --check "$ECHO_DIR/index.js"
+          node --import "$ECHO_DIR/scripts/test-host-register.mjs" --test "$ECHO_DIR"/tests/*.test.mjs | tee "$EVIDENCE/yellowmi-regression.log"
+
+      - name: Install real runtime and browser harness
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-cjk >/dev/null
+          cd "$ST_DIR" && npm ci
+          EXT="$ST_DIR/public/scripts/extensions/third-party/echo-phone"
+          rm -rf "$EXT"
+          mkdir -p "$(dirname "$EXT")"
+          cp -a "$ECHO_DIR" "$EXT"
+          mkdir -p "$QA_DIR" && cd "$QA_DIR" && npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          echo "CHROME_BIN=$CHROME_BIN" >> "$GITHUB_ENV"
+          "$CHROME_BIN" --version | tee "$EVIDENCE/chrome-version.txt"
+
+      - name: Bootstrap clean SillyTavern profile
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8042 --disableCsrf > "$EVIDENCE/bootstrap.log" 2>&1 & echo $! > /tmp/yellowmi-social-ui-bootstrap.pid
+          for i in $(seq 1 90); do
+            if curl -fsS --max-time 2 "$ST_URL" >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          curl -fsS "$ST_URL" >/dev/null
+          sleep 2
+          kill "$(cat /tmp/yellowmi-social-ui-bootstrap.pid)" 2>/dev/null || true
+          wait "$(cat /tmp/yellowmi-social-ui-bootstrap.pid)" 2>/dev/null || true
+          SETTINGS="$(find "$ST_DIR/data" -type f -name settings.json | head -n1)"
+          test -n "$SETTINGS" && test -f "$SETTINGS"
+          jq '.firstRun=false
+            | .main_api="openai"
+            | .oai_settings.chat_completion_source="custom"
+            | .oai_settings.custom_url=env.MODEL_BASE_URL
+            | .oai_settings.custom_model=env.MODEL_ID
+            | .oai_settings.streaming=false
+            | .oai_settings.openai_max_tokens=8192
+            | .oai_settings.openai_max_context=32768' "$SETTINGS" > "$SETTINGS.tmp"
+          mv "$SETTINGS.tmp" "$SETTINGS"
+          ROOT="$(dirname "$SETTINGS")"
+          ROOT="$ROOT" node - <<'NODE'
+          const fs=require('fs'),path=require('path');
+          fs.writeFileSync(path.join(process.env.ROOT,'secrets.json'),JSON.stringify({api_key_custom:[{id:'yellowmi-social-ui',value:'local-test-key',label:'Yellow Mi social UI QA',active:true}]},null,2));
+          NODE
+
+      - name: Start deterministic social feed upstream
+        run: |
+          set -euo pipefail
+          nohup node "${{ github.workspace }}/.github/qa/yellowmi-social-ui-upstream.mjs" > "$EVIDENCE/local-upstream.log" 2>&1 & echo $! > /tmp/yellowmi-social-ui-upstream.pid
+          for i in $(seq 1 30); do
+            if curl -fsS "http://127.0.0.1:9051/v1/models" >/dev/null 2>&1; then exit 0; fi
+            sleep 1
+          done
+          cat "$EVIDENCE/local-upstream.log"; exit 1
+
+      - name: Start exact real SillyTavern runtime
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8042 --disableCsrf > "$EVIDENCE/runtime.log" 2>&1 & echo $! > /tmp/yellowmi-social-ui-st.pid
+          for i in $(seq 1 90); do
+            if curl -fsS --max-time 2 "$ST_URL" >/dev/null 2>&1; then exit 0; fi
+            if ! kill -0 "$(cat /tmp/yellowmi-social-ui-st.pid)" 2>/dev/null; then cat "$EVIDENCE/runtime.log"; exit 1; fi
+            sleep 1
+          done
+          cat "$EVIDENCE/runtime.log"; exit 1
+
+      - name: Real browser social UI audit
+        env:
+          ST_URL: ${{ env.ST_URL }}
+          EVIDENCE: ${{ env.EVIDENCE }}
+          CHROME_BIN: ${{ env.CHROME_BIN }}
+        run: |
+          set -euo pipefail
+          cp "${{ github.workspace }}/.github/qa/yellowmi-social-ui-realism.mjs" "$QA_DIR/audit.mjs"
+          cd "$QA_DIR"
+          node audit.mjs | tee "$EVIDENCE/browser-run.log"
+
+      - name: Stop runtimes
+        if: always()
+        run: |
+          if [ -f /tmp/yellowmi-social-ui-st.pid ]; then kill "$(cat /tmp/yellowmi-social-ui-st.pid)" 2>/dev/null || true; fi
+          if [ -f /tmp/yellowmi-social-ui-upstream.pid ]; then kill "$(cat /tmp/yellowmi-social-ui-upstream.pid)" 2>/dev/null || true; fi
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: yellowmi-social-ui-${{ env.ECHO_SHA }}
+          path: lab-evidence/yellowmi-social-ui/
+          if-no-files-found: error
