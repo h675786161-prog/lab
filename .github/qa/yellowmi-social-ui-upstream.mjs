@@ -28,8 +28,8 @@ const server=http.createServer((req,res)=>{
   if(req.method==='GET'&&req.url?.includes('/models')){res.writeHead(200,{'content-type':'application/json'});res.end(JSON.stringify({object:'list',data:[{id:'yellowmi-social-ui',object:'model'}]}));return;}
   if(req.method!=='POST'||!req.url?.includes('/chat/completions')){res.writeHead(404,{'content-type':'application/json'});res.end('{}');return;}
   let raw='';req.on('data',c=>raw+=c);req.on('end',()=>{
-    const isRednote=/小红书|rednote/i.test(raw);
-    const posts=isRednote?rednote:weibo;
+    const isWeibo=/生成一屏微博|微博信息流|为当前酒馆世界生成手机里的微博/.test(raw);
+    const posts=isWeibo?weibo:rednote;
     res.writeHead(200,{'content-type':'application/json'});res.end(completion(JSON.stringify({posts})));
   });
 });
