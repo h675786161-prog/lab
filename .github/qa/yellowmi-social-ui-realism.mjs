@@ -16,9 +16,22 @@ const sleep=ms=>page.waitForTimeout(ms);
 
 async function dismissHostPopups(){for(let i=0;i<8;i++){const d=page.locator('dialog[open].popup').last();if(!await d.count())return;const bs=d.locator('button:visible'),labels=await bs.allTextContents();let idx=labels.findIndex(x=>/关闭|close|确定|ok|知道|got it|稍后|later|取消|cancel|继续|continue|跳过|skip/i.test(x));if(idx<0&&labels.length)idx=labels.length-1;if(idx>=0){try{await bs.nth(idx).click();await sleep(120);continue;}catch{}}await page.keyboard.press('Escape');await sleep(120);}}
 async function selectSeraphina(){const info=await page.evaluate(async()=>{const t=await import('/script.js');return{idx:(t.characters||[]).findIndex(c=>/seraphina/i.test(String(c?.name||'')))};});if(info.idx<0)throw new Error('Seraphina missing');await page.evaluate(async idx=>{const ctx=globalThis.SillyTavern?.getContext?.();await ctx.selectCharacterById(idx);},info.idx);await page.waitForFunction(()=>/seraphina/i.test(String(globalThis.SillyTavern?.getContext?.()?.characters?.[globalThis.SillyTavern?.getContext?.()?.characterId]?.name||'')),null,{timeout:15000});}
-async function home(){for(let i=0;i<6;i++){const b=page.locator('#world-phone-stage [data-app-back]').first();if(!await b.count())break;await b.click().catch(()=>{});await sleep(100);}}
-async function openPhone(){await page.waitForSelector('#world-phone-launcher',{timeout:30000});await page.locator('#world-phone-launcher').click();await sleep(220);const u=page.locator('#world-phone-stage [data-unlock]');if(await u.count()){await u.click().catch(()=>{});await sleep(120);}}
-async function openApp(name){await home();await page.locator(`#world-phone-stage .wp-app[data-app="${name}"]`).first().click();await sleep(180);}
+async function openPhone(){
+  if(await page.locator('#world-phone-stage .wp-app[data-app]').count())return;
+  const launcher=page.locator('#world-phone-launcher');
+  await launcher.waitFor({state:'visible',timeout:30000});
+  await launcher.click();await sleep(220);
+  const u=page.locator('#world-phone-stage [data-unlock]');if(await u.count()){await u.click().catch(()=>{});await sleep(120);}
+  await page.locator('#world-phone-stage .wp-app[data-app]').first().waitFor({state:'visible',timeout:12000});
+}
+async function desktop(){
+  if(await page.locator('#world-phone-stage .wp-app[data-app]').count())return;
+  const back=page.locator('#world-phone-stage [data-app-back]:visible').first();
+  if(await back.count()){await back.click();await sleep(180);}
+  if(!await page.locator('#world-phone-stage .wp-app[data-app]').count())await openPhone();
+  await page.locator('#world-phone-stage .wp-app[data-app]').first().waitFor({state:'visible',timeout:12000});
+}
+async function openApp(name){await desktop();const icon=page.locator(`#world-phone-stage .wp-app[data-app="${name}"]`).first();await icon.waitFor({state:'visible',timeout:12000});await icon.click();await sleep(180);}
 async function setGameMode(){await openApp('settings');const b=page.locator('#world-phone-stage [data-game-mode="game"]');if(await b.count()){await b.click();await sleep(160);}}
 async function refresh(platform){const tools=page.locator('#world-phone-stage .echo-feed-tools').first();if(await tools.count())await tools.locator('summary').click();const b=page.locator(`#world-phone-stage [data-pg-refresh="${platform}"]`).first();await b.click();await page.waitForFunction(p=>{const x=document.querySelector(`#world-phone-stage [data-pg-refresh="${p}"]`);return x&&!x.disabled&&!String(x.textContent||'').includes('更新中');},platform,{timeout:60000});await sleep(300);if(await tools.count()&&await tools.getAttribute('open')!==null)await tools.locator('summary').click().catch(()=>{});}
 async function noHorizontalOverflow(label){const v=await page.evaluate(()=>{const s=document.querySelector('#world-phone-stage .wp-screen');const root=document.querySelector('#world-phone-stage [data-phone-game-app]');return{screenClient:s?.clientWidth||0,screenScroll:s?.scrollWidth||0,rootClient:root?.clientWidth||0,rootScroll:root?.scrollWidth||0};});check(v.screenScroll<=v.screenClient+1&&v.rootScroll<=v.rootClient+1,`${label} has no horizontal overflow`,v);}
