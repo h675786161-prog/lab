@@ -28,20 +28,35 @@ try{
 
   await page.evaluate(()=>{
     const ctx=globalThis.SillyTavern.getContext();
-    ctx.chatMetadata ||= {};
-    ctx.chatMetadata.world_backstage_v1={
-      schemaVersion:25,
-      currentState:{world:{name:'懒加载测试城'},clock:{absoluteMinute:600,displayTime:'10:00'},lastCommit:{sourceKey:'branch-A'},people:[{id:'p1',name:'阿青'}],events:[]},
-      social:{schemaVersion:2,activeConversationId:'',conversations:[],connections:[{personId:'p1',status:'accepted'}],moments:[{id:'m1',personId:'p1',text:'今天买了花，顺路在河边坐了一会儿。',visibility:'friends',likes:2,likedByUser:false,comments:[],worldMinute:599,createdAt:'2026-10-13T02:00:00.000Z'}],notices:[]},
-      publicOpinion:{generatedAt:'2026-10-13T02:00:00.000Z',sourceWorldMinute:600,news:[],forums:[]},
-    };
     const host=globalThis.worldBackstageHost;
+    ctx.chatMetadata ||= {};
+
+    // Let World Backstage create and normalize its real store first. The paired QA
+    // then mutates only public test fixtures inside that valid state, rather than
+    // inventing a partial store that production would never persist.
+    host.getPublicSurface?.();
+    const store=ctx.chatMetadata.world_backstage_v1;
+    if(!store?.currentState)throw new Error('World Backstage did not initialize a real currentState');
+    store.currentState={
+      ...store.currentState,
+      world:{...(store.currentState.world||{}),name:'懒加载测试城'},
+      clock:{...(store.currentState.clock||{}),absoluteMinute:600,displayTime:'10:00'},
+      lastCommit:{...(store.currentState.lastCommit||{}),sourceKey:'branch-A'},
+      people:[
+        ...(Array.isArray(store.currentState.people)?store.currentState.people:[]).filter(person=>person?.id!=='p1'),
+        {id:'p1',name:'阿青',source:'background',simulationEnabled:true,relevance:1,updatedAt:600},
+      ],
+      events:[],
+    };
+    store.social={schemaVersion:2,activeConversationId:'',conversations:[],connections:[{personId:'p1',status:'accepted'}],moments:[{id:'m1',personId:'p1',text:'今天买了花，顺路在河边坐了一会儿。',visibility:'friends',likes:2,likedByUser:false,comments:[],worldMinute:599,createdAt:'2026-10-13T02:00:00.000Z'}],notices:[]};
+    store.publicOpinion={generatedAt:'2026-10-13T02:00:00.000Z',sourceWorldMinute:600,news:[],forums:[]};
+    delete store.phoneFeedCacheV1;
+
     globalThis.__PAIR_QA__={refresh:0,sandbox:0};
     host.generatePublicOpinionSandbox=async()=>{globalThis.__PAIR_QA__.sandbox+=1;};
     host.getPublicSurface=()=>({sandbox:{generatedAt:'2026-10-13T02:01:00.000Z',nonCanon:true,news:[{headline:'街角新开了一家小店',summary:'有人路过时拍了菜单，晚上灯牌很亮。',source:'本地生活',category:'生活',heat:1}],forums:[{board:'闲聊',title:'今天的风很舒服',summary:'下班路上很多人在河边坐着。',heat:1,replies:[{author:'路人甲',text:'确实，今天适合散步。'}]},{board:'吃喝',title:'夜市烤饼排队了吗',summary:'新摊第一天，队伍拐了个弯。',heat:2,replies:[]}]}});
     host.refreshPublicOpinion=async()=>{
       globalThis.__PAIR_QA__.refresh+=1;
-      const store=ctx.chatMetadata.world_backstage_v1;
       store.publicOpinion={generatedAt:`2026-10-13T02:0${globalThis.__PAIR_QA__.refresh+1}:00.000Z`,sourceWorldMinute:600,news:[],forums:[
         {id:'f-night',board:'夜市',title:'夜市新摊开张',summary:'河边夜市多了个烤饼摊。',sourceType:'unofficial',scope:'生活',claimStatus:'fact',heat:2,replies:[]},
         {id:'f-walk',board:'闲聊',title:'今晚适合散步',summary:'河边风很轻，散步的人不少。',sourceType:'unofficial',scope:'生活',claimStatus:'fact',heat:1,replies:[]},
