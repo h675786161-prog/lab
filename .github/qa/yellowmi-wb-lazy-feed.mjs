@@ -57,10 +57,15 @@ try{
     host.getPublicSurface=()=>({sandbox:{generatedAt:'2026-10-13T02:01:00.000Z',nonCanon:true,news:[{headline:'街角新开了一家小店',summary:'有人路过时拍了菜单，晚上灯牌很亮。',source:'本地生活',category:'生活',heat:1}],forums:[{board:'闲聊',title:'今天的风很舒服',summary:'下班路上很多人在河边坐着。',heat:1,replies:[{author:'路人甲',text:'确实，今天适合散步。'}]},{board:'吃喝',title:'夜市烤饼排队了吗',summary:'新摊第一天，队伍拐了个弯。',heat:2,replies:[]}]}});
     host.refreshPublicOpinion=async()=>{
       globalThis.__PAIR_QA__.refresh+=1;
+      store.currentState.events=[
+        {id:'e-night',publicity:'public',status:'active',publicTrace:'河边夜市客流变多。',publicHeadline:'夜市新摊开张',publicSummary:'河边夜市多了个烤饼摊。'},
+        {id:'e-walk',publicity:'public',status:'active',publicTrace:'今晚河边散步的人不少。',publicHeadline:'今晚适合散步',publicSummary:'河边风很轻，散步的人不少。'},
+        {id:'e-cafe',publicity:'public',status:'active',publicTrace:'街角咖啡店延长夜间营业。',publicHeadline:'咖啡店延长营业',publicSummary:'街角咖啡店今天营业到很晚。'}
+      ];
       store.publicOpinion={generatedAt:`2026-10-13T02:0${globalThis.__PAIR_QA__.refresh+1}:00.000Z`,sourceWorldMinute:600,news:[],forums:[
-        {id:'f-night',board:'夜市',title:'夜市新摊开张',summary:'河边夜市多了个烤饼摊。',sourceType:'unofficial',scope:'生活',claimStatus:'fact',heat:2,replies:[]},
-        {id:'f-walk',board:'闲聊',title:'今晚适合散步',summary:'河边风很轻，散步的人不少。',sourceType:'unofficial',scope:'生活',claimStatus:'fact',heat:1,replies:[]},
-        {id:'f-cafe',board:'探店',title:'咖啡店延长营业',summary:'街角咖啡店今天营业到很晚。',sourceType:'unofficial',scope:'生活',claimStatus:'fact',heat:1,replies:[]}
+        {id:'f-night',board:'夜市',title:'夜市新摊开张',summary:'河边夜市多了个烤饼摊。',sourceType:'unofficial',scope:'生活',claimStatus:'fact',heat:2,replies:[],relatedEventId:'e-night'},
+        {id:'f-walk',board:'闲聊',title:'今晚适合散步',summary:'河边风很轻，散步的人不少。',sourceType:'unofficial',scope:'生活',claimStatus:'fact',heat:1,replies:[],relatedEventId:'e-walk'},
+        {id:'f-cafe',board:'探店',title:'咖啡店延长营业',summary:'街角咖啡店今天营业到很晚。',sourceType:'unofficial',scope:'生活',claimStatus:'fact',heat:1,replies:[],relatedEventId:'e-cafe'}
       ]};
     };
   });
