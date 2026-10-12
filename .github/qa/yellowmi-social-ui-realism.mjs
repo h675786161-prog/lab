@@ -43,20 +43,29 @@ try{
 
   await openApp('rednote');
   check(await page.locator('#world-phone-stage .echo-rn-channel').count()===1,'RedNote uses channel-style top navigation');
-  check((await page.locator('#world-phone-stage .echo-rn-channel').innerText()).includes('关注')&&(await page.locator('#world-phone-stage .echo-rn-channel').innerText()).includes('发现'),'RedNote shows 关注 / 发现 channels');
+  const rnTop=await page.locator('#world-phone-stage .echo-rn-channel').innerText();
+  check(/关注/.test(rnTop)&&/发现/.test(rnTop)&&/附近/.test(rnTop),'RedNote shows 关注 / 发现 / 附近 channels',{rnTop});
+  const rnSub=await page.locator('#world-phone-stage .echo-rn-subchannels').innerText();
+  check(/推荐/.test(rnSub)&&/视频/.test(rnSub)&&/美食/.test(rnSub)&&/旅行/.test(rnSub),'RedNote shows compact content category strip',{rnSub});
   check(await page.locator('#world-phone-stage .echo-feed-tools').count()===1,'RedNote generation controls are behind overflow menu');
   check(await page.locator('#world-phone-stage .echo-feed-tools[open]').count()===0,'RedNote generator controls are hidden by default');
   await refresh('rednote');
   check(await page.locator('#world-phone-stage .echo-note-card').count()===6,'RedNote renders six seeded notes');
   const columns=await page.locator('#world-phone-stage .echo-note-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length);
   check(columns===2,'RedNote uses two-column waterfall feed',{columns});
+  const textHeights=await page.locator('#world-phone-stage .echo-note-card.is-text-note .echo-note-cover').evaluateAll(nodes=>nodes.slice(0,3).map(n=>Math.round(n.getBoundingClientRect().height)));
+  check(new Set(textHeights).size>1,'RedNote text notes use varied waterfall heights',{textHeights});
   check(await page.locator('#world-phone-stage .echo-note-copy .wpg-image-actions:visible').count()===0,'RedNote feed hides developer image controls');
   check(await page.locator('#world-phone-stage .echo-real-social-nav button').count()===4,'RedNote bottom nav has four app-level destinations');
   await shot('rednote',390);await shot('rednote',320);
 
   await reopenPhoneSession();await openApp('weibo');
   check(await page.locator('#world-phone-stage .echo-wb-channel').count()===1,'Weibo uses channel-style top navigation');
-  check((await page.locator('#world-phone-stage .echo-wb-channel').innerText()).includes('推荐')&&(await page.locator('#world-phone-stage .echo-wb-channel').innerText()).includes('关注'),'Weibo shows 推荐 / 关注 channels');
+  const wbTop=await page.locator('#world-phone-stage .echo-wb-channel').innerText();
+  check(/推荐/.test(wbTop)&&/关注/.test(wbTop),'Weibo shows 推荐 / 关注 channels',{wbTop});
+  const wbSub=await page.locator('#world-phone-stage .echo-wb-subchannels').innerText();
+  check(/热门/.test(wbSub)&&/实时/.test(wbSub)&&/同城/.test(wbSub)&&/榜单/.test(wbSub)&&/视频/.test(wbSub),'Weibo home shows secondary channel strip',{wbSub});
+  check(await page.locator('#world-phone-stage .echo-social-search:visible').count()===0,'Weibo home does not keep a permanent search bar');
   await refresh('weibo');
   check(await page.locator('#world-phone-stage .echo-post.is-weibo').count()===5,'Weibo renders five seeded posts');
   check(await page.locator('#world-phone-stage .echo-wb-actions').count()===5,'Weibo posts use social action rows');
@@ -67,6 +76,10 @@ try{
   check(await page.locator('#world-phone-stage .echo-post.is-weibo:not(.is-detail) > .wpg-image-actions:visible').count()===0,'Weibo feed hides developer image controls');
   check(await page.locator('#world-phone-stage .echo-real-social-nav button').count()===4,'Weibo bottom nav has four app-level destinations');
   await shot('weibo',390);await shot('weibo',320);
+  await page.setViewportSize({width:390,height:844});
+  await page.locator('#world-phone-stage [data-pg-view="hot"]').click();await sleep(150);
+  check(await page.locator('#world-phone-stage .echo-social-search:visible').count()===1,'Weibo discovery keeps search available');
+  check(await page.locator('#world-phone-stage .echo-wb-hot-head').count()===1,'Weibo discovery shows hot-search header');
 
   report.pageErrors=report.pageErrors.filter(Boolean);
 }catch(error){report.blockers.push(String(error?.stack||error));}
