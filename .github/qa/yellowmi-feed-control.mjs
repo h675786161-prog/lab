@@ -5,11 +5,11 @@ import path from 'node:path';
 const ST_URL = process.env.ST_URL || 'http://127.0.0.1:8041/';
 const EVIDENCE = process.env.EVIDENCE;
 const EXPECTED_MAX = 8192;
-const TARGET_COUNT = 7;
+const TARGETS = { rednote: 7, moments: 5 };
 const report = {
   stUrl: ST_URL,
   expectedMaxTokens: EXPECTED_MAX,
-  targetCount: TARGET_COUNT,
+  targets: TARGETS,
   yellowmiSha: fs.readFileSync(path.join(EVIDENCE, 'yellowmi-sha.txt'), 'utf8').trim(),
   sillyTavernSha: fs.readFileSync(path.join(EVIDENCE, 'sillytavern-sha.txt'), 'utf8').trim(),
   checks: [], requests: [], pageErrors: [], consoleErrors: [], blockers: [],
@@ -97,6 +97,30 @@ async function waitPhoneIdle(timeout=120000) {
   }, null, {timeout}).catch(()=>{});
   await sleep(300);
 }
+async function assertFeedRequest(platform, target, label) {
+  const countInput = page.locator(`#world-phone-stage [data-pg-feed-count="${platform}"]`).first();
+  check(await countInput.count() === 1, `${label} target-count control exists`);
+  if (!await countInput.count()) throw new Error(`${label} target-count control missing`);
+  await countInput.fill(String(target));
+  await countInput.dispatchEvent('input');
+  check(await countInput.inputValue() === String(target), `${label} target-count control accepts ${target}`);
+
+  const beforeRequests = report.requests.length;
+  const refresh = page.locator(`#world-phone-stage [data-pg-refresh="${platform}"]`).first();
+  check(await refresh.count() === 1, `${label} refresh button exists`);
+  if (!await refresh.count()) throw new Error(`${label} refresh button missing`);
+  await refresh.click();
+  for (let i=0;i<80 && report.requests.length===beforeRequests;i++) await sleep(250);
+  const request = report.requests.slice(beforeRequests).find(x => /chat-completions\/generate/.test(x.url));
+  check(Boolean(request), `real ${label} click reached SillyTavern chat-completions backend`);
+  if (request) {
+    const serialized = JSON.stringify(request.body || {});
+    check(Number(request.body?.max_tokens) === EXPECTED_MAX, `${label} backend request follows SillyTavern 8192 output setting`, {actualMaxTokens:request.body?.max_tokens});
+    check(serialized.includes(`本次目标生成${target}条新帖`), `${label} backend request prompt carries target count ${target}`);
+    check(Number(request.body?.max_tokens) !== 6144, `${label} backend request is not pinned to 6144`, {actualMaxTokens:request.body?.max_tokens});
+  }
+  await waitPhoneIdle();
+}
 
 try {
   await page.goto(ST_URL, {waitUntil:'domcontentloaded', timeout:60000});
@@ -115,38 +139,33 @@ try {
   await openApp('settings');
   const gameMode = page.locator('#world-phone-stage [data-game-mode="game"]');
   if (await gameMode.count()) { await gameMode.click(); await sleep(180); }
+
   await openApp('rednote');
+  await assertFeedRequest('rednote', TARGETS.rednote, 'RedNote');
 
-  const countInput = page.locator('#world-phone-stage [data-pg-feed-count="rednote"]').first();
-  check(await countInput.count() === 1, 'RedNote target-count control exists');
-  if (!await countInput.count()) throw new Error('RedNote target-count control missing');
-  await countInput.fill(String(TARGET_COUNT));
-  await countInput.dispatchEvent('input');
-  check(await countInput.inputValue() === String(TARGET_COUNT), 'RedNote target-count control accepts 7');
+  await openApp('wechat');
+  const discoverTab = page.locator('#world-phone-stage [data-pg-view="moments"]').first();
+  check(await discoverTab.count() === 1, 'WeChat Discover tab exists');
+  if (!await discoverTab.count()) throw new Error('WeChat Discover tab missing');
+  await discoverTab.click(); await sleep(160);
+  const openMoments = page.locator('#world-phone-stage [data-pg-open-moments]').first();
+  check(await openMoments.count() === 1, 'WeChat Moments entry exists');
+  if (!await openMoments.count()) throw new Error('WeChat Moments entry missing');
+  await openMoments.click(); await sleep(160);
+  await assertFeedRequest('moments', TARGETS.moments, 'Moments');
 
-  const beforeRequests = report.requests.length;
-  const refresh = page.locator('#world-phone-stage [data-pg-refresh="rednote"]').first();
-  check(await refresh.count() === 1, 'RedNote refresh button exists');
-  await refresh.click();
-  for (let i=0;i<80 && report.requests.length===beforeRequests;i++) await sleep(250);
-  const request = report.requests.slice(beforeRequests).find(x => /chat-completions\/generate/.test(x.url));
-  check(Boolean(request), 'real RedNote click reached SillyTavern chat-completions backend');
-  if (request) {
-    const serialized = JSON.stringify(request.body || {});
-    check(Number(request.body?.max_tokens) === EXPECTED_MAX, 'backend request follows SillyTavern 8192 output setting instead of Echo 6144', {actualMaxTokens:request.body?.max_tokens});
-    check(serialized.includes(`本次目标生成${TARGET_COUNT}条新帖`), 'backend request prompt carries target count 7');
-    check(Number(request.body?.max_tokens) !== 6144, 'backend request is not pinned to 6144', {actualMaxTokens:request.body?.max_tokens});
-  }
-
-  await waitPhoneIdle();
   const state = await page.evaluate(async () => {
     const m = await import('/scripts/extensions/third-party/echo-phone/src/phone-game.js?feed-control-qa');
     const a = await import('/scripts/extensions/third-party/echo-phone/src/phone-game-ai.js?feed-control-qa');
     const s = m.readPhoneGameState(m.capturePhoneGameScope());
-    return {postCount:s.posts.filter(p=>p.platform==='rednote').length, status:a.phoneGameGenerationStatus()};
+    return {
+      rednoteCount:s.posts.filter(p=>p.platform==='rednote').length,
+      momentsCount:s.posts.filter(p=>p.platform==='moments').length,
+      status:a.phoneGameGenerationStatus(),
+    };
   });
-  report.rednoteState = state;
-  check(state.postCount >= 0, 'RedNote state remained readable after real request', state);
+  report.feedState = state;
+  check(state.rednoteCount >= 0 && state.momentsCount >= 0, 'feed state remained readable after both real requests', state);
   await page.screenshot({path:path.join(EVIDENCE,'yellowmi-feed-control-390.png'), fullPage:true});
 } catch (error) {
   report.blockers.push(String(error?.stack || error));
