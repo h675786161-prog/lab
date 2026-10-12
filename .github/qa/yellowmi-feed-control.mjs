@@ -52,10 +52,23 @@ async function selectSeraphina() {
   if (info.idx < 0) throw new Error('Seraphina missing');
   const drawer = page.locator('#right-nav-panel');
   if (!await drawer.isVisible().catch(()=>false)) await page.locator('#rightNavDrawerIcon').click().catch(()=>{});
+  await sleep(250);
   const target = page.locator(`#rm_print_characters_block .character_select[chid="${info.idx}"]`).first();
-  if (await target.isVisible().catch(()=>false)) await target.click();
-  else await target.evaluate(el => el.click());
+  let activation = 'host-selectCharacterById';
+  if (await target.count() && await target.isVisible().catch(()=>false)) {
+    activation = 'visible-character-card-click';
+    await target.click();
+  } else {
+    await page.evaluate(async idx => {
+      const ctx = globalThis.SillyTavern?.getContext?.();
+      if (typeof ctx?.selectCharacterById !== 'function') throw new Error('SillyTavern selectCharacterById unavailable');
+      await ctx.selectCharacterById(idx);
+    }, info.idx);
+  }
+  report.characterActivation = activation;
   await page.waitForFunction(() => /seraphina/i.test(String(globalThis.SillyTavern?.getContext?.()?.characters?.[globalThis.SillyTavern?.getContext?.()?.characterId]?.name || '')), null, {timeout:15000});
+  check(true, 'Seraphina activated through real SillyTavern host', {activation});
+  await sleep(500);
 }
 
 async function home() {
@@ -115,8 +128,6 @@ try {
   const refresh = page.locator('#world-phone-stage [data-pg-refresh="rednote"]').first();
   check(await refresh.count() === 1, 'RedNote refresh button exists');
   await refresh.click();
-  await page.waitForFunction(() => document.querySelector('#world-phone-stage [data-pg-refresh="rednote"]')?.textContent?.includes('更新中') || true, null, {timeout:1500}).catch(()=>{});
-  await page.waitForFunction(expected => globalThis.performance?.getEntriesByType?.('resource')?.length >= 0 && true, beforeRequests, {timeout:500}).catch(()=>{});
   for (let i=0;i<80 && report.requests.length===beforeRequests;i++) await sleep(250);
   const request = report.requests.slice(beforeRequests).find(x => /chat-completions\/generate/.test(x.url));
   check(Boolean(request), 'real RedNote click reached SillyTavern chat-completions backend');
