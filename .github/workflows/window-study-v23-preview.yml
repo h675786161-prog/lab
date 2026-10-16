@@ -1,0 +1,100 @@
+name: Window Study v2.3 Real LAB
+
+on:
+  push:
+    branches: [qa/window-study-v23-20261017]
+    paths:
+      - '.github/workflows/window-study-v23-preview.yml'
+      - 'fixtures/window-study-v23/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ST_DIR: /tmp/window-study-v23-st
+      EVIDENCE: ${{ github.workspace }}/lab-evidence-window-study-v23
+      ST_COMMIT: 8172dcd0ee672d3cd9a5e5f7af134f91a45cd2b8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build test CSS
+        run: |
+          mkdir -p "$EVIDENCE"
+          cat fixtures/window-study-v23/theme-gz2/*.b64 | tr -d '\n\r' | base64 -d | gzip -dc > /tmp/window-study-v23.css
+          test -s /tmp/window-study-v23.css
+          grep -q 'Window Study v2.3' /tmp/window-study-v23.css
+          echo "CSS bytes: $(wc -c < /tmp/window-study-v23.css)"
+
+      - name: Clone exact SillyTavern
+        run: |
+          git clone --quiet --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch --quiet origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --quiet --detach "$ST_COMMIT"
+          test "$(git -C "$ST_DIR" rev-parse HEAD)" = "$ST_COMMIT"
+
+      - name: Install SillyTavern
+        working-directory: /tmp/window-study-v23-st
+        run: npm ci --no-audit --no-fund
+
+      - name: Start SillyTavern
+        run: |
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8000 --disableCsrf > "$EVIDENCE/sillytavern.log" 2>&1 &
+          echo $! > /tmp/window-study-v23.pid
+          for i in $(seq 1 90); do
+            curl -fsS --max-time 2 http://127.0.0.1:8000/ >/dev/null 2>&1 && exit 0
+            sleep 1
+          done
+          cat "$EVIDENCE/sillytavern.log"
+          exit 1
+
+      - name: Prepare browser
+        run: |
+          mkdir -p /tmp/window-study-browser
+          cd /tmp/window-study-browser
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          echo "CHROME_BIN=$CHROME_BIN" >> "$GITHUB_ENV"
+          echo "PW_ENTRY=file:///tmp/window-study-browser/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
+
+      - name: Screenshot real SillyTavern
+        run: EVIDENCE="$EVIDENCE" node fixtures/window-study-v23/shot.mjs
+
+      - name: Validate report
+        run: |
+          cat "$EVIDENCE/report.json"
+          python3 - <<'PY'
+          import json, os
+          p=os.path.join(os.environ['EVIDENCE'],'report.json')
+          r=json.load(open(p,encoding='utf-8'))
+          for side in ('desktop','mobile'):
+              m=r[side]['metrics']
+              assert m['messageCount'] == 6, (side,m)
+              assert m['overflowX'] <= 1, (side,m)
+              assert float(m['beforeOpacity']) <= .60, (side,m)
+              assert float(m['afterOpacity']) <= .60, (side,m)
+              assert float(m['headerOpacity']) <= .74, (side,m)
+          assert not r['sourceChecks']['floatRule'], r['sourceChecks']
+          assert not r['sourceChecks']['shapeOutside'], r['sourceChecks']
+          print('WINDOW STUDY v2.3 LAB PASS')
+          PY
+
+      - name: Stop
+        if: always()
+        run: test ! -f /tmp/window-study-v23.pid || kill "$(cat /tmp/window-study-v23.pid)" 2>/dev/null || true
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: window-study-v23-real-lab
+          path: lab-evidence-window-study-v23/
+          if-no-files-found: error
+          retention-days: 30
