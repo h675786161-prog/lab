@@ -1,0 +1,20 @@
+{
+  "default": "stable",
+  "baselines": {
+    "stable": {
+      "version": "1.19.0",
+      "commit": "7e8663cd9c184a550b37238218bdd32c6efc68e9",
+      "purpose": "Default real-device lab runtime"
+    },
+    "legacy": {
+      "version": "1.18.0",
+      "commit": "51ad27fb86d39a3daca3adaa970375c9670c12df",
+      "purpose": "Compatibility comparison only"
+    }
+  },
+  "policy": {
+    "project_tests_live_with_project": true,
+    "lab_owns_runtime_only": true,
+    "prefer_clean_ephemeral_runtime": true
+  }
+}
