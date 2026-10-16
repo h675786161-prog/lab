@@ -26,6 +26,7 @@ jobs:
         run: |
           mkdir -p "$EVIDENCE"
           cat fixtures/window-study-v23/theme-gz2/*.b64 | tr -d '\n\r' | base64 -d | gzip -dc > /tmp/window-study-v23.css
+          cat fixtures/window-study-v23/v23-override.css >> /tmp/window-study-v23.css
           test -s /tmp/window-study-v23.css
           grep -q 'Window Study v2.3' /tmp/window-study-v23.css
           echo "CSS bytes: $(wc -c < /tmp/window-study-v23.css)"
