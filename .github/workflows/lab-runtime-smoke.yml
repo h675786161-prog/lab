@@ -1,0 +1,229 @@
+name: LAB SillyTavern Runtime Smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      baseline:
+        description: SillyTavern baseline
+        required: true
+        default: stable
+        type: choice
+        options:
+          - stable
+          - legacy
+          - custom
+      custom_commit:
+        description: Exact SillyTavern commit when baseline=custom
+        required: false
+        type: string
+      viewport:
+        description: Browser viewport
+        required: true
+        default: desktop
+        type: choice
+        options:
+          - desktop
+          - tablet
+          - mobile
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ST_DIR: /tmp/lingqi-lab-sillytavern
+      BROWSER_DIR: /tmp/lingqi-lab-browser
+      EVIDENCE_DIR: ${{ github.workspace }}/lab-evidence-runtime
+
+    steps:
+      - name: Checkout LAB
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Resolve runtime baseline
+        shell: bash
+        env:
+          INPUT_BASELINE: ${{ inputs.baseline }}
+          INPUT_CUSTOM_COMMIT: ${{ inputs.custom_commit }}
+          INPUT_VIEWPORT: ${{ inputs.viewport }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$EVIDENCE_DIR"
+
+          if [ "$INPUT_BASELINE" = "custom" ]; then
+            if [ -z "$INPUT_CUSTOM_COMMIT" ]; then
+              echo 'custom_commit is required when baseline=custom' >&2
+              exit 1
+            fi
+            ST_COMMIT="$INPUT_CUSTOM_COMMIT"
+            ST_VERSION="custom"
+          else
+            ST_COMMIT="$(jq -r --arg key "$INPUT_BASELINE" '.baselines[$key].commit // empty' config/sillytavern-baselines.json)"
+            ST_VERSION="$(jq -r --arg key "$INPUT_BASELINE" '.baselines[$key].version // empty' config/sillytavern-baselines.json)"
+            if [ -z "$ST_COMMIT" ] || [ -z "$ST_VERSION" ]; then
+              echo "Unknown baseline: $INPUT_BASELINE" >&2
+              exit 1
+            fi
+          fi
+
+          case "$INPUT_VIEWPORT" in
+            desktop) VIEWPORT_WIDTH=1440; VIEWPORT_HEIGHT=1000 ;;
+            tablet)  VIEWPORT_WIDTH=1024; VIEWPORT_HEIGHT=1366 ;;
+            mobile)  VIEWPORT_WIDTH=390;  VIEWPORT_HEIGHT=844 ;;
+            *) echo "Unknown viewport: $INPUT_VIEWPORT" >&2; exit 1 ;;
+          esac
+
+          {
+            echo "ST_COMMIT=$ST_COMMIT"
+            echo "ST_VERSION=$ST_VERSION"
+            echo "VIEWPORT_WIDTH=$VIEWPORT_WIDTH"
+            echo "VIEWPORT_HEIGHT=$VIEWPORT_HEIGHT"
+          } >> "$GITHUB_ENV"
+
+          jq -n \
+            --arg baseline "$INPUT_BASELINE" \
+            --arg version "$ST_VERSION" \
+            --arg commit "$ST_COMMIT" \
+            --arg viewport "$INPUT_VIEWPORT" \
+            '{baseline:$baseline, version:$version, commit:$commit, viewport:$viewport}' \
+            > "$EVIDENCE_DIR/run-context.json"
+
+      - name: Clone exact SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$ST_DIR"
+          git clone --filter=blob:none --no-checkout https://github.com/SillyTavern/SillyTavern.git "$ST_DIR"
+          git -C "$ST_DIR" fetch origin "$ST_COMMIT" --depth=1
+          git -C "$ST_DIR" checkout --detach "$ST_COMMIT"
+          ACTUAL="$(git -C "$ST_DIR" rev-parse HEAD)"
+          test "$ACTUAL" = "$ST_COMMIT"
+          echo "$ACTUAL" > "$EVIDENCE_DIR/sillytavern-commit.txt"
+
+      - name: Install SillyTavern
+        working-directory: /tmp/lingqi-lab-sillytavern
+        run: npm ci
+
+      - name: Start clean SillyTavern
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$ST_DIR"
+          nohup node server.js --listen --port 8000 --disableCsrf > "$EVIDENCE_DIR/sillytavern.log" 2>&1 &
+          echo $! > /tmp/lingqi-lab-st.pid
+          for i in $(seq 1 90); do
+            if curl -fsS --max-time 2 http://127.0.0.1:8000/ >/dev/null 2>&1; then
+              exit 0
+            fi
+            if ! kill -0 "$(cat /tmp/lingqi-lab-st.pid)" 2>/dev/null; then
+              cat "$EVIDENCE_DIR/sillytavern.log"
+              exit 1
+            fi
+            sleep 1
+          done
+          cat "$EVIDENCE_DIR/sillytavern.log"
+          exit 1
+
+      - name: Prepare Chromium driver
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$BROWSER_DIR"
+          mkdir -p "$BROWSER_DIR"
+          cd "$BROWSER_DIR"
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright-core@1.55.0
+          CHROME_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          echo "LAB_CHROME=$CHROME_BIN" >> "$GITHUB_ENV"
+          echo "LAB_PLAYWRIGHT_ENTRY=file://$BROWSER_DIR/node_modules/playwright-core/index.mjs" >> "$GITHUB_ENV"
+
+      - name: Real browser smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs/promises';
+          import path from 'node:path';
+          const { chromium } = await import(process.env.LAB_PLAYWRIGHT_ENTRY);
+          const browser = await chromium.launch({
+            headless: true,
+            executablePath: process.env.LAB_CHROME,
+            args: ['--no-sandbox', '--disable-dev-shm-usage'],
+          });
+          const pageErrors = [];
+          const consoleErrors = [];
+          const page = await browser.newPage({
+            viewport: {
+              width: Number(process.env.VIEWPORT_WIDTH),
+              height: Number(process.env.VIEWPORT_HEIGHT),
+            },
+          });
+          page.on('pageerror', error => pageErrors.push(String(error?.stack || error)));
+          page.on('console', message => {
+            if (message.type() === 'error') consoleErrors.push(message.text());
+          });
+          let report;
+          try {
+            const response = await page.goto('http://127.0.0.1:8000/', {
+              waitUntil: 'domcontentloaded',
+              timeout: 60_000,
+            });
+            await page.waitForTimeout(2500);
+            if (!response || response.status() >= 400) {
+              throw new Error(`SillyTavern home HTTP ${response?.status()}`);
+            }
+            await page.screenshot({
+              path: path.join(process.env.EVIDENCE_DIR, 'sillytavern-home.png'),
+              fullPage: true,
+            });
+            report = {
+              result: 'pass',
+              version: process.env.ST_VERSION,
+              commit: process.env.ST_COMMIT,
+              http_status: response.status(),
+              viewport: {
+                width: Number(process.env.VIEWPORT_WIDTH),
+                height: Number(process.env.VIEWPORT_HEIGHT),
+              },
+              page_errors: pageErrors,
+              console_errors: consoleErrors,
+            };
+          } catch (error) {
+            report = {
+              result: 'fail',
+              version: process.env.ST_VERSION,
+              commit: process.env.ST_COMMIT,
+              error: String(error?.stack || error),
+              page_errors: pageErrors,
+              console_errors: consoleErrors,
+            };
+            throw error;
+          } finally {
+            await fs.writeFile(
+              path.join(process.env.EVIDENCE_DIR, 'runtime-smoke.json'),
+              JSON.stringify(report, null, 2),
+            );
+            await browser.close();
+          }
+          NODE
+
+      - name: Stop SillyTavern
+        if: always()
+        shell: bash
+        run: test ! -f /tmp/lingqi-lab-st.pid || kill "$(cat /tmp/lingqi-lab-st.pid)" 2>/dev/null || true
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab-runtime-${{ inputs.baseline }}-${{ inputs.viewport }}
+          path: lab-evidence-runtime
+          if-no-files-found: warn
