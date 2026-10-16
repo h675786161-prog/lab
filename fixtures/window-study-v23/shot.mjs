@@ -19,6 +19,7 @@ const labFix=`
   position:relative!important;
   z-index:3!important;
   overflow:visible!important;
+  padding-bottom:90px!important;
 }
 #chat .mes_text,
 #chat .mes_text>p,
@@ -59,11 +60,12 @@ const labFix=`
 }
 #chat>.mes:not([is_system='true'])>.mes_block::after{
   right:calc(var(--ws-corner-outset)*-1)!important;
-  bottom:calc(var(--ws-corner-width)*-.36)!important;
+  bottom:calc(var(--ws-corner-width)*-.16)!important;
   background:var(--ws-body-corner) center/contain no-repeat!important;
   transform:rotate(1.2deg)!important;
   transform-origin:72% 72%!important;
 }
+@media(max-width:700px){#chat>.mes>.mes_block{padding-bottom:78px!important;}}
 `;
 
 const evidence=process.env.EVIDENCE;
