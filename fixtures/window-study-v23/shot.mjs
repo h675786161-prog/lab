@@ -43,6 +43,22 @@ async function prepare(page) {
     chat.scrollTop = 0;
   });
   await page.waitForTimeout(800);
+  const probe = await page.evaluate(() => {
+    const row = document.querySelector('#chat > .mes');
+    const block = row?.querySelector('.mes_block');
+    const text = row?.querySelector('.mes_text');
+    const name = row?.querySelector('.name_text');
+    const simple = (s) => s ? ({display:s.display,visibility:s.visibility,opacity:s.opacity,color:s.color,zIndex:s.zIndex,position:s.position,width:s.width,height:s.height,top:s.top,left:s.left,right:s.right,bottom:s.bottom,backgroundImage:s.backgroundImage,content:s.content}) : null;
+    const rect = (el) => el ? ({x:el.getBoundingClientRect().x,y:el.getBoundingClientRect().y,width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height}) : null;
+    return {
+      row: rect(row), block: rect(block), text: rect(text), name: rect(name),
+      textStyle: simple(text && getComputedStyle(text)),
+      nameStyle: simple(name && getComputedStyle(name)),
+      rowAfter: simple(row && getComputedStyle(row,'::after')),
+      blockBefore: simple(block && getComputedStyle(block,'::before')),
+      textContent: text?.textContent ?? null
+    };
+  });
   return {
     status: response?.status() ?? null,
     title: await page.title(),
@@ -51,7 +67,8 @@ async function prepare(page) {
       send: !!await page.$('#send_but'),
       stop: !!await page.$('#mes_stop'),
       cont: !!await page.$('#mes_continue')
-    }
+    },
+    probe
   };
 }
 
