@@ -15,17 +15,41 @@ const labFix=`
   --ws-body-corner:url("data:image/webp;base64,${bodyCorner}");
   --ws-top-corner:url("data:image/webp;base64,${topCorner}");
 }
-#chat .mes_text{
+#chat>.mes>.mes_block{
+  position:relative!important;
+  z-index:3!important;
+  overflow:visible!important;
+}
+#chat .mes_text,
+#chat .mes_text>p,
+#chat .mes_text>ul,
+#chat .mes_text>ol,
+#chat .mes_text li{
   color:#584d5a!important;
   -webkit-text-fill-color:#584d5a!important;
   opacity:1!important;
   visibility:visible!important;
+  filter:none!important;
 }
 #chat .name_text{
+  top:calc(var(--ws-art-height)*.62 - var(--ws-head-height))!important;
   color:#69576d!important;
   -webkit-text-fill-color:#69576d!important;
   opacity:1!important;
   visibility:visible!important;
+  filter:none!important;
+}
+#chat .timestamp{
+  top:calc(var(--ws-info-top) + 7px - var(--ws-head-height))!important;
+}
+#chat>.mes:not([is_system='true'])>.mes_block::before{
+  top:-38px!important;
+  left:calc(var(--ws-corner-outset)*-1)!important;
+  z-index:1!important;
+}
+#chat>.mes:not([is_system='true'])::after{
+  z-index:2!important;
+  bottom:calc(var(--ws-corner-width)*-.34)!important;
 }
 `;
 
@@ -58,10 +82,10 @@ async function prepare(page){
   });
   await page.waitForTimeout(800);
   const probe=await page.evaluate(()=>{
-    const row=document.querySelector('#chat > .mes'); const block=row?.querySelector('.mes_block'); const text=row?.querySelector('.mes_text'); const name=row?.querySelector('.name_text');
-    const simple=s=>s?({display:s.display,visibility:s.visibility,opacity:s.opacity,color:s.color,webkitTextFillColor:s.webkitTextFillColor,zIndex:s.zIndex,position:s.position,width:s.width,height:s.height,top:s.top,left:s.left,right:s.right,bottom:s.bottom,backgroundImage:s.backgroundImage,content:s.content}):null;
+    const row=document.querySelector('#chat > .mes'); const block=row?.querySelector('.mes_block'); const text=row?.querySelector('.mes_text'); const p=text?.querySelector('p'); const name=row?.querySelector('.name_text');
+    const simple=s=>s?({display:s.display,visibility:s.visibility,opacity:s.opacity,color:s.color,webkitTextFillColor:s.webkitTextFillColor,zIndex:s.zIndex,position:s.position,width:s.width,height:s.height,top:s.top,left:s.left,right:s.right,bottom:s.bottom,backgroundImage:s.backgroundImage,content:s.content,filter:s.filter,overflow:s.overflow}):null;
     const rect=el=>el?({x:el.getBoundingClientRect().x,y:el.getBoundingClientRect().y,width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height}):null;
-    return {row:rect(row),block:rect(block),text:rect(text),name:rect(name),textStyle:simple(text&&getComputedStyle(text)),nameStyle:simple(name&&getComputedStyle(name)),rowAfter:simple(row&&getComputedStyle(row,'::after')),blockBefore:simple(block&&getComputedStyle(block,'::before')),textContent:text?.textContent??null};
+    return {row:rect(row),block:rect(block),text:rect(text),p:rect(p),name:rect(name),blockStyle:simple(block&&getComputedStyle(block)),textStyle:simple(text&&getComputedStyle(text)),pStyle:simple(p&&getComputedStyle(p)),nameStyle:simple(name&&getComputedStyle(name)),rowAfter:simple(row&&getComputedStyle(row,'::after')),blockBefore:simple(block&&getComputedStyle(block,'::before')),textContent:text?.textContent??null};
   });
   return {status:response?.status()??null,title:await page.title(),nodes:{chat:!!await page.$('#chat'),send:!!await page.$('#send_but'),stop:!!await page.$('#mes_stop'),cont:!!await page.$('#mes_continue')},probe};
 }
