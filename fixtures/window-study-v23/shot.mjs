@@ -42,30 +42,37 @@ const labFix=`
 }
 #chat .timestamp{top:calc(var(--ws-info-top) + 7px - var(--ws-head-height))!important;}
 #chat>.mes:not([is_system='true'])::after{content:none!important;}
-#chat>.mes:not([is_system='true'])>.mes_block::before,
-#chat>.mes:not([is_system='true'])>.mes_block::after{
+#chat>.mes:not([is_system='true'])>.mes_block::before{
   content:''!important;
   position:absolute!important;
-  width:var(--ws-corner-width)!important;
-  aspect-ratio:3/2!important;
-  pointer-events:none!important;
-  z-index:1!important;
-}
-#chat>.mes:not([is_system='true'])>.mes_block::before{
   top:calc(var(--ws-corner-width)*-.53)!important;
   left:calc(var(--ws-corner-outset)*-1)!important;
+  width:var(--ws-corner-width)!important;
+  aspect-ratio:3/2!important;
   background:var(--ws-top-corner) center/contain no-repeat!important;
+  pointer-events:none!important;
+  z-index:1!important;
   transform:rotate(-1.2deg)!important;
   transform-origin:28% 28%!important;
 }
-#chat>.mes:not([is_system='true'])>.mes_block::after{
-  right:calc(var(--ws-corner-outset)*-1)!important;
-  bottom:calc(var(--ws-corner-width)*-.16)!important;
+#chat>.mes:not([is_system='true'])>.mes_block::after{content:none!important;}
+#chat>.mes:not([is_system='true']) .mes_text::before{
+  content:''!important;
+  position:absolute!important;
+  top:calc(100% - 38px)!important;
+  right:calc((var(--ws-corner-outset) + 24px)*-1)!important;
+  width:var(--ws-corner-width)!important;
+  aspect-ratio:3/2!important;
   background:var(--ws-body-corner) center/contain no-repeat!important;
+  pointer-events:none!important;
+  z-index:1!important;
   transform:rotate(1.2deg)!important;
   transform-origin:72% 72%!important;
 }
-@media(max-width:700px){#chat>.mes>.mes_block{padding-bottom:78px!important;}}
+@media(max-width:700px){
+  #chat>.mes>.mes_block{padding-bottom:78px!important;}
+  #chat>.mes:not([is_system='true']) .mes_text::before{top:calc(100% - 28px)!important;right:-20px!important;}
+}
 `;
 
 const evidence=process.env.EVIDENCE;
@@ -100,7 +107,7 @@ async function prepare(page){
     const row=document.querySelector('#chat > .mes'); const block=row?.querySelector('.mes_block'); const text=row?.querySelector('.mes_text'); const p=text?.querySelector('p'); const name=row?.querySelector('.name_text');
     const simple=s=>s?({display:s.display,visibility:s.visibility,opacity:s.opacity,color:s.color,webkitTextFillColor:s.webkitTextFillColor,zIndex:s.zIndex,position:s.position,width:s.width,height:s.height,top:s.top,left:s.left,right:s.right,bottom:s.bottom,backgroundImage:s.backgroundImage,content:s.content,filter:s.filter,overflow:s.overflow,fontFamily:s.fontFamily,fontSize:s.fontSize,textIndent:s.textIndent,contentVisibility:s.contentVisibility,clipPath:s.clipPath,maskImage:s.maskImage}):null;
     const rect=el=>el?({x:el.getBoundingClientRect().x,y:el.getBoundingClientRect().y,width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height}):null;
-    return {row:rect(row),block:rect(block),text:rect(text),p:rect(p),name:rect(name),blockStyle:simple(block&&getComputedStyle(block)),textStyle:simple(text&&getComputedStyle(text)),pStyle:simple(p&&getComputedStyle(p)),nameStyle:simple(name&&getComputedStyle(name)),rowAfter:simple(row&&getComputedStyle(row,'::after')),blockBefore:simple(block&&getComputedStyle(block,'::before')),blockAfter:simple(block&&getComputedStyle(block,'::after')),textContent:text?.textContent??null};
+    return {row:rect(row),block:rect(block),text:rect(text),p:rect(p),name:rect(name),blockStyle:simple(block&&getComputedStyle(block)),textStyle:simple(text&&getComputedStyle(text)),pStyle:simple(p&&getComputedStyle(p)),nameStyle:simple(name&&getComputedStyle(name)),rowAfter:simple(row&&getComputedStyle(row,'::after')),blockBefore:simple(block&&getComputedStyle(block,'::before')),blockAfter:simple(block&&getComputedStyle(block,'::after')),textBefore:simple(text&&getComputedStyle(text,'::before')),textContent:text?.textContent??null};
   });
   return {status:response?.status()??null,title:await page.title(),nodes:{chat:!!await page.$('#chat'),send:!!await page.$('#send_but'),stop:!!await page.$('#mes_stop'),cont:!!await page.$('#mes_continue')},probe};
 }
