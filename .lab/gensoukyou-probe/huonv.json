@@ -1,0 +1,7 @@
+{
+  "project": "huonv",
+  "purpose": "probe Gensoukyou login gate and discover safe UI/API metadata before behavioral testing",
+  "card_branch": "feature/huonv-card-real2",
+  "card_path": "cards/huonv/霍女_玲七_v1.0.0.json",
+  "probe_revision": 2
+}
