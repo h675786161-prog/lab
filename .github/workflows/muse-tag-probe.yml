@@ -1,0 +1,59 @@
+name: Muse 11-Vol Tag Compatibility (LAB draft)
+
+on:
+  push:
+    branches:
+      - feature/muse-tag-probe-20261020
+    paths:
+      - '.lab/muse-tag-probe.mjs'
+      - '.github/workflows/muse-tag-probe.yml'
+  workflow_dispatch:
+    inputs:
+      live:
+        description: 'Use up to three real Muse requests? Default NO. Ensure no simultaneous Tavern use.'
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: isolated-muse-tag-probe
+  cancel-in-progress: false
+
+jobs:
+  tag-validation:
+    name: Test three formats (offline by default)
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check 11-Vol structural validator without calling Muse
+        run: node .lab/muse-tag-probe.mjs --offline
+      - name: Live Muse probe (explicit opt-in only)
+        if: github.event_name == 'workflow_dispatch' && inputs.live == true
+        env:
+          MUSE_API_KEY: ${{ secrets.MUSE_API_KEY }}
+          MUSE_API_BASE: ${{ vars.MUSE_API_BASE }}
+          MUSE_MODEL: ${{ vars.MUSE_MODEL }}
+          MUSE_LIVE_CONSENT: '1'
+        run: node .lab/muse-tag-probe.mjs --live
+      - name: Upload evidence (never raw model output)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: muse-tags-format-evidence
+          path: lab-evidence-muse/
+          if-no-files-found: warn
+
+  real-lab-runtime:
+    name: Actual SillyTavern 1.19 browser smoke (no Muse requests)
+    uses: h675786161-prog/lab/.github/workflows/real-sillytavern.yml@main
+    with:
+      sillytavern_commit: 7e8663cd9c184a550b37238218bdd32c6efc68e9
+      artifact_name: muse-lab-isolated-runtime
+      run_project_smoke: false
